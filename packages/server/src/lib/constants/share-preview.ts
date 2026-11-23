@@ -16,3 +16,13 @@ export const SHARE_PREVIEW_UNAVAILABLE_TITLE = "Shared link unavailable";
 export const SHARE_PREVIEW_UNAVAILABLE_DESCRIPTION =
   "This shared link has expired or was turned off. Ask the owner for a new link.";
 export const SHARE_PREVIEW_DESCRIPTION_SEPARATOR = " · ";
+export const SHARE_PREVIEW_COLLECTION_EYEBROW = "Shared collection";
+export const SHARE_PREVIEW_STORAGE_EYEBROW = "Storage box";
+export const SHARE_PREVIEW_TRADE_EYEBROW = "Trade link";
+export const SHARE_PREVIEW_SHOP_EYEBROW = "Card shop";
+export const SHARE_PREVIEW_CARD_EYEBROW = "Shared card";
+export const SHARE_PREVIEW_IMAGE_TYPE = "image/jpeg";
+export const SHARE_PREVIEW_JSON_LD_LANGUAGE = "en";
+export const SHARE_PREVIEW_SHARED_ON_SITE = "Shared on Mault";
+export const SHARE_PREVIEW_TRADE_STAT = "Open to trade offers";
+export const SHARE_PREVIEW_FOIL_STAT = "Foil";

@@ -333,6 +333,9 @@ importers:
       onnxruntime-node:
         specifier: 1.31.1
         version: 1.31.1
+      opentype.js:
+        specifier: 1.3.4
+        version: 1.3.4
       own-auth:
         specifier: ^0.3.12
         version: 0.3.12(react@19.3.0)
@@ -364,6 +367,9 @@ importers:
       '@types/node':
         specifier: ^26
         version: 26.6.5
+      '@types/opentype.js':
+        specifier: 1.3.8
+        version: 1.3.8
       '@types/pg':
         specifier: ^8.15.6
         version: 8.16.0
@@ -5348,6 +5354,9 @@ packages:
   '@types/node@26.6.5':
     resolution: {integrity: sha512-uMzsv9stDdofIZBx4UGh4Z9ZgXnGC9seRDscilBcTHAeOFk67MZg/k9bWVfO+bk4qZmG+l52hRnLwUiH2LnJTg==}
 
+  '@types/opentype.js@1.3.8':
+    resolution: {integrity: sha512-H6qeTp03jrknklSn4bpT1/9+1xCAEIU2CnjcWPkicJy8A1SKuthanbvoHYMiv79/2W3Xn1XE4gfSJFzt2U3JSw==}
+
   '@types/pg@8.16.0':
     resolution: {integrity: sha512-RmhMd/wD+CF8Dfo+cVIy3RR5cl8CyfXQ0tGgW6XBL8L4LM/UTEbNXYRbLwU6w+CgrKBNbrQWt4FUtTfaU5jSYQ==}
 
@@ -9147,6 +9156,11 @@ packages:
     resolution: {integrity: sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ==}
     engines: {node: '>=12'}
 
+  opentype.js@1.3.4:
+    resolution: {integrity: sha512-d2JE9RP/6uagpQAVtJoF0pJJA/fgai89Cc50Yp0EJHk+eLp6QQ7gBoblsnubRULNY132I0J1QKMJ+JTbMqz4sw==}
+    engines: {node: '>= 8.0.0'}
+    hasBin: true
+
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
@@ -10395,6 +10409,9 @@ packages:
     resolution: {integrity: sha512-tsaTIkKW9b4N+AEj+SVA+WhJzV7/zMhcSu78mLKWSk7cXMOSHsBKFWUs0fWwq8QyK3MgJBQRX6Gbi4kYbdvGkQ==}
     engines: {node: '>=18'}
 
+  string.prototype.codepointat@0.2.1:
+    resolution: {integrity: sha512-2cBVCj6I4IOvEnjgO/hWqXjqBGsY+zwPmHl12Srk9IXSZ56Jwwmy+66XO5Iut/oQVR7t5ihYdLB0GMa4alEUcg==}
+
   string.prototype.includes@2.0.1:
     resolution: {integrity: sha512-o7+c9bW6zpAdJHTtujeePODAhkuicdAryFsfVKwA+wGw89wJ4GTY484WTucM9hLtDEOpOvI+aHnzqnC5lHp4Rg==}
     engines: {node: '>= 0.4'}
@@ -10653,6 +10670,9 @@ packages:
 
   tiny-async-pool@1.3.0:
     resolution: {integrity: sha512-01EAw5EDrcVrdgyCLgoSPvqznC0sVxDSVeiOz09FUpjh71G79VCqneOr+xvt7T1r76CF6ZZfPjHorN2+d+3mqA==}
+
+  tiny-inflate@1.0.3:
+    resolution: {integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==}
 
   tiny-invariant@1.3.3:
     resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
@@ -11574,9 +11594,9 @@ snapshots:
       - '@vue/test-utils'
       - zod
 
-  '@apideck/better-ajv-errors@0.3.7(ajv@8.18.0)':
+  '@apideck/better-ajv-errors@0.3.7(ajv@8.20.0)':
     dependencies:
-      ajv: 8.18.0
+      ajv: 8.20.0
       jsonpointer: 5.0.1
       leven: 3.1.0
 
@@ -15696,7 +15716,7 @@ snapshots:
       react-refresh: 0.18.0
       remotion: 4.0.545(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       style-loader: 4.0.0(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.29))
-      webpack: 5.105.0(postcss@8.5.29)
+      webpack: 5.105.0(esbuild@0.28.1)(postcss@8.5.29)
     transitivePeerDependencies:
       - '@minify-html/node'
       - '@module-federation/runtime-tools'
@@ -17024,6 +17044,8 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
+  '@types/opentype.js@1.3.8': {}
+
   '@types/pg@8.16.0':
     dependencies:
       '@types/node': 26.6.5
@@ -18273,7 +18295,7 @@ snapshots:
       semver: 7.8.5
     optionalDependencies:
       '@rspack/core': 2.3.0
-      webpack: 5.105.0(postcss@8.5.29)
+      webpack: 5.105.0(esbuild@0.28.1)(postcss@8.5.29)
 
   css-select@5.2.2:
     dependencies:
@@ -21456,6 +21478,11 @@ snapshots:
       is-docker: 2.2.1
       is-wsl: 2.2.0
 
+  opentype.js@1.3.4:
+    dependencies:
+      string.prototype.codepointat: 0.2.1
+      tiny-inflate: 1.0.3
+
   optionator@0.9.4:
     dependencies:
       deep-is: 0.1.4
@@ -22572,14 +22599,14 @@ snapshots:
       webpack: 5.105.0(esbuild@0.27.3)(postcss@8.5.29)
     optional: true
 
-  schema-utils@4.8.5(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.29)):
+  schema-utils@4.8.5(webpack@5.105.0(postcss@8.5.29)):
     dependencies:
       '@types/json-schema': 7.0.15
       ajv: 8.20.0
       ajv-formats: 3.0.1(ajv@8.20.0)
       ajv-keywords: 5.1.0(ajv@8.20.0)
     optionalDependencies:
-      webpack: 5.105.0(postcss@8.5.29)
+      webpack: 5.105.0(esbuild@0.28.1)(postcss@8.5.29)
 
   scroll@3.0.1: {}
 
@@ -22969,6 +22996,8 @@ snapshots:
       get-east-asian-width: 1.5.0
       strip-ansi: 7.1.2
 
+  string.prototype.codepointat@0.2.1: {}
+
   string.prototype.includes@2.0.1:
     dependencies:
       call-bind: 1.0.9
@@ -23072,7 +23101,7 @@ snapshots:
 
   style-loader@4.0.0(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.29)):
     dependencies:
-      webpack: 5.105.0(postcss@8.5.29)
+      webpack: 5.105.0(esbuild@0.28.1)(postcss@8.5.29)
 
   style-mod@4.1.4: {}
 
@@ -23187,13 +23216,13 @@ snapshots:
       postcss: 8.5.29
     optional: true
 
-  terser-webpack-plugin@5.6.1(esbuild@0.28.1)(postcss@8.5.29)(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.29)):
+  terser-webpack-plugin@5.6.1(esbuild@0.28.1)(postcss@8.5.29)(webpack@5.105.0(postcss@8.5.29)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
-      schema-utils: 4.8.5(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.29))
+      schema-utils: 4.8.5(webpack@5.105.0(postcss@8.5.29))
       terser: 5.51.2
-      webpack: 5.105.0(postcss@8.5.29)
+      webpack: 5.105.0(esbuild@0.28.1)(postcss@8.5.29)
     optionalDependencies:
       esbuild: 0.28.1
       postcss: 8.5.29
@@ -23220,6 +23249,8 @@ snapshots:
   tiny-async-pool@1.3.0:
     dependencies:
       semver: 5.7.2
+
+  tiny-inflate@1.0.3: {}
 
   tiny-invariant@1.3.3: {}
 
@@ -23837,7 +23868,7 @@ snapshots:
       - uglify-js
     optional: true
 
-  webpack@5.105.0(postcss@8.5.29):
+  webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.29):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -23859,9 +23890,9 @@ snapshots:
       loader-runner: 4.3.2
       mime-types: 2.1.35
       neo-async: 2.6.2
-      schema-utils: 4.8.5(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.29))
+      schema-utils: 4.8.5(webpack@5.105.0(postcss@8.5.29))
       tapable: 2.3.0
-      terser-webpack-plugin: 5.6.1(esbuild@0.28.1)(postcss@8.5.29)(webpack@5.105.0(esbuild@0.28.1)(postcss@8.5.29))
+      terser-webpack-plugin: 5.6.1(esbuild@0.28.1)(postcss@8.5.29)(webpack@5.105.0(postcss@8.5.29))
       watchpack: 2.6.4
       webpack-sources: 3.7.1
     transitivePeerDependencies:
@@ -23970,7 +24001,7 @@ snapshots:
 
   workbox-build@7.4.1(@types/babel__core@7.20.5):
     dependencies:
-      '@apideck/better-ajv-errors': 0.3.7(ajv@8.18.0)
+      '@apideck/better-ajv-errors': 0.3.7(ajv@8.20.0)
       '@babel/core': 7.29.0
       '@babel/preset-env': 7.29.7(@babel/core@7.29.0)
       '@babel/runtime': 7.29.7
@@ -23979,7 +24010,7 @@ snapshots:
       '@rollup/plugin-replace': 6.0.3(rollup@4.59.0)
       '@rollup/plugin-terser': 1.0.0(rollup@4.59.0)
       '@trickfilm400/rollup-plugin-off-main-thread': 3.0.0-pre1
-      ajv: 8.18.0
+      ajv: 8.20.0
       common-tags: 1.8.2
       eta: 4.6.0
       fast-json-stable-stringify: 2.1.0

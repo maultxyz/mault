@@ -1,0 +1,37 @@
+# Mault
+
+> Mault is an open-source automated trading card sorter and scanner made by Mault LLC. A 3D printed machine feeds cards past a camera, the Mault app identifies each card from its image (with text recognition as a backup), and servos drop it into the bin your rules choose. The app then tracks where every card is stored and what the collection is worth.
+
+Mault supports Magic: The Gathering, Pokémon (English and Japanese), Yu-Gi-Oh!, Disney Lorcana, One Piece Card Game, Flesh and Blood, Star Wars: Unlimited, Digimon Card Game, Gundam Card Game, Grand Archive, Sorcery: Contested Realm and Riftbound.
+
+Key facts:
+
+- Sorting: bin rules on any card field (color, rarity, set, type, price and more), plus alphabetical, chaos and sort-by-game presets.
+- Hand scanning: the iOS and Android apps scan cards with the phone camera, with or without a sorter.
+- Collection tracking: card counts, value with daily history, cost basis, storage boxes with each card's position, CSV import and export.
+- Buying and selling: intake of collections over the counter, shop catalogs, trade links, reservations and pick lists (Business plan).
+- Pricing: a free plan for casual sorting; paid Enthusiast and Business plans raise limits and add features.
+- Hosting: hosted at mault.xyz, or self-hosted with Docker Compose, Coolify or on a Raspberry Pi.
+- Hardware: an ESP32-S3 or Arduino Uno R4 board, a PCA9685 servo driver, SG90 servos and IR sensors in 3D printed modules. Kits are sold at shop.mault.xyz.
+- Open source: the web app, API, mobile app, firmware and 3D model are in one GitHub repository.
+
+## Guides
+
+- [Home](https://mault.xyz/): what Mault does, supported games, features and pricing
+- [Build guide](https://mault.xyz/build): bill of materials, wiring diagrams, 3D printed parts, firmware and step-by-step assembly of the sorting machine
+- [Self-hosting guide](https://mault.xyz/self-host): running Mault with Docker Compose, Coolify or on a Raspberry Pi or Linux host
+- [Discord bot](https://mault.xyz/discord-bot): posting sorted cards, sorter alerts and collection stats to a Discord server
+- [Desktop app](https://mault.xyz/download): the Windows and Linux app that keeps scanning in the background
+
+## Source and community
+
+- [GitHub repository](https://github.com/maultxyz/mault): source code, releases, firmware and the 3D model
+- [Public API documentation](https://github.com/maultxyz/mault/blob/master/docs/public-api.md): the Scryfall-style REST API for collections and cards
+- [3D print files on MakerWorld](https://makerworld.com/en/models/3066180-tcg-card-sorting-machine)
+- [Discord community](https://discord.gg/fYvw5PcvGg)
+
+## Legal
+
+- [Privacy Policy](https://mault.xyz/privacy)
+- [Terms of Service](https://mault.xyz/terms)
+- Contact: support@mault.xyz
