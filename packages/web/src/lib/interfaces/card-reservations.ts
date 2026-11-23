@@ -150,3 +150,8 @@ export interface GuestReservationRequestHeaderProps {
   onCancelAll: () => void;
   actions?: ReactNode;
 }
+
+export interface ReservationRequestsTraySectionProps {
+  groups: CardReservationRequestGroup[];
+  onNavigate: () => void;
+}

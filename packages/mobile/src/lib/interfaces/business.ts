@@ -215,3 +215,8 @@ export interface BusinessTipsState {
   open: () => void;
   close: () => void;
 }
+
+export interface ReservationRequestsAlertsProps {
+  groups: CardReservationRequestGroup[];
+  onOpenReservations: () => void;
+}

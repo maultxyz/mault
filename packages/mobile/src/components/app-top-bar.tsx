@@ -9,6 +9,8 @@ import { BrandIcon } from "@/components/ui/brand-icon";
 import { useAppAlerts } from "@/features/stream/api/use-app-alerts";
 import { pendingTradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { AlertsSheet } from "@/features/stream/components/alerts-sheet";
+import { useReservationRequestsToPull } from "@/features/business/api/use-reservation-requests-to-pull";
+import { BUSINESS_RESERVATIONS_VIEW } from "@/lib/constants/business";
 import { myCardReservationsQueryOptions } from "@/features/card-reservations/api/my-card-reservations";
 import { useSession } from "@/lib/auth/session";
 import { ValidateMatchesTopBarButton } from "@/features/match-validations/components/validate-matches-top-bar-button";
@@ -39,7 +41,9 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
   const userId = useSession().user?.id ?? null;
   const { data: myReservations = [] } = useQuery(myCardReservationsQueryOptions(userId));
   const reservationAlerts = myReservations.filter((reservation) => reservation.guestAlert !== null);
-  const notificationCount = alerts.length + tradeOffers.length + reservationAlerts.length;
+  const reservationRequestsToPull = useReservationRequestsToPull();
+  const notificationCount =
+    alerts.length + tradeOffers.length + reservationRequestsToPull.length + reservationAlerts.length;
   const [openSheet, setOpenSheet] = useState<AppTopBarSheet | null>(null);
   const closeSheet = () => setOpenSheet(null);
   const openNotificationsFromLink = useGlobalSearchParams()[OPEN_NOTIFICATIONS_LINK_PARAM];
@@ -117,6 +121,11 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
         alerts={alerts}
         tradeOffers={tradeOffers}
         reservationAlerts={reservationAlerts}
+        reservationRequestsToPull={reservationRequestsToPull}
+        onOpenReservationRequests={() => {
+          closeSheet();
+          router.push({ pathname: "/business", params: { view: BUSINESS_RESERVATIONS_VIEW } });
+        }}
         onOpenReservations={() => {
           closeSheet();
           router.navigate({ pathname: "/collections", params: { view: "trades", box: "reservations" } });

@@ -4470,7 +4470,11 @@
       "pickCreated_one": "Pickliste für {{name}} mit 1 Karte erstellt",
       "pickCreated_other": "Pickliste für {{name}} mit {{count}} Karten erstellt",
       "cardCount_one": "1 Karte",
-      "cardCount_other": "{{count}} Karten"
+      "cardCount_other": "{{count}} Karten",
+      "trayHeading": "Reservierungen",
+      "trayToPull_one": "{{name}} hat {{count}} Karte reserviert, die bereitgelegt werden muss",
+      "trayToPull_other": "{{name}} hat {{count}} Karten reserviert, die bereitgelegt werden müssen",
+      "trayReview": "Ansehen"
     },
     "filters": {
       "status": "Status",

@@ -4470,7 +4470,11 @@
       "pickCreated_one": "Préparation créée pour {{name}} avec 1 carte",
       "pickCreated_other": "Préparation créée pour {{name}} avec {{count}} cartes",
       "cardCount_one": "1 carte",
-      "cardCount_other": "{{count}} cartes"
+      "cardCount_other": "{{count}} cartes",
+      "trayHeading": "Réservations",
+      "trayToPull_one": "{{name}} a réservé {{count}} carte à sortir",
+      "trayToPull_other": "{{name}} a réservé {{count}} cartes à sortir",
+      "trayReview": "Voir"
     },
     "filters": {
       "status": "Statut",

@@ -758,7 +758,11 @@
   },
   "reservations": {
     "newReservationToast_one": "{{name}} hat {{card}} reserviert",
-    "newReservationToast_other": "{{name}} hat {{count}} Karten reserviert"
+    "newReservationToast_other": "{{name}} hat {{count}} Karten reserviert",
+    "trayHeading": "Reservierungen",
+    "trayToPull_one": "{{name}} hat {{count}} Karte reserviert, die bereitgelegt werden muss",
+    "trayToPull_other": "{{name}} hat {{count}} Karten reserviert, die bereitgelegt werden müssen",
+    "trayReview": "Ansehen"
   },
   "myReservations": {
     "new": "Neu",
