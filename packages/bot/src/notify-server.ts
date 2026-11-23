@@ -57,7 +57,8 @@ async function compositeSideBySide(
   const proxyUrl = `${SERVER_URL}/cards/image-proxy?url=${encodeURIComponent(secondaryUrl)}`;
   const secondaryRes = await fetch(proxyUrl);
   if (!secondaryRes.ok) {
-    throw new Error(`Failed to fetch reference image: ${secondaryRes.status}`);
+    const failure = (await secondaryRes.json().catch(() => null)) as { message?: string } | null;
+    throw new Error(failure?.message ?? `image proxy answered ${secondaryRes.status}`);
   }
   const secondaryRaw = Buffer.from(await secondaryRes.arrayBuffer());
 
@@ -196,9 +197,8 @@ export function startNotifyServer(client: Client) {
           try {
             buffer = await compositeSideBySide(buffer, body.secondaryImageUrl);
           } catch (err) {
-            console.error(
-              "[bot] Failed to composite reference image, using captured photo only:",
-              err,
+            console.warn(
+              `[bot] Posting the scan photo without its reference image (${body.secondaryImageUrl}): ${err instanceof Error ? err.message : String(err)}`,
             );
           }
         }

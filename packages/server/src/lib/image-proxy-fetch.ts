@@ -3,7 +3,7 @@ import {
   IMAGE_PROXY_MAX_BYTES,
   IMAGE_PROXY_MAX_REDIRECTS,
 } from "./constants/urls";
-import type { ProxiedImage } from "./interfaces/image-proxy";
+import type { ProxiedImage, ProxiedImageFailure } from "./interfaces/image-proxy";
 
 async function readBodyUpTo(
   response: Response,
@@ -40,10 +40,12 @@ async function readBodyUpTo(
 export async function fetchProxiedImage(
   url: string,
   isAllowedUrl: (url: URL) => boolean,
-): Promise<ProxiedImage | null> {
+): Promise<ProxiedImage | ProxiedImageFailure> {
   let currentUrl = new URL(url);
   for (let redirects = 0; redirects <= IMAGE_PROXY_MAX_REDIRECTS; redirects++) {
-    if (!isAllowedUrl(currentUrl)) return null;
+    if (!isAllowedUrl(currentUrl)) {
+      return { failureReason: `redirected to a host that is not allowed (${currentUrl.hostname})` };
+    }
     const upstream = await fetch(currentUrl.toString(), {
       headers: { "User-Agent": CARD_API_USER_AGENT, Accept: "image/*" },
       redirect: "manual",
@@ -55,16 +57,18 @@ export async function fetchProxiedImage(
       continue;
     }
     const contentType = upstream.headers.get("content-type") ?? "";
-    if (
-      !upstream.ok ||
-      !contentType.startsWith("image/") ||
-      contentType.startsWith("image/svg")
-    ) {
+    if (!upstream.ok) {
       await upstream.body?.cancel();
-      return null;
+      return { failureReason: `upstream answered ${upstream.status}` };
+    }
+    if (!contentType.startsWith("image/") || contentType.startsWith("image/svg")) {
+      await upstream.body?.cancel();
+      return { failureReason: `upstream sent ${contentType || "no content type"}, not an image` };
     }
     const body = await readBodyUpTo(upstream, IMAGE_PROXY_MAX_BYTES);
-    return body ? { body, contentType } : null;
+    return body
+      ? { body, contentType }
+      : { failureReason: `image is larger than ${IMAGE_PROXY_MAX_BYTES} bytes` };
   }
-  return null;
+  return { failureReason: `more than ${IMAGE_PROXY_MAX_REDIRECTS} redirects` };
 }
