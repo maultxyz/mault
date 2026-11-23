@@ -1,7 +1,7 @@
 import { Field, FieldContent, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import { useStatusMessageSettings } from "@/features/status-messages/api/status-messages";
-import { ACCOUNT_PATH } from "@/lib/constants/nav";
+import { ACCOUNT_SETTINGS_PATH } from "@/lib/constants/nav";
 import type { StatusMessagesSwitchProps } from "@/lib/interfaces/status-messages";
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,7 +25,7 @@ export function StatusMessagesSwitch({ kind }: StatusMessagesSwitchProps) {
           ) : (
             <>
               {t("statusMessages.linkDiscord")}{" "}
-              <Link to={ACCOUNT_PATH} className="underline underline-offset-2">
+              <Link to={ACCOUNT_SETTINGS_PATH} className="underline underline-offset-2">
                 {t("statusMessages.openAccount")}
               </Link>
             </>

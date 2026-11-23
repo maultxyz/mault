@@ -1,10 +1,8 @@
-import type {
-  CardReservationCard,
-  CardReservationGuestAlert,
-  StatusMessageKind,
-  StatusMessageSettings,
-  StatusMessageSettingsUpdate,
-  TradeOfferStatus,
+import {
+  cardReservationQueuePositions,
+  type StatusMessageKind,
+  type StatusMessageSettings,
+  type StatusMessageSettingsUpdate,
 } from "@magic-vault/shared";
 import { eq, sql } from "drizzle-orm";
 import { db } from "../db";
@@ -17,9 +15,13 @@ import {
 } from "./customer-status-message-embeds";
 import { isDiscordBotConfigured, sendDiscordDirectMessage } from "./discord/direct-messages";
 import { loadDiscordUserLink } from "./discord/user-links";
+import { cardReservationQueuesByCard } from "./card-reservation-settlement";
+import { loadActiveCardReservationRows } from "./card-reservations";
 import type {
-  ClaimedReservationStatusMessage,
-  ClaimedTradeOfferStatusMessage,
+  ReservationMessageRow,
+  ReservationStatusMessage,
+  TradeOfferMessageRow,
+  TradeOfferStatusMessage,
 } from "./interfaces/customer-status-messages";
 
 const scheduledDispatches = new Map<string, ReturnType<typeof setTimeout>>();
@@ -74,17 +76,90 @@ export async function updateStatusMessageSettings(
     });
 }
 
-async function claimReservationStatusMessages(
-  orgId: string,
-): Promise<ClaimedReservationStatusMessage[]> {
-  const claimed = await db.execute<{
-    discord_user_id: string;
-    catalog_name: string | null;
-    card: CardReservationCard;
-    guest_alert: CardReservationGuestAlert;
-    hold_expires_at_epoch: number | null;
-  }>(sql`
-    WITH claimed AS (
+function epochToDate(epoch: number | null): Date | null {
+  return epoch === null ? null : new Date(Number(epoch) * 1000);
+}
+
+async function queuePositionsOf(orgId: string): Promise<Map<number, number>> {
+  const queues = await db.transaction(async (tx) =>
+    cardReservationQueuesByCard(await loadActiveCardReservationRows(tx, orgId)),
+  );
+  const positions = new Map<number, number>();
+  for (const queue of queues.values()) {
+    for (const [id, position] of cardReservationQueuePositions(queue)) positions.set(id, position);
+  }
+  return positions;
+}
+
+function toReservationMessages(
+  rows: ReservationMessageRow[],
+  event: ReservationStatusMessage["event"],
+  queuePositions: Map<number, number>,
+): ReservationStatusMessage[] {
+  const messages = new Map<string, ReservationStatusMessage>();
+  for (const row of rows) {
+    const key = `${row.discord_user_id}\u0000${row.request_guid}`;
+    const message = messages.get(key) ?? {
+      discordUserId: row.discord_user_id,
+      event,
+      catalogName: row.catalog_name,
+      requestGuid: row.request_guid,
+      cards: [],
+    };
+    message.cards.push({
+      card: row.card,
+      guestAlert: event === "changed" ? row.guest_alert : null,
+      holdExpiresAt: row.status === "ready" ? epochToDate(row.hold_expires_at_epoch) : null,
+      queuePosition:
+        row.status === "waiting" ? (queuePositions.get(row.reservation_id) ?? null) : null,
+    });
+    messages.set(key, message);
+  }
+  return [...messages.values()];
+}
+
+function toTradeOfferMessage(
+  row: TradeOfferMessageRow,
+  event: TradeOfferStatusMessage["event"],
+): TradeOfferStatusMessage {
+  return {
+    discordUserId: row.discord_user_id,
+    event,
+    offerGuid: row.guid,
+    sentToName: row.sent_to_name,
+    wanted: row.wanted_cards ?? [],
+    offered: row.offered_cards ?? [],
+    offeredCash:
+      row.offered_cash_amount != null && row.offered_cash_currency
+        ? { amount: Number(row.offered_cash_amount), currency: row.offered_cash_currency }
+        : null,
+    happenedAt: epochToDate(row.happened_at_epoch) ?? new Date(),
+  };
+}
+
+const RESERVATION_MESSAGE_COLUMNS = sql`
+  messaged.discord_user_id, messaged.request_guid, catalog.name AS catalog_name,
+  messaged.collection_card_id, messaged.id AS reservation_id, messaged.card,
+  messaged.guest_alert, messaged.status,
+  extract(epoch FROM messaged.hold_expires_at)::float8 AS hold_expires_at_epoch`;
+
+const TRADE_OFFER_MESSAGE_COLUMNS = sql`
+  messaged.discord_user_id, messaged.guid, messaged.status,
+  COALESCE(collection.name, location.name) AS sent_to_name,
+  messaged.wanted_cards, messaged.offered_cards,
+  messaged.offered_cash_amount, messaged.offered_cash_currency`;
+
+const TRADE_OFFER_SENT_TO_JOINS = sql`
+  LEFT JOIN collections collection
+    ON collection.id = messaged.collection_id AND collection.org_id = messaged.org_id
+      AND collection.is_deleted = false
+  LEFT JOIN storage_locations location
+    ON location.id = messaged.storage_location_id AND location.org_id = messaged.org_id
+      AND location.is_deleted = false`;
+
+async function claimReservationStatusMessages(orgId: string): Promise<ReservationStatusMessage[]> {
+  const claimed = await db.execute<ReservationMessageRow>(sql`
+    WITH messaged AS (
       UPDATE card_reservations reservation
       SET guest_alert_messaged_at = reservation.guest_alert_at
       FROM customer_status_messages settings, discord_user_links discord_link
@@ -98,37 +173,21 @@ async function claimReservationStatusMessages(
         AND discord_link.user_id = reservation.guest_user_id
         AND discord_link.discord_user_id IS NOT NULL
         AND discord_link.linked_at IS NOT NULL
-      RETURNING reservation.id, reservation.shop_catalog_id, reservation.card,
-        reservation.guest_alert, reservation.hold_expires_at, discord_link.discord_user_id
+      RETURNING reservation.*, discord_link.discord_user_id
     )
-    SELECT claimed.discord_user_id, catalog.name AS catalog_name, claimed.card,
-      claimed.guest_alert, extract(epoch FROM claimed.hold_expires_at)::float8 AS hold_expires_at_epoch
-    FROM claimed
+    SELECT ${RESERVATION_MESSAGE_COLUMNS}
+    FROM messaged
     LEFT JOIN shop_catalogs catalog
-      ON catalog.id = claimed.shop_catalog_id AND catalog.is_deleted = false
-    ORDER BY claimed.id
+      ON catalog.id = messaged.shop_catalog_id AND catalog.is_deleted = false
+    ORDER BY messaged.id
   `);
-  return claimed.rows.map((row) => ({
-    discordUserId: row.discord_user_id,
-    catalogName: row.catalog_name,
-    card: row.card,
-    guestAlert: row.guest_alert,
-    holdExpiresAt:
-      row.hold_expires_at_epoch === null ? null : new Date(Number(row.hold_expires_at_epoch) * 1000),
-  }));
+  if (claimed.rows.length === 0) return [];
+  return toReservationMessages(claimed.rows, "changed", await queuePositionsOf(orgId));
 }
 
-async function claimTradeOfferStatusMessages(
-  orgId: string,
-): Promise<ClaimedTradeOfferStatusMessage[]> {
-  const claimed = await db.execute<{
-    discord_user_id: string;
-    status: TradeOfferStatus;
-    sent_to_name: string | null;
-    wanted_count: number;
-    responded_at_epoch: number;
-  }>(sql`
-    WITH claimed AS (
+async function claimTradeOfferStatusMessages(orgId: string): Promise<TradeOfferStatusMessage[]> {
+  const claimed = await db.execute<TradeOfferMessageRow>(sql`
+    WITH messaged AS (
       UPDATE trade_offers offer
       SET status_messaged_at = offer.responded_at
       FROM customer_status_messages settings, discord_user_links discord_link
@@ -143,48 +202,103 @@ async function claimTradeOfferStatusMessages(
         AND discord_link.user_id = offer.guest_user_id
         AND discord_link.discord_user_id IS NOT NULL
         AND discord_link.linked_at IS NOT NULL
-      RETURNING offer.id, offer.status, offer.collection_id, offer.storage_location_id,
-        offer.wanted_cards, offer.responded_at, offer.org_id, discord_link.discord_user_id
+      RETURNING offer.*, discord_link.discord_user_id
     )
-    SELECT claimed.discord_user_id, claimed.status,
-      COALESCE(collection.name, location.name) AS sent_to_name,
-      COALESCE(jsonb_array_length(claimed.wanted_cards), 0)::int AS wanted_count,
-      extract(epoch FROM claimed.responded_at)::float8 AS responded_at_epoch
-    FROM claimed
-    LEFT JOIN collections collection
-      ON collection.id = claimed.collection_id AND collection.org_id = claimed.org_id
-        AND collection.is_deleted = false
-    LEFT JOIN storage_locations location
-      ON location.id = claimed.storage_location_id AND location.org_id = claimed.org_id
-        AND location.is_deleted = false
-    ORDER BY claimed.id
+    SELECT ${TRADE_OFFER_MESSAGE_COLUMNS},
+      extract(epoch FROM messaged.responded_at)::float8 AS happened_at_epoch
+    FROM messaged
+    ${TRADE_OFFER_SENT_TO_JOINS}
+    ORDER BY messaged.id
   `);
-  return claimed.rows.map((row) => ({
-    discordUserId: row.discord_user_id,
-    status: row.status,
-    sentToName: row.sent_to_name,
-    wantedCount: Number(row.wanted_count),
-    respondedAt: new Date(Number(row.responded_at_epoch) * 1000),
-  }));
+  return claimed.rows.map((row) =>
+    toTradeOfferMessage(row, row.status === "accepted" ? "accepted" : "declined"),
+  );
+}
+
+async function sendReservationMessages(messages: ReservationStatusMessage[]) {
+  const now = new Date();
+  for (const message of messages) {
+    await sendDiscordDirectMessage(message.discordUserId, reservationStatusEmbed(message, getWebUrl(), now));
+  }
+}
+
+async function sendTradeOfferMessages(messages: TradeOfferStatusMessage[]) {
+  for (const message of messages) {
+    await sendDiscordDirectMessage(message.discordUserId, tradeOfferStatusEmbed(message, getWebUrl()));
+  }
 }
 
 async function sendReservationStatusMessages(orgId: string) {
-  const messages = await claimReservationStatusMessages(orgId);
-  const byRecipientAndCatalog = new Map<string, ClaimedReservationStatusMessage[]>();
-  for (const message of messages) {
-    const key = `${message.discordUserId}\u0000${message.catalogName ?? ""}`;
-    byRecipientAndCatalog.set(key, [...(byRecipientAndCatalog.get(key) ?? []), message]);
-  }
-  const now = new Date();
-  for (const group of byRecipientAndCatalog.values()) {
-    await sendDiscordDirectMessage(group[0].discordUserId, reservationStatusEmbed(group, getWebUrl(), now));
-  }
+  await sendReservationMessages(await claimReservationStatusMessages(orgId));
 }
 
 async function sendTradeOfferStatusMessages(orgId: string) {
-  for (const message of await claimTradeOfferStatusMessages(orgId)) {
-    await sendDiscordDirectMessage(message.discordUserId, tradeOfferStatusEmbed(message, getWebUrl()));
-  }
+  await sendTradeOfferMessages(await claimTradeOfferStatusMessages(orgId));
+}
+
+async function sendCreatedReservationMessage(orgId: string, userId: string, requestGuid: string) {
+  const rows = await db.execute<ReservationMessageRow>(sql`
+    WITH messaged AS (
+      SELECT reservation.*, discord_link.discord_user_id
+      FROM card_reservations reservation
+      JOIN customer_status_messages settings ON settings.user_id = reservation.guest_user_id
+      JOIN discord_user_links discord_link ON discord_link.user_id = reservation.guest_user_id
+      WHERE reservation.org_id = ${orgId}
+        AND reservation.request_guid = ${requestGuid}
+        AND reservation.guest_user_id = ${userId}
+        AND settings.card_reservations_enabled_at IS NOT NULL
+        AND discord_link.discord_user_id IS NOT NULL
+        AND discord_link.linked_at IS NOT NULL
+    )
+    SELECT ${RESERVATION_MESSAGE_COLUMNS}
+    FROM messaged
+    LEFT JOIN shop_catalogs catalog
+      ON catalog.id = messaged.shop_catalog_id AND catalog.is_deleted = false
+    ORDER BY messaged.id
+  `);
+  if (rows.rows.length === 0) return;
+  await sendReservationMessages(
+    toReservationMessages(rows.rows, "created", await queuePositionsOf(orgId)),
+  );
+}
+
+async function sendCreatedTradeOfferMessage(userId: string, offerGuid: string) {
+  const rows = await db.execute<TradeOfferMessageRow>(sql`
+    WITH messaged AS (
+      SELECT offer.*, discord_link.discord_user_id
+      FROM trade_offers offer
+      JOIN customer_status_messages settings ON settings.user_id = offer.guest_user_id
+      JOIN discord_user_links discord_link ON discord_link.user_id = offer.guest_user_id
+      WHERE offer.guid = ${offerGuid}
+        AND offer.guest_user_id = ${userId}
+        AND settings.trade_offers_enabled_at IS NOT NULL
+        AND discord_link.discord_user_id IS NOT NULL
+        AND discord_link.linked_at IS NOT NULL
+    )
+    SELECT ${TRADE_OFFER_MESSAGE_COLUMNS},
+      extract(epoch FROM messaged.created_at)::float8 AS happened_at_epoch
+    FROM messaged
+    ${TRADE_OFFER_SENT_TO_JOINS}
+  `);
+  await sendTradeOfferMessages(rows.rows.map((row) => toTradeOfferMessage(row, "created")));
+}
+
+function logStatusMessageFailure(error: unknown) {
+  console.error("[status-messages] Failed to send status messages:", error);
+}
+
+export function sendCreatedReservationStatusMessageInBackground(
+  orgId: string,
+  userId: string,
+  requestGuid: string,
+) {
+  if (!isDiscordBotConfigured()) return;
+  sendCreatedReservationMessage(orgId, userId, requestGuid).catch(logStatusMessageFailure);
+}
+
+export function sendCreatedTradeOfferStatusMessageInBackground(userId: string, offerGuid: string) {
+  if (!isDiscordBotConfigured()) return;
+  sendCreatedTradeOfferMessage(userId, offerGuid).catch(logStatusMessageFailure);
 }
 
 function runDispatch(orgId: string, kind: StatusMessageKind) {
@@ -198,7 +312,7 @@ function runDispatch(orgId: string, kind: StatusMessageKind) {
   const dispatch =
     kind === "tradeOffers" ? sendTradeOfferStatusMessages(orgId) : sendReservationStatusMessages(orgId);
   dispatch
-    .catch((error) => console.error("[status-messages] Failed to send status messages:", error))
+    .catch(logStatusMessageFailure)
     .finally(() => {
       runningDispatches.delete(key);
       if (dispatchesToRerun.delete(key)) scheduleCustomerStatusMessages(orgId, kind);

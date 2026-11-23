@@ -1,5 +1,5 @@
-import { getInitials } from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
+import { UserInitials } from "@/components/user-initials";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +20,7 @@ import {
   LANGUAGE_NATIVE_NAMES,
   SUPPORTED_LANGUAGES,
 } from "@/lib/constants/languages";
-import { THEME_OPTIONS } from "@/lib/constants/nav";
+import { ACCOUNT_SETTINGS_PATH, THEME_OPTIONS } from "@/lib/constants/nav";
 import type { SupportedLanguage } from "@/lib/interfaces/languages";
 import {
   IconLanguage,
@@ -53,9 +53,7 @@ export function UserMenu() {
             size="icon"
             className="rounded-full hover:bg-sidebar-accent aria-expanded:bg-sidebar-accent"
           >
-            <span className="grid size-5.5 place-items-center rounded-full bg-primary text-2xs font-semibold text-primary-foreground">
-              {getInitials(name)}
-            </span>
+            <UserInitials name={name} />
             <span className="sr-only">{t("userMenu.trigger")}</span>
           </Button>
         }
@@ -79,7 +77,7 @@ export function UserMenu() {
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate("/app/account/settings")}>
+        <DropdownMenuItem onClick={() => navigate(ACCOUNT_SETTINGS_PATH)}>
           <IconUserCircle size={14} />
           {t("breadcrumb.account")}
         </DropdownMenuItem>

@@ -40,12 +40,13 @@ export interface TradeOfferContextValue {
   clearWanted: () => void;
   replaceWanted: (entries: PublicCard[]) => void;
   openComposer: () => void;
+  keepWantedForSignIn: () => void;
 }
 
 export interface TradeOfferDraftSnapshot {
   wanted: PublicCard[];
-  offered: OfferedCardDraft[];
-  values: TradeOfferFormValues;
+  offered?: OfferedCardDraft[];
+  values?: Partial<TradeOfferFormValues>;
 }
 
 export interface TradeOfferAccountNoticeProps {

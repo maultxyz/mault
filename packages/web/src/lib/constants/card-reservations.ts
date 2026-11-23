@@ -38,3 +38,7 @@ export const CARD_RESERVATION_STAGE_BADGE_VARIANTS: Record<
 export const CARD_RESERVATION_REQUEST_PARAM = "request";
 export const MY_CARD_RESERVATIONS_QUERY_KEY = "my-card-reservations";
 export const GUEST_CANCEL_REQUEST_KEY_PREFIX = "request:";
+
+export function myCardReservationRequestElementId(requestGuid: string): string {
+  return `my-reservation-request-${requestGuid}`;
+}

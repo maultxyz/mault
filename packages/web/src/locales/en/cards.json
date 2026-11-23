@@ -640,7 +640,10 @@
     "referenceImage": "Reference image",
     "backToCards": "Back to cards",
     "tradeHint": "Tap + on a card or open it to add it to your trade offer",
-    "shopPrice": "Price"
+    "shopPrice": "Price",
+    "logIn": "Log in",
+    "myTradeOffers": "My trade offers",
+    "myReservations": "My reservations"
   },
   "tradeOffers": {
     "game": "Game",

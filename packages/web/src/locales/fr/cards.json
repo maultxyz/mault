@@ -640,7 +640,10 @@
     "referenceImage": "Image de référence",
     "backToCards": "Retour aux cartes",
     "tradeHint": "Touchez + sur une carte ou ouvrez-la pour l'ajouter à votre offre",
-    "shopPrice": "Prix"
+    "shopPrice": "Prix",
+    "logIn": "Se connecter",
+    "myTradeOffers": "Mes offres d'échange",
+    "myReservations": "Mes réservations"
   },
   "tradeOffers": {
     "game": "Jeu",

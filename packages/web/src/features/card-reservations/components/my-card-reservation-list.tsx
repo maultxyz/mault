@@ -10,19 +10,24 @@ import {
 import { CardReservationCardSummary } from "@/features/card-reservations/components/card-reservation-card-summary";
 import { GuestReservationRequestHeader } from "@/features/card-reservations/components/guest-reservation-request-header";
 import { useCardReservationStatusText } from "@/features/card-reservations/lib/use-card-reservation-status-text";
-import { CARD_RESERVATION_STATUS_BADGE_VARIANTS } from "@/lib/constants/card-reservations";
+import {
+  CARD_RESERVATION_STATUS_BADGE_VARIANTS,
+  myCardReservationRequestElementId,
+} from "@/lib/constants/card-reservations";
 import { TRADE_OFFERS_SKELETON_ROWS } from "@/lib/constants/trade-offers";
 import type {
   MyCardReservationRowProps,
   MyCardReservationSectionProps,
 } from "@/lib/interfaces/card-reservations";
 import {
+  MY_CARD_RESERVATION_REQUEST_PARAM,
   groupReservationsByRequestGuid,
   isActiveCardReservationStatus,
 } from "@magic-vault/shared";
 import { IconBookmark, IconExternalLink, IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 
 function MyCardReservationRow({ reservation, isNew, isCancelling, onCancel }: MyCardReservationRowProps) {
   const { t } = useTranslation("common");
@@ -87,7 +92,9 @@ function MyCardReservationSection({
         return (
           <article
             key={group.requestGuid}
-            className="flex flex-col gap-2 rounded-card bg-card p-3 md:p-2.5"
+            id={myCardReservationRequestElementId(group.requestGuid)}
+            tabIndex={-1}
+            className="flex scroll-mt-4 flex-col gap-2 rounded-card bg-card p-3 outline-none focus-visible:ring-2 focus-visible:ring-primary md:p-2.5"
           >
             <GuestReservationRequestHeader
               reservations={group.reservations}
@@ -141,6 +148,28 @@ export function MyCardReservationList() {
   useEffect(() => {
     if (alertedKey) markAlertsSeen(alertedKey.split(","));
   }, [alertedKey, markAlertsSeen]);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const linkedRequestGuid = searchParams.get(MY_CARD_RESERVATION_REQUEST_PARAM);
+  const hasLoaded = reservations.isSuccess;
+  useEffect(() => {
+    if (!linkedRequestGuid || !hasLoaded) return;
+    const linkedRequest = document.getElementById(
+      myCardReservationRequestElementId(linkedRequestGuid),
+    );
+    if (linkedRequest) {
+      linkedRequest.scrollIntoView({ block: "start" });
+      linkedRequest.focus({ preventScroll: true });
+    }
+    setSearchParams(
+      (previous) => {
+        const updated = new URLSearchParams(previous);
+        updated.delete(MY_CARD_RESERVATION_REQUEST_PARAM);
+        return updated;
+      },
+      { replace: true },
+    );
+  }, [linkedRequestGuid, hasLoaded, setSearchParams]);
 
   if (reservations.isPending) {
     return <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />;

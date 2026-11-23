@@ -84,6 +84,7 @@ export const MOBILE_SCAN_PAIR_PATH = "/app/scan/pair";
 export const MOBILE_SORTER_PATH = "/app/sorter";
 export const MOBILE_ACCOUNT_PATH = "/app/me";
 export const ACCOUNT_PATH = "/app/account";
+export const ACCOUNT_SETTINGS_PATH = `${ACCOUNT_PATH}/settings`;
 export const MOBILE_ACCOUNT_TAB_PATHS = [
   MOBILE_ACCOUNT_PATH,
   "/app/admin",

@@ -1,82 +1,132 @@
 import {
-  MY_CARD_RESERVATIONS_WEB_PATH,
-  SENT_TRADE_OFFERS_WEB_PATH,
-  type CardReservationCard,
+  CARD_RESERVATION_HOLDER_QUEUE_POSITION,
+  formatPriceInCurrency,
+  myCardReservationRequestWebPath,
+  sentTradeOfferWebPath,
 } from "@magic-vault/shared";
 import {
+  CUSTOMER_STATUS_MESSAGE_FIELD_MAX_LENGTH,
   CUSTOMER_STATUS_MESSAGE_LINES_MAX,
   TRADE_OFFER_EMBED_COLOR,
 } from "./constants/discord";
 import type {
-  ClaimedReservationStatusMessage,
-  ClaimedTradeOfferStatusMessage,
+  CardLineInput,
+  ReservationStatusMessage,
+  ReservationStatusMessageCard,
+  TradeOfferStatusMessage,
 } from "./interfaces/customer-status-messages";
 import type { DiscordEmbed } from "./interfaces/discord";
 
-function cardLabel(card: CardReservationCard): string {
+export function cardLine(card: CardLineInput): string {
   const printing = [card.setCode.toUpperCase(), card.collectorNumber].filter(Boolean).join(" ");
-  return printing ? `**${card.name}** (${printing})` : `**${card.name}**`;
+  const finish = card.isFoil ? (card.foilType ?? "Foil") : null;
+  return [
+    printing ? `**${card.name}** (${printing})` : `**${card.name}**`,
+    card.condition,
+    finish,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function discordTimestamp(date: Date): string {
   return `<t:${Math.floor(date.getTime() / 1000)}:f>`;
 }
 
-export function reservationStatusLine(message: ClaimedReservationStatusMessage): string {
-  const card = cardLabel(message.card);
-  switch (message.guestAlert) {
+function limitedLines(lines: string[]): string {
+  const shown = lines.slice(0, CUSTOMER_STATUS_MESSAGE_LINES_MAX);
+  const hiddenCount = lines.length - shown.length;
+  const text = [...shown, ...(hiddenCount > 0 ? [`and ${hiddenCount} more`] : [])].join("\n");
+  return text.length > CUSTOMER_STATUS_MESSAGE_FIELD_MAX_LENGTH
+    ? `${text.slice(0, CUSTOMER_STATUS_MESSAGE_FIELD_MAX_LENGTH - 1)}…`
+    : text;
+}
+
+export function reservationCardStatus(entry: ReservationStatusMessageCard): string {
+  switch (entry.guestAlert) {
     case "held":
-      return message.holdExpiresAt
-        ? `${card} is held for you until ${discordTimestamp(message.holdExpiresAt)}.`
-        : `${card} is held for you.`;
+      return entry.holdExpiresAt
+        ? `held for you until ${discordTimestamp(entry.holdExpiresAt)}`
+        : "held for you";
     case "readyForPickup":
-      return `${card} is ready for pickup.`;
+      return "ready for pickup";
     case "expired":
-      return `Your hold on ${card} ran out.`;
+      return "your hold ran out";
     case "released":
-      return `The shop released your reservation for ${card}.`;
+      return "released by the shop";
     case "unavailable":
-      return `${card} is no longer available.`;
+      return "no longer available";
+    case null:
+      if (entry.holdExpiresAt) return `held for you until ${discordTimestamp(entry.holdExpiresAt)}`;
+      if (entry.queuePosition !== null) {
+        const ahead = Math.max(entry.queuePosition - CARD_RESERVATION_HOLDER_QUEUE_POSITION, 0);
+        return ahead === 1 ? "waiting, 1 person ahead of you" : `waiting, ${ahead} people ahead of you`;
+      }
+      return "waiting";
   }
 }
 
 export function reservationStatusEmbed(
-  messages: ClaimedReservationStatusMessage[],
+  message: ReservationStatusMessage,
   webUrl: string,
   now: Date,
 ): DiscordEmbed {
-  const catalogName = messages[0]?.catalogName;
-  const shown = messages.slice(0, CUSTOMER_STATUS_MESSAGE_LINES_MAX);
-  const hiddenCount = messages.length - shown.length;
+  const url = `${webUrl}${myCardReservationRequestWebPath(message.requestGuid)}`;
+  const shop = message.catalogName ? ` at ${message.catalogName}` : "";
   return {
-    title: catalogName
-      ? `Your reservations at ${catalogName} changed`
-      : "Your reservations changed",
-    description: [
-      ...shown.map((message) => `- ${reservationStatusLine(message)}`),
-      ...(hiddenCount > 0 ? [`- and ${hiddenCount} more`] : []),
-    ].join("\n"),
-    url: `${webUrl}${MY_CARD_RESERVATIONS_WEB_PATH}`,
+    title:
+      message.event === "created"
+        ? `Reservation placed${shop}`
+        : `Your reservation${shop} changed`,
+    description: `[View your reservation](${url})`,
+    url,
     color: TRADE_OFFER_EMBED_COLOR,
     timestamp: now.toISOString(),
+    fields: [
+      {
+        name: message.event === "created" ? `Cards (${message.cards.length})` : "What changed",
+        value: limitedLines(
+          message.cards.map((entry) => `${cardLine(entry.card)}: ${reservationCardStatus(entry)}`),
+        ),
+      },
+    ],
   };
 }
 
-export function tradeOfferStatusEmbed(
-  message: ClaimedTradeOfferStatusMessage,
-  webUrl: string,
-): DiscordEmbed {
-  const answer = message.status === "accepted" ? "accepted" : "declined";
+const TRADE_OFFER_TITLES: Record<TradeOfferStatusMessage["event"], string> = {
+  created: "Trade offer sent",
+  accepted: "Your trade offer was accepted",
+  declined: "Your trade offer was declined",
+};
+
+export function tradeOfferStatusEmbed(message: TradeOfferStatusMessage, webUrl: string): DiscordEmbed {
+  const url = `${webUrl}${sentTradeOfferWebPath(message.offerGuid)}`;
+  const offeredLines = [
+    ...message.offered.map((card) => `${card.quantity} × ${cardLine(card)}`),
+    ...(message.offeredCash
+      ? [`${formatPriceInCurrency(message.offeredCash.amount, message.offeredCash.currency)} cash`]
+      : []),
+  ];
   return {
-    title: `Your trade offer was ${answer}`,
+    title: TRADE_OFFER_TITLES[message.event],
     description: [
       message.sentToName ? `**Sent to:** ${message.sentToName}` : null,
-      `**Cards you asked for:** ${message.wantedCount}`,
+      `[View your trade offer](${url})`,
     ]
       .filter((line) => line !== null)
       .join("\n"),
-    url: `${webUrl}${SENT_TRADE_OFFERS_WEB_PATH}`,
+    url,
     color: TRADE_OFFER_EMBED_COLOR,
-    timestamp: message.respondedAt.toISOString(),
+    timestamp: message.happenedAt.toISOString(),
+    fields: [
+      {
+        name: `You asked for (${message.wanted.length})`,
+        value: message.wanted.length ? limitedLines(message.wanted.map(cardLine)) : "Nothing",
+      },
+      {
+        name: "You offered",
+        value: offeredLines.length ? limitedLines(offeredLines) : "Nothing",
+      },
+    ],
   };
 }

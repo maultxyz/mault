@@ -244,6 +244,7 @@ export async function createCardReservations(
   const heldCount = values.filter((value) => value.status === "ready").length;
   return {
     status: "created",
+    requestGuid,
     created: { heldCount, waitingCount: values.length - heldCount },
     changed: {
       createdReservation: {

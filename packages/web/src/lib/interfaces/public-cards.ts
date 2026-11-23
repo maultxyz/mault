@@ -135,3 +135,7 @@ export interface StorageCardBrowserProps {
   purpose: ShareLinkPurpose;
   requiresGuestContact: boolean;
 }
+
+export interface PublicAccountHeaderButtonProps {
+  isIconOnly?: boolean;
+}

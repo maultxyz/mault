@@ -36,7 +36,12 @@ export interface CreateCardReservationsInput {
 }
 
 export type CreateCardReservationsResult =
-  | { status: "created"; created: CreatedCardReservations; changed: CardReservationsChangedEvent }
+  | {
+      status: "created";
+      requestGuid: string;
+      created: CreatedCardReservations;
+      changed: CardReservationsChangedEvent;
+    }
   | { status: "card-not-found" }
   | { status: "already-reserved" }
   | { status: "queue-full" }
