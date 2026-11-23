@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 
 export function PrintPartsKey({
   entries,
-  breakoutHeight,
+  isBreakoutBoard,
   selected,
   onSelect,
   onPreview,
@@ -20,9 +20,9 @@ export function PrintPartsKey({
       {entries.map(({ part, plate, count }) => {
         const active = selected === part;
         const label =
-          part === "circuitBoardPlate" && breakoutHeight !== null
+          part === "circuitBoardPlate" && isBreakoutBoard
             ? t("printModel.parts.circuitBoardPlateBreakout")
-            : t(`printModel.parts.${part}`, { height: breakoutHeight });
+            : t(`printModel.parts.${part}`);
         return (
           <li key={part}>
             <button

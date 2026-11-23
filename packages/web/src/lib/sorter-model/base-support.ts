@@ -36,8 +36,8 @@ export function countModulePins(moduleCount: number): SorterModulePinCounts {
   return { front, top, total: front + top };
 }
 
-export function breakoutSupportHeight(moduleCount: number) {
-  return moduleCount >= 3 ? 3 : 1;
+export function breakoutSupportHeight(moduleCount: number): number | null {
+  return countBaseSupportPieces(moduleCount).threeTall > 0 ? 3 : null;
 }
 
 export function baseSupportBlocks(

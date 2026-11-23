@@ -155,12 +155,13 @@ export interface PrintPartEntry {
 export interface PrintPartsViewerProps {
   moduleCount: number;
   breakoutHeight: number | null;
+  isBreakoutBoard: boolean;
   entries: PrintPartEntry[];
 }
 
 export interface PrintPartsKeyProps {
   entries: PrintPartEntry[];
-  breakoutHeight: number | null;
+  isBreakoutBoard: boolean;
   selected: SorterPrintPart | null;
   onSelect: (part: SorterPrintPart | null) => void;
   onPreview: (part: SorterPrintPart | null) => void;

@@ -24,6 +24,7 @@ import { useTranslation } from "react-i18next";
 export default function PrintPartsViewer({
   moduleCount,
   breakoutHeight,
+  isBreakoutBoard,
   entries,
 }: PrintPartsViewerProps) {
   const { t } = useTranslation("build");
@@ -143,7 +144,7 @@ export default function PrintPartsViewer({
       <p className="text-sm text-foreground/70">{t("printModel.hint")}</p>
       <PrintPartsKey
         entries={entries}
-        breakoutHeight={breakoutHeight}
+        isBreakoutBoard={isBreakoutBoard}
         selected={activeSelection}
         onSelect={setSelected}
         onPreview={setPreview}

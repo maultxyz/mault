@@ -20,11 +20,8 @@ import type {
 } from "@/lib/interfaces/build";
 import type { SorterPrintPart } from "@/lib/interfaces/sorter-model";
 
-export const DEFAULT_BOARD_TYPE: BoardType = "uno_r4";
-
 export const MIN_MODULES = 1;
 export const MAX_MODULES = 5;
-export const DEFAULT_MODULES = 3;
 
 export const KIT_MODULE_COUNT = 3;
 
@@ -101,6 +98,10 @@ export const BUILD_PIN_BADGE_CLASS =
 
 export const BUILD_OPTIONAL_BADGE_CLASS =
   "ml-2 h-6 rounded-md border-border bg-foreground/10 px-2 align-middle text-sm font-medium tracking-normal text-foreground normal-case no-underline";
+
+export const BUILD_TABLE_FRAME_CLASS = "overflow-x-auto rounded-card border bg-card";
+
+export const BUILD_TABLE_HEADER_ROW_CLASS = "bg-foreground/10";
 
 export const BUILD_PARTS_ANCHOR = "parts";
 export const BUILD_ASSEMBLY_ANCHOR = "assembly";
@@ -245,14 +246,19 @@ export const BUILD_SETUP_PARAMS = {
   usingKit: "kit",
 } as const;
 
+export const BUILD_SETUP_KIT_VALUES = {
+  kit: "1",
+  diy: "0",
+} as const;
+
 export const DEFAULT_ESP32_MOUNT_TYPE: Esp32MountType = "breakout";
 export const RECOMMENDED_ESP32_MOUNT_TYPE: Esp32MountType = "breakout";
 
 export const DEFAULT_BUILD_SETUP: BuildSetupState = {
-  boardType: DEFAULT_BOARD_TYPE,
-  mountType: DEFAULT_ESP32_MOUNT_TYPE,
-  moduleCount: DEFAULT_MODULES,
-  usingKit: false,
+  boardType: RECOMMENDED_BOARD_TYPE,
+  mountType: RECOMMENDED_ESP32_MOUNT_TYPE,
+  moduleCount: KIT_MODULE_COUNT,
+  usingKit: true,
 };
 
 export const BUILD_STEP_IMAGE_ALT_KEYS: Record<string, string> = {
