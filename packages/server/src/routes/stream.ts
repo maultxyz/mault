@@ -46,7 +46,10 @@ import {
 } from "../middleware/auth";
 import { loadSessionInit } from "./session-init";
 import type { SseWriter } from "../lib/interfaces/sse";
-import { pricesForShareLink } from "../lib/share-link-pricing";
+import {
+  pricesForShareLink,
+  withoutMonitorLinkGuestHiddenFields,
+} from "../lib/share-link-pricing";
 import { rejectWhenShareLinkRateLimited } from "../lib/share-link-rate-limit";
 import { recordPublicRouteUsage } from "../lib/api-usage";
 import { MONITOR_LINK_STREAM_USAGE_ENDPOINT } from "../lib/constants/api-keys";
@@ -69,7 +72,9 @@ async function streamMonitorLink(c: Context<AppEnv>, shareToken: string) {
       stream
         .writeSSE({
           event,
-          data: JSON.stringify(pricesForShareLink(data, claims.showsPrices)),
+          data: JSON.stringify(
+            pricesForShareLink(withoutMonitorLinkGuestHiddenFields(data), claims.showsPrices),
+          ),
         })
         .catch(() => {});
     };

@@ -32,7 +32,13 @@ export interface InviteCapture {
 
 export interface ImpersonationPayload {
   sub: string;
+  jti?: string;
   act?: { sub?: string };
+}
+
+export interface ImpersonationSession {
+  adminUserId: string;
+  targetUserId: string;
 }
 
 export type RequestTokenVerifier = (token: string) => Promise<{ sub: string } | null>;

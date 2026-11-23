@@ -22,10 +22,10 @@ import {
 import { getShareLinkLengths } from "../../lib/share-link-lengths";
 import { isShareTokenConfigured } from "../../lib/share-tokens";
 import type { ShareLinkRequestBody } from "../../lib/interfaces/share-tokens";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const monitorLinkRoute = new Hono<AppEnv>()
-  .post("/:guid/monitor-link", requireAuth, requireOrg, async (c) => {
+  .post("/:guid/monitor-link", requireAuth, rejectAccountChangesWhileImpersonating, requireOrg, async (c) => {
     if (!isShareTokenConfigured()) {
       return c.json(
         { success: false, message: "Monitor links are not configured." },

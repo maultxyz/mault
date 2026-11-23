@@ -95,6 +95,7 @@ export function useOrgSettingsDraft() {
     control: form.control,
     savedPrimaryColor: values.primaryColor,
     isLoading,
+    canManageOrgSettings: data?.canManageOrgSettings !== false,
     isDirty: form.formState.isDirty,
     isSaving: form.formState.isSubmitting,
     save: () => void form.handleSubmit(save)(),

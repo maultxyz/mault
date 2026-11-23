@@ -3,6 +3,7 @@ import { authQuery } from "../../db";
 import { forgetDiscordGuildOrgs } from "../../lib/discord/guild-orgs";
 import { clearOrgDiscordReferences } from "../../lib/discord/unlink";
 import {
+  rejectAccountChangesWhileImpersonating,
   requireAuth,
   requireOrg,
   requireOrgRole,
@@ -12,6 +13,7 @@ import {
 export const discordUnlinkRoute = new Hono<AppEnv>().post(
   "/discord-unlink",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   requireOrgRole("owner", "admin"),
   async (c) => {

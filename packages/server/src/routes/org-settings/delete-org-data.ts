@@ -11,6 +11,7 @@ import {
 } from "../../lib/scan-images";
 import { detachOrgScanStats } from "../../lib/scan-stats";
 import {
+  rejectAccountChangesWhileImpersonating,
   requireAuth,
   requireOrg,
   requireOrgRole,
@@ -20,6 +21,7 @@ import {
 export const deleteOrgDataRoute = new Hono<AppEnv>().delete(
   "/data",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   requireOrgRole("owner"),
   async (c) => {

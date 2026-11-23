@@ -5,8 +5,7 @@ import {
 } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authProvider } from "../../auth";
-import { db } from "../../db";
-import { impersonationAudit } from "../../db/schema";
+import { startImpersonationSession } from "../../lib/impersonation-sessions";
 import {
   getUserContact,
   getUserRole,
@@ -55,17 +54,17 @@ export const startImpersonationRoute = new Hono<AppEnv>().post(
     const orgs = await authProvider.listUserOrganisations(targetUserId);
 
     const admin = await getUserContact(adminUserId);
-    const { token, expiresAt } = await signImpersonationToken(
-      adminUserId,
-      targetUserId,
-    );
-
-    await db.insert(impersonationAudit).values({
+    const sessionGuid = await startImpersonationSession({
       adminUserId,
       adminEmail: admin.email,
       targetUserId,
       targetEmail: target.email,
     });
+    const { token, expiresAt } = await signImpersonationToken(
+      adminUserId,
+      targetUserId,
+      sessionGuid,
+    );
 
     return c.json({
       success: true,

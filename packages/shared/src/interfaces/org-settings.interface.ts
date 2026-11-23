@@ -19,4 +19,5 @@ export interface OrgSettings {
   priceSource: PriceSource;
   conditionMultipliers: ConditionMultipliers;
   discordGuildId: string | null;
+  canManageOrgSettings?: boolean;
 }

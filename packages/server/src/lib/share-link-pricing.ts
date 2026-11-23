@@ -1,3 +1,4 @@
+import { MONITOR_LINK_GUEST_HIDDEN_KEYS } from "./constants/auth";
 import { SHARE_LINK_HIDDEN_PRICE_KEYS } from "./constants/card-prices";
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -23,6 +24,19 @@ export function withoutPrices<T>(value: T): T {
     }
   }
   return stripped as T;
+}
+
+export function withoutMonitorLinkGuestHiddenFields<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => withoutMonitorLinkGuestHiddenFields(item)) as T;
+  }
+  if (!isPlainObject(value)) return value;
+  const visible: Record<string, unknown> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (MONITOR_LINK_GUEST_HIDDEN_KEYS.has(key)) continue;
+    visible[key] = withoutMonitorLinkGuestHiddenFields(entry);
+  }
+  return visible as T;
 }
 
 export function pricesForShareLink<T>(value: T, showsPrices: boolean): T {

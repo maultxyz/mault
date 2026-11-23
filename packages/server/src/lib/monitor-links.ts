@@ -12,6 +12,7 @@ import { createTtlCache } from "./ttl-cache";
 
 const verifiedMonitorLinks = createTtlCache<MonitorLinkClaims>({
   name: "shareLinks.monitorClaims",
+  hasSecretKeys: true,
   ttlMs: SHARE_LINK_CLAIMS_CACHE_TTL_MS,
   maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
 });

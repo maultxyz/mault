@@ -1,3 +1,5 @@
+import { redactedError, withoutQueryParamsText, withoutUrlQuery } from "./error-redaction";
+
 const betterStackErrorsDsn = process.env.BETTER_STACK_ERRORS_DSN;
 
 async function loadBetterStackErrorTracking(dsn: string) {
@@ -10,6 +12,15 @@ async function loadBetterStackErrorTracking(dsn: string) {
       cookies: false,
       httpHeaders: false,
       urlQueryParams: false,
+    },
+    beforeSend(event) {
+      for (const exception of event.exception?.values ?? []) {
+        if (exception.value) exception.value = withoutQueryParamsText(exception.value);
+      }
+      if (event.message) event.message = withoutQueryParamsText(event.message);
+      if (event.request?.url) event.request.url = withoutUrlQuery(event.request.url);
+      if (event.request) delete event.request.query_string;
+      return event;
     },
     enableRuntimeChannelInjection: false,
     defaultIntegrations: false,
@@ -32,14 +43,23 @@ const betterStackErrorTracking = betterStackErrorsDsn
     })
   : null;
 
+function withoutUrlQueries(properties: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(properties).map(([key, value]) => [
+      key,
+      key === "url" && typeof value === "string" ? withoutUrlQuery(value) : value,
+    ]),
+  );
+}
+
 export function reportServerError(
   error: unknown,
   properties: Record<string, unknown> = {},
   userId?: string,
 ) {
   void betterStackErrorTracking?.then((Sentry) =>
-    Sentry?.captureException(error, {
-      extra: properties,
+    Sentry?.captureException(redactedError(error), {
+      extra: withoutUrlQueries(properties),
       user: userId ? { id: userId } : undefined,
     }),
   );

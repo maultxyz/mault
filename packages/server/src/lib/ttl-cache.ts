@@ -1,7 +1,7 @@
 import { registerMapCache } from "./cache-registry";
 import type { TtlCache, TtlCacheConfig } from "./interfaces/public-api";
 
-export function createTtlCache<V>({ name, ttlMs, maxEntries }: TtlCacheConfig): TtlCache<V> {
+export function createTtlCache<V>({ name, ttlMs, maxEntries, hasSecretKeys }: TtlCacheConfig): TtlCache<V> {
   const entries = new Map<string, { value: V; expiresAt: number }>();
 
   const sweepExpired = (now: number) => {
@@ -15,7 +15,7 @@ export function createTtlCache<V>({ name, ttlMs, maxEntries }: TtlCacheConfig): 
     }
   };
 
-  registerMapCache(name, entries);
+  registerMapCache(name, entries, { hasSecretKeys });
 
   return {
     get(key) {

@@ -3,6 +3,7 @@ import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { notificationRules } from "../../db/schema";
+import { DISCORD_CHANNEL_EDITOR_ROLES } from "../../lib/constants/discord";
 import { loadNotificationRules } from "../../lib/notification-rules";
 import { findGameId } from "../../lib/rule-groups";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -16,6 +17,12 @@ export const addNotificationRuleRoute = new Hono<AppEnv>().post(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
+    if (!DISCORD_CHANNEL_EDITOR_ROLES.includes(c.get("orgRole"))) {
+      return c.json({
+        success: false,
+        message: "Only organization owners and admins can add notification rules.",
+      });
+    }
     const body = await c.req.json<{ gameGuid?: unknown }>();
     const input = notificationRuleInputSchema.safeParse(body);
     if (!input.success || typeof body.gameGuid !== "string") {

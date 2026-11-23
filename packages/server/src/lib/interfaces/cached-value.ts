@@ -31,6 +31,7 @@ export interface KeyedCache<T> {
 
 export interface RegisteredCache {
   name: string;
+  hasSecretKeys?: boolean;
   countEntries(): number;
   listKeys(): Iterable<string>;
   deleteKeys(shouldDelete: (key: string) => boolean): number;

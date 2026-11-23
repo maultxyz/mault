@@ -5,6 +5,7 @@ import { getOwnAuth } from "../../auth/own-auth-instance";
 import { getWebUrl } from "../../lib/constants/urls";
 import type { InviteCapture } from "../../lib/interfaces/auth";
 import {
+  rejectAccountChangesWhileImpersonating,
   requireAuth,
   requireOrg,
   requireOrgRole,
@@ -16,6 +17,7 @@ import type { OrgRole } from "@magic-vault/shared";
 export const addInviteRoute = new Hono<AppEnv>().post(
   "/invites",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   requireOrgRole("owner", "admin"),
   async (c) => {

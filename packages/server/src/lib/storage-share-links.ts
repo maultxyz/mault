@@ -12,6 +12,7 @@ import { createTtlCache } from "./ttl-cache";
 
 const verifiedStorageShareLinks = createTtlCache<StorageShareLinkClaims>({
   name: "shareLinks.storageClaims",
+  hasSecretKeys: true,
   ttlMs: SHARE_LINK_CLAIMS_CACHE_TTL_MS,
   maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
 });

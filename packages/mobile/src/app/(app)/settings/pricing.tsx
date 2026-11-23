@@ -21,7 +21,7 @@ export default function PricingSettingsScreen() {
   const draft = useOrgSettingsDraft();
   const businessDraft = useBusinessSettingsDraft();
   const isSaving = draft.isSaving || businessDraft.isSaving;
-  const disabled = draft.isLoading || isSaving;
+  const disabled = draft.isLoading || isSaving || !draft.canManageOrgSettings;
   const businessDisabled = isSaving || !businessDraft.canManage;
   return (
     <SettingsPage
@@ -46,6 +46,9 @@ export default function PricingSettingsScreen() {
       }}
     >
       <SettingsSection title={t("settings.pricing.heading")} description={t("settings.pricing.description")}>
+        {!draft.isLoading && !draft.canManageOrgSettings ? (
+          <Callout tone="info" title={t("settings.business.managersOnly")} />
+        ) : null}
         <Controller
           control={draft.control}
           name="priceSource"

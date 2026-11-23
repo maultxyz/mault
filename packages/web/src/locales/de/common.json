@@ -806,5 +806,6 @@
     "label": "Absender",
     "signedInDescription": "Mit einem Konto angemeldet",
     "guestDescription": "Gast ohne Konto"
-  }
+  },
+  "managersOnlySetting": "Nur Inhaber und Admins der Organisation können das ändern."
 }

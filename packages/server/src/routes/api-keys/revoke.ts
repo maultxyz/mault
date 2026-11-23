@@ -3,11 +3,12 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgApiKeys } from "../../db/schema";
 import { API_KEY_MANAGER_ROLES } from "../../lib/constants/api-keys";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const revokeApiKeyRoute = new Hono<AppEnv>().delete(
   "/:guid",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");

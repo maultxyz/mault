@@ -3,6 +3,7 @@ import { getOwnAuth } from "../../auth/own-auth-instance";
 import { authQuery } from "../../db";
 import { purgeOrgServerData, purgeOrgData } from "../../lib/org-purge";
 import {
+  rejectAccountChangesWhileImpersonating,
   requireAuth,
   requireOrg,
   requireOrgRole,
@@ -18,6 +19,7 @@ import { authErrorResponse } from "./shared";
 export const deleteOrganizationRoute = new Hono<AppEnv>().delete(
   "/organizations",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   requireOrgRole("owner"),
   async (c) => {

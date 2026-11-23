@@ -22,6 +22,7 @@ import { orgHasFeature } from "./plan-config";
 
 const verifiedShopCatalogLinks = createTtlCache<ShopCatalogClaims>({
   name: "shareLinks.shopCatalogClaims",
+  hasSecretKeys: true,
   ttlMs: SHARE_LINK_CLAIMS_CACHE_TTL_MS,
   maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
 });

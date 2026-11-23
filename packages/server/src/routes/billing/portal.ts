@@ -7,6 +7,7 @@ import {
   getStripe,
 } from "../../lib/stripe";
 import {
+  rejectAccountChangesWhileImpersonating,
   requireAuth,
   requireOrg,
   requireOrgRole,
@@ -17,6 +18,7 @@ import { webUrl } from "./shared";
 export const portalBillingRoute = new Hono<AppEnv>().post(
   "/portal",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   requireOrgRole("owner", "admin"),
   async (c) => {

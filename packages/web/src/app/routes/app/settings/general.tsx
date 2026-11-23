@@ -1,4 +1,5 @@
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { ManagersOnlyNote } from "@/components/managers-only-note";
 import { PrimaryColorPicker } from "@/components/primary-color-picker";
 import { SaveBar } from "@/components/save-bar";
 import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
@@ -76,6 +77,7 @@ export default function SettingsGeneralPage() {
         heading={t("leaderboard.heading")}
         description={t("leaderboard.description")}
       >
+        {!draft.isLoading && !draft.canManageOrgSettings && <ManagersOnlyNote />}
         <label className="flex items-center justify-between gap-3">
           <span className="text-sm">{t("leaderboard.toggleLabel")}</span>
           <Controller
@@ -85,7 +87,7 @@ export default function SettingsGeneralPage() {
               <Switch
                 aria-label={t("leaderboard.toggleLabel")}
                 checked={field.value}
-                disabled={disabled}
+                disabled={disabled || !draft.canManageOrgSettings}
                 onCheckedChange={field.onChange}
               />
             )}

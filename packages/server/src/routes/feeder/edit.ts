@@ -1,11 +1,12 @@
-import {
-  FEED_RETRY_COUNT_MAX,
-  FEED_RETRY_COUNT_MIN,
-  type FeederCalibration,
-} from "@magic-vault/shared";
+import { FEED_RETRY_COUNT_MAX, FEED_RETRY_COUNT_MIN } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { feederConfigAudit, feederConfigs } from "../../db/schema";
+import { pickCalibrationValues } from "../../lib/calibration-input";
+import {
+  CALIBRATION_INPUT_INVALID_MESSAGE,
+  FEEDER_CALIBRATION_INPUT_KEYS,
+} from "../../lib/constants/calibration-input";
 import { getDeviceByGuid } from "../../lib/devices";
 import {
   rejectWhileImpersonating,
@@ -23,7 +24,13 @@ export const editFeederRoute = new Hono<AppEnv>().put(
   async (c) => {
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
-    const calibration = await c.req.json<FeederCalibration>();
+    const calibration = pickCalibrationValues(
+      await c.req.json().catch(() => null),
+      FEEDER_CALIBRATION_INPUT_KEYS,
+    );
+    if (!calibration) {
+      return c.json({ success: false, message: CALIBRATION_INPUT_INVALID_MESSAGE }, 400);
+    }
     const { feedRetryCount } = calibration;
     if (
       feedRetryCount !== undefined &&
@@ -58,10 +65,8 @@ export const editFeederRoute = new Hono<AppEnv>().put(
       const row = await tx.query.feederConfigs.findFirst({
         where: (t, { eq }) => eq(t.deviceId, device.id),
       });
-      const saved: FeederCalibration = row
-        ? rowToCalibration(row)
-        : calibration;
-      return { success: true, message: "Saved feeder config.", data: saved };
+      if (!row) return { success: false, message: "Device not found." };
+      return { success: true, message: "Saved feeder config.", data: rowToCalibration(row) };
     });
     return c.json(result);
   },

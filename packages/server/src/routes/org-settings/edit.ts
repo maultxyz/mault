@@ -1,6 +1,9 @@
 import {
+  canManageOrgSettings,
   CARD_CONDITIONS,
   DEFAULT_CARD_CONDITION,
+  DEFAULT_ORG_SETTINGS,
+  ORG_SETTINGS_MANAGER_ONLY_KEYS,
   isConditionMultiplier,
   isPriceSource,
   toConditionMultipliers,
@@ -139,6 +142,26 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             : existing?.conditionMultipliers,
         ),
       };
+      const current = {
+        leaderboardOptIn: existing?.leaderboardOptIn ?? DEFAULT_ORG_SETTINGS.leaderboardOptIn,
+        discordNotifyOnScan:
+          existing?.discordNotifyOnScan ?? DEFAULT_ORG_SETTINGS.discordNotifyOnScan,
+        discordScanUseThreads:
+          existing?.discordScanUseThreads ?? DEFAULT_ORG_SETTINGS.discordScanUseThreads,
+        priceSource: toPriceSource(existing?.priceSource),
+        conditionMultipliers: toConditionMultipliers(existing?.conditionMultipliers),
+      };
+      const changesManagerOnlySetting = ORG_SETTINGS_MANAGER_ONLY_KEYS.some(
+        (key) => JSON.stringify(merged[key]) !== JSON.stringify(current[key]),
+      );
+      if (changesManagerOnlySetting && !canManageOrgSettings(c.get("orgRole"))) {
+        return {
+          success: false,
+          message:
+            "Only organization owners and admins can change pricing, the leaderboard listing and Discord scan posts.",
+        };
+      }
+
       await tx
         .insert(orgSettings)
         .values({ orgId, ...merged })
@@ -170,6 +193,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           priceSource: merged.priceSource,
           conditionMultipliers: merged.conditionMultipliers,
           discordGuildId: existing?.discordGuildId ?? null,
+          canManageOrgSettings: canManageOrgSettings(c.get("orgRole")),
         },
       };
     });
