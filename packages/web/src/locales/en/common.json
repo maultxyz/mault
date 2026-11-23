@@ -38,7 +38,9 @@
     "upgradeYourPlan": "Upgrade your plan",
     "upgradeShort": "Upgrade",
     "home": "Home",
-    "library": "Library"
+    "library": "Library",
+    "tradeOfferFrom": "Trade from {{name}}",
+    "reservationFrom": "Reservation from {{name}}"
   },
   "alerts": {
     "dismiss": "Dismiss",

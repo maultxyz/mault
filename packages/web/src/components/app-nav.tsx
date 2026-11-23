@@ -26,7 +26,7 @@ import { useRole } from "@/hooks/use-role";
 import { DISCORD_URL, REPO_URL, SHOP_URL } from "@/lib/constants/links";
 import {
   HOME_PATH,
-  NAV_SUBITEMS_LIMIT,
+  LIBRARY_NAV_ITEMS_PER_GROUP,
   SIDEBAR_EXPANDED_ITEM_CLASS,
   SIDEBAR_IDLE_ITEM_CLASS,
   SIDEBAR_TOGGLE_ARIA_KEYSHORTCUTS,
@@ -38,20 +38,28 @@ import type {
   NavSubItemProps,
 } from "@/lib/interfaces/nav";
 import { STORAGE_PATH } from "@/lib/constants/storage";
-import { TRADES_PATH } from "@/lib/constants/trade-offers";
+import { TRADES_PATH, tradeOfferPath } from "@/lib/constants/trade-offers";
+import { storageLocationsQueryOptions } from "@/features/storage/api/storage-locations";
+import { usePendingTradeOffers } from "@/features/trade-offers/api/trade-offers";
+import { useReservationRequestsToPull } from "@/features/card-reservations/api/use-reservation-requests-to-pull";
+import { useOrg } from "@/features/companies/api/use-organization";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
 import {
   BUSINESS_SECTION_VIEWS,
   BUSINESS_VIEW_PATHS,
   ORDERS_PATH,
+  reservationRequestsPath,
 } from "@/lib/constants/business";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
   IconAlbum,
+  IconArrowsExchange,
   IconArrowsSplit2,
+  IconBox,
+  IconCalendarClock,
   IconChartBar,
   IconBrandDiscord,
   IconBrandGithub,
@@ -74,7 +82,10 @@ import { HotkeyHint } from "@/components/hotkey-hint";
 import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 import { SEARCH_PATH } from "@/lib/constants/search";
-import { formatCompactNumber } from "@magic-vault/shared";
+import {
+  formatCompactNumber,
+  STORAGE_LOCATION_SEARCH_PARAM,
+} from "@magic-vault/shared";
 
 function CollapsedNavItem({
   icon,
@@ -202,7 +213,7 @@ function CollapsedNavItemWithSubItems({
         <DropdownMenuGroup>
           <DropdownMenuLabel>{label}</DropdownMenuLabel>
           {subItems.length > 0 ? (
-            subItems.slice(0, NAV_SUBITEMS_LIMIT).map((sub) => (
+            subItems.map((sub) => (
               <DropdownMenuItem
                 key={sub.key}
                 onClick={() => {
@@ -210,6 +221,8 @@ function CollapsedNavItemWithSubItems({
                   navigate(sub.to);
                 }}
               >
+                {sub.icon}
+                {sub.groupLabel && <span className="sr-only">{`${sub.groupLabel}: `}</span>}
                 <span className="flex-1 truncate">{sub.label}</span>
                 {sub.badge && (
                   <>
@@ -323,6 +336,8 @@ function ExpandedNavItem({
 function SubItem({
   to,
   label,
+  icon,
+  groupLabel,
   badge,
   onClick,
 }: NavSubItemProps) {
@@ -340,6 +355,8 @@ function SubItem({
         )
       }
     >
+      {icon && <span className="shrink-0 text-foreground/70 [&_svg]:size-3">{icon}</span>}
+      {groupLabel && <span className="sr-only">{`${groupLabel}: `}</span>}
       <span className="truncate flex-1">{label}</span>
       {badge && (
         <>
@@ -375,6 +392,19 @@ export function AppNav() {
       : {};
   };
   const { collections, activeCollection } = useCollections();
+  const { activeOrg } = useOrg();
+  const storageLock = planLockFor(STORAGE_PATH);
+  const showsStorageLocations = !storageLock?.isDisabled;
+  const storageListOptions = storageLocationsQueryOptions(activeOrg?.id);
+  const { data: storageLocations = [] } = useQuery({
+    ...storageListOptions,
+    enabled:
+      storageListOptions.enabled !== false &&
+      areSecondaryRequestsEnabled &&
+      showsStorageLocations,
+  });
+  const pendingTradeOffers = usePendingTradeOffers();
+  const reservationRequestsToPull = useReservationRequestsToPull();
   const { locks, currentUserId } = useCollectionLocks();
 
   const [expanded, setExpanded] = useSidebarExpanded();
@@ -405,6 +435,14 @@ export function AppNav() {
     return 0;
   });
 
+  const recentStorageLocations = [...storageLocations]
+    .sort(
+      (a, b) =>
+        new Date(b.lastUsedAt ?? b.createdAt).getTime() -
+        new Date(a.lastUsedAt ?? a.createdAt).getTime(),
+    )
+    .slice(0, LIBRARY_NAV_ITEMS_PER_GROUP);
+
   const navItems: NavItemDef[] = [
     {
       to: HOME_PATH,
@@ -424,16 +462,41 @@ export function AppNav() {
       icon: <IconAlbum size={16} />,
       label: t("nav.library"),
       badge: hasLiveSessions,
-      subItems: monitorCollections.map((c) => ({
-        key: c.guid,
-        to: locks[c.guid]
-          ? monitorCollectionPath(c.guid)
-          : c.guid === activeCollection?.guid
-            ? "/app"
-            : collectionViewPath(c.guid),
-        label: c.name,
-        badge: !!locks[c.guid],
-      })),
+      subItems: [
+        ...monitorCollections.slice(0, LIBRARY_NAV_ITEMS_PER_GROUP).map((c) => ({
+          key: c.guid,
+          to: locks[c.guid]
+            ? monitorCollectionPath(c.guid)
+            : c.guid === activeCollection?.guid
+              ? "/app"
+              : collectionViewPath(c.guid),
+          label: c.name,
+          icon: <IconAlbum aria-hidden />,
+          groupLabel: t("nav.collections"),
+          badge: !!locks[c.guid],
+        })),
+        ...(showsStorageLocations ? recentStorageLocations : []).map((location) => ({
+          key: location.guid,
+          to: `${STORAGE_PATH}?${new URLSearchParams({ [STORAGE_LOCATION_SEARCH_PARAM]: location.guid })}`,
+          label: location.name,
+          icon: <IconBox aria-hidden />,
+          groupLabel: t("nav.storage"),
+        })),
+        ...[
+          ...pendingTradeOffers.map((offer) => ({
+            key: offer.guid,
+            to: tradeOfferPath(offer.guid),
+            label: t("nav.tradeOfferFrom", { name: offer.guestName }),
+            icon: <IconArrowsExchange aria-hidden />,
+          })),
+          ...reservationRequestsToPull.map((group) => ({
+            key: group.requestGuid,
+            to: reservationRequestsPath([group.requestGuid]),
+            label: t("nav.reservationFrom", { name: group.guestName }),
+            icon: <IconCalendarClock aria-hidden />,
+          })),
+        ].slice(0, LIBRARY_NAV_ITEMS_PER_GROUP),
+      ],
     },
     {
       to: SORTING_RULES_PATH,
@@ -518,11 +581,13 @@ export function AppNav() {
               <ExpandedNavItem {...item} />
               {item.subItems && item.subItems.length > 0 && (
                 <div className="mt-0.5 flex flex-col gap-0.5">
-                  {item.subItems.slice(0, NAV_SUBITEMS_LIMIT).map((sub) => (
+                  {item.subItems.map((sub) => (
                     <SubItem
                       key={sub.key}
                       to={sub.to}
                       label={sub.label}
+                      icon={sub.icon}
+                      groupLabel={sub.groupLabel}
                       badge={sub.badge}
                       onClick={sub.onClick}
                     />
