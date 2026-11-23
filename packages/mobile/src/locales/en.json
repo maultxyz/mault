@@ -519,7 +519,27 @@
       },
       "localSubtitle": "Your account details. Ask an admin on this server to change them.",
       "nameLabel": "Name",
-      "signInHeading": "Sign-in"
+      "signInHeading": "Sign-in",
+      "discord": {
+        "heading": "Discord account",
+        "description": "Link your Discord account so the Mault bot knows who you are, gives you your role in the Mault Discord server and can message you about your trades and reservations.",
+        "linked": "Linked to a Discord account",
+        "linkedAs": "Linked as @{{username}}",
+        "loadFailed": "Couldn't load your Discord account.",
+        "unlink": "Unlink Discord",
+        "unlinkConfirmTitle": "Unlink your Discord account?",
+        "unlinkConfirmDescription": "The Mault bot stops recognizing you and stops sending you messages. You can link it again later.",
+        "cancel": "Cancel",
+        "unlinked": "Discord account unlinked.",
+        "unlinkFailed": "Couldn't unlink your Discord account.",
+        "generate": "Link Discord account",
+        "generateFailed": "Couldn't create a link code.",
+        "codeInstructions": "Run /link-account with this code in any server with the Mault bot, or in a direct message to it.",
+        "codeLabel": "Link code {{code}}",
+        "expiresIn": "Expires in {{seconds}}s",
+        "copyCode": "Copy code",
+        "copied": "Code copied"
+      }
     },
     "settingsRow": "Account settings",
     "settingsRowSubtitle": "Name, email, password and sessions",
@@ -4904,8 +4924,9 @@
       "label": "Discord message when a reservation changes"
     },
     "description": "The Mault bot sends a direct message to your linked Discord account.",
-    "linkDiscord": "Link your Discord account in Account settings on the Mault website to turn this on.",
-    "updateFailed": "Couldn't update Discord messages."
+    "linkDiscord": "Link your Discord account to turn this on.",
+    "updateFailed": "Couldn't update Discord messages.",
+    "openProfile": "Link Discord account"
   },
   "guestKind": {
     "signedIn": "Signed in",

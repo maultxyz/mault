@@ -519,7 +519,27 @@
       },
       "localSubtitle": "Les détails de ton compte. Demande à un admin de ce serveur de les modifier.",
       "nameLabel": "Nom",
-      "signInHeading": "Connexion"
+      "signInHeading": "Connexion",
+      "discord": {
+        "heading": "Compte Discord",
+        "description": "Lie ton compte Discord pour que le bot Mault sache qui tu es, te donne ton rôle sur le serveur Discord de Mault et puisse t'écrire au sujet de tes échanges et réservations.",
+        "linked": "Lié à un compte Discord",
+        "linkedAs": "Lié en tant que @{{username}}",
+        "loadFailed": "Impossible de charger ton compte Discord.",
+        "unlink": "Dissocier Discord",
+        "unlinkConfirmTitle": "Dissocier ton compte Discord ?",
+        "unlinkConfirmDescription": "Le bot Mault ne te reconnaîtra plus et ne t'enverra plus de messages. Tu pourras le lier à nouveau plus tard.",
+        "cancel": "Annuler",
+        "unlinked": "Compte Discord dissocié.",
+        "unlinkFailed": "Impossible de dissocier ton compte Discord.",
+        "generate": "Lier un compte Discord",
+        "generateFailed": "Impossible de générer un code de liaison.",
+        "codeInstructions": "Exécute /link-account avec ce code sur un serveur où se trouve le bot Mault, ou en message privé avec lui.",
+        "codeLabel": "Code de liaison {{code}}",
+        "expiresIn": "Expire dans {{seconds}}s",
+        "copyCode": "Copier le code",
+        "copied": "Code copié"
+      }
     },
     "settingsRow": "Paramètres du compte",
     "settingsRowSubtitle": "Nom, e-mail, mot de passe et sessions",
@@ -4904,8 +4924,9 @@
       "label": "Message Discord quand une réservation change"
     },
     "description": "Le bot Mault envoie un message privé à votre compte Discord associé.",
-    "linkDiscord": "Associez votre compte Discord dans les paramètres du compte sur le site Mault pour activer cette option.",
-    "updateFailed": "Impossible de modifier les messages Discord."
+    "linkDiscord": "Associez votre compte Discord pour activer cette option.",
+    "updateFailed": "Impossible de modifier les messages Discord.",
+    "openProfile": "Lier un compte Discord"
   },
   "guestKind": {
     "signedIn": "Connecté",

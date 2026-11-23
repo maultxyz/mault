@@ -63,3 +63,12 @@ export interface AuthSessionRow {
 export interface SignInMethodsSectionProps {
   onMessage: (message: { tone: StatusTone; text: string }) => void;
 }
+
+export interface DiscordAccountSectionProps {
+  onMessage: (message: { tone: StatusTone; text: string }) => void;
+}
+
+export interface PendingDiscordLinkCode {
+  code: string;
+  expiresAt: number;
+}

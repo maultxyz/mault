@@ -4,6 +4,7 @@ import {
   unlinkDiscordAccount,
 } from "@/features/account/api/discord-account";
 import { toast } from "@/lib/toast";
+import { STATUS_MESSAGE_SETTINGS_QUERY_KEY } from "@magic-vault/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
@@ -26,6 +27,7 @@ export function useDiscordAccount() {
     onSuccess: (result) => {
       if (result.success) {
         queryClient.setQueryData(queryOpts.queryKey, null);
+        void queryClient.invalidateQueries({ queryKey: [STATUS_MESSAGE_SETTINGS_QUERY_KEY] });
         toast.success(t("discord.unlinked"));
       } else {
         toast.error(t("discord.unlinkFailed"));

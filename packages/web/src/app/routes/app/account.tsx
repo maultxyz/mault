@@ -98,14 +98,12 @@ export default function AccountPage() {
               </SaveBarGroup>
             )}
 
-            {!isMobile && (
-              <SettingsSection
-                heading={t("discord.heading")}
-                description={t("discord.description")}
-              >
-                <DiscordAccountLink />
-              </SettingsSection>
-            )}
+            <SettingsSection
+              heading={t("discord.heading")}
+              description={t("discord.description")}
+            >
+              <DiscordAccountLink />
+            </SettingsSection>
 
             {!isMobile && (
               <SettingsSection
