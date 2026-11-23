@@ -1,8 +1,6 @@
-import { publicGet } from "@/lib/api/client";
+import { loadPublicResource } from "@/features/landing/api/load-public-resource";
 import type { PublicPricing } from "@/lib/interfaces/landing";
-import type { Result } from "@magic-vault/shared";
 import { useEffect, useState } from "react";
-
 
 export function usePublicPricing() {
   const [pricing, setPricing] = useState<PublicPricing | null>(null);
@@ -10,7 +8,7 @@ export function usePublicPricing() {
   useEffect(() => {
     let cancelled = false;
 
-    publicGet<Result<PublicPricing>>("/api/public/pricing")
+    loadPublicResource<PublicPricing>("/api/public/pricing")
       .then((res) => {
         if (cancelled) return;
         setPricing(res.data ?? null);

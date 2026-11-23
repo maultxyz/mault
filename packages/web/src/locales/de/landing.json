@@ -51,6 +51,7 @@
   "stats": {
     "items": {
       "totalScanned": "bisher gescannte Karten",
+      "totalCardValue": "Gesamtwert der gescannten Karten",
       "bins": "Sortierfächer, erweiterbar",
       "games": "unterstützte Sammelkartenspiele",
       "cardsPerHour": "sortierte Karten pro Stunde"

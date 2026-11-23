@@ -1,7 +1,7 @@
 import {
   cardMatchPercent,
   type PlayingCardWithDistance,
-  type PublicMetrics,
+  type ScanMetrics,
   type ScanVectorizeSource,
 } from "@magic-vault/shared";
 import { and, eq, gt, inArray, isNotNull, sql } from "drizzle-orm";
@@ -126,7 +126,7 @@ export async function getScanVectorizeStats(): Promise<
   return stats;
 }
 
-export async function computeScanMetrics(): Promise<PublicMetrics> {
+export async function computeScanMetrics(): Promise<ScanMetrics> {
   const [row] = await db
     .select({
       matched: sql<number>`count(*) filter (where ${scanStats.outcome} = ${SCAN_OUTCOME_MATCHED})::int`,

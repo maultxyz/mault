@@ -51,6 +51,7 @@
   "stats": {
     "items": {
       "totalScanned": "cartes scannées à ce jour",
+      "totalCardValue": "valeur totale des cartes scannées",
       "bins": "bacs de tri, extensibles",
       "games": "jeux de cartes à collectionner pris en charge",
       "cardsPerHour": "cartes triées par heure"

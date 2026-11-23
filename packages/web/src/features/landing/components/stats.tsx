@@ -6,9 +6,9 @@ export function LandingStats() {
   const stats = useLandingStats();
 
   return (
-    <div className="grid grid-cols-2 gap-px border-t bg-border md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-px border-t bg-border md:grid-cols-5">
       {stats.map((stat) => (
-        <div key={stat.key} className="flex flex-col gap-1.5 bg-card p-5">
+        <div key={stat.key} className="flex flex-col gap-1.5 bg-card p-5 max-md:last:col-span-2">
           <span className="text-3xl font-heading font-semibold tracking-tight tabular-nums md:text-4xl">
             {stat.value}
           </span>
