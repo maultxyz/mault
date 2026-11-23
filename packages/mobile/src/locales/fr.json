@@ -4887,5 +4887,16 @@
         "description": "Terminez ou annulez l'entrée de stock depuis cette fenêtre sans quitter l'onglet de scan."
       }
     }
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Message Discord quand une offre reçoit une réponse"
+    },
+    "cardReservations": {
+      "label": "Message Discord quand une réservation change"
+    },
+    "description": "Le bot Mault envoie un message privé à votre compte Discord associé.",
+    "linkDiscord": "Associez votre compte Discord dans les paramètres du compte sur le site Mault pour activer cette option.",
+    "updateFailed": "Impossible de modifier les messages Discord."
   }
 }

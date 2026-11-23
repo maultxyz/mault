@@ -41,6 +41,11 @@ export interface LinkAccountResult {
   userName: string | null;
 }
 
+export interface DirectMessageBody {
+  discordUserId?: string;
+  embed?: APIEmbed;
+}
+
 export interface MemberRoleBody {
   guildId?: string;
   userId?: string;

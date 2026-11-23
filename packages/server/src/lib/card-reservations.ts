@@ -3,6 +3,7 @@ import {
   CARD_RESERVATION_CLOSED_STATUSES,
   CARD_RESERVATION_QUEUE_MAX,
   CARD_RESERVATIONS_ACTIVE_PER_GUEST_MAX,
+  CARD_RESERVATIONS_CHANGED_EVENT,
   CARD_RESERVATIONS_CLOSED_LIST_MAX,
   PRICE_SOURCE_FIELDS,
   cardReservationHoldExpiry,
@@ -31,6 +32,7 @@ import {
 } from "../db/schema";
 import { loadStoredCardsByRowIds, toStoredCards } from "../routes/storage-locations/shared";
 import { logActivity } from "./activity-log";
+import { notifyCustomersOfOrgEvent } from "./customer-stream";
 import { containsLikePattern } from "./business-list-search";
 import {
   CARD_RESERVATION_GUEST_ALERT_BY_STATUS,
@@ -138,7 +140,9 @@ export async function settleCardReservations(tx: Transaction, orgId: string): Pr
     return false;
   }
   await lockCardReservations(tx, orgId);
-  return settleWhileLocked(tx, orgId, now);
+  const settled = await settleWhileLocked(tx, orgId, now);
+  if (settled) notifyCustomersOfOrgEvent(orgId, CARD_RESERVATIONS_CHANGED_EVENT);
+  return settled;
 }
 
 async function loadReservationCards(

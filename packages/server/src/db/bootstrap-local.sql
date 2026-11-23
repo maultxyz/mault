@@ -87,12 +87,12 @@ $$;
 -- platform_match_validations, api_key_usage_daily, public_route_usage_daily,
 -- platform_stats_settings, platform_billing_settings, platform_share_link_settings,
 -- platform_discord_channels, platform_discord_roles,
--- webhook_deliveries and discord_user_links are intentionally not granted here - the app only ever
+-- webhook_deliveries, discord_user_links and customer_status_messages are intentionally not granted here - the app only ever
 -- touches them via `db` directly (see auth/local.ts, routes/impersonation.ts,
 -- lib/sync-api-keys.ts, routes/admin/foil-labels.ts, routes/match-validations,
 -- lib/scan-stats.ts, lib/platform-stats.ts, lib/pricing-mode.ts, lib/share-link-lengths.ts,
 -- lib/platform-discord-channels.ts, lib/webhooks/queue.ts,
--- lib/platform-discord-roles.ts, lib/discord/user-links.ts),
+-- lib/platform-discord-roles.ts, lib/discord/user-links.ts, lib/customer-status-messages.ts),
 -- never through an authQuery()/authenticated
 -- session, so authenticated has no need to read or write them.
 

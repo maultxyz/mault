@@ -26,6 +26,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { outgoingTradeOffersQueryOptions } from "@/features/trade-offers/api/outgoing-trade-offers";
 import { tradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { NewTradeSheets } from "@/features/trade-offers/components/new-trade-sheets";
+import { StatusMessagesSwitch } from "@/features/status-messages/components/status-messages-switch";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useSession } from "@/lib/auth/session";
 import { myCardReservationsQueryOptions } from "@/features/card-reservations/api/my-card-reservations";
@@ -216,7 +217,19 @@ export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         value={box}
         onChange={setBox}
       />
-      {box === "sent" ? <SentTradeOffers /> : box === "reservations" ? <MyCardReservationsView /> : <ReceivedTradeOffers />}
+      {box === "sent" ? (
+        <>
+          <StatusMessagesSwitch kind="tradeOffers" />
+          <SentTradeOffers />
+        </>
+      ) : box === "reservations" ? (
+        <>
+          <StatusMessagesSwitch kind="cardReservations" />
+          <MyCardReservationsView />
+        </>
+      ) : (
+        <ReceivedTradeOffers />
+      )}
       <NewTradeSheets openSheet={newTradeSheet} onOpenSheetChange={setNewTradeSheet} />
     </Screen>
   );

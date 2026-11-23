@@ -780,5 +780,17 @@
     },
     "dismiss": "Ausblenden",
     "dismissFor": "Hinweis zu {{card}} ausblenden"
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Discord-Nachricht, wenn ein Angebot beantwortet wird"
+    },
+    "cardReservations": {
+      "label": "Discord-Nachricht, wenn sich eine Reservierung ändert"
+    },
+    "description": "Der Mault-Bot schickt eine Direktnachricht an dein verknüpftes Discord-Konto.",
+    "linkDiscord": "Verknüpfe dein Discord-Konto, um das einzuschalten.",
+    "openAccount": "Kontoeinstellungen öffnen",
+    "updateFailed": "Discord-Nachrichten konnten nicht geändert werden."
   }
 }

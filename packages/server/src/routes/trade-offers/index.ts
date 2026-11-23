@@ -38,6 +38,7 @@ import {
 } from "../../lib/constants/trade-offers";
 import { createOrgReadCache } from "../../lib/org-read-cache";
 import { guestKeyHashFromHeader } from "../../lib/guest-keys";
+import { refreshCustomerOrgsInBackground } from "../../lib/customer-stream";
 import {
   claimGuestTradeOffers,
   listOutgoingTradeOffers,
@@ -160,6 +161,7 @@ export const tradeOffersRouter = new Hono<AppEnv>()
     const claimedCount = await db.transaction((tx) =>
       claimGuestTradeOffers(tx, { guestUserId: c.get("userId"), guestKeyHash }),
     );
+    if (claimedCount > 0) refreshCustomerOrgsInBackground(c.get("userId"));
     const data: ClaimOutgoingTradeOffersResult = { claimedCount };
     return c.json({ success: true, data });
   })

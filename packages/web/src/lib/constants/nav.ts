@@ -83,10 +83,11 @@ export const MOBILE_SCAN_PATH = "/app/scan";
 export const MOBILE_SCAN_PAIR_PATH = "/app/scan/pair";
 export const MOBILE_SORTER_PATH = "/app/sorter";
 export const MOBILE_ACCOUNT_PATH = "/app/me";
+export const ACCOUNT_PATH = "/app/account";
 export const MOBILE_ACCOUNT_TAB_PATHS = [
   MOBILE_ACCOUNT_PATH,
   "/app/admin",
-  "/app/account",
+  ACCOUNT_PATH,
   "/app/health",
   SETTINGS_PATHS.root,
   STATS_PATH,

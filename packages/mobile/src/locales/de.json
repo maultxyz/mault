@@ -4887,5 +4887,16 @@
         "description": "Schließe den Wareneingang dort ab oder brich ihn ab, ohne den Scan-Tab zu verlassen."
       }
     }
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Discord-Nachricht, wenn ein Angebot beantwortet wird"
+    },
+    "cardReservations": {
+      "label": "Discord-Nachricht, wenn sich eine Reservierung ändert"
+    },
+    "description": "Der Mault-Bot schickt eine Direktnachricht an dein verknüpftes Discord-Konto.",
+    "linkDiscord": "Verknüpfe dein Discord-Konto in den Kontoeinstellungen auf der Mault-Website, um das einzuschalten.",
+    "updateFailed": "Discord-Nachrichten konnten nicht geändert werden."
   }
 }

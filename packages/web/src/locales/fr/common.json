@@ -780,5 +780,17 @@
     },
     "dismiss": "Masquer",
     "dismissFor": "Masquer la notification pour {{card}}"
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Message Discord quand une offre reçoit une réponse"
+    },
+    "cardReservations": {
+      "label": "Message Discord quand une réservation change"
+    },
+    "description": "Le bot Mault envoie un message privé à votre compte Discord associé.",
+    "linkDiscord": "Associez votre compte Discord pour activer cette option.",
+    "openAccount": "Ouvrir les paramètres du compte",
+    "updateFailed": "Impossible de modifier les messages Discord."
   }
 }

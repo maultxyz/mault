@@ -18,6 +18,7 @@ import {
   CARD_RESERVATION_NOT_FOUND_MESSAGE,
 } from "../../lib/constants/card-reservations";
 import { guestKeyHashFromHeader } from "../../lib/guest-keys";
+import { refreshCustomerOrgsInBackground } from "../../lib/customer-stream";
 import {
   claimMyCardReservations,
   listMyCardReservations,
@@ -63,6 +64,7 @@ export const cardReservationsRouter = new Hono<AppEnv>()
     const claimedCount = await db.transaction((tx) =>
       claimMyCardReservations(tx, { guestUserId: c.get("userId"), guestKeyHash }),
     );
+    if (claimedCount > 0) refreshCustomerOrgsInBackground(c.get("userId"));
     const data: ClaimMyCardReservationsResult = { claimedCount };
     return c.json({ success: true, data });
   })

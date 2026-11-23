@@ -22,6 +22,8 @@ export const CARD_RESERVATION_STAGES = [
 ] as const;
 export const CARD_RESERVATION_PICK_NAME_MAX_LENGTH = 120;
 export const CARD_RESERVATIONS_CHANGED_EVENT = "card_reservations_changed";
+export const MY_CARD_RESERVATIONS_CHANGED_EVENT = "my_card_reservations_changed";
+export const CARD_RESERVATION_HOLD_LAPSE_REFETCH_DELAY_MS = 5000;
 export const CARD_RESERVATION_HOLD_DAY_CHOICES = [1, 2, 3, 7, 14] as const;
 export const DEFAULT_CARD_RESERVATION_HOLD_DAYS = 3;
 export const DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS = false;

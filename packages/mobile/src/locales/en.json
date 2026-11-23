@@ -4887,5 +4887,16 @@
         "description": "Finish or cancel the intake from that sheet without leaving the scan tab."
       }
     }
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Discord message when an offer is answered"
+    },
+    "cardReservations": {
+      "label": "Discord message when a reservation changes"
+    },
+    "description": "The Mault bot sends a direct message to your linked Discord account.",
+    "linkDiscord": "Link your Discord account in Account settings on the Mault website to turn this on.",
+    "updateFailed": "Couldn't update Discord messages."
   }
 }

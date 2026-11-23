@@ -31,6 +31,7 @@ import {
   searchTradeOfferCards,
 } from "../../lib/trade-offers";
 import { optionalVerifiedUserId } from "../../lib/optional-auth";
+import { watchCustomerOrgInBackground } from "../../lib/customer-stream";
 import {
   findOrgMembership,
   verifyHardwareClientToken,
@@ -121,6 +122,7 @@ export function createPublicTradeOffersRoute(
         case "offered-not-found":
           return c.json({ success: false, message: TRADE_OFFER_OFFERED_NOT_FOUND_MESSAGE }, 400);
         case "created":
+          if (guestUserId) watchCustomerOrgInBackground(guestUserId, link.scope.orgId);
           emitToOrg(link.scope.orgId, TRADE_OFFERS_CHANGED_EVENT, result.changed);
           void sendTradeOfferCreatedDiscordNotification({
             scope: link.scope,

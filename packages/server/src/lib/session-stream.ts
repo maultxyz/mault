@@ -7,6 +7,7 @@ import {
   invalidateOrgReadCachesForEvent,
 } from "./org-read-cache";
 import type { SerializedSseData, SseWriter } from "./interfaces/sse";
+import { notifyCustomersOfOrgEvent } from "./customer-stream";
 import type {
   SessionEntry,
   ViewerEntry,
@@ -32,6 +33,7 @@ export function serializeSseDataOnce(data: unknown): SerializedSseData {
 
 export function emitToOrg(orgId: string, event: string, data: unknown) {
   invalidateOrgReadCachesForEvent(orgId, event);
+  notifyCustomersOfOrgEvent(orgId, event);
   const writers = orgWriters.get(orgId);
   if (!writers) return;
   const serializedData = serializeSseDataOnce(data);

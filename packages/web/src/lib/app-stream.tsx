@@ -29,13 +29,19 @@ import {
   PICK_LIST_CHANGED_EVENT,
   type PickList,
   CARD_RESERVATIONS_CHANGED_EVENT,
+  MY_CARD_RESERVATIONS_CHANGED_EVENT,
+  MY_TRADE_OFFERS_CHANGED_EVENT,
   type CardReservationsChangedEvent,
   type TradeOffersChangedEvent,
   type DeployNotice,
   type MachineStatus,
   type SyncState,
 } from "@magic-vault/shared";
-import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
+import {
+  OUTGOING_TRADE_OFFERS_QUERY_KEY,
+  TRADE_OFFERS_QUERY_KEY,
+} from "@/lib/constants/trade-offers";
+import { MY_CARD_RESERVATIONS_QUERY_KEY } from "@/lib/constants/card-reservations";
 import i18n from "@/lib/i18n";
 import { toast } from "@/lib/toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -146,6 +152,19 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
             APP_STREAM_SETUP_RETRY_MS,
           );
         });
+
+        const refreshMyTradeOffers = () =>
+          queryClient.invalidateQueries({ queryKey: [OUTGOING_TRADE_OFFERS_QUERY_KEY] });
+        const refreshMyCardReservations = () =>
+          queryClient.invalidateQueries({ queryKey: [MY_CARD_RESERVATIONS_QUERY_KEY] });
+        if (streamSetupAttempt > 0) {
+          es.addEventListener("open", () => {
+            refreshMyTradeOffers();
+            refreshMyCardReservations();
+          });
+        }
+        es.addEventListener(MY_TRADE_OFFERS_CHANGED_EVENT, refreshMyTradeOffers);
+        es.addEventListener(MY_CARD_RESERVATIONS_CHANGED_EVENT, refreshMyCardReservations);
 
         es.addEventListener(MACHINES_INIT_EVENT, (e) => {
           const data = JSON.parse((e as MessageEvent).data) as {

@@ -29,6 +29,7 @@ import type { ShopCatalogClaims } from "../../lib/interfaces/share-tokens";
 import { emitToOrg } from "../../lib/session-stream";
 import { shopCatalogScope } from "../../lib/share-link-scopes";
 import { optionalVerifiedUserId } from "../../lib/optional-auth";
+import { watchCustomerOrgInBackground } from "../../lib/customer-stream";
 import {
   findOrgMembership,
   verifyHardwareClientToken,
@@ -111,6 +112,7 @@ export function createPublicCardReservationsRoute(
         case "guest-limit-reached":
           return c.json({ success: false, message: CARD_RESERVATION_GUEST_LIMIT_MESSAGE }, 429);
         case "created":
+          if (guestUserId) watchCustomerOrgInBackground(guestUserId, catalog.orgId);
           emitToOrg(catalog.orgId, CARD_RESERVATIONS_CHANGED_EVENT, result.changed);
           if (result.changed.createdReservation) {
             void sendCardReservationCreatedDiscordNotification({

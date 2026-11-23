@@ -15,10 +15,13 @@ import {
   PICK_LIST_CHANGED_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
   CARD_RESERVATIONS_CHANGED_EVENT,
+  MY_CARD_RESERVATIONS_CHANGED_EVENT,
+  MY_TRADE_OFFERS_CHANGED_EVENT,
   type DeployNotice,
 } from "@magic-vault/shared";
 import { BUSINESS_ORDERS_QUERY_KEY, BUSINESS_RESERVATIONS_QUERY_KEY } from "@/lib/constants/business";
-import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
+import { OUTGOING_TRADE_OFFERS_QUERY_KEY, TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
+import { MY_CARD_RESERVATIONS_QUERY_KEY } from "@/lib/constants/card-reservations";
 import { getRequestAuth } from "@/lib/api/client";
 import { useSession } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/config";
@@ -70,6 +73,8 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
       void queryClient.invalidateQueries({ queryKey: BUSINESS_ORDERS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: BUSINESS_RESERVATIONS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] });
+      void queryClient.invalidateQueries({ queryKey: [OUTGOING_TRADE_OFFERS_QUERY_KEY] });
+      void queryClient.invalidateQueries({ queryKey: [MY_CARD_RESERVATIONS_QUERY_KEY] });
     };
 
     const connect = async () => {
@@ -108,6 +113,14 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
       on(
         CARD_RESERVATIONS_CHANGED_EVENT,
         () => void queryClient.invalidateQueries({ queryKey: BUSINESS_RESERVATIONS_QUERY_KEY }),
+      );
+      on(
+        MY_TRADE_OFFERS_CHANGED_EVENT,
+        () => void queryClient.invalidateQueries({ queryKey: [OUTGOING_TRADE_OFFERS_QUERY_KEY] }),
+      );
+      on(
+        MY_CARD_RESERVATIONS_CHANGED_EVENT,
+        () => void queryClient.invalidateQueries({ queryKey: [MY_CARD_RESERVATIONS_QUERY_KEY] }),
       );
       on(DEPLOY_STATUS_EVENT, (data) => setDeployNotice(parse<DeployNotice | null>(data)));
       on(MACHINES_INIT_EVENT, (data) =>

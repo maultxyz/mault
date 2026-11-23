@@ -780,5 +780,17 @@
     },
     "dismiss": "Dismiss",
     "dismissFor": "Dismiss the update about {{card}}"
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Discord message when an offer is answered"
+    },
+    "cardReservations": {
+      "label": "Discord message when a reservation changes"
+    },
+    "description": "The Mault bot sends a direct message to your linked Discord account.",
+    "linkDiscord": "Link your Discord account to turn this on.",
+    "openAccount": "Open account settings",
+    "updateFailed": "Couldn't update Discord messages."
   }
 }

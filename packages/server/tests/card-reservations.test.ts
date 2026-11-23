@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   CARD_RESERVATION_CARDS_PER_REQUEST_MAX,
+  CARD_RESERVATION_HOLD_LAPSE_REFETCH_DELAY_MS,
+  msUntilCardReservationHoldsLapse,
   cardReservationFormSchema,
   cardReservationGroupStage,
   cardReservationStage,
@@ -282,4 +284,21 @@ test("a request takes the stage that needs attention first and lists its open pi
 test("list search escapes LIKE wildcards so they match literally", () => {
   assert.equal(containsLikePattern("Black Lotus"), "%Black Lotus%");
   assert.equal(containsLikePattern("100%_off\\"), "%100\\%\\_off\\\\%");
+});
+
+test("msUntilCardReservationHoldsLapse waits for the earliest future hold of an active reservation", () => {
+  const now = Date.parse("2026-11-22T12:00:00.000Z");
+  const reservations = [
+    { status: "ready" as const, holdExpiresAt: "2026-11-22T12:10:00.000Z" },
+    { status: "ready" as const, holdExpiresAt: "2026-11-22T12:05:00.000Z" },
+    { status: "ready" as const, holdExpiresAt: "2026-11-22T11:00:00.000Z" },
+    { status: "collected" as const, holdExpiresAt: "2026-11-22T12:01:00.000Z" },
+    { status: "waiting" as const, holdExpiresAt: null },
+  ];
+  assert.equal(
+    msUntilCardReservationHoldsLapse(reservations, now),
+    5 * 60 * 1000 + CARD_RESERVATION_HOLD_LAPSE_REFETCH_DELAY_MS,
+  );
+  assert.equal(msUntilCardReservationHoldsLapse([], now), false);
+  assert.equal(msUntilCardReservationHoldsLapse(undefined, now), false);
 });

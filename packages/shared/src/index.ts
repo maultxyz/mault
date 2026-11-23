@@ -281,6 +281,9 @@ export * from "./interfaces/card-reservations.interface";
 export * from "./constants/card-reservations.constant";
 export * from "./schemas/card-reservations.schema";
 export * from "./card-reservations";
+export * from "./interfaces/status-messages.interface";
+export * from "./constants/status-messages.constant";
+export * from "./schemas/status-messages.schema";
 export * from "./card-tags";
 
 export * from "./serial-route";
