@@ -200,6 +200,7 @@ export * from "./unmatched-retry";
 export * from "./card-grid-tiles";
 export * from "./card-review-status";
 export * from "./card-settle";
+export * from "./phone-camera";
 export * from "./serial-session";
 export * from "./sorter-link-connection";
 export * from "./sorter-name";

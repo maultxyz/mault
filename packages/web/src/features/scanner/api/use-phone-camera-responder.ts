@@ -1,8 +1,28 @@
+import { uploadPhoneCameraCapture } from "@/features/collections/api/phone-camera-signal";
 import { useCameraSignalChannel } from "@/features/scanner/api/use-camera-signal-channel";
+import { canvasToBlob } from "@/features/scanner/lib/card-detection";
+import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { PHONE_CAMERA_JPEG_QUALITY as JPEG_QUALITY } from "@/lib/constants/scanner";
 import { HEARTBEAT_INTERVAL_MS } from "@/lib/constants/timing";
-import type { PhoneCameraMessage, ScanRegion } from "@magic-vault/shared";
+import {
+  waitUntilCardSettles,
+  type PhoneCameraCardObservation,
+  type PhoneCameraMessage,
+  type ScanRegion,
+} from "@magic-vault/shared";
 import { useCallback, useEffect, useRef } from "react";
+
+async function observeCardOnCanvas(
+  canvas: HTMLCanvasElement,
+): Promise<PhoneCameraCardObservation | null> {
+  if (!canvas.width || !canvas.height) return null;
+  const detection = await detectCardCorners(canvas);
+  return {
+    cardPresent: detection.cardPresent,
+    contour: detection.contour,
+    frameLongSidePx: Math.max(canvas.width, canvas.height),
+  };
+}
 
 export function usePhoneCameraResponder(
   collectionGuid: string | undefined,
@@ -12,13 +32,38 @@ export function usePhoneCameraResponder(
   onDesktopDisconnected?: () => void,
   onScanRegionUpdate?: (region: ScanRegion) => void,
 ) {
-  const sendRef = useRef<(message: PhoneCameraMessage) => void>(() => {});
   const onCaptureRef = useRef(onCapture);
   onCaptureRef.current = onCapture;
   const onDesktopDisconnectedRef = useRef(onDesktopDisconnected);
   onDesktopDisconnectedRef.current = onDesktopDisconnected;
   const onScanRegionUpdateRef = useRef(onScanRegionUpdate);
   onScanRegionUpdateRef.current = onScanRegionUpdate;
+  const latestRequestIdRef = useRef<string | null>(null);
+
+  const respondToCapture = useCallback(
+    async (requestId: string, maxCardSettleWaitMs: number) => {
+      if (!collectionGuid) return;
+      latestRequestIdRef.current = requestId;
+      const isSuperseded = () => latestRequestIdRef.current !== requestId;
+      if (maxCardSettleWaitMs > 0) {
+        await waitUntilCardSettles({
+          observeCard: () => {
+            const canvas = canvasRef.current;
+            return canvas ? observeCardOnCanvas(canvas) : Promise.resolve(null);
+          },
+          maxWaitMs: maxCardSettleWaitMs,
+          isCancelled: isSuperseded,
+        });
+        if (isSuperseded()) return;
+      }
+      const canvas = canvasRef.current;
+      if (!canvas || !canvas.width || !canvas.height) return;
+      const image = await canvasToBlob(canvas, JPEG_QUALITY);
+      onCaptureRef.current?.();
+      await uploadPhoneCameraCapture(collectionGuid, requestId, image);
+    },
+    [collectionGuid, canvasRef],
+  );
 
   const handleMessage = useCallback(
     (message: PhoneCameraMessage) => {
@@ -31,32 +76,27 @@ export function usePhoneCameraResponder(
         return;
       }
       if (message.kind !== "capture_requested" || !message.requestId) return;
-      const canvas = canvasRef.current;
-      if (!canvas || !canvas.width || !canvas.height) return;
-      const imageDataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
-      sendRef.current({
-        kind: "capture_response",
-        requestId: message.requestId,
-        imageDataUrl,
-      });
-      onCaptureRef.current?.();
+      respondToCapture(
+        message.requestId,
+        message.maxCardSettleWaitMs ?? 0,
+      ).catch(() => {});
     },
-    [canvasRef],
+    [respondToCapture],
   );
 
   const { send } = useCameraSignalChannel(collectionGuid, handleMessage);
-  sendRef.current = send;
 
   useEffect(() => {
     if (!isCameraReady) return;
-    send({ kind: "camera_ready" });
-    const interval = setInterval(
-      () => send({ kind: "camera_ready" }),
-      HEARTBEAT_INTERVAL_MS,
-    );
+    const canvas = canvasRef.current;
+    if (canvas) observeCardOnCanvas(canvas).catch(() => {});
+    const announceReady = () =>
+      send({ kind: "camera_ready", capturesWhenCardSettles: true });
+    announceReady();
+    const interval = setInterval(announceReady, HEARTBEAT_INTERVAL_MS);
     return () => {
       clearInterval(interval);
       send({ kind: "camera_left" });
     };
-  }, [isCameraReady, send]);
+  }, [isCameraReady, send, canvasRef]);
 }

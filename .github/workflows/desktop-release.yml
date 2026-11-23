@@ -247,14 +247,13 @@ jobs:
           npm pkg set version="$VERSION" --prefix packages/desktop
           git add packages/desktop/package.json
           git commit -m "chore(release): desktop v$VERSION [skip ci]"
+          git pull --rebase origin "${{ github.ref_name }}"
           if [ -n "${{ inputs.rollback_tag }}" ]; then
             git tag "desktop-v$VERSION" "$SOURCE_SHA"
           else
             git tag "desktop-v$VERSION"
           fi
-          git pull --rebase origin "${{ github.ref_name }}"
-          git push origin "HEAD:${{ github.ref_name }}"
-          git push origin "desktop-v$VERSION"
+          git push --atomic origin "HEAD:${{ github.ref_name }}" "refs/tags/desktop-v$VERSION"
 
       - name: Summary
         run: |

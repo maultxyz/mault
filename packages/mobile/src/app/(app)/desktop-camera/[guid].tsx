@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Camera, type CameraRef, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
-import { DEFAULT_SCAN_REGION } from "@magic-vault/shared";
+import { DEFAULT_SCAN_REGION, waitUntilCardSettles } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -21,7 +21,9 @@ import { usePhoneCameraResponder } from "@/features/scanner/api/use-phone-camera
 import { CameraEmptyStateFrame } from "@/features/scanner/components/camera-empty-state-frame";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
-import { captureFrame, imageToJpegDataUrl } from "@/features/scanner/lib/frame";
+import { useLiveFrameSource } from "@/features/scanner/api/use-live-frame-source";
+import { capturePhotoImage, imageToJpegTempFile } from "@/features/scanner/lib/frame";
+import { detectCornersInImage, warmCornerDetector } from "@/features/scanner/lib/inference";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useAppState } from "@/hooks/use-app-state";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -30,6 +32,7 @@ import { CAPTURE_FLASH_MS, PHONE_CAMERA_JPEG_QUALITY } from "@/lib/constants/pho
 import { CAMERA_ASPECT_RATIO, CAPTURE_TARGET_RESOLUTION } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
+import type { PhoneCameraCaptureRequest } from "@/lib/interfaces/scanner";
 
 export default function DesktopCameraScreen() {
   useKeepAwake();
@@ -46,6 +49,7 @@ export default function DesktopCameraScreen() {
   const cameraRef = useRef<CameraRef>(null);
   const device = camera.device;
   const torch = useCameraTorch(device, cameraRef);
+  const { liveFrameOutput, grabLiveFrame } = useLiveFrameSource(cameraRef);
   const { data: collections } = useQuery(collectionsQueryOptions(useActiveOrgId()));
   const collection = collections?.find((c) => c.guid === guid);
   const photoOutput = usePhotoOutput({ targetResolution: CAPTURE_TARGET_RESOLUTION, qualityPrioritization: "speed" });
@@ -54,17 +58,40 @@ export default function DesktopCameraScreen() {
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const active = cameraMounted && appState === "active" && permission.hasPermission && !!device;
 
-  const capture = useCallback(async () => {
-    const frame = await captureFrame(photoOutput);
-    const { width, height } = frame.image;
-    if (width > 0 && height > 0) setFrameAspect(Math.min(width, height) / Math.max(width, height));
-    setFlash(true);
-    if (flashTimer.current) clearTimeout(flashTimer.current);
-    flashTimer.current = setTimeout(() => setFlash(false), CAPTURE_FLASH_MS);
-    return imageToJpegDataUrl(frame.image, PHONE_CAMERA_JPEG_QUALITY);
-  }, [photoOutput]);
+  const capture = useCallback(
+    async ({ maxCardSettleWaitMs, isSuperseded }: PhoneCameraCaptureRequest) => {
+      if (maxCardSettleWaitMs > 0) {
+        await waitUntilCardSettles({
+          observeCard: async () => {
+            const image = await grabLiveFrame();
+            const detection = await detectCornersInImage(image, image.width, image.height);
+            return {
+              cardPresent: detection.cardPresent,
+              contour: detection.contour,
+              frameLongSidePx: Math.max(image.width, image.height),
+            };
+          },
+          maxWaitMs: maxCardSettleWaitMs,
+          isCancelled: isSuperseded,
+        });
+        if (isSuperseded()) return null;
+      }
+      const { image } = await capturePhotoImage(photoOutput);
+      const { width, height } = image;
+      if (width > 0 && height > 0) setFrameAspect(Math.min(width, height) / Math.max(width, height));
+      setFlash(true);
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+      flashTimer.current = setTimeout(() => setFlash(false), CAPTURE_FLASH_MS);
+      return imageToJpegTempFile(image, PHONE_CAMERA_JPEG_QUALITY);
+    },
+    [photoOutput, grabLiveFrame],
+  );
 
   const responder = usePhoneCameraResponder({ collectionGuid: guid, enabled: active, capture });
+
+  useEffect(() => {
+    if (active) warmCornerDetector().catch(() => {});
+  }, [active]);
 
   useEffect(
     () => () => {
@@ -112,7 +139,7 @@ export default function DesktopCameraScreen() {
               style={StyleSheet.absoluteFill}
               device={device}
               isActive={active}
-              outputs={[photoOutput]}
+              outputs={[photoOutput, ...(liveFrameOutput ? [liveFrameOutput] : [])]}
               resizeMode="cover"
               enableNativeTapToFocusGesture
               onStarted={torch.onCameraStarted}
