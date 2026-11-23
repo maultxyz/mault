@@ -1,4 +1,5 @@
 diff --git a/android/CMakeLists.txt b/android/CMakeLists.txt
+index 2f814e871ad773c46a958c99ac5efc90d8e64357..58a392a2562c7a49585aba246a2c26cfa8e570db 100644
 --- a/android/CMakeLists.txt
 +++ b/android/CMakeLists.txt
 @@ -5,6 +5,7 @@ set(PACKAGE_NAME "onnxruntime-react-native")
@@ -10,7 +11,7 @@ diff --git a/android/CMakeLists.txt b/android/CMakeLists.txt
  option(ORT_EXTENSIONS_ENABLED "Enable Ort Extensions" NO)
  option(USE_NNAPI "Use NNAPI" YES)
 diff --git a/android/build.gradle b/android/build.gradle
-index 41b43599a9af6ef1c170047d39db1f3baa6ca682..66a378d7a2f1bff44198925130fd30d34d71b3d0 100644
+index 41b43599a9af6ef1c170047d39db1f3baa6ca682..e32130fe8ae7f574e414344b9b0f4b77298fa59c 100644
 --- a/android/build.gradle
 +++ b/android/build.gradle
 @@ -116,6 +116,7 @@ android {
@@ -21,8 +22,15 @@ index 41b43599a9af6ef1c170047d39db1f3baa6ca682..66a378d7a2f1bff44198925130fd30d3
      }
    }
  
-@@ -247,10 +248,6 @@ dependencies {
-     extractLibs "com.microsoft.onnxruntime:onnxruntime-android:latest.integration@aar"
+@@ -242,19 +243,15 @@ dependencies {
+   implementation "junit:junit:4.12"
+ 
+   if (useQnn) {
+-    extractLibs "com.microsoft.onnxruntime:onnxruntime-android-qnn:latest.integration@aar"
++    extractLibs "com.microsoft.onnxruntime:onnxruntime-android-qnn:1.29.0@aar"
+   } else {
+-    extractLibs "com.microsoft.onnxruntime:onnxruntime-android:latest.integration@aar"
++    extractLibs "com.microsoft.onnxruntime:onnxruntime-android:1.30.0@aar"
    }
  
 -  if (VersionNumber.parse(REACT_NATIVE_VERSION) < VersionNumber.parse("0.71")) {
@@ -32,6 +40,11 @@ index 41b43599a9af6ef1c170047d39db1f3baa6ca682..66a378d7a2f1bff44198925130fd30d3
  
    // By default it will just include onnxruntime full aar package
    if (ortExtensionsEnabled) {
+-    implementation "com.microsoft.onnxruntime:onnxruntime-extensions-android:latest.integration@aar"
++    implementation "com.microsoft.onnxruntime:onnxruntime-extensions-android:0.13.0@aar"
+   }
+ }
+ 
 @@ -264,7 +261,7 @@ task extractLibs {
        def file = it.absoluteFile
        copy {
@@ -41,16 +54,8 @@ index 41b43599a9af6ef1c170047d39db1f3baa6ca682..66a378d7a2f1bff44198925130fd30d3
          include "**/*.h", "**/*.so"
        }
      }
-diff --git a/unimodule.json b/unimodule.json
-deleted file mode 100644
---- a/unimodule.json
-+++ /dev/null
-@@ -1,4 +0,0 @@
--{
--  "name": "onnxruntime-react-native",
--  "platforms": ["ios", "android"]
--}
 diff --git a/ios/OnnxruntimeModule.mm b/ios/OnnxruntimeModule.mm
+index 8155f92aa4770c2c13c6c7c3db2a38f7311282c1..83d7276fe324f8c91e46ab8ae9e9ef7c4d4a747e 100644
 --- a/ios/OnnxruntimeModule.mm
 +++ b/ios/OnnxruntimeModule.mm
 @@ -10,6 +10,10 @@
@@ -79,3 +84,6 @@ diff --git a/ios/OnnxruntimeModule.mm b/ios/OnnxruntimeModule.mm
      if (jsiRuntime == nil) {
        return @false;
      }
+diff --git a/unimodule.json b/unimodule.json
+deleted file mode 100644
+index c2bd3c0f071c0cd1ee9ccc88c7491906aed289d4..0000000000000000000000000000000000000000
