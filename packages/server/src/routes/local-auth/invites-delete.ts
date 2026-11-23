@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { getOwnAuth } from "../../auth/own-auth-instance";
 import {
+  rejectAccountChangesWhileImpersonating,
   requireAuth,
   requireOrg,
   requireOrgRole,
@@ -11,6 +12,7 @@ import { authErrorResponse } from "./shared";
 export const deleteInviteRoute = new Hono<AppEnv>().delete(
   "/invites/:invitationId",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   requireOrgRole("owner", "admin"),
   async (c) => {

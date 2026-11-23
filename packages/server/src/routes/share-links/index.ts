@@ -12,7 +12,7 @@ import { forgetSharedStorageReads } from "../../lib/shared-storage-reads-cache";
 import { listSubjectShareLinks, revokeShareLink } from "../../lib/share-links";
 import { isShareTokenConfigured } from "../../lib/share-tokens";
 import { forgetVerifiedStorageShareLinks } from "../../lib/storage-share-links";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const shareLinksRouter = new Hono<AppEnv>()
   .get("/", requireAuth, requireOrg, async (c) => {
@@ -35,7 +35,7 @@ export const shareLinksRouter = new Hono<AppEnv>()
     );
     return c.json({ success: true, data });
   })
-  .post("/cards/:scanId", requireAuth, requireOrg, async (c) => {
+  .post("/cards/:scanId", requireAuth, rejectAccountChangesWhileImpersonating, requireOrg, async (c) => {
     if (!isShareTokenConfigured()) {
       return c.json({ success: false, message: "Share links are not configured." }, 503);
     }

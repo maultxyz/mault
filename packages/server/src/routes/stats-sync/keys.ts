@@ -10,7 +10,7 @@ import {
   loadStatsSyncKeyStatus,
   revokeStatsSyncKey,
 } from "../../lib/stats-sync-keys";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const statsSyncKeyRoutes = new Hono<AppEnv>()
   .get("/key", requireAuth, requireOrg, async (c) => {
@@ -21,7 +21,7 @@ export const statsSyncKeyRoutes = new Hono<AppEnv>()
     );
     return c.json({ success: true, data });
   })
-  .post("/key", requireAuth, requireOrg, async (c) => {
+  .post("/key", requireAuth, rejectAccountChangesWhileImpersonating, requireOrg, async (c) => {
     if (!STATS_SYNC_MANAGER_ROLES.includes(c.get("orgRole"))) {
       return c.json({ success: false, message: STATS_SYNC_MANAGERS_ONLY_MESSAGE });
     }
@@ -32,7 +32,7 @@ export const statsSyncKeyRoutes = new Hono<AppEnv>()
     });
     return c.json({ success: true, data });
   })
-  .delete("/key", requireAuth, requireOrg, async (c) => {
+  .delete("/key", requireAuth, rejectAccountChangesWhileImpersonating, requireOrg, async (c) => {
     if (!STATS_SYNC_MANAGER_ROLES.includes(c.get("orgRole"))) {
       return c.json({ success: false, message: STATS_SYNC_MANAGERS_ONLY_MESSAGE });
     }

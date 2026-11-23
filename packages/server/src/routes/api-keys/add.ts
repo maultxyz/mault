@@ -12,13 +12,14 @@ import {
   API_KEY_MANAGER_ROLES,
   ORG_API_KEY_COLUMNS,
 } from "../../lib/constants/api-keys";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { apiKeyInputSchema } from "./shared";
 import { orgHasFeature } from "../../lib/plan-config";
 
 export const addApiKeyRoute = new Hono<AppEnv>().post(
   "/",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");

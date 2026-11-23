@@ -72,6 +72,7 @@ export function useOrgSettingsDraft(): OrgSettingsDraft {
     control: form.control,
     savedPrimaryColor: values.primaryColor,
     isLoading: !data && !isLoadError,
+    canManageOrgSettings: data?.canManageOrgSettings !== false,
     isLoadError,
     isRetryingLoad: isLoadError && isFetching,
     retryLoad: () => void refetch(),

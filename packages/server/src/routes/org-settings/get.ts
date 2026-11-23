@@ -1,4 +1,5 @@
 import {
+  canManageOrgSettings,
   toCorrectionAutoCloseSeconds,
   toConditionMultipliers,
   toPriceSource,
@@ -47,6 +48,7 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
             row?.conditionMultipliers,
           ),
           discordGuildId: row?.discordGuildId ?? null,
+          canManageOrgSettings: canManageOrgSettings(c.get("orgRole")),
         } satisfies OrgSettings,
       };
     });

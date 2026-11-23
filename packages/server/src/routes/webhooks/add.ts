@@ -13,13 +13,14 @@ import {
 } from "../../lib/constants/webhooks";
 import { generateWebhookSecret } from "../../lib/webhooks/delivery";
 import { toWebhookEndpoint } from "../../lib/webhooks/endpoints";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { webhookInputError, webhookInputSchema } from "./shared";
 import { orgHasFeature } from "../../lib/plan-config";
 
 export const addWebhookRoute = new Hono<AppEnv>().post(
   "/",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");

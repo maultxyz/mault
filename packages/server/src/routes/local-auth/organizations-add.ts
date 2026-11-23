@@ -2,12 +2,13 @@ import { Hono } from "hono";
 import { getOwnAuth } from "../../auth/own-auth-instance";
 import { db } from "../../db";
 import { getOrCreateDevice } from "../../lib/devices";
-import { requireAuth, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, type AppEnv } from "../../middleware/auth";
 import { authErrorResponse } from "./shared";
 
 export const addOrganizationRoute = new Hono<AppEnv>().post(
   "/organizations",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   async (c) => {
     const { name } = await c.req.json<{ name?: string }>();
     if (!name) {

@@ -1,7 +1,5 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
-import { db } from "../../db";
-import { impersonationAudit } from "../../db/schema";
+import { endImpersonationSessions } from "../../lib/impersonation-sessions";
 import { requireAuth, type AppEnv } from "../../middleware/auth";
 
 export const stopImpersonationRoute = new Hono<AppEnv>().post(
@@ -18,25 +16,7 @@ export const stopImpersonationRoute = new Hono<AppEnv>().post(
       );
     }
 
-    const [open] = await db
-      .select({ id: impersonationAudit.id })
-      .from(impersonationAudit)
-      .where(
-        and(
-          eq(impersonationAudit.adminUserId, adminUserId),
-          eq(impersonationAudit.targetUserId, targetUserId),
-          isNull(impersonationAudit.endedAt),
-        ),
-      )
-      .orderBy(desc(impersonationAudit.startedAt))
-      .limit(1);
-
-    if (open) {
-      await db
-        .update(impersonationAudit)
-        .set({ endedAt: new Date() })
-        .where(eq(impersonationAudit.id, open.id));
-    }
+    await endImpersonationSessions(adminUserId, targetUserId);
 
     return c.json({ success: true, data: null });
   },

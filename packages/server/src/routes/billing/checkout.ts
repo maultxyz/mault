@@ -6,6 +6,7 @@ import { hasActiveSubscription } from "../../lib/billing-status";
 import { findPlanPriceId, getStripe } from "../../lib/stripe";
 import { syncOrgBillingFromStripe } from "../../lib/stripe-billing-sync";
 import {
+  rejectAccountChangesWhileImpersonating,
   getUserContact,
   requireAuth,
   requireOrg,
@@ -17,6 +18,7 @@ import { checkoutInputSchema, webUrl } from "./shared";
 export const checkoutBillingRoute = new Hono<AppEnv>().post(
   "/checkout",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   requireOrgRole("owner", "admin"),
   async (c) => {

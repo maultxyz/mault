@@ -14,7 +14,7 @@ import {
   getSorterLinkStatus,
   hashSorterLinkToken,
 } from "../../lib/sorter-link";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const listSorterLinksRoute = new Hono<AppEnv>().get(
   "/sorter-links",
@@ -42,6 +42,7 @@ export const listSorterLinksRoute = new Hono<AppEnv>().get(
 export const createSorterLinkRoute = new Hono<AppEnv>().post(
   "/:guid/sorter-link",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
@@ -71,6 +72,7 @@ export const createSorterLinkRoute = new Hono<AppEnv>().post(
 export const deleteSorterLinkRoute = new Hono<AppEnv>().delete(
   "/:guid/sorter-link",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");

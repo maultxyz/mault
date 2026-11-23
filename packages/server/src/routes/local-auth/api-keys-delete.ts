@@ -1,12 +1,13 @@
 import { Hono } from "hono";
 import { clearVerifiedLocalTokens } from "../../auth/local-token-cache";
 import { getOwnAuth } from "../../auth/own-auth-instance";
-import { requireAuth, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, type AppEnv } from "../../middleware/auth";
 import { authErrorResponse } from "./shared";
 
 export const deleteApiKeyRoute = new Hono<AppEnv>().delete(
   "/api-keys/:keyPrefix",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   async (c) => {
     try {
       await getOwnAuth().revokeApiKey({

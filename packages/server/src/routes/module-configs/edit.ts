@@ -1,7 +1,11 @@
-import type { ServoCalibration } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { moduleConfigAudit, moduleConfigs } from "../../db/schema";
+import { pickCalibrationValues } from "../../lib/calibration-input";
+import {
+  CALIBRATION_INPUT_INVALID_MESSAGE,
+  SERVO_CALIBRATION_INPUT_KEYS,
+} from "../../lib/constants/calibration-input";
 import { getDeviceByGuid } from "../../lib/devices";
 import {
   rejectWhileImpersonating,
@@ -20,7 +24,13 @@ export const editModuleConfigRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
     const moduleNumber = parseInt(c.req.param("moduleNumber"));
-    const calibration = await c.req.json<ServoCalibration>();
+    const calibration = pickCalibrationValues(
+      await c.req.json().catch(() => null),
+      SERVO_CALIBRATION_INPUT_KEYS,
+    );
+    if (!calibration || !Number.isInteger(moduleNumber)) {
+      return c.json({ success: false, message: CALIBRATION_INPUT_INVALID_MESSAGE }, 400);
+    }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const device = await getDeviceByGuid(tx, orgId, deviceGuid);
       if (!device) return { success: false, message: "Device not found." };

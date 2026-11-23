@@ -5,10 +5,12 @@ import { createMiddleware } from "hono/factory";
 import * as jose from "jose";
 import { authProvider } from "../auth";
 import {
+  ACCOUNT_CHANGES_BLOCKED_WHILE_IMPERSONATING_MESSAGE,
   IMPERSONATION_ISSUER,
   IMPERSONATION_TTL_SECONDS,
   SCANNING_BLOCKED_WHILE_IMPERSONATING_MESSAGE,
 } from "../lib/constants/auth";
+import { findOpenImpersonationSession } from "../lib/impersonation-sessions";
 import {
   AUTH_LOOKUP_CACHE_MAX_ENTRIES,
   AUTH_LOOKUP_CACHE_TTL_MS,
@@ -30,6 +32,7 @@ import {
   MEMBER_SEAT_LIMIT_HTTP_STATUS,
   PLAN_PREVIEW_HEADER,
   PLAN_PREVIEW_ROLE,
+  PLATFORM_STAFF_ROLES,
   type OrgRole,
 } from "@magic-vault/shared";
 import type { ImpersonationPayload } from "../lib/interfaces/auth";
@@ -76,12 +79,14 @@ function impersonationSecret(): Uint8Array {
 export async function signImpersonationToken(
   adminUserId: string,
   targetUserId: string,
+  sessionGuid: string,
 ): Promise<{ token: string; expiresAt: Date }> {
   const expiresAt = new Date(Date.now() + IMPERSONATION_TTL_SECONDS * 1000);
   const token = await new jose.SignJWT({ act: { sub: adminUserId } })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(IMPERSONATION_ISSUER)
     .setSubject(targetUserId)
+    .setJti(sessionGuid)
     .setIssuedAt()
     .setExpirationTime(Math.floor(expiresAt.getTime() / 1000))
     .sign(impersonationSecret());
@@ -95,11 +100,27 @@ async function verifyImpersonationToken(
     const { payload } = await jose.jwtVerify(token, impersonationSecret(), {
       issuer: IMPERSONATION_ISSUER,
     });
-    if (!payload.sub) return null;
-    return payload as ImpersonationPayload;
+    const impersonation = payload as ImpersonationPayload;
+    const actorUserId = impersonation.act?.sub;
+    if (!impersonation.sub || !impersonation.jti || !actorUserId) return null;
+    return (await isLiveImpersonation(impersonation.jti, actorUserId, impersonation.sub))
+      ? impersonation
+      : null;
   } catch {
     return null;
   }
+}
+
+async function isLiveImpersonation(
+  sessionGuid: string,
+  actorUserId: string,
+  targetUserId: string,
+): Promise<boolean> {
+  const session = await findOpenImpersonationSession(sessionGuid);
+  if (!session) return false;
+  if (session.adminUserId !== actorUserId || session.targetUserId !== targetUserId) return false;
+  const staffRoles: readonly string[] = PLATFORM_STAFF_ROLES;
+  return staffRoles.includes(await getUserRole(actorUserId));
 }
 
 export async function getUserRole(userId: string): Promise<string> {
@@ -126,6 +147,18 @@ export async function verifyHardwareClientToken(
   if (await verifyImpersonationToken(token)) return null;
   return verifyToken(token);
 }
+
+export const rejectAccountChangesWhileImpersonating = createMiddleware<AppEnv>(
+  async (c, next) => {
+    if (c.get("impersonatedBy") !== null) {
+      return c.json(
+        { success: false, message: ACCOUNT_CHANGES_BLOCKED_WHILE_IMPERSONATING_MESSAGE },
+        409,
+      );
+    }
+    await next();
+  },
+);
 
 export const rejectWhileImpersonating = createMiddleware<AppEnv>(
   async (c, next) => {

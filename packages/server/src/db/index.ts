@@ -1,6 +1,10 @@
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import {
+  ROLE_SWITCH_REFUSED_ERROR_CODES,
+  ROW_LEVEL_SECURITY_OFF_VALUE,
+} from "../lib/constants/database";
 import * as schema from "./schema";
 
 function createPool(
@@ -38,15 +42,56 @@ export function orgIdOfJwtClaims(jwtClaims: string): string | null {
   return typeof claims.org_id === "string" ? claims.org_id : null;
 }
 
+let hostedAuthenticatedRoleProbe: Promise<boolean> | null = null;
+
+function errorCodeOf(error: unknown): string | null {
+  for (let current = error; current instanceof Error; current = current.cause) {
+    const code = (current as { code?: unknown }).code;
+    if (typeof code === "string") return code;
+  }
+  return null;
+}
+
+function hostedDatabaseAllowsAuthenticatedRole(): Promise<boolean> {
+  hostedAuthenticatedRoleProbe ??= db
+    .transaction(async (tx) => {
+      await tx.execute(sql`SELECT set_config('role', 'authenticated', true)`);
+      return true;
+    })
+    .catch((error: unknown) => {
+      const code = errorCodeOf(error);
+      if (!code || !ROLE_SWITCH_REFUSED_ERROR_CODES.has(code)) {
+        hostedAuthenticatedRoleProbe = null;
+        throw error;
+      }
+      console.error(
+        "[db] ROW-LEVEL SECURITY IS NOT ENFORCED: this database refuses SET ROLE authenticated. Grant the role to the app's database user, or set DB_ROW_LEVEL_SECURITY=off to silence this.",
+        error,
+      );
+      return false;
+    });
+  return hostedAuthenticatedRoleProbe;
+}
+
+async function switchesToAuthenticatedRole(): Promise<boolean> {
+  if (process.env.AUTH_PROVIDER === "local") return true;
+  if (process.env.DB_ROW_LEVEL_SECURITY === ROW_LEVEL_SECURITY_OFF_VALUE) return false;
+  return hostedDatabaseAllowsAuthenticatedRole();
+}
+
 export async function authQuery<T>(
   jwtClaims: string,
   callback: (tx: Transaction) => Promise<T>,
 ): Promise<T> {
+  const isLocalAuth = process.env.AUTH_PROVIDER === "local";
+  const switchesRole = await switchesToAuthenticatedRole();
   return db.transaction(async (tx) => {
     await tx.execute(
-      process.env.AUTH_PROVIDER === "local"
-        ? sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true), set_config('role', 'authenticated', true)`
-        : sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true)`,
+      !switchesRole
+        ? sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true)`
+        : isLocalAuth
+          ? sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true), set_config('role', 'authenticated', true)`
+          : sql`SELECT auth.user_id() IS NULL, set_config('request.jwt.claims', ${jwtClaims}, true), set_config('role', 'authenticated', true)`,
     );
     return callback(tx);
   });

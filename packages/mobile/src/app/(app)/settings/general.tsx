@@ -2,6 +2,7 @@ import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
+import { Callout } from "@/components/ui/callout";
 import { Icon } from "@/components/ui/icon";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
@@ -81,11 +82,14 @@ export default function GeneralSettingsScreen() {
         />
       </SettingsSection>
       <SettingsSection title={t("settings.leaderboard.heading")} description={t("settings.leaderboard.description")}>
+        {!draft.isLoading && !draft.canManageOrgSettings ? (
+          <Callout tone="info" title={t("settings.business.managersOnly")} />
+        ) : null}
         <Controller
           control={draft.control}
           name="leaderboardOptIn"
           render={({ field }) => (
-            <SwitchRow title={t("settings.leaderboard.toggleLabel")} value={field.value} disabled={disabled} onValueChange={field.onChange} />
+            <SwitchRow title={t("settings.leaderboard.toggleLabel")} value={field.value} disabled={disabled || !draft.canManageOrgSettings} onValueChange={field.onChange} />
           )}
         />
       </SettingsSection>

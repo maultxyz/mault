@@ -1,4 +1,9 @@
 import type { AdminCacheKeysPage, AdminCacheSummary } from "@magic-vault/shared";
+import { createHash } from "node:crypto";
+import {
+  MASKED_CACHE_KEY_HASH_LENGTH,
+  MASKED_CACHE_KEY_PREFIX,
+} from "./constants/cache-registry";
 import type { RegisteredCache } from "./interfaces/cached-value";
 
 const registeredCachesByName = new Map<string, RegisteredCache>();
@@ -10,6 +15,12 @@ function uniqueCacheName(name: string): string {
   return `${name}#${suffix}`;
 }
 
+function shownKeyOf(cache: RegisteredCache, key: string): string {
+  if (!cache.hasSecretKeys) return key;
+  const hash = createHash("sha256").update(key).digest("hex");
+  return `${MASKED_CACHE_KEY_PREFIX}${hash.slice(0, MASKED_CACHE_KEY_HASH_LENGTH)}`;
+}
+
 export function registerCache(cache: RegisteredCache): string {
   const name = uniqueCacheName(cache.name);
   registeredCachesByName.set(name, { ...cache, name });
@@ -19,10 +30,11 @@ export function registerCache(cache: RegisteredCache): string {
 export function registerMapCache(
   name: string,
   entries: Map<string, unknown>,
-  { onClear }: { onClear?: () => void } = {},
+  { onClear, hasSecretKeys = false }: { onClear?: () => void; hasSecretKeys?: boolean } = {},
 ): string {
   return registerCache({
     name,
+    hasSecretKeys,
     countEntries: () => entries.size,
     listKeys: () => entries.keys(),
     deleteKeys: (shouldDelete) => {
@@ -61,7 +73,8 @@ export function listRegisteredCacheKeys(
   if (!cache) return null;
   const keys: string[] = [];
   let matchingKeyCount = 0;
-  for (const key of cache.listKeys()) {
+  for (const storedKey of cache.listKeys()) {
+    const key = shownKeyOf(cache, storedKey);
     if (keyContains && !key.includes(keyContains)) continue;
     matchingKeyCount += 1;
     if (keys.length < maxKeys) keys.push(key);
@@ -84,12 +97,13 @@ export function deleteRegisteredCacheKeys(
 ): number | null {
   const cache = registeredCachesByName.get(name);
   if (!cache) return null;
-  return cache.deleteKeys(shouldDelete);
+  return cache.deleteKeys((key) => shouldDelete(shownKeyOf(cache, key)));
 }
 
 export function deleteKeysContainingFromEveryCache(text: string): number {
   let deletedCount = 0;
   for (const cache of registeredCachesByName.values()) {
+    if (cache.hasSecretKeys) continue;
     deletedCount += cache.deleteKeys((key) => key.includes(text));
   }
   return deletedCount;

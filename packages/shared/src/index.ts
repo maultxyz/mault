@@ -46,6 +46,7 @@ export * from "./interfaces/platform-discord-channels.interface";
 export * from "./interfaces/plans.interface";
 export * from "./interfaces/admin-caches.interface";
 export * from "./constants/admin-caches.constant";
+export * from "./org-settings-permissions";
 export * from "./schemas/admin-caches.schema";
 export * from "./billing-usage";
 export * from "./interfaces/organization.interface";

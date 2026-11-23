@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { getOwnAuth } from "../../auth/own-auth-instance";
-import { requireAuth, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, type AppEnv } from "../../middleware/auth";
 import { authErrorResponse } from "./shared";
 
-export const addApiKeyRoute = new Hono<AppEnv>().post("/api-keys", requireAuth, async (c) => {
+export const addApiKeyRoute = new Hono<AppEnv>().post("/api-keys", requireAuth, rejectAccountChangesWhileImpersonating, async (c) => {
   const { name, expiresAt } = await c.req.json<{
     name?: string;
     expiresAt?: string;

@@ -50,7 +50,7 @@ import {
   shortLinkUrlFor,
 } from "../../lib/shortener-client";
 import { uuidArraySql } from "../../lib/sql-arrays";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { businessQuery, notFound, readJson } from "./shared";
 
 type ShopCatalogRow = typeof shopCatalogs.$inferSelect;
@@ -230,7 +230,7 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
       return { success: true, data };
     }),
   )
-  .post("/shop-catalogs", requireAuth, requireOrg, async (c) => {
+  .post("/shop-catalogs", requireAuth, rejectAccountChangesWhileImpersonating, requireOrg, async (c) => {
     const input = shopCatalogRequestSchema.safeParse(await readJson(c));
     if (!input.success) {
       return c.json({ success: false, message: SHOP_CATALOG_INVALID_MESSAGE }, 400);
@@ -314,7 +314,7 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
     forgetShopCatalogLinks(guid);
     return result;
   })
-  .post("/shop-catalogs/:guid/reset-link", requireAuth, requireOrg, async (c) => {
+  .post("/shop-catalogs/:guid/reset-link", requireAuth, rejectAccountChangesWhileImpersonating, requireOrg, async (c) => {
     const guid = c.req.param("guid");
     const result = await businessQuery(c, async (tx, access) => {
       if (!access.canManageSettings) return BUSINESS_FORBIDDEN_RESULT;

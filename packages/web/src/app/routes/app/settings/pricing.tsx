@@ -1,3 +1,4 @@
+import { ManagersOnlyNote } from "@/components/managers-only-note";
 import { Callout } from "@/components/callout";
 import { ConditionMultipliersSetting } from "@/components/condition-multipliers-setting";
 import { PriceSourceToggle } from "@/components/price-source-toggle";
@@ -27,6 +28,7 @@ function MarketPricingSections({ draft }: MarketPricingSectionsProps) {
         heading={t("pricing.heading")}
         description={t("pricing.description")}
       >
+        {!draft.isLoading && !draft.canManageOrgSettings && <ManagersOnlyNote />}
         {draft.isLoading ? (
           <div className="flex gap-2">
             <Skeleton className="h-14 w-36 rounded-lg" />
@@ -37,7 +39,11 @@ function MarketPricingSections({ draft }: MarketPricingSectionsProps) {
             control={draft.control}
             name="priceSource"
             render={({ field }) => (
-              <PriceSourceToggle value={field.value} onChange={field.onChange} />
+              <PriceSourceToggle
+                value={field.value}
+                disabled={!draft.canManageOrgSettings}
+                onChange={field.onChange}
+              />
             )}
           />
         )}
@@ -55,7 +61,7 @@ function MarketPricingSections({ draft }: MarketPricingSectionsProps) {
             render={({ field, fieldState }) => (
               <ConditionMultipliersSetting
                 value={field.value}
-                disabled={disabled}
+                disabled={disabled || !draft.canManageOrgSettings}
                 errors={[fieldState.error]}
                 onChange={field.onChange}
               />

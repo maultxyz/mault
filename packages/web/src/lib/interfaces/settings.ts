@@ -21,6 +21,7 @@ export interface ConditionMultipliersSettingProps {
 
 export interface PriceSourceToggleProps {
   value: PriceSource;
+  disabled?: boolean;
   onChange: (priceSource: PriceSource) => void;
 }
 

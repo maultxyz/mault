@@ -4,6 +4,7 @@ import { orgSettings } from "../../db/schema";
 import { DISCORD_LINK_CODE_LENGTH } from "../../lib/constants/discord";
 import { DISCORD_LINK_CODE_TTL_MS } from "../../lib/constants/timing";
 import {
+  rejectAccountChangesWhileImpersonating,
   requireAuth,
   requireOrg,
   requireOrgRole,
@@ -13,6 +14,7 @@ import {
 export const discordLinkCodeRoute = new Hono<AppEnv>().post(
   "/discord-link-code",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   requireOrgRole("owner", "admin"),
   async (c) => {

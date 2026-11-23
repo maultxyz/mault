@@ -7,11 +7,11 @@ import {
   WEBHOOK_MANAGER_ROLES,
 } from "../../lib/constants/webhooks";
 import { toWebhookEndpoint } from "../../lib/webhooks/endpoints";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { webhookInputError, webhookInputSchema } from "./shared";
 
 export const editWebhookRoute = new Hono<AppEnv>()
-  .put("/:guid", requireAuth, requireOrg, async (c) => {
+  .put("/:guid", requireAuth, rejectAccountChangesWhileImpersonating, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     if (!WEBHOOK_MANAGER_ROLES.includes(c.get("orgRole"))) {
       return c.json({
@@ -48,7 +48,7 @@ export const editWebhookRoute = new Hono<AppEnv>()
     });
     return c.json(result);
   })
-  .post("/:guid/enable", requireAuth, requireOrg, async (c) => {
+  .post("/:guid/enable", requireAuth, rejectAccountChangesWhileImpersonating, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     if (!WEBHOOK_MANAGER_ROLES.includes(c.get("orgRole"))) {
       return c.json({

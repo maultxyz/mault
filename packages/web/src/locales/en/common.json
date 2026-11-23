@@ -806,5 +806,6 @@
     "label": "Sender",
     "signedInDescription": "Signed in with an account",
     "guestDescription": "Guest without an account"
-  }
+  },
+  "managersOnlySetting": "Only organization owners and admins can change this."
 }

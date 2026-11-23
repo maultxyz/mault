@@ -42,6 +42,7 @@ import { createTtlCache } from "./ttl-cache";
 
 const sharePreviewCache = createTtlCache<SharePreview>({
   name: "shareLinks.previews",
+  hasSecretKeys: true,
   ttlMs: SHARE_PREVIEW_CACHE_TTL_MS,
   maxEntries: SHARE_PREVIEW_CACHE_MAX_ENTRIES,
 });

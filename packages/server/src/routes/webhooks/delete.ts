@@ -3,11 +3,12 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { webhookEndpoints } from "../../db/schema";
 import { WEBHOOK_MANAGER_ROLES } from "../../lib/constants/webhooks";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const deleteWebhookRoute = new Hono<AppEnv>().delete(
   "/:guid",
   requireAuth,
+  rejectAccountChangesWhileImpersonating,
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");

@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { notificationRules } from "../../db/schema";
+import { DISCORD_CHANNEL_EDITOR_ROLES } from "../../lib/constants/discord";
 import { loadNotificationRules } from "../../lib/notification-rules";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { checkRuleTargets, notificationRuleInputSchema } from "./shared";
@@ -13,6 +14,12 @@ export const editNotificationRuleRoute = new Hono<AppEnv>().put(
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
+    if (!DISCORD_CHANNEL_EDITOR_ROLES.includes(c.get("orgRole"))) {
+      return c.json({
+        success: false,
+        message: "Only organization owners and admins can change notification rules.",
+      });
+    }
     const input = notificationRuleInputSchema.safeParse(await c.req.json());
     if (!input.success) {
       return c.json(

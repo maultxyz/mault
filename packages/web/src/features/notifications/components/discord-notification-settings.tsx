@@ -1,3 +1,4 @@
+import { ManagersOnlyNote } from "@/components/managers-only-note";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
@@ -8,16 +9,17 @@ import { type DiscordSettingsDraftFormValues } from "@magic-vault/shared";
 
 export function DiscordNotificationSettings() {
   const { t } = useTranslation("notifications");
-  const { isLoading, isLinked, sendTest, isTesting, testingType } =
+  const { isLoading, isLinked, canManageOrgSettings, sendTest, isTesting, testingType } =
     useNotificationSettings();
   const { control, formState } = useFormContext<DiscordSettingsDraftFormValues>();
   const notifyOnScan = useWatch({ control, name: "discordNotifyOnScan" });
-  const disabled = isLoading || formState.isSubmitting;
+  const disabled = isLoading || formState.isSubmitting || !canManageOrgSettings;
 
   const canTest = isLinked && !isTesting && !isLoading;
 
   return (
     <div className="flex flex-col gap-3 md:gap-2">
+      {!isLoading && !canManageOrgSettings && <ManagersOnlyNote />}
       <label className="flex items-center justify-between gap-3">
         <span className="flex flex-col gap-0.5">
           <span className="text-sm">

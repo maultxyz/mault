@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { PRICE_SOURCE_FIELDS, PRICE_SOURCES } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
-export function PriceSourceToggle({ value, onChange }: PriceSourceToggleProps) {
+export function PriceSourceToggle({ value, disabled = false, onChange }: PriceSourceToggleProps) {
   const { t } = useTranslation("settings");
 
   return (
@@ -18,10 +18,11 @@ export function PriceSourceToggle({ value, onChange }: PriceSourceToggleProps) {
           <button
             key={source}
             type="button"
+            disabled={disabled}
             onClick={() => onChange(source)}
             aria-pressed={isSelected}
             className={cn(
-              "flex flex-col items-center gap-1 rounded-lg border p-3 w-36 transition-colors motion-reduce:transition-none",
+              "flex flex-col items-center gap-1 rounded-lg border p-3 w-36 transition-colors motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-60",
               isSelected
                 ? TOGGLE_TILE_SELECTED_CLASS
                 : TOGGLE_TILE_UNSELECTED_CLASS,

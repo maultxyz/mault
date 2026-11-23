@@ -1,5 +1,6 @@
 import "./lib/disable-onnx-telemetry";
 import "./lib/console-timestamps";
+import "./lib/redact-console-errors";
 
 import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
@@ -193,7 +194,7 @@ app.onError((err, c) => {
   console.error("[server] Unhandled error:", err);
   reportServerError(
     err,
-    { url: c.req.url, method: c.req.method },
+    { path: c.req.path, method: c.req.method },
     c.get("userId"),
   );
   return c.json({ success: false, message: "Internal server error." }, 500);

@@ -806,5 +806,6 @@
     "label": "Expéditeur",
     "signedInDescription": "Connecté avec un compte",
     "guestDescription": "Invité sans compte"
-  }
+  },
+  "managersOnlySetting": "Seuls les propriétaires et les administrateurs de l’organisation peuvent modifier ce réglage."
 }

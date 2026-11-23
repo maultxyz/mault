@@ -20,13 +20,13 @@ import { forgetSharedStorageReads } from "../../lib/shared-storage-reads-cache";
 import { issueShareLink, revokeShareLinksForSubject } from "../../lib/share-links";
 import { forgetVerifiedStorageShareLinks } from "../../lib/storage-share-links";
 import type { ShareLinkRequestBody } from "../../lib/interfaces/share-tokens";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { rejectAccountChangesWhileImpersonating, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { orgHasFeature } from "../../lib/plan-config";
 import { STORAGE_LOCKED_RESULT } from "../../lib/constants/plan-access";
 import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const storageShareLinkRoute = new Hono<AppEnv>()
-  .post("/:guid/share-link", requireAuth, requireOrg, async (c) => {
+  .post("/:guid/share-link", requireAuth, rejectAccountChangesWhileImpersonating, requireOrg, async (c) => {
     if (!isShareTokenConfigured()) {
       return c.json(
         { success: false, message: "Share links are not configured." },

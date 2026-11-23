@@ -26,6 +26,7 @@ export function useNotificationSettings() {
 
   return {
     isLoading,
+    canManageOrgSettings: data?.canManageOrgSettings !== false,
     isLinked: !!data?.discordGuildId,
     sendTest: testMutation.mutate,
     isTesting: testMutation.isPending,
