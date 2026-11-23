@@ -1,7 +1,13 @@
+import {
+  marketingOpenGraphImageAlt,
+  marketingOpenGraphImagePath,
+} from "@magic-vault/shared";
 import { useEffect } from "react";
+import { MARKETING_PAGES } from "@/lib/constants/marketing-pages";
 import {
   DEFAULT_ROBOTS,
   NO_INDEX_ROBOTS,
+  SITE_PUBLIC_API_URL,
   SITE_URL,
 } from "@/lib/constants/seo";
 import type { PageMeta } from "@/lib/interfaces/seo";
@@ -42,6 +48,19 @@ function setCanonical(href: string) {
   };
 }
 
+function openGraphImageMeta(path: string) {
+  const page = MARKETING_PAGES.find((marketingPage) => marketingPage.path === path);
+  if (!page) return [];
+  const imageUrl = `${SITE_PUBLIC_API_URL}${marketingOpenGraphImagePath(page.openGraphImageKey)}`;
+  const imageAlt = marketingOpenGraphImageAlt(page.openGraphImageKey);
+  return [
+    setMeta("property", "og:image", imageUrl),
+    setMeta("property", "og:image:alt", imageAlt),
+    setMeta("name", "twitter:image", imageUrl),
+    setMeta("name", "twitter:image:alt", imageAlt),
+  ];
+}
+
 export function usePageMeta({ title, description, path, noIndex }: PageMeta) {
   useEffect(() => {
     const url = `${SITE_URL}${path}`;
@@ -56,6 +75,7 @@ export function usePageMeta({ title, description, path, noIndex }: PageMeta) {
       setMeta("property", "og:url", url),
       setMeta("name", "twitter:title", title),
       setMeta("name", "twitter:description", description),
+      ...openGraphImageMeta(path),
     ];
     return () => {
       document.title = previousTitle;

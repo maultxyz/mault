@@ -8,6 +8,11 @@ export function getApiUrl(): string | null {
   return process.env.API_URL || null;
 }
 
+export function getPublicApiBaseUrl(): string {
+  const apiUrl = getApiUrl() ?? `${getWebUrl().replace(/\/+$/, "")}/api`;
+  return `${apiUrl.replace(/\/+$/, "")}/public`;
+}
+
 export function getSorterLinkUrl(): string | null {
   if (process.env.SORTER_LINK_URL) return process.env.SORTER_LINK_URL;
   const apiUrl = getApiUrl();

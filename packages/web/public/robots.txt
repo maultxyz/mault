@@ -1,5 +1,28 @@
 User-agent: *
 Allow: /
+Allow: /api/public/og-image/
+Disallow: /app
+Disallow: /auth
+Disallow: /api
+
+# Search and AI answer engines are welcome on the public pages.
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Applebot
+User-agent: DuckDuckBot
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+Allow: /
+Allow: /api/public/og-image/
 Disallow: /app
 Disallow: /auth
 Disallow: /api

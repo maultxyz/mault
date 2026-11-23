@@ -12,9 +12,10 @@ import {
   SHARE_PREVIEW_CACHE_TTL_MS,
 } from "./constants/share-preview";
 import type { PublicCardBrowseScope } from "./interfaces/public-cards";
+import { OPEN_GRAPH_CARDS_SHOWN_MAX } from "./constants/open-graph-image";
 import type {
   SharePreview,
-  SharePreviewImage,
+  SharePreviewCardArt,
   SharePreviewListSummary,
   SharePreviewRequest,
 } from "./interfaces/share-preview";
@@ -29,13 +30,15 @@ import {
   storageShareLinkScope,
 } from "./share-link-scopes";
 import {
+  cardOpenGraphImage,
   cardSharePreviewText,
+  listOpenGraphImage,
   collectionSharePreviewText,
   shopCatalogSharePreviewText,
   storageSharePreviewText,
   unavailableSharePreview,
 } from "./share-preview-html";
-import { loadShopPhotoRow, resolveShopPhotoUrl } from "./shop-photo";
+import { loadShopPhotoRow } from "./shop-photo";
 import { verifyPublicShopCatalog, verifyShopCatalogLink } from "./shop-catalogs";
 import { verifyStorageShareLink } from "./storage-share-links";
 import { createTtlCache } from "./ttl-cache";
@@ -47,10 +50,11 @@ const sharePreviewCache = createTtlCache<SharePreview>({
   maxEntries: SHARE_PREVIEW_CACHE_MAX_ENTRIES,
 });
 
-async function loadLeadingCard(
+async function loadLeadingCards(
   tx: Transaction,
   scope: PublicCardBrowseScope,
-): Promise<{ card: PublicCard | null; formattedPrice: string | null }> {
+  count: number,
+): Promise<{ cards: PublicCard[]; leadingCardPrice: string | null }> {
   const pricing = await loadOrgPricing(tx, scope.orgId);
   const sort: PublicCardSort = scope.showsPrices ? "price-desc" : "newest";
   const page = await loadPublicCardPage(
@@ -61,13 +65,13 @@ async function loadLeadingCard(
       sort,
       gameKey: null,
       filters: EMPTY_PUBLIC_CARD_FILTERS,
-      pageSize: 1,
+      pageSize: count,
       requestedPage: 1,
     },
     pricing,
   );
-  const card = page.cards[0] ?? null;
-  if (!card || !scope.showsPrices) return { card, formattedPrice: null };
+  const card = page.cards[0];
+  if (!card || !scope.showsPrices) return { cards: page.cards, leadingCardPrice: null };
   const price = cardPriceFor(
     card.card,
     { isFoil: card.isFoil, foilType: card.foilType, stamp: card.stamp },
@@ -75,25 +79,23 @@ async function loadLeadingCard(
     card.condition,
     pricing.conditionMultipliers,
   );
-  return { card, formattedPrice: price == null ? null : formatPrice(price, pricing.source) };
+  return {
+    cards: page.cards,
+    leadingCardPrice: price == null ? null : formatPrice(price, pricing.source),
+  };
 }
 
-function cardArtImage(card: PublicCard | null): SharePreviewImage | null {
-  const imageUrl = card?.card.image?.normal;
-  if (!card || !imageUrl) return null;
-  return { url: imageUrl, alt: card.card.name, width: null, height: null };
+function cardArtOf(cards: PublicCard[]): SharePreviewCardArt[] {
+  return cards.flatMap((card) => {
+    const imageUrl = card.card.image?.normal;
+    return imageUrl ? [{ name: card.card.name, imageUrl }] : [];
+  });
 }
 
-async function loadShopPhotoImage(
-  tx: Transaction,
-  orgId: string,
-  shopName: string,
-): Promise<SharePreviewImage | null> {
+async function shopPhotoOrgId(tx: Transaction, orgId: string): Promise<string | null> {
   if (!(await orgHasFeature(tx, orgId, "businessTools"))) return null;
-  const photoUrl = await resolveShopPhotoUrl(await loadShopPhotoRow(tx, orgId));
-  return photoUrl
-    ? { url: photoUrl, alt: shopName, width: null, height: null }
-    : null;
+  const row = await loadShopPhotoRow(tx, orgId);
+  return row?.shopPhotoKey || row?.shopPhotoDataUrl ? orgId : null;
 }
 
 async function loadListSummary(
@@ -119,12 +121,14 @@ async function loadCollectionPreview(
       claims.collectionName,
       claims.purpose === "trade",
     );
-    const { card } = await loadLeadingCard(tx, scope);
+    const { cards } = await loadLeadingCards(tx, scope, OPEN_GRAPH_CARDS_SHOWN_MAX);
     return {
       ...collectionSharePreviewText(summary),
       pathWithQuery: request.pathWithQuery,
       isIndexable: false,
-      image: cardArtImage(card),
+      openGraphImage: listOpenGraphImage("collection", summary, cardArtOf(cards), null),
+      itemCount: summary.cardCount,
+      topics: summary.games.map((game) => game.name),
     };
   });
 }
@@ -142,12 +146,14 @@ async function loadStoragePreview(
       claims.locationName,
       claims.purpose === "trade",
     );
-    const { card } = await loadLeadingCard(tx, scope);
+    const { cards } = await loadLeadingCards(tx, scope, OPEN_GRAPH_CARDS_SHOWN_MAX);
     return {
       ...storageSharePreviewText(summary),
       pathWithQuery: request.pathWithQuery,
       isIndexable: false,
-      image: cardArtImage(card),
+      openGraphImage: listOpenGraphImage("storage", summary, cardArtOf(cards), null),
+      itemCount: summary.cardCount,
+      topics: summary.games.map((game) => game.name),
     };
   });
 }
@@ -159,21 +165,25 @@ async function loadCardPreview(
   if (!claims || claims.scanId !== request.subjectGuid) return null;
   const scope = cardShareLinkScope(claims);
   return db.transaction(async (tx) => {
-    const { card, formattedPrice } = await loadLeadingCard(tx, scope);
+    const { cards, leadingCardPrice } = await loadLeadingCards(tx, scope, 1);
+    const card = cards[0];
     if (!card) return null;
+    const summary = {
+      name: card.card.name,
+      setName: card.card.setName || null,
+      collectorNumber: card.card.collectorNumber || null,
+      condition: card.condition,
+      isFoil: card.isFoil,
+      foilType: card.foilType,
+      formattedPrice: leadingCardPrice,
+    };
     return {
-      ...cardSharePreviewText({
-        name: card.card.name,
-        setName: card.card.setName || null,
-        collectorNumber: card.card.collectorNumber || null,
-        condition: card.condition,
-        isFoil: card.isFoil,
-        foilType: card.foilType,
-        formattedPrice,
-      }),
+      ...cardSharePreviewText(summary),
       pathWithQuery: request.pathWithQuery,
       isIndexable: false,
-      image: cardArtImage(card),
+      openGraphImage: cardOpenGraphImage(summary, cardArtOf(cards)[0] ?? null),
+      itemCount: 1,
+      topics: [],
     };
   });
 }
@@ -189,13 +199,19 @@ async function loadShopCatalogPreview(
   const scope = shopCatalogScope(claims);
   return db.transaction(async (tx) => {
     const summary = await loadListSummary(tx, scope, claims.name, false);
-    const shopPhoto = await loadShopPhotoImage(tx, claims.orgId, claims.name);
-    const image = shopPhoto ?? cardArtImage((await loadLeadingCard(tx, scope)).card);
+    const { cards } = await loadLeadingCards(tx, scope, OPEN_GRAPH_CARDS_SHOWN_MAX);
     return {
       ...shopCatalogSharePreviewText(summary),
       pathWithQuery: request.pathWithQuery,
       isIndexable: isPublicCatalogLink,
-      image,
+      openGraphImage: listOpenGraphImage(
+        "shopCatalog",
+        summary,
+        cardArtOf(cards),
+        await shopPhotoOrgId(tx, claims.orgId),
+      ),
+      itemCount: summary.cardCount,
+      topics: summary.games.map((game) => game.name),
     };
   });
 }
@@ -214,10 +230,14 @@ async function loadSharePreviewUncached(
   return preview ?? unavailableSharePreview(request.pathWithQuery);
 }
 
+export function sharePreviewCacheKey(request: SharePreviewRequest): string {
+  return `${request.kind}|${request.subjectGuid}|${request.token ?? ""}`;
+}
+
 export async function loadSharePreview(
   request: SharePreviewRequest,
 ): Promise<SharePreview> {
-  const cacheKey = `${request.kind}|${request.subjectGuid}|${request.token ?? ""}`;
+  const cacheKey = sharePreviewCacheKey(request);
   const cached = sharePreviewCache.get(cacheKey);
   if (cached) return { ...cached, pathWithQuery: request.pathWithQuery };
   const preview = await loadSharePreviewUncached(request);

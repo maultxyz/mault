@@ -1,4 +1,5 @@
 import type { PublicCardGame } from "@magic-vault/shared";
+import type { OpenGraphImageContent } from "./open-graph-image";
 
 export type SharePreviewLinkKind = "collection" | "storage" | "card" | "shopCatalog";
 
@@ -9,19 +10,14 @@ export interface SharePreviewRequest {
   pathWithQuery: string;
 }
 
-export interface SharePreviewImage {
-  url: string;
-  alt: string;
-  width: number | null;
-  height: number | null;
-}
-
 export interface SharePreview {
   title: string;
   description: string;
   pathWithQuery: string;
   isIndexable: boolean;
-  image: SharePreviewImage | null;
+  openGraphImage: OpenGraphImageContent | null;
+  itemCount: number | null;
+  topics: string[];
 }
 
 export interface SharePreviewCardSummary {
@@ -39,4 +35,9 @@ export interface SharePreviewListSummary {
   cardCount: number;
   games: PublicCardGame[];
   isTradeLink: boolean;
+}
+
+export interface SharePreviewCardArt {
+  name: string;
+  imageUrl: string;
 }

@@ -4,12 +4,19 @@ import { tmpdir } from "os";
 import path from "path";
 import { pathToFileURL } from "url";
 import { build, type Plugin } from "vite";
+import {
+  marketingOpenGraphImageAlt,
+  marketingOpenGraphImagePath,
+} from "@magic-vault/shared";
 import { MARKETING_PAGES } from "../src/lib/constants/marketing-pages";
 import {
   PRERENDER_PATH_GUARD_SCRIPT,
   SHARE_PAGE_FILE,
+  SITE_PUBLIC_API_URL,
   SITE_URL,
 } from "../src/lib/constants/seo";
+import type { MarketingPageDefinition } from "../src/lib/interfaces/seo";
+import { jsonLdScriptTag, marketingPageStructuredData } from "./marketing-structured-data";
 import { sharePageHtml } from "./share-page-html";
 
 interface PrerenderedPages {
@@ -111,21 +118,40 @@ function readPageMeta(
 }
 
 function withPageMeta(
+  root: string,
   template: string,
-  pagePath: string,
+  page: MarketingPageDefinition,
   meta: { title: string; description: string },
 ): string {
+  const pageUrl = `${SITE_URL}${page.path}`;
+  const imageUrl = `${SITE_PUBLIC_API_URL}${marketingOpenGraphImagePath(page.openGraphImageKey)}`;
+  const imageAlt = escapeHtml(marketingOpenGraphImageAlt(page.openGraphImageKey));
   const title = escapeHtml(meta.title);
   const description = escapeHtml(meta.description);
-  const url = escapeHtml(`${SITE_URL}${pagePath}`);
+  const url = escapeHtml(pageUrl);
   let html = replaceOnce(template, /(<title>)[^<]*(<\/title>)/, title);
   html = replaceOnce(html, /(<link\s+rel="canonical"\s+href=")[^"]*(")/, url);
   html = withMetaContent(html, "name", "description", description);
   html = withMetaContent(html, "property", "og:url", url);
   html = withMetaContent(html, "property", "og:title", title);
   html = withMetaContent(html, "property", "og:description", description);
+  html = withMetaContent(html, "property", "og:image", escapeHtml(imageUrl));
+  html = withMetaContent(html, "property", "og:image:alt", imageAlt);
   html = withMetaContent(html, "name", "twitter:title", title);
-  return withMetaContent(html, "name", "twitter:description", description);
+  html = withMetaContent(html, "name", "twitter:description", description);
+  html = withMetaContent(html, "name", "twitter:image", escapeHtml(imageUrl));
+  html = withMetaContent(html, "name", "twitter:image:alt", imageAlt);
+  const structuredData = jsonLdScriptTag(
+    marketingPageStructuredData({
+      root,
+      page,
+      url: pageUrl,
+      title: meta.title,
+      description: meta.description,
+      imageUrl,
+    }),
+  );
+  return replaceOnce(html, /()(\s*<\/head>)/, `\n    ${structuredData}`);
 }
 
 function withPrerenderedApp(
@@ -171,7 +197,7 @@ export function marketingPageHtml(): Plugin {
         for (const page of MARKETING_PAGES) {
           const meta = readPageMeta(root, page.namespace, page.metaPath);
           const html = withPrerenderedApp(
-            withPageMeta(template, page.path, meta),
+            withPageMeta(root, template, page, meta),
             page.path,
             envSignature,
             pages[page.path],

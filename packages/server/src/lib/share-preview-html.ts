@@ -1,12 +1,27 @@
 import {
+  OPEN_GRAPH_DEFAULT_THEME,
+  OPEN_GRAPH_IMAGE_ROUTE_PATH,
+  OPEN_GRAPH_IMAGE_THEME_PARAM,
+  type OpenGraphTheme,
   SHARED_CARD_PATH_PREFIX,
   SHARED_STORAGE_PATH_PREFIX,
   SHARE_LINK_TOKEN_PARAM,
   SHOP_CATALOG_PATH_PREFIX,
   WATCH_PATH_PREFIX,
+  type OpenGraphStat,
   type PublicCardGame,
 } from "@magic-vault/shared";
 import {
+  SHARE_PREVIEW_CARD_EYEBROW,
+  SHARE_PREVIEW_COLLECTION_EYEBROW,
+  SHARE_PREVIEW_IMAGE_TYPE,
+  SHARE_PREVIEW_JSON_LD_LANGUAGE,
+  SHARE_PREVIEW_FOIL_STAT,
+  SHARE_PREVIEW_SHARED_ON_SITE,
+  SHARE_PREVIEW_SHOP_EYEBROW,
+  SHARE_PREVIEW_TRADE_STAT,
+  SHARE_PREVIEW_STORAGE_EYEBROW,
+  SHARE_PREVIEW_TRADE_EYEBROW,
   SHARE_PREVIEW_DEFAULT_IMAGE_ALT,
   SHARE_PREVIEW_DEFAULT_IMAGE_HEIGHT,
   SHARE_PREVIEW_DEFAULT_IMAGE_PATH,
@@ -21,8 +36,10 @@ import {
   SHARE_PREVIEW_UNAVAILABLE_DESCRIPTION,
   SHARE_PREVIEW_UNAVAILABLE_TITLE,
 } from "./constants/share-preview";
+import type { OpenGraphImageContent } from "./interfaces/open-graph-image";
 import type {
   SharePreview,
+  SharePreviewCardArt,
   SharePreviewCardSummary,
   SharePreviewLinkKind,
   SharePreviewListSummary,
@@ -104,7 +121,9 @@ export function unavailableSharePreview(pathWithQuery: string): SharePreview {
     description: SHARE_PREVIEW_UNAVAILABLE_DESCRIPTION,
     pathWithQuery,
     isIndexable: false,
-    image: null,
+    openGraphImage: null,
+    itemCount: null,
+    topics: [],
   };
 }
 
@@ -186,17 +205,144 @@ function metaTag(attribute: "name" | "property", key: string, content: string): 
   return `<meta ${attribute}="${key}" content="${escapeHtml(content)}" />`;
 }
 
-export function renderSharePreviewHtml(preview: SharePreview, webUrl: string): string {
+function cardArtAlt(cardArt: SharePreviewCardArt[]): string {
+  return cardArt.length > 0 ? ` Card art: ${cardArt.map((card) => card.name).join(", ")}.` : "";
+}
+
+function asSentence(text: string): string {
+  return /[.!?]$/.test(text) ? text : `${text}.`;
+}
+
+function openGraphImageAlt(
+  eyebrow: string,
+  headline: string,
+  subtitle: string,
+  stats: readonly OpenGraphStat[],
+  extra: string,
+): string {
+  const statsText = stats.length > 0 ? ` ${asSentence(stats.map((stat) => stat.text).join(", "))}` : "";
+  return `${eyebrow}: ${asSentence(headline)} ${asSentence(subtitle)}${statsText}${extra}`;
+}
+
+export function listOpenGraphImage(
+  kind: "collection" | "storage" | "shopCatalog",
+  summary: SharePreviewListSummary,
+  cardArt: SharePreviewCardArt[],
+  shopPhotoOrgId: string | null,
+): OpenGraphImageContent {
+  const count = cardCountText(summary.cardCount);
+  const eyebrow =
+    kind === "shopCatalog"
+      ? SHARE_PREVIEW_SHOP_EYEBROW
+      : summary.isTradeLink
+        ? SHARE_PREVIEW_TRADE_EYEBROW
+        : kind === "storage"
+          ? SHARE_PREVIEW_STORAGE_EYEBROW
+          : SHARE_PREVIEW_COLLECTION_EYEBROW;
+  const subtitle = gamesText(summary.games) ?? SHARE_PREVIEW_SHARED_ON_SITE;
+  const stats: OpenGraphStat[] = [
+    { icon: "cards", text: kind === "shopCatalog" ? `${count} for sale` : count },
+    ...(summary.isTradeLink ? [{ icon: "tradeOffers" as const, text: SHARE_PREVIEW_TRADE_STAT }] : []),
+  ];
+  const cardImageUrls = cardArt.map((card) => card.imageUrl);
+  return {
+    eyebrow,
+    headline: summary.subjectName,
+    subtitle,
+    stats,
+    visual: shopPhotoOrgId
+      ? { kind: "shopPhoto", orgId: shopPhotoOrgId, fallbackCardImageUrls: cardImageUrls }
+      : { kind: "cards", cardImageUrls },
+    alt: openGraphImageAlt(
+      eyebrow,
+      summary.subjectName,
+      subtitle,
+      stats,
+      shopPhotoOrgId ? ` Photo of ${summary.subjectName}.` : cardArtAlt(cardArt),
+    ),
+  };
+}
+
+export function cardOpenGraphImage(
+  card: SharePreviewCardSummary,
+  cardArt: SharePreviewCardArt | null,
+): OpenGraphImageContent {
+  const printing = [card.setName, card.collectorNumber ? `#${card.collectorNumber}` : null]
+    .filter(Boolean)
+    .join(" ");
+  const subtitle = printing || SHARE_PREVIEW_SHARED_ON_SITE;
+  const stats: OpenGraphStat[] = [
+    ...(card.condition ? [{ icon: "condition" as const, text: card.condition }] : []),
+    ...(card.isFoil ? [{ icon: "foil" as const, text: card.foilType ?? SHARE_PREVIEW_FOIL_STAT }] : []),
+    ...(card.formattedPrice ? [{ icon: "price" as const, text: card.formattedPrice }] : []),
+  ];
+  return {
+    eyebrow: SHARE_PREVIEW_CARD_EYEBROW,
+    headline: card.name,
+    subtitle,
+    stats,
+    visual: { kind: "cards", cardImageUrls: cardArt ? [cardArt.imageUrl] : [] },
+    alt: openGraphImageAlt(SHARE_PREVIEW_CARD_EYEBROW, card.name, subtitle, stats, cardArt ? " Card art." : ""),
+  };
+}
+
+function jsonLdScript(value: object): string {
+  const json = JSON.stringify(value).replace(
+    /[<>&]/g,
+    (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`,
+  );
+  return `<script type="application/ld+json">${json}</script>`;
+}
+
+function collectionPageJsonLd(
+  preview: SharePreview,
+  url: string,
+  imageUrl: string,
+  webUrl: string,
+): string {
+  const origin = webUrl.replace(/\/+$/, "");
+  return jsonLdScript({
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${url}#page`,
+    url,
+    name: preview.title,
+    description: preview.description,
+    inLanguage: SHARE_PREVIEW_JSON_LD_LANGUAGE,
+    image: imageUrl,
+    isPartOf: { "@id": `${origin}/#website` },
+    ...(preview.topics.length > 0
+      ? { about: preview.topics.map((name) => ({ "@type": "Thing", name })) }
+      : {}),
+    ...(preview.itemCount != null
+      ? { mainEntity: { "@type": "ItemList", numberOfItems: preview.itemCount } }
+      : {}),
+  });
+}
+
+export function openGraphImageUrlFor(
+  pathWithQuery: string,
+  publicApiBaseUrl: string,
+  theme: OpenGraphTheme = OPEN_GRAPH_DEFAULT_THEME,
+): string {
+  const separator = pathWithQuery.includes("?") ? "&" : "?";
+  return `${publicApiBaseUrl.replace(/\/+$/, "")}${OPEN_GRAPH_IMAGE_ROUTE_PATH}${pathWithQuery}${separator}${OPEN_GRAPH_IMAGE_THEME_PARAM}=${theme}`;
+}
+
+export function renderSharePreviewHtml(
+  preview: SharePreview,
+  webUrl: string,
+  publicApiBaseUrl: string,
+): string {
   const title = `${preview.title} | ${SHARE_PREVIEW_SITE_NAME}`;
   const description = truncate(preview.description, SHARE_PREVIEW_DESCRIPTION_MAX_LENGTH);
   const url = absoluteUrl(webUrl, preview.pathWithQuery);
-  const image = preview.image ?? {
-    url: SHARE_PREVIEW_DEFAULT_IMAGE_PATH,
-    alt: SHARE_PREVIEW_DEFAULT_IMAGE_ALT,
-    width: SHARE_PREVIEW_DEFAULT_IMAGE_WIDTH,
-    height: SHARE_PREVIEW_DEFAULT_IMAGE_HEIGHT,
-  };
-  const imageUrl = absoluteUrl(webUrl, image.url);
+  const image = preview.openGraphImage
+    ? {
+        url: openGraphImageUrlFor(preview.pathWithQuery, publicApiBaseUrl),
+        alt: preview.openGraphImage.alt,
+      }
+    : { url: absoluteUrl(webUrl, SHARE_PREVIEW_DEFAULT_IMAGE_PATH), alt: SHARE_PREVIEW_DEFAULT_IMAGE_ALT };
   const tags = [
     `<title>${escapeHtml(title)}</title>`,
     metaTag("name", "description", description),
@@ -212,19 +358,17 @@ export function renderSharePreviewHtml(preview: SharePreview, webUrl: string): s
     metaTag("property", "og:url", url),
     metaTag("property", "og:title", title),
     metaTag("property", "og:description", description),
-    metaTag("property", "og:image", imageUrl),
-    ...(image.width && image.height
-      ? [
-          metaTag("property", "og:image:width", String(image.width)),
-          metaTag("property", "og:image:height", String(image.height)),
-        ]
-      : []),
+    metaTag("property", "og:image", image.url),
+    metaTag("property", "og:image:type", SHARE_PREVIEW_IMAGE_TYPE),
+    metaTag("property", "og:image:width", String(SHARE_PREVIEW_DEFAULT_IMAGE_WIDTH)),
+    metaTag("property", "og:image:height", String(SHARE_PREVIEW_DEFAULT_IMAGE_HEIGHT)),
     metaTag("property", "og:image:alt", image.alt),
     metaTag("name", "twitter:card", "summary_large_image"),
     metaTag("name", "twitter:title", title),
     metaTag("name", "twitter:description", description),
-    metaTag("name", "twitter:image", imageUrl),
+    metaTag("name", "twitter:image", image.url),
     metaTag("name", "twitter:image:alt", image.alt),
+    ...(preview.isIndexable ? [collectionPageJsonLd(preview, url, image.url, webUrl)] : []),
   ];
   return `${tags.join("\n    ")}\n`;
 }

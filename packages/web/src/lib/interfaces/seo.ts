@@ -1,3 +1,4 @@
+import type { MarketingOpenGraphPageKey } from "@magic-vault/shared";
 import type { ComponentType } from "react";
 
 export interface PageMeta {
@@ -13,4 +14,19 @@ export interface MarketingPageModule {
 
 export interface MarketingRouteProps {
   path: string;
+}
+
+export type MarketingStructuredDataKind =
+  | "softwareApplication"
+  | "howTo"
+  | "techArticle"
+  | "softwareDownload"
+  | "webPage";
+
+export interface MarketingPageDefinition {
+  path: string;
+  namespace: string;
+  metaPath: readonly string[];
+  openGraphImageKey: MarketingOpenGraphPageKey;
+  structuredDataKind: MarketingStructuredDataKind;
 }
