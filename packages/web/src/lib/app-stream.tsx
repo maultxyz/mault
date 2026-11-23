@@ -138,6 +138,15 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
         }
         recordSessionInits(es, watchGuids);
 
+        es.addEventListener("error", () => {
+          es.close();
+          if (cancelled || setupRetryTimer) return;
+          setupRetryTimer = setTimeout(
+            () => setStreamSetupAttempt((attempt) => attempt + 1),
+            APP_STREAM_SETUP_RETRY_MS,
+          );
+        });
+
         es.addEventListener(MACHINES_INIT_EVENT, (e) => {
           const data = JSON.parse((e as MessageEvent).data) as {
             machines: MachineStatus[];
