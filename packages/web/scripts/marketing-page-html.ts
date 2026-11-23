@@ -7,7 +7,7 @@ import { build, type Plugin } from "vite";
 import {
   marketingOpenGraphImageAlt,
   marketingOpenGraphImagePath,
-} from "@magic-vault/shared";
+} from "../../shared/src/open-graph";
 import { MARKETING_PAGES } from "../src/lib/constants/marketing-pages";
 import {
   PRERENDER_PATH_GUARD_SCRIPT,

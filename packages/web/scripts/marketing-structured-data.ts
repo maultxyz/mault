@@ -1,6 +1,9 @@
 import { readFileSync } from "fs";
 import path from "path";
-import { OPEN_GRAPH_IMAGE_HEIGHT, OPEN_GRAPH_IMAGE_WIDTH } from "@magic-vault/shared";
+import {
+  OPEN_GRAPH_IMAGE_HEIGHT,
+  OPEN_GRAPH_IMAGE_WIDTH,
+} from "../../shared/src/constants/open-graph.constant";
 import type { MarketingPageDefinition } from "../src/lib/interfaces/seo";
 import {
   DESKTOP_OPERATING_SYSTEMS,
