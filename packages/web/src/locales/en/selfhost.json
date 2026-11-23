@@ -29,13 +29,14 @@
     },
     "auth": {
       "label": "Accounts and database",
+      "recommended": "Recommended",
       "local": {
         "title": "Built-in",
-        "description": "Postgres and accounts run inside the stack. No outside services."
+        "description": "Postgres and accounts run inside the stack. No outside services, but backups are up to you."
       },
       "neon": {
         "title": "Neon",
-        "description": "Hosted Postgres and Neon Auth. Adds email verification, password editing and social sign-in."
+        "description": "Hosted Postgres with point-in-time restore, plus Neon Auth for email verification, password editing and social sign-in. The free tier is enough."
       },
       "piNote": "The Pi/Linux release sets up built-in accounts and local Postgres. Neon is available with Docker Compose or Coolify."
     },

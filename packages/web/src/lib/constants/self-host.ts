@@ -31,7 +31,7 @@ export const SELF_HOST_SETUP_PARAMS = {
 
 export const DEFAULT_SELF_HOST_SETUP: SelfHostSetupState = {
   host: "compose",
-  auth: "local",
+  auth: "neon",
   sorter: "usb",
   board: "raspberry-pi",
 };
@@ -52,9 +52,11 @@ export const SELF_HOST_BOARD_OPTIONS: SelfHostOption<SelfHostBoard>[] = [
   { value: "orange-pi-zero4", icon: IconCpu },
 ];
 
+export const SELF_HOST_RECOMMENDED_AUTH: SelfHostAuth = "neon";
+
 export const SELF_HOST_AUTH_OPTIONS: SelfHostOption<SelfHostAuth>[] = [
-  { value: "local", icon: IconDatabase },
   { value: "neon", icon: IconCloud },
+  { value: "local", icon: IconDatabase },
 ];
 
 export const SELF_HOST_PRICE_CRON = `0 4 * * * cd /opt/mault && docker compose exec -T server sh -c 'if [ "$AUTH_PROVIDER" = local ]; then export DATABASE_URL="\${DATABASE_URL:-postgresql://mault:$POSTGRES_PASSWORD@postgres:5432/mault}" DATABASE_SSL="\${DATABASE_SSL:-false}"; fi; exec node packages/server/dist/scripts/sync-prices.js' >> /var/log/mault-prices.log 2>&1`;

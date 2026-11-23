@@ -29,13 +29,14 @@
     },
     "auth": {
       "label": "Konten und Datenbank",
+      "recommended": "Empfohlen",
       "local": {
         "title": "Integriert",
-        "description": "Postgres und Konten laufen im Stack. Keine externen Dienste."
+        "description": "Postgres und Konten laufen im Stack. Keine externen Dienste, aber um Backups kümmerst du dich selbst."
       },
       "neon": {
         "title": "Neon",
-        "description": "Gehostetes Postgres und Neon Auth. Bringt E-Mail-Bestätigung, Passwortbearbeitung und Anmeldung über soziale Konten mit."
+        "description": "Gehostetes Postgres mit Wiederherstellung zu jedem Zeitpunkt, dazu Neon Auth für E-Mail-Bestätigung, Passwortbearbeitung und Anmeldung über soziale Konten. Der kostenlose Tarif reicht aus."
       },
       "piNote": "Das Pi/Linux-Release richtet integrierte Konten und ein lokales Postgres ein. Neon ist mit Docker Compose oder Coolify verfügbar."
     },
