@@ -57,6 +57,14 @@
         "usage": "/showoff",
         "description": "Postet den Gesamtwert deiner Sammlung und deine wertvollste Karte. Erfordert ein verknüpftes Konto."
       },
+      "myReservations": {
+        "usage": "/my-reservations",
+        "description": "Zeigt deine Kartenreservierungen, was für dich zurückgelegt ist und bis wann. Nur du siehst die Antwort. Erfordert ein verknüpftes Konto."
+      },
+      "myTrades": {
+        "usage": "/my-trades",
+        "description": "Zeigt die Tauschangebote, die du gesendet hast, und ihren Stand. Nur du siehst die Antwort. Erfordert ein verknüpftes Konto."
+      },
       "showcase": {
         "usage": "/showcase collection|storage <name>",
         "description": "Postet eine Sammlung oder einen Lagerort mit Kartenanzahl, Gesamtwert und den fünf wertvollsten Karten. Erfordert ein verknüpftes Konto."

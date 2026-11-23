@@ -102,6 +102,10 @@ export interface LeaderboardResult {
   linkedOrgOptedIn: boolean | null;
 }
 
+export interface CustomerListResult {
+  embed: APIEmbed;
+}
+
 export interface ShowoffResult extends StatsResult {
   orgName: string;
 }

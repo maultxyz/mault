@@ -11,6 +11,8 @@ import { unlinkGuild } from "./api";
 import * as leaderboard from "./commands/leaderboard";
 import * as link from "./commands/link";
 import * as linkAccount from "./commands/link-account";
+import * as myReservations from "./commands/my-reservations";
+import * as myTrades from "./commands/my-trades";
 import * as sendWelcome from "./commands/send-welcome";
 import * as shareCalibration from "./commands/share-calibration";
 import * as sharePreset from "./commands/share-preset";
@@ -38,6 +40,8 @@ const commands: BotCommand[] = [
   link,
   linkAccount,
   leaderboard,
+  myReservations,
+  myTrades,
   sendWelcome,
   shareCalibration,
   sharePreset,

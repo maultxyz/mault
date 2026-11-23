@@ -32,7 +32,7 @@ export function cardLine(card: CardLineInput): string {
     .join(" · ");
 }
 
-function discordTimestamp(date: Date): string {
+export function discordTimestamp(date: Date): string {
   return `<t:${Math.floor(date.getTime() / 1000)}:f>`;
 }
 
@@ -41,7 +41,7 @@ function discordFullTimestamp(date: Date): string {
   return `<t:${seconds}:F> (<t:${seconds}:R>)`;
 }
 
-function limitedLines(lines: string[]): string {
+export function limitedLines(lines: string[]): string {
   const shown = lines.slice(0, CUSTOMER_STATUS_MESSAGE_LINES_MAX);
   const hiddenCount = lines.length - shown.length;
   const text = [...shown, ...(hiddenCount > 0 ? [`and ${hiddenCount} more`] : [])].join("\n");
@@ -73,7 +73,7 @@ function sentenceStart(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-function peopleAhead(queuePosition: number): string {
+export function peopleAhead(queuePosition: number): string {
   const ahead = Math.max(queuePosition - CARD_RESERVATION_HOLDER_QUEUE_POSITION, 0);
   return ahead === 1 ? "1 person ahead of you" : `${ahead} people ahead of you`;
 }

@@ -57,6 +57,14 @@
         "usage": "/showoff",
         "description": "Post your collection's total value and your most valuable card. Needs a linked account."
       },
+      "myReservations": {
+        "usage": "/my-reservations",
+        "description": "See your card reservations, what is held for you and until when. Only you see the reply. Needs a linked account."
+      },
+      "myTrades": {
+        "usage": "/my-trades",
+        "description": "See the trade offers you have sent and where each one stands. Only you see the reply. Needs a linked account."
+      },
       "showcase": {
         "usage": "/showcase collection|storage <name>",
         "description": "Post one collection or storage location with its card count, total value and five most valuable cards. Needs a linked account."

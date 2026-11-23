@@ -57,6 +57,14 @@
         "usage": "/showoff",
         "description": "Publie la valeur totale de ta collection et ta carte la plus chère. Nécessite un compte lié."
       },
+      "myReservations": {
+        "usage": "/my-reservations",
+        "description": "Affiche vos réservations de cartes, ce qui vous est réservé et jusqu’à quand. Vous seul voyez la réponse. Nécessite un compte lié."
+      },
+      "myTrades": {
+        "usage": "/my-trades",
+        "description": "Affiche les offres d’échange que vous avez envoyées et où en est chacune. Vous seul voyez la réponse. Nécessite un compte lié."
+      },
       "showcase": {
         "usage": "/showcase collection|storage <name>",
         "description": "Publie une collection ou un emplacement de stockage avec son nombre de cartes, sa valeur totale et ses cinq cartes les plus chères. Nécessite un compte lié."
