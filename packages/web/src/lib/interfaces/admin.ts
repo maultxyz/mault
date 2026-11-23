@@ -178,6 +178,11 @@ export interface DeletedItemsRequest {
   type: DeletedItemType | null;
 }
 
+export interface ServerCacheKeysDialogProps {
+  cacheName: string | null;
+  onOpenChange: (open: boolean) => void;
+}
+
 export interface CustomShortLinkDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

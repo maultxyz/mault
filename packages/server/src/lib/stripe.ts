@@ -15,7 +15,7 @@ import {
   LEGACY_BUSINESS_PRICE_ID_ENV,
   PLAN_PRICE_ID_ENV,
 } from "./constants/billing";
-import { registerCacheClearer } from "./cache-registry";
+import { registerMapCache } from "./cache-registry";
 import type { RecurringPriceInfo } from "./interfaces/subscription-summary";
 import { isLegacyPricingActive } from "./pricing-mode";
 import { STRIPE_PRICE_CACHE_TTL_MS as PRICE_CACHE_TTL_MS } from "./constants/timing";
@@ -172,7 +172,7 @@ const _recurringPriceCache = new Map<
   string,
   { info: RecurringPriceInfo | null; cachedAt: number }
 >();
-registerCacheClearer(() => _recurringPriceCache.clear());
+registerMapCache("stripe.recurringPrices", _recurringPriceCache);
 
 export async function getRecurringPriceInfo(
   priceId: string,

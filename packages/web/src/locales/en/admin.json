@@ -390,8 +390,8 @@
   },
   "serverCaches": {
     "heading": "Server caches",
-    "description": "Clear the API's in-memory caches (org reads, catalog searches, roles and memberships, plan settings, share links, leaderboards) so the next requests read fresh data. Only the server process that handles the request is cleared.",
-    "clearButton": "Clear caches",
+    "description": "Clear the API's in-memory caches so the next requests read fresh data: all of them, one organization's entries, one cache or single keys. Only the server process that handles the request is affected.",
+    "clearButton": "Clear all caches",
     "clearingButton": "Clearing...",
     "reloadMatchIndexButton": "Reload card match index",
     "reloadingMatchIndexButton": "Reloading...",
@@ -399,7 +399,45 @@
       "cleared": "Cleared {{count}} caches.",
       "clearError": "Failed to clear caches",
       "matchIndexReloading": "Card match index is reloading in the background.",
-      "matchIndexError": "Failed to reload the card match index"
+      "matchIndexError": "Failed to reload the card match index",
+      "entriesCleared": "Cleared {{count}} entries from {{name}}.",
+      "entriesClearError": "Failed to clear {{name}}",
+      "orgCleared": "Cleared {{count}} cached entries for that organization.",
+      "orgClearError": "Failed to clear that organization's caches"
+    },
+    "org": {
+      "heading": "One organization",
+      "description": "Deletes every cached entry whose key contains this id (org reads, memberships, member seats, pricing, plan) and marks the organization's reads stale.",
+      "idLabel": "Organization id",
+      "idPlaceholder": "Paste an organization id",
+      "clearButton": "Clear organization caches"
+    },
+    "list": {
+      "heading": "Caches",
+      "refresh": "Refresh",
+      "loadError": "Failed to load the caches",
+      "empty": "No caches are registered",
+      "columns": {
+        "name": "Cache",
+        "entries": "Entries",
+        "actions": "Actions"
+      },
+      "showKeys": "Keys",
+      "showKeysLabel": "Show the keys in {{name}}",
+      "clear": "Clear",
+      "clearLabel": "Clear {{name}}"
+    },
+    "keys": {
+      "title": "Keys in {{name}}",
+      "description": "Keys held by the server process that answered. Parts of a key are separated by a middle dot.",
+      "searchLabel": "Filter keys",
+      "searchPlaceholder": "Text the key contains",
+      "shownCount": "Showing {{shown}} of {{count}} matching keys.",
+      "empty": "No matching keys",
+      "loadError": "Failed to load the keys",
+      "deleteKeyLabel": "Delete key {{key}}",
+      "clearMatching": "Clear {{count}} matching keys",
+      "clearWholeCache": "Clear whole cache"
     }
   },
   "impersonationAuditDrawer": {

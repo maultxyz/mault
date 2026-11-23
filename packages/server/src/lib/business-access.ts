@@ -21,6 +21,7 @@ import { orgHasFeature } from "./plan-config";
 import { loadOrgPricing } from "./price-source";
 
 const businessSettingsCache = createOrgReadCache<BusinessSettings>(
+  "org.businessSettings",
   ORG_BUSINESS_SETTINGS_CACHE_TTL_MS,
   ORG_SETTINGS_READ_CACHE_MAX_ENTRIES,
   0,

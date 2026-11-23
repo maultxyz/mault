@@ -72,6 +72,7 @@ const consumeClaimRateLimit = createRateLimiter({
 });
 
 const ownerTradeOffersCache = createOrgReadCache<TradeOffer[]>(
+  "org.ownerTradeOffers",
   OWNER_TRADE_OFFERS_CACHE_TTL_MS,
   OWNER_TRADE_OFFERS_CACHE_MAX_ENTRIES,
 );

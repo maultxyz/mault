@@ -36,6 +36,7 @@ import { createOrgReadCache } from "./org-read-cache";
 import { hydrateSavedCards } from "./saved-cards";
 
 const orgOverviewCache = createOrgReadCache<OrgOverview>(
+  "org.overview",
   ORG_OVERVIEW_CACHE_TTL_MS,
   HOME_READ_CACHE_MAX_ENTRIES,
 );

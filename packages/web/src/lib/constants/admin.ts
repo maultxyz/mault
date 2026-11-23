@@ -3,6 +3,7 @@ import {
   DELETED_ITEM_TYPES,
   SYNC_VECTORIZE_CONCURRENCY_MAX,
   DEFAULT_SHARE_LINK_LENGTHS,
+  type AdminCacheOrgFormValues,
   type CustomShortLinkFormValues,
   type SyncState,
 } from "@magic-vault/shared";
@@ -75,6 +76,10 @@ export const API_USAGE_QUERY_KEY = ["admin", "api-usage"] as const;
 export const CUSTOM_SHORT_LINKS_QUERY_KEY = ["admin", "short-links"] as const;
 export const CUSTOM_SHORT_LINK_FORM_ID = "custom-short-link-form";
 export const EMPTY_CUSTOM_SHORT_LINK_FORM: CustomShortLinkFormValues = { code: "", targetUrl: "" };
+export const SERVER_CACHES_QUERY_KEY = ["admin", "server-caches"] as const;
+export const SERVER_CACHE_ORG_FORM_ID = "server-cache-org-form";
+export const EMPTY_SERVER_CACHE_ORG_FORM: AdminCacheOrgFormValues = { orgId: "" };
+export const SERVER_CACHE_KEY_PART_DISPLAY_SEPARATOR = " · ";
 export const SHARE_LINK_LENGTHS_QUERY_KEY = ["admin", "share-link-lengths"] as const;
 export const EMPTY_SHARE_LINK_LENGTHS_FORM: ShareLinkLengthsFormValues =
   shareLinkLengthsToFormValues(DEFAULT_SHARE_LINK_LENGTHS);

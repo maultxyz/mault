@@ -28,7 +28,7 @@ export const scansInValidationSql = sql`
   AND (cc.captured_image_key IS NOT NULL OR cc.captured_image_data_url IS NOT NULL)
 `;
 
-const candidatesCache = createCachedValue(async (): Promise<MatchValidationCandidate[]> => {
+const candidatesCache = createCachedValue("matchValidations.candidates", async (): Promise<MatchValidationCandidate[]> => {
   const result = await db.execute(sql`
     WITH ranked AS (
       SELECT

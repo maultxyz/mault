@@ -25,6 +25,7 @@ import { shortLinkUrlFor } from "./shortener-client";
 import { createTtlCache } from "./ttl-cache";
 
 const verifiedCardShareLinks = createTtlCache<CardShareLinkClaims>({
+  name: "shareLinks.cardClaims",
   ttlMs: SHARE_LINK_CLAIMS_CACHE_TTL_MS,
   maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
 });

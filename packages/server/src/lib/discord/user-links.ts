@@ -15,6 +15,7 @@ import type { DiscordUserLinkRedemption } from "../interfaces/discord";
 import { createKeyedCache } from "../keyed-cache";
 
 const userIdByDiscordUserCache = createKeyedCache<string | null>(
+  "discord.userIdByDiscordUser",
   BOT_LOOKUP_CACHE_TTL_MS,
   BOT_CACHE_MAX_ENTRIES,
 );

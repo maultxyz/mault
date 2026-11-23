@@ -8,6 +8,7 @@ import {
 import { createOrgReadCache } from "../org-read-cache";
 
 const orgOcrEnabledCache = createOrgReadCache<{ ocrEnabled: boolean }>(
+  "org.ocrEnabled",
   ORG_OCR_SETTING_CACHE_TTL_MS,
   ORG_OCR_SETTING_CACHE_MAX_ENTRIES,
   0,

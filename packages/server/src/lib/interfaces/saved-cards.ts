@@ -69,6 +69,7 @@ export interface SavedCardSnapshots<
 }
 
 export interface CatalogCardCacheOptions {
+  name: string;
   ttlMs: number;
   maxEntries: number;
   maxKeysPerCachedRead: number;

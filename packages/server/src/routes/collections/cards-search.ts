@@ -27,6 +27,7 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import type { OwnedCardSearchRow } from "../../lib/interfaces/owned-card-search";
 
 const ownedCardSearchCache = createOrgReadCache<OwnedCardSearchResult[]>(
+  "org.ownedCardSearch",
   OWNED_CARD_SEARCH_CACHE_TTL_MS,
   OWNED_CARD_SEARCH_CACHE_MAX_ENTRIES,
 );

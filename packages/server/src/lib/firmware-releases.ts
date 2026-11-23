@@ -75,7 +75,7 @@ async function fetchEsp32FirmwareReleases(): Promise<Esp32FirmwareRelease[]> {
   return toEsp32FirmwareReleases((await response.json()) as GitHubRelease[]);
 }
 
-export const esp32FirmwareReleasesCache = createCachedValue(
+export const esp32FirmwareReleasesCache = createCachedValue("firmware.esp32Releases", 
   fetchEsp32FirmwareReleases,
 );
 

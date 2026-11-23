@@ -21,11 +21,13 @@ import { createTtlCache } from "./ttl-cache";
 import { orgHasFeature } from "./plan-config";
 
 const verifiedShopCatalogLinks = createTtlCache<ShopCatalogClaims>({
+  name: "shareLinks.shopCatalogClaims",
   ttlMs: SHARE_LINK_CLAIMS_CACHE_TTL_MS,
   maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
 });
 
 export const shopCatalogReadsCache = createTtlCache<unknown>({
+  name: "shareLinks.shopCatalogReads",
   ttlMs: SHARED_STORAGE_READS_CACHE_TTL_MS,
   maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
 });

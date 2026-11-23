@@ -1,7 +1,8 @@
-import { registerCacheClearer } from "./cache-registry";
+import { registerMapCache } from "./cache-registry";
 import type { KeyedCache, KeyedCacheOptions } from "./interfaces/cached-value";
 
 export function createKeyedCache<T>(
+  name: string,
   ttlMs: number,
   maxEntries: number,
   { staleWhileRefreshingMs = 0 }: KeyedCacheOptions = {},
@@ -40,7 +41,7 @@ export function createKeyedCache<T>(
     }
   }
 
-  registerCacheClearer(() => entries.clear());
+  registerMapCache(name, entries);
 
   return {
     get(key, load) {

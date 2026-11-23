@@ -10,6 +10,7 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadCollections } from "./shared";
 
 const collectionsListCache = createOrgReadCache<{ success: true; data: Collection[] }>(
+  "org.collectionsList",
   COLLECTIONS_LIST_CACHE_TTL_MS,
   COLLECTIONS_LIST_CACHE_MAX_ENTRIES,
 );

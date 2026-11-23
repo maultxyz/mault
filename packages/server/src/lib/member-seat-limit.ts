@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { authProvider } from "../auth";
 import { db } from "../db";
-import { registerCacheClearer } from "./cache-registry";
+import { registerMapCache } from "./cache-registry";
 import { orgBilling } from "../db/schema";
 import { MEMBER_SEAT_CACHE_TTL_MS } from "./constants/timing";
 import type { OrgMemberSeats } from "./interfaces/member-seat-limit";
@@ -11,7 +11,7 @@ import { currentPreviewPlan } from "./plan-preview";
 import { isBillingEnabled } from "./stripe";
 
 const seatCache = new Map<string, OrgMemberSeats>();
-registerCacheClearer(() => seatCache.clear());
+registerMapCache("org.memberSeats", seatCache);
 const seatLoadsInFlight = new Map<string, Promise<OrgMemberSeats>>();
 
 export function memberLimitForPlan(plan: string | undefined): number | null {

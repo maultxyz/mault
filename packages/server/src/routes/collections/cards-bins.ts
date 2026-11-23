@@ -16,6 +16,7 @@ import {
 } from "./cards-query";
 
 const binCountsCache = createOrgReadCache<BinCardCount[] | null>(
+  "org.binCounts",
   COLLECTION_BIN_COUNTS_CACHE_TTL_MS,
   COLLECTION_BIN_COUNTS_CACHE_MAX_ENTRIES,
 );

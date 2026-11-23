@@ -52,6 +52,7 @@ import { getState as getSyncState } from "./sync-job/state";
 const segmentEntries = new Map<string, CardMatchSegmentEntry>();
 const pgDialect = new PgDialect();
 const gameLangsCache = createKeyedCache<string[]>(
+  "cardMatch.gameLangs",
   CARD_MATCH_INDEX_REVALIDATE_MS,
   CARD_MATCH_GAME_LANGS_CACHE_MAX_ENTRIES,
 );

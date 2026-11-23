@@ -32,6 +32,7 @@ function cacheFor(
   overrides: { ttlMs?: number; maxEntries?: number; maxKeysPerCachedRead?: number } = {},
 ) {
   return createCatalogCardCache({
+    name: "test.catalogCards",
     ttlMs: overrides.ttlMs ?? 60_000,
     maxEntries: overrides.maxEntries ?? 100,
     maxKeysPerCachedRead: overrides.maxKeysPerCachedRead ?? 100,

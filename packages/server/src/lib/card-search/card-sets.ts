@@ -1,12 +1,12 @@
 import type { CardSetOption, SetPrintingOption } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import { db } from "../../db";
-import { registerCacheClearer } from "../cache-registry";
+import { registerMapCache } from "../cache-registry";
 import { CARD_SETS_CACHE_TTL_MS } from "../constants/card-search";
 import type { ResolvedCardSearch } from "../interfaces/card-search";
 
 const cache = new Map<string, { sets: CardSetOption[]; expiresAt: number }>();
-registerCacheClearer(() => cache.clear());
+registerMapCache("catalog.cardSets", cache);
 const inFlight = new Map<string, Promise<CardSetOption[]>>();
 
 export function preferredSetNameSql(preferredLang: string): SQL {

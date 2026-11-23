@@ -19,7 +19,7 @@ function countingLoader() {
 }
 
 test("org read cache serves the cached value until the org is invalidated", async () => {
-  const cache = createOrgReadCache<{ loadCount: number }>(60_000, 10);
+  const cache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10);
   const loader = countingLoader();
   await cache.get("org-cache-a", "overview", loader.load);
   await cache.get("org-cache-a", "overview", loader.load);
@@ -30,7 +30,7 @@ test("org read cache serves the cached value until the org is invalidated", asyn
 });
 
 test("invalidating one org leaves other orgs cached", async () => {
-  const cache = createOrgReadCache<{ loadCount: number }>(60_000, 10);
+  const cache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10);
   const loader = countingLoader();
   await cache.get("org-cache-b", "overview", loader.load);
   invalidateOrgReadCaches("org-cache-c");
@@ -39,7 +39,7 @@ test("invalidating one org leaves other orgs cached", async () => {
 });
 
 test("concurrent reads of the same org share one load", async () => {
-  const cache = createOrgReadCache<{ loadCount: number }>(60_000, 10);
+  const cache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10);
   const loader = countingLoader();
   await Promise.all([
     cache.get("org-cache-d", "stats", loader.load),
@@ -49,7 +49,7 @@ test("concurrent reads of the same org share one load", async () => {
 });
 
 test("presence events keep caches while data events invalidate them", async () => {
-  const cache = createOrgReadCache<{ loadCount: number }>(60_000, 10);
+  const cache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10);
   const loader = countingLoader();
   await cache.get("org-cache-e", "overview", loader.load);
   invalidateOrgReadCachesForEvent("org-cache-e", "live_count");
@@ -68,7 +68,7 @@ test("only writes count as mutating requests", () => {
 });
 
 test("a spaced cache loads the first read at once and delays the next load after an invalidation", async () => {
-  const cache = createOrgReadCache<{ loadCount: number }>(60_000, 10, 80);
+  const cache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10, 80);
   const loader = countingLoader();
   const startedAt = Date.now();
   await cache.get("org-cache-f", "summary", loader.load);
@@ -80,7 +80,7 @@ test("a spaced cache loads the first read at once and delays the next load after
 });
 
 test("reads that arrive while a spaced load is waiting share that one load", async () => {
-  const cache = createOrgReadCache<{ loadCount: number }>(60_000, 10, 80);
+  const cache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10, 80);
   const loader = countingLoader();
   await cache.get("org-cache-g", "summary", loader.load);
   invalidateOrgReadCaches("org-cache-g");
@@ -94,7 +94,7 @@ test("reads that arrive while a spaced load is waiting share that one load", asy
 });
 
 test("spacing applies per variant, so another variant loads at once", async () => {
-  const cache = createOrgReadCache<{ loadCount: number }>(60_000, 10, 5_000);
+  const cache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10, 5_000);
   const loader = countingLoader();
   await cache.get("org-cache-h", "summary-a", loader.load);
   const startedAt = Date.now();

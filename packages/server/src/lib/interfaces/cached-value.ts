@@ -28,3 +28,11 @@ export interface KeyedCache<T> {
   get(key: string, load: () => Promise<T>): Promise<T>;
   clear(): void;
 }
+
+export interface RegisteredCache {
+  name: string;
+  countEntries(): number;
+  listKeys(): Iterable<string>;
+  deleteKeys(shouldDelete: (key: string) => boolean): number;
+  clear(): void;
+}

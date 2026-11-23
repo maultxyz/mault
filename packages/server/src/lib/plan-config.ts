@@ -129,6 +129,7 @@ export function defaultPlanConfig(): PlanConfig {
 let cachedConfig: PlanConfig = defaultPlanConfig();
 
 const orgBillingPlanCache = createOrgReadCache<string>(
+  "org.billingPlan",
   ORG_BILLING_PLAN_CACHE_TTL_MS,
   ORG_SETTINGS_READ_CACHE_MAX_ENTRIES,
   0,

@@ -100,11 +100,13 @@ import { createOrgReadCache } from "../../lib/org-read-cache";
 import { reclaimOrgFillLocations } from "../../lib/storage-fill-claims";
 
 const storageLocationListCache = createOrgReadCache<StorageLocation[]>(
+  "org.storageLocationList",
   STORAGE_LOCATION_LIST_CACHE_TTL_MS,
   STORAGE_LOCATION_LIST_CACHE_MAX_ENTRIES,
 );
 
 const storageLocationPageCache = createOrgReadCache<PagedList<StorageLocation>>(
+  "org.storageLocationPage",
   STORAGE_LOCATION_LIST_CACHE_TTL_MS,
   STORAGE_LOCATION_LIST_CACHE_MAX_ENTRIES,
 );

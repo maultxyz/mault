@@ -1,5 +1,5 @@
 import type { PlayingCard } from "@magic-vault/shared";
-import { registerCacheClearer } from "./cache-registry";
+import { registerMapCache } from "./cache-registry";
 import type {
   CatalogCardCache,
   CatalogCardCacheOptions,
@@ -7,6 +7,7 @@ import type {
 } from "./interfaces/saved-cards";
 
 export function createCatalogCardCache({
+  name,
   ttlMs,
   maxEntries,
   maxKeysPerCachedRead,
@@ -40,7 +41,11 @@ export function createCatalogCardCache({
     entries.clear();
   }
 
-  registerCacheClearer(clear);
+  registerMapCache(name, entries, {
+    onClear: () => {
+      generation += 1;
+    },
+  });
 
   return {
     async load(keys) {

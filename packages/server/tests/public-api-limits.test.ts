@@ -25,7 +25,7 @@ test("usage endpoints group ids, versions and tokens", () => {
 });
 
 test("a ttl cache forgets entries after their lifetime and on demand", async () => {
-  const cache = createTtlCache<string>({ ttlMs: 20, maxEntries: 10 });
+  const cache = createTtlCache<string>({ name: "test.ttl", ttlMs: 20, maxEntries: 10 });
   cache.set("location-1|cards", "page");
   cache.set("location-2|cards", "page");
   assert.equal(cache.get("location-1|cards"), "page");
@@ -37,7 +37,7 @@ test("a ttl cache forgets entries after their lifetime and on demand", async () 
 });
 
 test("a full ttl cache drops its oldest entry", () => {
-  const cache = createTtlCache<number>({ ttlMs: 60_000, maxEntries: 2 });
+  const cache = createTtlCache<number>({ name: "test.ttl", ttlMs: 60_000, maxEntries: 2 });
   cache.set("first", 1);
   cache.set("second", 2);
   cache.set("third", 3);

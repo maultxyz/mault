@@ -1,15 +1,29 @@
-import { registerCacheClearer } from "./cache-registry";
+import { registerCache } from "./cache-registry";
+import { CACHED_VALUE_KEY } from "./constants/cached-value";
 import type { CachedValue } from "./interfaces/cached-value";
 
 export function createCachedValue<T>(
+  name: string,
   compute: () => Promise<T>,
 ): CachedValue<T> {
   let cached: { value: T; computedAt: number } | null = null;
   let inFlight: Promise<T> | null = null;
 
-  registerCacheClearer(() => {
+  const clear = () => {
     cached = null;
     inFlight = null;
+  };
+
+  registerCache({
+    name,
+    countEntries: () => (cached ? 1 : 0),
+    listKeys: () => (cached ? [CACHED_VALUE_KEY] : []),
+    deleteKeys: (shouldDelete) => {
+      if (!cached || !shouldDelete(CACHED_VALUE_KEY)) return 0;
+      clear();
+      return 1;
+    },
+    clear,
   });
 
   return {
@@ -37,9 +51,6 @@ export function createCachedValue<T>(
       inFlight = request;
       return request;
     },
-    invalidate() {
-      cached = null;
-      inFlight = null;
-    },
+    invalidate: clear,
   };
 }

@@ -24,6 +24,7 @@ import type {
 } from "./interfaces/saved-cards";
 
 const catalogCardCache = createCatalogCardCache({
+  name: "catalog.hydratedCards",
   ttlMs: CATALOG_CARD_CACHE_TTL_MS,
   maxEntries: CATALOG_CARD_CACHE_MAX_ENTRIES,
   maxKeysPerCachedRead: CATALOG_CARD_CACHE_MAX_KEYS_PER_CACHED_READ,

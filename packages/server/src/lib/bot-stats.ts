@@ -19,6 +19,7 @@ import { loadOrgPricing } from "./price-source";
 import { hydrateSavedCards } from "./saved-cards";
 
 const botCollectionStatsCache = createOrgReadCache<BotCollectionStats>(
+  "bot.collectionStats",
   BOT_STATS_CACHE_TTL_MS,
   BOT_CACHE_MAX_ENTRIES,
 );

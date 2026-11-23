@@ -391,7 +391,8 @@
     "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}.",
     "statsSyncKeyInvalid": "Colle la clé entière. Elle commence par mvstats_.",
     "expiryDaysInvalid": "Saisissez des nombres entiers de jours entre 1 et {{max}}, séparés par des virgules.",
-    "expiryDaysTooMany": "Saisissez au maximum {{max}} durées."
+    "expiryDaysTooMany": "Saisissez au maximum {{max}} durées.",
+    "organizationIdInvalid": "Saisissez un identifiant d'organisation (lettres, chiffres, - ou _, au moins 8 caractères)."
   },
   "memberSeatLock": {
     "title": "Cette organisation dépasse sa limite de membres",
