@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import type Stripe from "stripe";
+import Stripe from "stripe";
 import { db } from "../../db";
 import { orgBilling } from "../../db/schema";
-import { isBillingEnabled } from "../../lib/stripe";
+import { getStripe, isBillingEnabled } from "../../lib/stripe";
 import { syncOrgBillingFromStripe } from "../../lib/stripe-billing-sync";
 import type { AppEnv } from "../../middleware/auth";
 
@@ -32,9 +32,10 @@ export const webhookStripeRoute = new Hono<AppEnv>().post(
         webhookSecret,
       );
     } catch (err) {
+      if (!(err instanceof Stripe.errors.StripeSignatureVerificationError)) throw err;
       console.error(
         "[public] Stripe webhook signature verification failed:",
-        err,
+        err.message,
       );
       return c.json({ success: false, message: "Invalid signature." }, 401);
     }
