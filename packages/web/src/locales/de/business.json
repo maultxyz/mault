@@ -987,7 +987,9 @@
     "reservationHoldDays_one": "{{count}} Tag",
     "reservationHoldDays_other": "{{count}} Tage",
     "reservationHoldDescription": "Danach läuft die Reservierung ab und die nächste Person in der Reihe bekommt die Karte.",
-    "reservationsOn": "Nimmt Reservierungen an"
+    "reservationsOn": "Nimmt Reservierungen an",
+    "reservationsRequireAccount": "Konto zum Reservieren verlangen",
+    "reservationsRequireAccountDescription": "Nur angemeldete Kunden können Karten reservieren. Sie bekommen Updates und sehen ihre Reservierungen auf jedem Gerät."
   },
   "priceLabels": {
     "title": "Preisetiketten",

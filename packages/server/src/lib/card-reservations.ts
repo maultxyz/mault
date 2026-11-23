@@ -442,6 +442,7 @@ export async function listOwnerCardReservations(
       guestName: row.reservation.guestName,
       guestContact: row.reservation.guestContact,
       guestNote: row.reservation.guestNote,
+      isFromAccount: row.reservation.guestUserId !== null,
       catalogName: row.catalogName ?? null,
       price:
         row.reservation.priceAtReservation != null &&

@@ -491,7 +491,9 @@
     "shortLinkInvalidTitle": "This link doesn't work",
     "shortLinkInvalidDescription": "Check that it was copied in full, or ask whoever shared it for a new link.",
     "poweredBy": "Powered by",
-    "poweredByLabel": "Powered by {{site}} (opens in a new tab)"
+    "poweredByLabel": "Powered by {{site}} (opens in a new tab)",
+    "requireGuestAccount": "Require an account",
+    "requireGuestAccountDescription": "Only people who log in can send a trade offer on this link."
   },
   "tradeOffers": {
     "declined": "Trade offer declined",
@@ -792,5 +794,12 @@
     "linkDiscord": "Link your Discord account to turn this on.",
     "openAccount": "Open account settings",
     "updateFailed": "Couldn't update Discord messages."
+  },
+  "guestKind": {
+    "signedIn": "Signed in",
+    "guest": "Guest",
+    "label": "Sender",
+    "signedInDescription": "Signed in with an account",
+    "guestDescription": "Guest without an account"
   }
 }

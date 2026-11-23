@@ -5,6 +5,7 @@ import { View } from "react-native";
 import {
   DEFAULT_SHARE_LINK_LENGTHS,
   DEFAULT_SHARE_LINK_PURPOSE,
+  DEFAULT_SHARE_LINK_REQUIRES_GUEST_ACCOUNT,
   DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   defaultMonitorLinkExpiryDays,
@@ -35,6 +36,7 @@ export function NewShareLinkForm({ kind, subjectGuid, initialPurpose, onCreated,
   const [chosenExpiryDays, setChosenExpiryDays] = useState<number | null>(null);
   const [showsPrices, setShowsPrices] = useState(DEFAULT_SHARE_LINK_SHOWS_PRICES);
   const [requiresGuestContact, setRequiresGuestContact] = useState(DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT);
+  const [requiresGuestAccount, setRequiresGuestAccount] = useState(DEFAULT_SHARE_LINK_REQUIRES_GUEST_ACCOUNT);
   const [purpose, setPurpose] = useState<ShareLinkPurpose>(initialPurpose ?? DEFAULT_SHARE_LINK_PURPOSE);
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const lengths = billing?.shareLinkLengths ?? DEFAULT_SHARE_LINK_LENGTHS;
@@ -52,8 +54,22 @@ export function NewShareLinkForm({ kind, subjectGuid, initialPurpose, onCreated,
     mutationFn: async () => {
       const created =
         kind === "storage"
-          ? await createStorageShareLink(subjectGuid, expiresInDays, showsPrices, purpose, requiresGuestContact)
-          : await createMonitorLink(subjectGuid, expiresInDays, showsPrices, purpose, requiresGuestContact);
+          ? await createStorageShareLink(
+              subjectGuid,
+              expiresInDays,
+              showsPrices,
+              purpose,
+              requiresGuestContact,
+              requiresGuestAccount,
+            )
+          : await createMonitorLink(
+              subjectGuid,
+              expiresInDays,
+              showsPrices,
+              purpose,
+              requiresGuestContact,
+              requiresGuestAccount,
+            );
       invalidateShareLinks(queryClient);
       const links = await queryClient.fetchQuery({ ...shareLinksQueryOptions(orgId, subjectGuid), staleTime: 0 });
       return links.some((link) => link.guid === created.guid) ? created.guid : null;
@@ -124,6 +140,14 @@ export function NewShareLinkForm({ kind, subjectGuid, initialPurpose, onCreated,
           description={t("shareLink.requireGuestContactDescription")}
           value={requiresGuestContact}
           onValueChange={setRequiresGuestContact}
+        />
+      ) : null}
+      {purpose === "trade" ? (
+        <SwitchRow
+          title={t("shareLink.requireGuestAccount")}
+          description={t("shareLink.requireGuestAccountDescription")}
+          value={requiresGuestAccount}
+          onValueChange={setRequiresGuestAccount}
         />
       ) : null}
     </PinnedActionsLayout>

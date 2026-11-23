@@ -22,6 +22,7 @@ import {
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
   DEFAULT_SHOP_CATALOG_IS_PUBLIC,
+  DEFAULT_SHOP_CATALOG_RESERVATIONS_REQUIRE_ACCOUNT,
   shopCatalogFormSchema,
   toCardReservationHoldDays,
   type ShopCatalogFormValues,
@@ -49,6 +50,8 @@ export function ShopCatalogDialog({
   const isPublicDescriptionId = useId();
   const allowsReservationsId = useId();
   const allowsReservationsDescriptionId = useId();
+  const reservationsRequireAccountId = useId();
+  const reservationsRequireAccountDescriptionId = useId();
   const { data: collections = [] } = useQuery({
     ...collectionsQueryOptions,
     enabled: open,
@@ -64,6 +67,7 @@ export function ShopCatalogDialog({
       showsPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
       isPublic: DEFAULT_SHOP_CATALOG_IS_PUBLIC,
       allowsReservations: DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
+      reservationsRequireAccount: DEFAULT_SHOP_CATALOG_RESERVATIONS_REQUIRE_ACCOUNT,
       reservationHoldDays: DEFAULT_CARD_RESERVATION_HOLD_DAYS,
       collectionGuids: [],
       storageLocationGuids: [],
@@ -80,6 +84,9 @@ export function ShopCatalogDialog({
       isPublic: catalog?.isPublic ?? DEFAULT_SHOP_CATALOG_IS_PUBLIC,
       allowsReservations:
         catalog?.allowsReservations ?? DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
+      reservationsRequireAccount:
+        catalog?.reservationsRequireAccount ??
+        DEFAULT_SHOP_CATALOG_RESERVATIONS_REQUIRE_ACCOUNT,
       reservationHoldDays: toCardReservationHoldDays(catalog?.reservationHoldDays),
       collectionGuids: catalog?.collections.map((source) => source.guid) ?? [],
       storageLocationGuids:
@@ -200,6 +207,30 @@ export function ShopCatalogDialog({
                 <FieldDescription>
                   {t("shopCatalogs.reservationHoldDescription")}
                 </FieldDescription>
+              </Field>
+            )}
+          />
+        )}
+        {allowsReservations && (
+          <Controller
+            control={form.control}
+            name="reservationsRequireAccount"
+            render={({ field }) => (
+              <Field orientation="horizontal">
+                <FieldContent>
+                  <FieldLabel htmlFor={reservationsRequireAccountId}>
+                    {t("shopCatalogs.reservationsRequireAccount")}
+                  </FieldLabel>
+                  <FieldDescription id={reservationsRequireAccountDescriptionId}>
+                    {t("shopCatalogs.reservationsRequireAccountDescription")}
+                  </FieldDescription>
+                </FieldContent>
+                <Switch
+                  id={reservationsRequireAccountId}
+                  aria-describedby={reservationsRequireAccountDescriptionId}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </Field>
             )}
           />

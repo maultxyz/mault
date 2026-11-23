@@ -18,6 +18,7 @@ import {
   CARD_RESERVATION_GUEST_LIMIT_MESSAGE,
   CARD_RESERVATION_INVALID_MESSAGE,
   CARD_RESERVATION_NOT_FOUND_MESSAGE,
+  CARD_RESERVATION_ACCOUNT_REQUIRED_MESSAGE,
   CARD_RESERVATION_OWN_ORG_MESSAGE,
   CARD_RESERVATION_QUEUE_FULL_MESSAGE,
   CARD_RESERVATIONS_NOT_ALLOWED_MESSAGE,
@@ -91,6 +92,9 @@ export function createPublicCardReservationsRoute(
         c.req.header("Authorization"),
         verifyHardwareClientToken,
       );
+      if (catalog.reservationsRequireAccount && !guestUserId) {
+        return c.json({ success: false, message: CARD_RESERVATION_ACCOUNT_REQUIRED_MESSAGE }, 401);
+      }
       if (guestUserId && (await findOrgMembership(guestUserId, catalog.orgId))) {
         return c.json({ success: false, message: CARD_RESERVATION_OWN_ORG_MESSAGE }, 409);
       }

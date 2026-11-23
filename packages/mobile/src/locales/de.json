@@ -177,7 +177,9 @@
     "monitorType": "Monitor",
     "tradeType": "Tausch",
     "monitorTypeDescription": "Eine Ansicht der Karten, live während du scannst. Besucher können keine Angebote senden.",
-    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen."
+    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
+    "requireGuestAccount": "Konto verlangen",
+    "requireGuestAccountDescription": "Nur wer sich anmeldet, kann über diesen Link ein Tauschangebot senden."
   },
   "shareLinks": {
     "detailDescription": "Jeder mit diesem Link oder QR-Code kann ihn ohne Anmeldung öffnen.",
@@ -2544,7 +2546,9 @@
       "reservationHoldDays_one": "{{count}} Tag",
       "reservationHoldDays_other": "{{count}} Tage",
       "reservationHoldDescription": "Danach läuft die Reservierung ab und die nächste Person in der Reihe bekommt die Karte.",
-      "reservationsOn": "Nimmt Reservierungen an"
+      "reservationsOn": "Nimmt Reservierungen an",
+      "reservationsRequireAccount": "Konto zum Reservieren verlangen",
+      "reservationsRequireAccountDescription": "Nur angemeldete Kunden können Karten reservieren. Sie bekommen Updates und sehen ihre Reservierungen auf jedem Gerät."
     },
     "statsSync": {
       "key": {
@@ -4898,5 +4902,11 @@
     "description": "Der Mault-Bot schickt eine Direktnachricht an dein verknüpftes Discord-Konto.",
     "linkDiscord": "Verknüpfe dein Discord-Konto in den Kontoeinstellungen auf der Mault-Website, um das einzuschalten.",
     "updateFailed": "Discord-Nachrichten konnten nicht geändert werden."
+  },
+  "guestKind": {
+    "signedIn": "Angemeldet",
+    "guest": "Gast",
+    "signedInDescription": "Mit einem Konto angemeldet",
+    "guestDescription": "Gast ohne Konto"
   }
 }

@@ -1,0 +1,2 @@
+ALTER TABLE "share_links" ADD COLUMN "requires_guest_account" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "shop_catalogs" ADD COLUMN "reservations_require_account" boolean DEFAULT false NOT NULL;

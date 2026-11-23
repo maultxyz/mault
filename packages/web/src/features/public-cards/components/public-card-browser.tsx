@@ -85,6 +85,7 @@ export function PublicCardBrowser({
   sidebarTop,
   tradeOfferLink,
   reservationHoldDays = null,
+  reservationsRequireAccount = false,
 }: PublicCardBrowserProps) {
   const { t } = useTranslation("cards");
   const isMobile = useIsMobile();
@@ -490,6 +491,7 @@ export function PublicCardBrowser({
       <CardReservationsProvider
         source={source}
         holdDays={reservationHoldDays}
+        requiresAccount={reservationsRequireAccount}
         onOpenComposer={openReservationComposer}
       >
         {page}

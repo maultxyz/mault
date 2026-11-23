@@ -13,7 +13,8 @@ import {
   tradeOfferQuoteQueryOptions,
 } from "@/features/trade-offers/api/public-trade-offers";
 import { GuestTradeOfferList } from "@/features/trade-offers/components/guest-trade-offer-list";
-import { TradeOfferAccountNotice } from "@/features/trade-offers/components/trade-offer-account-notice";
+import { GuestAccountNotice } from "@/features/public-cards/components/guest-account-notice";
+import { useGuestAccount } from "@/features/public-cards/api/use-guest-account";
 import {
   clearTradeOfferDraft,
   readTradeOfferDraft,
@@ -66,6 +67,10 @@ export function TradeOfferPage({
   const { t: tCommon } = useTranslation("common");
   const queryClient = useQueryClient();
   const tradeOffer = useTradeOfferContext();
+  const { mustLogIn, promptGuestToLogIn } = useGuestAccount(
+    "tradeOffers",
+    link.requiresGuestAccount,
+  );
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (isVisible) headingRef.current?.focus();
@@ -123,7 +128,7 @@ export function TradeOfferPage({
           });
 
   const submit = form.handleSubmit(async ({ offeredCash: offeredCashInput, ...values }) => {
-    if (!isReady) return;
+    if (!isReady || mustLogIn) return;
     const offeredCashAmount = parseTradeOfferCashInput(offeredCashInput);
     try {
       await submitTradeOffer(link, {
@@ -137,6 +142,7 @@ export function TradeOfferPage({
       void queryClient.invalidateQueries({ queryKey: publicTradeOffersKeys.mine(link) });
       toast.success(t("tradeOffers.sent"));
       tradeOffer?.clearWanted();
+      promptGuestToLogIn();
     } catch (error) {
       toast.error(error instanceof Error && error.message ? error.message : t("tradeOffers.sendFailed"));
     }
@@ -158,7 +164,11 @@ export function TradeOfferPage({
           </p>
         </div>
 
-        <TradeOfferAccountNotice onBeforeSignIn={keepDraftForSignIn} />
+        <GuestAccountNotice
+          kind="tradeOffers"
+          isAccountRequired={link.requiresGuestAccount}
+          onBeforeSignIn={keepDraftForSignIn}
+        />
 
         <TradeOfferPanel
           step={1}
@@ -329,9 +339,13 @@ export function TradeOfferPage({
         )}
         <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 max-md:flex-col max-md:items-stretch md:px-3 md:py-2">
           <p role="status" className="text-control">
-            {isReady ? summary : t("tradeOffers.needGet")}
+            {mustLogIn
+              ? t("tradeOffers.account.logInRequiredHint")
+              : isReady
+                ? summary
+                : t("tradeOffers.needGet")}
           </p>
-          <Button type="submit" disabled={!isReady || isSubmitting}>
+          <Button type="submit" disabled={!isReady || mustLogIn || isSubmitting}>
             {isSubmitting ? <IconLoader2 className="animate-spin" /> : <IconSend />}
             {t("tradeOffers.send")}
           </Button>

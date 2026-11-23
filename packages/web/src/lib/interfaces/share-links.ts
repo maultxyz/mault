@@ -21,6 +21,7 @@ export interface ShareLinkOptions {
   expiresInDays: number;
   showPrices: boolean;
   requireGuestContact: boolean;
+  requireGuestAccount: boolean;
 }
 
 export interface ShareLinkDialogProps {

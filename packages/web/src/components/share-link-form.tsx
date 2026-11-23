@@ -32,6 +32,8 @@ export function ShareLinkForm({ formId, form, onSubmit }: ShareLinkFormProps) {
   const showPricesDescriptionId = useId();
   const requireGuestContactId = useId();
   const requireGuestContactDescriptionId = useId();
+  const requireGuestAccountId = useId();
+  const requireGuestAccountDescriptionId = useId();
   const purpose = useWatch({ control: form.control, name: "purpose" });
   const { lengths, allowsLongShareLinks } = useShareLinkLengths();
   const isFixedLengthLink = purpose === "trade" || !allowsLongShareLinks;
@@ -153,6 +155,30 @@ export function ShareLinkForm({ formId, form, onSubmit }: ShareLinkFormProps) {
               <Switch
                 id={requireGuestContactId}
                 aria-describedby={requireGuestContactDescriptionId}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </Field>
+          )}
+        />
+      )}
+      {purpose === "trade" && (
+        <Controller
+          name="requireGuestAccount"
+          control={form.control}
+          render={({ field }) => (
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor={requireGuestAccountId}>
+                  {t("shareLink.requireGuestAccount")}
+                </FieldLabel>
+                <FieldDescription id={requireGuestAccountDescriptionId}>
+                  {t("shareLink.requireGuestAccountDescription")}
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id={requireGuestAccountId}
+                aria-describedby={requireGuestAccountDescriptionId}
                 checked={field.value}
                 onCheckedChange={field.onChange}
               />

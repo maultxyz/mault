@@ -135,6 +135,16 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
       <div className="flex flex-col gap-3 md:gap-2">
         <div className="flex flex-col gap-2 rounded-card bg-card p-3 md:p-2.5">
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-control">
+            {!isInPerson && offer.isFromAccount !== undefined && (
+              <>
+                <dt className="text-foreground/70">{t("guestKind.label")}</dt>
+                <dd>
+                  {offer.isFromAccount
+                    ? t("guestKind.signedInDescription")
+                    : t("guestKind.guestDescription")}
+                </dd>
+              </>
+            )}
             <dt className="text-foreground/70">{t("tradeOffers.contact")}</dt>
             <dd className={offer.guestContact ? "break-words select-all" : "text-foreground/70"}>
               {offer.guestContact || t("tradeOffers.noContact")}

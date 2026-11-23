@@ -9,6 +9,7 @@ export interface ShareTokenSignInput {
   expiresAt: Date;
   showsPrices: boolean;
   requiresGuestContact?: boolean;
+  requiresGuestAccount?: boolean;
   purpose: ShareLinkPurpose;
 }
 
@@ -21,6 +22,7 @@ export interface IssueShareLinkInput {
   purpose: ShareLinkPurpose;
   showsPrices: boolean;
   requiresGuestContact: boolean;
+  requiresGuestAccount: boolean;
   expiresInMinutes: number;
   createdByUserId: string;
 }
@@ -42,6 +44,7 @@ export interface ShareLinkSigningRow {
   purpose: string;
   showsPrices: boolean;
   requiresGuestContact: boolean;
+  requiresGuestAccount: boolean;
   issuedAt: Date;
   expiresAt: Date;
 }
@@ -59,6 +62,7 @@ export interface VerifiedShareToken {
   issuedAt: Date;
   showsPrices: boolean;
   requiresGuestContact: boolean;
+  requiresGuestAccount: boolean;
   purpose: ShareLinkPurpose;
   linkGuid: string | null;
 }
@@ -71,6 +75,7 @@ export interface StorageShareLinkClaims {
   expiresAt: Date;
   showsPrices: boolean;
   requiresGuestContact: boolean;
+  requiresGuestAccount: boolean;
   purpose: ShareLinkPurpose;
 }
 
@@ -88,6 +93,7 @@ export interface ShareLinkRequestBody {
   expiresInDays?: number;
   showPrices?: unknown;
   requireGuestContact?: unknown;
+  requireGuestAccount?: unknown;
   purpose?: unknown;
 }
 
@@ -110,6 +116,7 @@ export interface ShopCatalogClaims {
   storageLocationIds: number[];
   showsPrices: boolean;
   allowsReservations: boolean;
+  reservationsRequireAccount: boolean;
   reservationHoldDays: number;
 }
 

@@ -97,6 +97,7 @@ export function groupCardReservationsByRequest(
       guestName: reservation.guestName,
       guestContact: reservation.guestContact,
       guestNote: reservation.guestNote,
+      isFromAccount: reservation.isFromAccount ?? null,
       catalogName: reservation.catalogName,
       createdAt: reservation.createdAt,
       reservations: [],

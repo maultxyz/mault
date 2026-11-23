@@ -25,6 +25,7 @@ export async function signShareToken({
   expiresAt,
   showsPrices,
   requiresGuestContact,
+  requiresGuestAccount,
   purpose,
 }: ShareTokenSignInput): Promise<string> {
   const secret = shareTokenSecret();
@@ -35,6 +36,7 @@ export async function signShareToken({
     prices: showsPrices,
     ...(purpose === "trade" ? { purpose } : {}),
     ...(requiresGuestContact === false ? { contact: false } : {}),
+    ...(requiresGuestAccount ? { account: true } : {}),
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(issuer)
@@ -73,6 +75,7 @@ export async function verifyShareToken(
       issuedAt: new Date(payload.iat * 1000),
       showsPrices: payload.prices !== false,
       requiresGuestContact: payload.contact !== false,
+      requiresGuestAccount: payload.account === true,
       purpose: payload.purpose === "trade" ? "trade" : "view",
       linkGuid: typeof payload.jti === "string" ? payload.jti : null,
     };

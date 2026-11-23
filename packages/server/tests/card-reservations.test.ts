@@ -162,6 +162,15 @@ test("catalog saves from app versions without reservation settings still parse",
     shopCatalogFormSchema.safeParse({
       ...storeAppRequest,
       allowsReservations: true,
+      reservationsRequireAccount: false,
+      reservationHoldDays: 7,
+    }).success,
+    true,
+  );
+  assert.equal(
+    shopCatalogRequestSchema.safeParse({
+      ...storeAppRequest,
+      allowsReservations: true,
       reservationHoldDays: 7,
     }).success,
     true,

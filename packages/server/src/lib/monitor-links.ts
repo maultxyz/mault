@@ -68,6 +68,7 @@ async function loadMonitorLinkClaims(
     expiresAt: lifetime.expiresAt,
     showsPrices: verified.showsPrices,
     requiresGuestContact: verified.requiresGuestContact,
+    requiresGuestAccount: verified.requiresGuestAccount,
     purpose: verified.purpose,
   };
 }

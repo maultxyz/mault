@@ -28,6 +28,7 @@ import { useTranslation } from "react-i18next";
 export function CardReservationsProvider({
   source,
   holdDays,
+  requiresAccount,
   onOpenComposer,
   children,
 }: CardReservationsProviderProps) {
@@ -64,6 +65,7 @@ export function CardReservationsProvider({
     );
     return {
       holdDays,
+      requiresAccount,
       cart,
       isInCart: (scanId) => cart.some((entry) => entry.scanId === scanId),
       toggleInCart: (entry) => {
@@ -90,7 +92,7 @@ export function CardReservationsProvider({
       cancel,
       isCancelling: (target) => cancellingKey === guestCancelKey(target),
     };
-  }, [data, holdDays, cart, onOpenComposer, cancel, cancellingKey, t]);
+  }, [data, holdDays, requiresAccount, cart, onOpenComposer, cancel, cancellingKey, t]);
 
   return <CardReservationsContext value={value}>{children}</CardReservationsContext>;
 }

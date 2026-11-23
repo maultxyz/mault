@@ -16,6 +16,7 @@ import {
   TRADE_OFFER_GUEST_LIMIT_MESSAGE,
   TRADE_OFFER_INVALID_MESSAGE,
   TRADE_OFFER_OFFERED_NOT_FOUND_MESSAGE,
+  TRADE_OFFER_ACCOUNT_REQUIRED_MESSAGE,
   TRADE_OFFER_OWN_ORG_MESSAGE,
   TRADE_OFFER_UNKNOWN_GAME_MESSAGE,
   TRADE_OFFER_WANTED_NOT_FOUND_MESSAGE,
@@ -109,6 +110,9 @@ export function createPublicTradeOffersRoute(
         c.req.header("Authorization"),
         verifyHardwareClientToken,
       );
+      if (link.requiresGuestAccount && !guestUserId) {
+        return c.json({ success: false, message: TRADE_OFFER_ACCOUNT_REQUIRED_MESSAGE }, 401);
+      }
       if (guestUserId && (await findOrgMembership(guestUserId, link.scope.orgId))) {
         return c.json({ success: false, message: TRADE_OFFER_OWN_ORG_MESSAGE }, 409);
       }

@@ -23,6 +23,7 @@ export interface TradeOfferLink {
   basePath: string;
   token: string;
   requiresGuestContact: boolean;
+  requiresGuestAccount: boolean;
 }
 
 export interface OfferedCardDraft {
@@ -47,10 +48,6 @@ export interface TradeOfferDraftSnapshot {
   wanted: PublicCard[];
   offered?: OfferedCardDraft[];
   values?: Partial<TradeOfferFormValues>;
-}
-
-export interface TradeOfferAccountNoticeProps {
-  onBeforeSignIn: () => void;
 }
 
 export type TradesBox = (typeof TRADES_BOXES)[number];

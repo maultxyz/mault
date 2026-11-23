@@ -64,6 +64,7 @@ async function loadStorageShareLinkClaims(
     expiresAt: lifetime.expiresAt,
     showsPrices: verified.showsPrices,
     requiresGuestContact: verified.requiresGuestContact,
+    requiresGuestAccount: verified.requiresGuestAccount,
     purpose: verified.purpose,
   };
 }

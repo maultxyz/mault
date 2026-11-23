@@ -3,13 +3,17 @@ import { Button } from "@/components/ui/button";
 import { claimOutgoingTradeOffersOnce } from "@/features/trade-offers/api/outgoing-trade-offers";
 import { useAuthSession } from "@/lib/auth";
 import { signInPathReturningTo } from "@/lib/auth-redirect";
-import type { TradeOfferAccountNoticeProps } from "@/lib/interfaces/trade-offers";
+import type { GuestAccountNoticeProps } from "@/lib/interfaces/public-cards";
 import { IconLogin2, IconUserCheck } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
-export function TradeOfferAccountNotice({ onBeforeSignIn }: TradeOfferAccountNoticeProps) {
+export function GuestAccountNotice({
+  kind,
+  isAccountRequired,
+  onBeforeSignIn,
+}: GuestAccountNoticeProps) {
   const { t } = useTranslation("cards");
   const location = useLocation();
   const { data, isPending } = useAuthSession();
@@ -17,8 +21,8 @@ export function TradeOfferAccountNotice({ onBeforeSignIn }: TradeOfferAccountNot
   const signedInUserId = signedInUser?.id ?? null;
 
   useEffect(() => {
-    if (signedInUserId) void claimOutgoingTradeOffersOnce(signedInUserId);
-  }, [signedInUserId]);
+    if (kind === "tradeOffers" && signedInUserId) void claimOutgoingTradeOffersOnce(signedInUserId);
+  }, [kind, signedInUserId]);
 
   if (isPending) return null;
 
@@ -27,10 +31,8 @@ export function TradeOfferAccountNotice({ onBeforeSignIn }: TradeOfferAccountNot
       <p className="flex items-start gap-1.5 text-xs text-foreground/70">
         <IconUserCheck aria-hidden className="mt-px size-3.5 shrink-0" />
         <span>
-          {t("tradeOffers.account.signedInAs", {
-            name: signedInUser.name || signedInUser.email,
-          })}{" "}
-          {t("tradeOffers.account.signedInHint")}
+          {t("publicBrowse.signedInAs", { name: signedInUser.name || signedInUser.email })}{" "}
+          {t(`${kind}.account.signedInHint`)}
         </span>
       </p>
     );
@@ -38,7 +40,7 @@ export function TradeOfferAccountNotice({ onBeforeSignIn }: TradeOfferAccountNot
 
   return (
     <Callout
-      variant="info"
+      variant={isAccountRequired ? "warning" : "info"}
       action={
         <Button
           variant="outline"
@@ -51,11 +53,11 @@ export function TradeOfferAccountNotice({ onBeforeSignIn }: TradeOfferAccountNot
           }
         >
           <IconLogin2 />
-          {t("tradeOffers.account.logIn")}
+          {t("publicBrowse.logIn")}
         </Button>
       }
     >
-      {t("tradeOffers.account.logInHint")}
+      {isAccountRequired ? t(`${kind}.account.logInRequiredHint`) : t(`${kind}.account.logInHint`)}
     </Callout>
   );
 }

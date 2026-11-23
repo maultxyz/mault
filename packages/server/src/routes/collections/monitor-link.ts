@@ -1,4 +1,5 @@
 import {
+  DEFAULT_SHARE_LINK_REQUIRES_GUEST_ACCOUNT,
   DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   type MonitorLink,
@@ -50,6 +51,11 @@ export const monitorLinkRoute = new Hono<AppEnv>()
     }
     const requiresGuestContact =
       body.requireGuestContact ?? DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT;
+    if (body.requireGuestAccount !== undefined && typeof body.requireGuestAccount !== "boolean") {
+      return c.json({ success: false, message: "Invalid account requirement." }, 400);
+    }
+    const requiresGuestAccount =
+      body.requireGuestAccount ?? DEFAULT_SHARE_LINK_REQUIRES_GUEST_ACCOUNT;
     const purpose = parseShareLinkPurpose(body.purpose);
     if (!purpose) {
       return c.json({ success: false, message: "Invalid link type." }, 400);
@@ -71,6 +77,7 @@ export const monitorLinkRoute = new Hono<AppEnv>()
         purpose,
         showsPrices,
         requiresGuestContact,
+        requiresGuestAccount,
         expiresInMinutes: shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays, lengths),
         createdByUserId: c.get("userId"),
       });

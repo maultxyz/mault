@@ -9,6 +9,7 @@ import {
   DEFAULT_CARD_RESERVATION_HOLD_DAYS,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
+  DEFAULT_SHOP_CATALOG_RESERVATIONS_REQUIRE_ACCOUNT,
   DEFAULT_SHOP_CATALOG_IS_PUBLIC,
   shopCatalogFormSchema,
   toCardReservationHoldDays,
@@ -86,6 +87,7 @@ export default function ShopCatalogEditScreen() {
       showsPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
       isPublic: DEFAULT_SHOP_CATALOG_IS_PUBLIC,
       allowsReservations: DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
+      reservationsRequireAccount: DEFAULT_SHOP_CATALOG_RESERVATIONS_REQUIRE_ACCOUNT,
       reservationHoldDays: DEFAULT_CARD_RESERVATION_HOLD_DAYS,
       collectionGuids: [],
       storageLocationGuids: [],
@@ -96,6 +98,8 @@ export default function ShopCatalogEditScreen() {
           showsPrices: catalog.showsPrices,
           isPublic: catalog.isPublic,
           allowsReservations: catalog.allowsReservations ?? DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
+          reservationsRequireAccount:
+            catalog.reservationsRequireAccount ?? DEFAULT_SHOP_CATALOG_RESERVATIONS_REQUIRE_ACCOUNT,
           reservationHoldDays: toCardReservationHoldDays(catalog.reservationHoldDays),
           collectionGuids: catalog.collections.map((source) => source.guid),
           storageLocationGuids: catalog.storageLocations.map((source) => source.guid),
@@ -216,6 +220,20 @@ export default function ShopCatalogEditScreen() {
                       {t("settings.shopCatalogs.reservationHoldDescription")}
                     </AppText>
                   </View>
+                )}
+              />
+            ) : null}
+            {allowsReservations ? (
+              <Controller
+                control={form.control}
+                name="reservationsRequireAccount"
+                render={({ field }) => (
+                  <SwitchRow
+                    title={t("settings.shopCatalogs.reservationsRequireAccount")}
+                    description={t("settings.shopCatalogs.reservationsRequireAccountDescription")}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
                 )}
               />
             ) : null}

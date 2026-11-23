@@ -23,6 +23,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DEFAULT_SHARE_LINK_PURPOSE,
+  DEFAULT_SHARE_LINK_REQUIRES_GUEST_ACCOUNT,
   DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   type OrgShareLink,
@@ -40,6 +41,7 @@ function formDefaultValues(expiresInDays: number): MonitorLinkFormValues {
     expiresInDays: String(expiresInDays),
     showPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
     requireGuestContact: DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
+    requireGuestAccount: DEFAULT_SHARE_LINK_REQUIRES_GUEST_ACCOUNT,
   };
 }
 
@@ -133,6 +135,7 @@ export function ShareLinkDialog({
         expiresInDays: Number(values.expiresInDays),
         showPrices: values.showPrices,
         requireGuestContact: values.requireGuestContact,
+        requireGuestAccount: values.requireGuestAccount,
       });
       void queryClient.invalidateQueries({ queryKey: SHARE_LINKS_QUERY_KEY });
       setDetails({

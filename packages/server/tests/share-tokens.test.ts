@@ -235,3 +235,24 @@ test("a trade token without the contact claim requires guest contact, and one si
   );
   assert.equal(optional?.requiresGuestContact, false);
 });
+
+test("a trade token without the account claim lets guests send, and one signed with it requires an account", async () => {
+  const base = {
+    issuer: MONITOR_LINK_ISSUER,
+    subjectGuid: "collection-guid",
+    orgId: "org-1",
+    version: 0,
+    linkGuid: "link-guid",
+    issuedAt: new Date(),
+    expiresAt: new Date(Date.now() + 60 * 60_000),
+    showsPrices: true,
+    purpose: "trade" as const,
+  };
+  const open = await verifyShareToken(MONITOR_LINK_ISSUER, await signShareToken(base));
+  assert.equal(open?.requiresGuestAccount, false);
+  const accountOnly = await verifyShareToken(
+    MONITOR_LINK_ISSUER,
+    await signShareToken({ ...base, requiresGuestAccount: true }),
+  );
+  assert.equal(accountOnly?.requiresGuestAccount, true);
+});

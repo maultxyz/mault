@@ -177,7 +177,9 @@
     "monitorType": "Suivi",
     "tradeType": "Échange",
     "monitorTypeDescription": "Une vue des cartes, en direct pendant que vous scannez. Les visiteurs ne peuvent pas envoyer d'offres.",
-    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications."
+    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications.",
+    "requireGuestAccount": "Exiger un compte",
+    "requireGuestAccountDescription": "Seules les personnes connectées peuvent envoyer une offre d'échange via ce lien."
   },
   "shareLinks": {
     "detailDescription": "Toute personne disposant de ce lien ou de ce QR code peut l'ouvrir sans se connecter.",
@@ -2544,7 +2546,9 @@
       "reservationHoldDays_one": "{{count}} jour",
       "reservationHoldDays_other": "{{count}} jours",
       "reservationHoldDescription": "Passé ce délai, la réservation expire et la personne suivante dans la file obtient la carte.",
-      "reservationsOn": "Accepte les réservations"
+      "reservationsOn": "Accepte les réservations",
+      "reservationsRequireAccount": "Exiger un compte pour réserver",
+      "reservationsRequireAccountDescription": "Seuls les clients connectés peuvent réserver des cartes. Ils reçoivent des mises à jour et voient leurs réservations sur tous leurs appareils."
     },
     "statsSync": {
       "key": {
@@ -4898,5 +4902,11 @@
     "description": "Le bot Mault envoie un message privé à votre compte Discord associé.",
     "linkDiscord": "Associez votre compte Discord dans les paramètres du compte sur le site Mault pour activer cette option.",
     "updateFailed": "Impossible de modifier les messages Discord."
+  },
+  "guestKind": {
+    "signedIn": "Connecté",
+    "guest": "Invité",
+    "signedInDescription": "Connecté avec un compte",
+    "guestDescription": "Invité sans compte"
   }
 }

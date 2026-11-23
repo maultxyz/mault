@@ -1,3 +1,4 @@
+import { GuestKindBadge } from "@/components/guest-kind-badge";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/features/business/lib/format";
 import { CardReservationRow } from "@/features/card-reservations/components/card-reservation-row";
@@ -35,9 +36,12 @@ export function CardReservationRequestCard({
     >
       <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
         <div className="flex min-w-0 flex-col">
-          <h3 id={headingId} className="text-sm font-semibold break-words">
-            {group.guestName}
-          </h3>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <h3 id={headingId} className="text-sm font-semibold break-words">
+              {group.guestName}
+            </h3>
+            <GuestKindBadge isFromAccount={group.isFromAccount} />
+          </div>
           <p className="text-xs break-words text-foreground/70">{group.guestContact}</p>
         </div>
         <dl className="flex shrink-0 flex-col items-end text-xs text-foreground/70">

@@ -491,7 +491,9 @@
     "shortLinkInvalidTitle": "Dieser Link funktioniert nicht",
     "shortLinkInvalidDescription": "Prüfe, ob er vollständig kopiert wurde, oder bitte die Person, die ihn geteilt hat, um einen neuen Link.",
     "poweredBy": "Bereitgestellt von",
-    "poweredByLabel": "Bereitgestellt von {{site}} (öffnet in einem neuen Tab)"
+    "poweredByLabel": "Bereitgestellt von {{site}} (öffnet in einem neuen Tab)",
+    "requireGuestAccount": "Konto verlangen",
+    "requireGuestAccountDescription": "Nur wer sich anmeldet, kann über diesen Link ein Tauschangebot senden."
   },
   "tradeOffers": {
     "declined": "Tauschangebot abgelehnt",
@@ -792,5 +794,12 @@
     "linkDiscord": "Verknüpfe dein Discord-Konto, um das einzuschalten.",
     "openAccount": "Kontoeinstellungen öffnen",
     "updateFailed": "Discord-Nachrichten konnten nicht geändert werden."
+  },
+  "guestKind": {
+    "signedIn": "Angemeldet",
+    "guest": "Gast",
+    "label": "Absender",
+    "signedInDescription": "Mit einem Konto angemeldet",
+    "guestDescription": "Gast ohne Konto"
   }
 }

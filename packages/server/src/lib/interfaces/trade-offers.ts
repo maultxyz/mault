@@ -32,6 +32,7 @@ export interface PublicTradeOfferLink {
   allowsTradeOffers: boolean;
   showsPrices: boolean;
   requiresGuestContact: boolean;
+  requiresGuestAccount: boolean;
 }
 
 export type TradeOfferScope =

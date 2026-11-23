@@ -36,6 +36,7 @@ export interface PublicCardBrowserProps {
   sidebarTop?: ReactNode;
   tradeOfferLink?: TradeOfferLink;
   reservationHoldDays?: number | null;
+  reservationsRequireAccount?: boolean;
 }
 
 export interface PublicCardResultsProps {
@@ -120,6 +121,7 @@ export interface WatchCardBrowserProps {
   collectionName: string;
   purpose: ShareLinkPurpose;
   requiresGuestContact: boolean;
+  requiresGuestAccount: boolean;
   session: SessionMonitorState;
 }
 
@@ -134,8 +136,21 @@ export interface StorageCardBrowserProps {
   locationName: string;
   purpose: ShareLinkPurpose;
   requiresGuestContact: boolean;
+  requiresGuestAccount: boolean;
 }
 
 export interface PublicAccountHeaderButtonProps {
   isIconOnly?: boolean;
+}
+
+export type GuestAccountKind = "tradeOffers" | "reservations";
+
+export interface GuestAccountNoticeProps {
+  kind: GuestAccountKind;
+  isAccountRequired: boolean;
+  onBeforeSignIn?: () => void;
+}
+
+export interface GuestKindBadgeProps {
+  isFromAccount: boolean | null | undefined;
 }

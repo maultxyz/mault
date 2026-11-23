@@ -987,7 +987,9 @@
     "reservationHoldDays_one": "{{count}} day",
     "reservationHoldDays_other": "{{count}} days",
     "reservationHoldDescription": "After this, the reservation runs out and the next person in line gets the card.",
-    "reservationsOn": "Takes reservations"
+    "reservationsOn": "Takes reservations",
+    "reservationsRequireAccount": "Require an account to reserve",
+    "reservationsRequireAccountDescription": "Only customers who log in can reserve cards. They get updates and see their reservations on any device."
   },
   "priceLabels": {
     "title": "Price labels",

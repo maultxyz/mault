@@ -11,6 +11,7 @@ import type { ReactNode } from "react";
 
 export interface CardReservationsContextValue {
   holdDays: number;
+  requiresAccount: boolean;
   cart: PublicCard[];
   isInCart: (scanId: string) => boolean;
   toggleInCart: (entry: PublicCard) => void;
@@ -28,6 +29,7 @@ export interface CardReservationsContextValue {
 export interface CardReservationsProviderProps {
   source: PublicCardsSource;
   holdDays: number;
+  requiresAccount: boolean;
   onOpenComposer: () => void;
   children: ReactNode;
 }

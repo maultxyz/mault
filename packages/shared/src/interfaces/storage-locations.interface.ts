@@ -205,6 +205,7 @@ export interface StorageShareLinkInfo {
   conditionMultipliers: ConditionMultipliers;
   showsPrices: boolean;
   requiresGuestContact?: boolean;
+  requiresGuestAccount?: boolean;
   purpose: ShareLinkPurpose;
 }
 

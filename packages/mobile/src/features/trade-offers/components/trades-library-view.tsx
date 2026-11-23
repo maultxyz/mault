@@ -27,6 +27,7 @@ import { outgoingTradeOffersQueryOptions } from "@/features/trade-offers/api/out
 import { tradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { NewTradeSheets } from "@/features/trade-offers/components/new-trade-sheets";
 import { StatusMessagesSwitch } from "@/features/status-messages/components/status-messages-switch";
+import { guestKindLabelKey } from "@/lib/guest-kind";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useSession } from "@/lib/auth/session";
 import { myCardReservationsQueryOptions } from "@/features/card-reservations/api/my-card-reservations";
@@ -66,7 +67,14 @@ function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionPro
                     wanted: offer.wanted.length,
                     offered: offer.offered.reduce((sum, card) => sum + card.quantity, 0),
                   })
-            }\n${new Date(offer.createdAt).toLocaleDateString(i18n.language, { dateStyle: "medium" })}`}
+            }\n${[
+              new Date(offer.createdAt).toLocaleDateString(i18n.language, { dateStyle: "medium" }),
+              offer.linkKind !== "inPerson" && offer.isFromAccount !== undefined
+                ? t(guestKindLabelKey(offer.isFromAccount))
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}`}
             right={
               <View style={{ alignItems: "flex-end", gap: SPACING.xs, flexShrink: 0 }}>
                 <AppText

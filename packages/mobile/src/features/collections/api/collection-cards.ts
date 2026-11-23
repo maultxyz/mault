@@ -245,6 +245,7 @@ export function createMonitorLink(
   showPrices: boolean,
   purpose: ShareLinkPurpose,
   requireGuestContact: boolean,
+  requireGuestAccount: boolean,
 ): Promise<MonitorLink> {
   return unwrap(
     apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, {
@@ -252,6 +253,7 @@ export function createMonitorLink(
       showPrices,
       purpose,
       requireGuestContact,
+      requireGuestAccount,
     }),
   );
 }
