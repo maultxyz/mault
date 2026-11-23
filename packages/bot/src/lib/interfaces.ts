@@ -142,7 +142,6 @@ export interface NotifyBody {
   useThread?: boolean;
   embed?: APIEmbed;
   attachmentDataUrl?: string;
-  secondaryImageUrl?: string;
   guildId?: string;
   pingRoleIds?: string[];
 }

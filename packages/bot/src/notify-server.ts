@@ -11,17 +11,11 @@ import {
   type GuildMember,
 } from "discord.js";
 import { Hono } from "hono";
-import sharp from "sharp";
 import { listNotifyChannels, listPingableRoles } from "./lib/notify-channel";
 import {
   BOT_API_SECRET,
-  COMPOSITE_GAP,
-  COMPOSITE_HEIGHT,
   NOTIFY_SERVER_PORT,
   SCAN_ATTACHMENT_NAME,
-  SCAN_PHOTO_CARD_ASPECT_RATIO,
-  SCAN_PHOTO_JPEG_QUALITY,
-  SERVER_URL,
 } from "./lib/constants";
 import type {
   DirectMessageBody,
@@ -37,56 +31,6 @@ function decodeDataUrl(dataUrl: string): Buffer | null {
   } catch {
     return null;
   }
-}
-
-function toCardProportions(scanPhoto: Buffer): Promise<Buffer> {
-  return sharp(scanPhoto)
-    .resize({
-      width: Math.round(COMPOSITE_HEIGHT * SCAN_PHOTO_CARD_ASPECT_RATIO),
-      height: COMPOSITE_HEIGHT,
-      fit: "fill",
-    })
-    .jpeg({ quality: SCAN_PHOTO_JPEG_QUALITY })
-    .toBuffer();
-}
-
-async function compositeSideBySide(
-  primary: Buffer,
-  secondaryUrl: string,
-): Promise<Buffer> {
-  const proxyUrl = `${SERVER_URL}/cards/image-proxy?url=${encodeURIComponent(secondaryUrl)}`;
-  const secondaryRes = await fetch(proxyUrl);
-  if (!secondaryRes.ok) {
-    const failure = (await secondaryRes.json().catch(() => null)) as { message?: string } | null;
-    throw new Error(failure?.message ?? `image proxy answered ${secondaryRes.status}`);
-  }
-  const secondaryRaw = Buffer.from(await secondaryRes.arrayBuffer());
-
-  const [left, right] = await Promise.all([
-    sharp(primary).resize({ height: COMPOSITE_HEIGHT }).toBuffer(),
-    sharp(secondaryRaw).resize({ height: COMPOSITE_HEIGHT }).toBuffer(),
-  ]);
-  const [leftMeta, rightMeta] = await Promise.all([
-    sharp(left).metadata(),
-    sharp(right).metadata(),
-  ]);
-  const leftWidth = leftMeta.width ?? COMPOSITE_HEIGHT;
-  const rightWidth = rightMeta.width ?? COMPOSITE_HEIGHT;
-
-  return sharp({
-    create: {
-      width: leftWidth + COMPOSITE_GAP + rightWidth,
-      height: COMPOSITE_HEIGHT,
-      channels: 3,
-      background: { r: 255, g: 255, b: 255 },
-    },
-  })
-    .composite([
-      { input: left, left: 0, top: 0 },
-      { input: right, left: leftWidth + COMPOSITE_GAP, top: 0 },
-    ])
-    .jpeg({ quality: SCAN_PHOTO_JPEG_QUALITY })
-    .toBuffer();
 }
 
 function botSecretMatches(providedSecret: string | undefined): boolean {
@@ -184,24 +128,7 @@ export function startNotifyServer(client: Client) {
 
       const files = [];
       if (body.attachmentDataUrl) {
-        let buffer = decodeDataUrl(body.attachmentDataUrl);
-        if (buffer) {
-          try {
-            buffer = await toCardProportions(buffer);
-          } catch (err) {
-            console.error("[bot] Failed to reshape the scan photo:", err);
-            buffer = null;
-          }
-        }
-        if (buffer && body.secondaryImageUrl) {
-          try {
-            buffer = await compositeSideBySide(buffer, body.secondaryImageUrl);
-          } catch (err) {
-            console.warn(
-              `[bot] Posting the scan photo without its reference image (${body.secondaryImageUrl}): ${err instanceof Error ? err.message : String(err)}`,
-            );
-          }
-        }
+        const buffer = decodeDataUrl(body.attachmentDataUrl);
         if (buffer) {
           files.push(
             new AttachmentBuilder(buffer, { name: SCAN_ATTACHMENT_NAME }),
