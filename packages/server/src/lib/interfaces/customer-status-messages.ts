@@ -18,6 +18,10 @@ export interface ReservationStatusMessageCard {
 
 export interface ReservationStatusMessage {
   discordUserId: string;
+  orgId: string;
+  customerUserId: string;
+  shopName: string | null;
+  customerName: string | null;
   event: "created" | "changed";
   catalogName: string | null;
   requestGuid: string;
@@ -26,6 +30,10 @@ export interface ReservationStatusMessage {
 
 export interface TradeOfferStatusMessage {
   discordUserId: string;
+  orgId: string;
+  customerUserId: string;
+  shopName: string | null;
+  customerName: string | null;
   event: "created" | "accepted" | "declined";
   offerGuid: string;
   sentToName: string | null;
@@ -46,6 +54,8 @@ export interface CardLineInput {
 
 export interface ReservationMessageRow {
   discord_user_id: string;
+  org_id: string;
+  guest_user_id: string;
   request_guid: string;
   catalog_name: string | null;
   collection_card_id: number;
@@ -58,6 +68,8 @@ export interface ReservationMessageRow {
 
 export interface TradeOfferMessageRow {
   discord_user_id: string;
+  org_id: string;
+  guest_user_id: string;
   guid: string;
   status: TradeOfferStatus;
   sent_to_name: string | null;
