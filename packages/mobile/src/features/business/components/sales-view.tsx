@@ -14,6 +14,7 @@ import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
+import { StatTileSkeleton } from "@/components/ui/stat-tile-skeleton";
 import { intakeLotQueryOptions, salesReportQueryOptions } from "@/features/business/api/business";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { useCompactCount } from "@/hooks/use-compact-count";
@@ -124,7 +125,11 @@ export function SalesView({ buyGuid }: SalesViewProps) {
     return (
       <View style={{ gap: SPACING.md }}>
         {filters}
-        <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />
+        <StatGroup>
+          <StatTileSkeleton hasHint={false} />
+          <StatTileSkeleton hasHint={false} />
+        </StatGroup>
+        <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} leading="none" hasSubtitle subtitleLines={2} />
       </View>
     );
   }

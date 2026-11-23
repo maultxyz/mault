@@ -6,6 +6,7 @@ import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { SortTestResult } from "@/features/bins/components/sort-test-result";
 import { getRandomSampleCards } from "@/features/cards/api/card-search";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { SORT_TEST_SKELETON_BIN_ROWS } from "@/lib/constants/skeletons";
 import type { SortTestButtonProps } from "@/lib/interfaces/bins";
 import { toast } from "@/lib/toast";
 import type { PlayingCard } from "@magic-vault/shared";
@@ -81,11 +82,32 @@ export function SortTestButton({ disabled }: SortTestButtonProps) {
               description={t("sortTest.noGameDescription")}
             />
           ) : draw.isPending ? (
-            <div className="flex gap-4">
-              <Skeleton className="aspect-[2.5/3.5] w-36 shrink-0 rounded-lg" />
-              <div className="flex flex-1 flex-col gap-2">
-                <Skeleton className="h-5 w-2/3" />
-                <Skeleton className="h-16 w-full rounded-lg" />
+            <div role="status" aria-busy="true" className="flex flex-col gap-4 md:gap-2">
+              <span className="sr-only">{t("a11y.loading", { ns: "common" })}</span>
+              <div className="flex flex-col gap-4 md:gap-2 sm:flex-row">
+                <Skeleton className="aspect-[2.5/3.5] w-36 shrink-0 self-center rounded-lg sm:self-start" />
+                <div className="flex min-w-0 flex-1 flex-col gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <Skeleton className="h-3.5 w-2/3" />
+                    <Skeleton className="h-3 w-1/3" />
+                  </div>
+                  <div className="flex flex-col gap-2 rounded-lg bg-foreground/6 p-3">
+                    <Skeleton className="h-3.5 w-1/3" />
+                    <Skeleton className="h-3 w-3/4" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-3.5 w-28" />
+                <div className="flex flex-col divide-y divide-border overflow-hidden rounded-lg bg-foreground/6">
+                  {Array.from({ length: SORT_TEST_SKELETON_BIN_ROWS }).map((_, index) => (
+                    <div key={index} className="flex items-center gap-2 px-3 py-2">
+                      <Skeleton className="size-4 shrink-0 rounded-full" />
+                      <Skeleton className="h-3.5 w-1/3" />
+                      <Skeleton className="ml-auto h-3 w-16" />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           ) : !card ? (

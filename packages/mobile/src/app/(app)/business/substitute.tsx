@@ -63,7 +63,7 @@ export default function OrderSubstituteScreen() {
           />
         ) : null}
         {substitutes.isPending ? (
-          <ListSkeleton rows={4} />
+          <ListSkeleton rows={4} leading="thumbnail" hasSubtitle />
         ) : substitutes.isError ? (
           <Callout
             tone="destructive"

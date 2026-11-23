@@ -20,13 +20,13 @@ import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { SelectField } from "@/components/ui/select-field";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   gameCardSearchQueryOptions,
   gameCardSetsQueryOptions,
   gameCoverageQueryOptions,
   healthQueryOptions,
 } from "@/features/health/api/health";
+import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
 import { OcrRegionTile } from "@/features/health/components/ocr-region-tile";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePricing } from "@/hooks/use-pricing";
@@ -116,7 +116,7 @@ export default function HealthScreen() {
       {health.isError && !data ? (
         <QueryErrorState title={t("health.loadFailed")} onRetry={() => void health.refetch()} isRetrying={health.isFetching} />
       ) : health.isPending ? (
-        <ListSkeleton withIcon={false} />
+        <ListSkeleton leading="none" />
       ) : (
         <ListGroup>
           {(data?.checks ?? []).map((check) => (
@@ -143,7 +143,7 @@ export default function HealthScreen() {
 
       <SettingsSection title={t("health.gameCoverage.heading")} description={t("health.gameCoverage.description")}>
         {coverage.isPending ? (
-          <ListSkeleton withIcon={false} />
+          <ListSkeleton leading="none" hasSubtitle />
         ) : coverage.data && coverage.data.length === 0 ? (
           <EmptyState icon="collections" title={t("health.gameCoverage.empty")} />
         ) : (
@@ -208,7 +208,7 @@ export default function HealthScreen() {
             onPress={() => setPicker("set")}
           />
         ) : null}
-        {queryReady && search.isPending ? <Skeleton height={tileWidth * 1.4} /> : null}
+        {queryReady && search.isPending ? <CollectionGridSkeleton tileWidth={tileWidth} /> : null}
         {queryReady && search.data && results.length === 0 ? (
           <AppText size="sm" tone="secondary">
             {t("health.cardLookup.noResults")}

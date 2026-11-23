@@ -1,8 +1,10 @@
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import { SettingsSection } from "@/components/settings-section";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -14,6 +16,10 @@ import {
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { getApiUsageReport } from "@/lib/api/admin";
 import { API_USAGE_QUERY_KEY } from "@/lib/constants/admin";
+import {
+  API_USAGE_KEYS_SKELETON_COLUMNS,
+  API_USAGE_ROUTES_SKELETON_COLUMNS,
+} from "@/lib/constants/skeletons";
 import {
   API_USAGE_REPORT_DAYS,
   DEFAULT_API_USAGE_REPORT_DAYS,
@@ -58,7 +64,16 @@ export function ApiUsagePanel() {
             onRetry={() => void refetch()}
           />
         ) : isPending || !data ? (
-          <ListSkeleton />
+          <SkeletonStatus className="flex flex-col gap-4 md:gap-2">
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-3.5 w-28" />
+              <TableSkeleton columns={API_USAGE_KEYS_SKELETON_COLUMNS} rows={4} />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-3.5 w-32" />
+              <TableSkeleton columns={API_USAGE_ROUTES_SKELETON_COLUMNS} rows={4} />
+            </div>
+          </SkeletonStatus>
         ) : (
           <>
             <section className="flex flex-col gap-2">

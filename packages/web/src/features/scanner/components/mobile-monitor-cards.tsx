@@ -190,11 +190,19 @@ export function MobileMonitorCards({
         onPageSizeChange={setPageSize}
       />
       {isLoading && entries.length === 0 ? (
-        <div className="grid grid-cols-3 gap-x-3 gap-y-5 px-4 pt-2 pb-4">
+        <div
+          role="status"
+          aria-busy="true"
+          className="grid grid-cols-3 gap-x-3 gap-y-5 px-4 pt-2 pb-4"
+        >
+          <span className="sr-only">{t("a11y.loading", { ns: "common" })}</span>
           {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className="flex flex-col gap-1">
+            <div key={i} className="flex min-w-0 flex-col gap-1.5">
               <Skeleton className="aspect-[2.5/3.5] w-full rounded-lg" />
-              <Skeleton className="h-3 w-3/4" />
+              <div className="flex min-w-0 flex-col gap-1 px-0.5">
+                <Skeleton className="h-3 w-3/4 rounded-sm" />
+                <Skeleton className="h-3 w-1/2 rounded-sm" />
+              </div>
             </div>
           ))}
         </div>

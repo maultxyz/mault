@@ -76,7 +76,7 @@ export default function TradeCollectionScreen() {
       {!collection ? (
         <EmptyState icon="collections" title={t("trade.noCollections")} />
       ) : cards.isLoading ? (
-        <ListSkeleton />
+        <ListSkeleton rows={5} leading="thumbnail" hasSubtitle hasTrailing={false} />
       ) : cards.isError && entries.length === 0 ? (
         <Callout
           tone="destructive"

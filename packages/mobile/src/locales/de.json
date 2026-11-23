@@ -1053,6 +1053,7 @@
       "scanned": "Insgesamt gescannt",
       "sinceYesterday": "seit gestern",
       "sinceDate": "seit {{date}}",
+      "valueCalculating": "Wird berechnet…",
       "openStats": "Öffnet deine Statistiken"
     },
     "review": {

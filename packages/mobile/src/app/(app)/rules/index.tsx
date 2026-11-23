@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PickerCard } from "@/components/ui/picker-card";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { usePresetPicker } from "@/features/rules/api/use-preset-picker";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { AlphabetPassCard } from "@/features/rules/components/alphabet-pass-card";
@@ -40,7 +41,14 @@ export default function RulesScreen() {
       {picker.isError ? <Callout tone="destructive" title={t("rules.activateFailed")} /> : null}
 
       {data.isPending ? (
-        <ListSkeleton />
+        <>
+          <ListSkeleton rows={1} hasSubtitle />
+          <ListSkeleton rows={1} hasSubtitle hasTrailing={false} />
+          <ListSkeleton rows={1} />
+          <SectionSkeleton titleWidth={64}>
+            <ListSkeleton rows={4} hasSubtitle hasTrailing={false} />
+          </SectionSkeleton>
+        </>
       ) : !collection ? (
         <EmptyState
           icon="collections"

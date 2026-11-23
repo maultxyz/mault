@@ -8,14 +8,16 @@ import { Alert, View } from "react-native";
 import type { Announcement } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { MultilineFieldSkeleton } from "@/components/ui/multiline-field-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Screen } from "@/components/ui/screen";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SwitchRow } from "@/components/ui/switch-row";
+import { SwitchRowSkeleton } from "@/components/ui/switch-row-skeleton";
 import { TextField } from "@/components/ui/text-field";
 import {
   announcementFormSchema,
@@ -130,7 +132,13 @@ function AdminAnnouncementContent() {
     <View style={{ flex: 1 }}>
       <Screen header={<PageHeader title={title} onBack={() => router.back()} />}>
         {announcementsQuery.isPending && guid ? (
-          <PageSkeleton />
+          <>
+            <FormSkeleton fields={1} />
+            <MultilineFieldSkeleton />
+            <FormSkeleton fields={3} />
+            <SwitchRowSkeleton />
+            <SwitchRowSkeleton hasDescription />
+          </>
         ) : isMissing ? (
           <Callout tone="warning" title={t("admin.discord.announcements.notFound")} />
         ) : (

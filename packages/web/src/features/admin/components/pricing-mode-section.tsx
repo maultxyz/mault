@@ -1,5 +1,7 @@
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
+import { SettingsSectionSkeleton } from "@/components/settings-section-skeleton";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -28,18 +30,24 @@ export function PricingModeSection() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  if (!data) {
+  if (!data && isError) {
     return (
       <SettingsSection heading={t("plans.pricingMode.heading")}>
-        {isError ? (
-          <LoadErrorCallout
-            message={t("plans.loadFailed")}
-            onRetry={() => void refetch()}
-          />
-        ) : (
-          <Skeleton className="h-5 w-24" />
-        )}
+        <LoadErrorCallout
+          message={t("plans.loadFailed")}
+          onRetry={() => void refetch()}
+        />
       </SettingsSection>
+    );
+  }
+
+  if (!data) {
+    return (
+      <SkeletonStatus>
+        <SettingsSectionSkeleton hasAction>
+          <Skeleton className="h-4 w-24 rounded-sm" />
+        </SettingsSectionSkeleton>
+      </SkeletonStatus>
     );
   }
 

@@ -460,7 +460,10 @@ export function ScanRegionCalibrationPanel({
               </span>
             </Button>
             {isLoading ? (
-              <Skeleton className="h-6 flex-1 rounded-sm" />
+              <div className="flex flex-1 flex-col gap-1.5">
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-2/3" />
+              </div>
             ) : (
               <p className="text-xs text-foreground/70 flex-1">
                 {t("scanRegionCalibrationPanel.currentSummary", {
@@ -526,7 +529,7 @@ export function ScanRegionCalibrationPanel({
                 {t("scanRegionCalibrationPanel.flipCameraLabel")}
               </span>
               {isLoading ? (
-                <Skeleton className="h-4 w-7 rounded-full" />
+                <Skeleton className="h-4 w-7 shrink-0 rounded-full max-md:h-6 max-md:w-10" />
               ) : (
                 <Switch
                   aria-label={t("scanRegionCalibrationPanel.flipCameraLabel")}
@@ -546,7 +549,7 @@ export function ScanRegionCalibrationPanel({
                 {t("scanRegionCalibrationPanel.checkBothOrientationsLabel")}
               </span>
               {isLoading ? (
-                <Skeleton className="h-4 w-7 rounded-full" />
+                <Skeleton className="h-4 w-7 shrink-0 rounded-full max-md:h-6 max-md:w-10" />
               ) : (
                 <Switch
                   aria-label={t(

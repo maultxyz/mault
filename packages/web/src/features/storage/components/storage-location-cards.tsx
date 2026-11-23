@@ -1,6 +1,6 @@
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { StorageCardsSkeleton } from "@/features/storage/components/storage-cards-skeleton";
 import { ListPagination } from "@/components/list-pagination";
 import { storageLocationCardPageQueryOptions } from "@/features/storage/api/storage-locations";
 import {
@@ -238,7 +238,7 @@ export function StorageLocationCards({
         />
       )}
       {isLoading ? (
-        <ListSkeleton />
+        <StorageCardsSkeleton viewMode={viewMode} density={density} />
       ) : entries.length === 0 ? (
         <EmptyState
           size="compact"

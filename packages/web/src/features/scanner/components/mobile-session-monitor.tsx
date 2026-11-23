@@ -145,7 +145,7 @@ export function MobileSessionMonitor({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <MobilePageHeader
-        title={collection ? collection.name : <Skeleton className="h-7 w-40" />}
+        title={collection ? collection.name : <Skeleton className="h-6 w-40 rounded-sm" />}
         subtitle={[
           t(`mobileMonitor.status.${status}`),
           collection?.game?.name,

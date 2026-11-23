@@ -72,7 +72,7 @@ export function CardCorrectionSearch({
           {t("cardDetail.startTyping")}
         </AppText>
       ) : search.isPending ? (
-        <ListSkeleton rows={4} />
+        <ListSkeleton rows={4} leading="thumbnail" hasSubtitle />
       ) : results.length === 0 ? (
         <EmptyState icon="search" title={t("cardDetail.noCardsFound")} />
       ) : (

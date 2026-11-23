@@ -3,25 +3,42 @@ import { db, singleStatementDb } from "../db";
 import { orgCardStats, orgCardStatsDirty } from "../db/schema";
 import { ORG_CARD_STATS_ADVISORY_LOCK_NAME } from "./constants/stored-snapshots";
 import type {
+  ComputedSnapshot,
   StoredOrgCardStatsInput,
+  StoredSnapshotSource,
   StoredSnapshotRead,
   StoredSnapshotRow,
 } from "./interfaces/stored-snapshots";
 import {
   clearDirtyMarksUnderLock,
   readStoredSnapshot,
+  refreshStoredSnapshot,
   toStoredSnapshot,
   utcTimestampTextSql,
 } from "./stored-snapshots";
 
-export function readStoredOrgCardStats<Payload>({
+export function readStoredOrgCardStats<Payload>(
+  input: StoredOrgCardStatsInput<Payload>,
+): Promise<StoredSnapshotRead<Payload>> {
+  return readStoredSnapshot<Payload>(orgCardStatsSource(input));
+}
+
+export function refreshStoredOrgCardStats<Payload>(
+  input: StoredOrgCardStatsInput<Payload>,
+): Promise<ComputedSnapshot<Payload>> {
+  return refreshStoredSnapshot<Payload>(orgCardStatsSource(input));
+}
+
+function orgCardStatsSource<Payload>({
   orgId,
   variant,
   pricingKey,
   day,
   compute,
-}: StoredOrgCardStatsInput<Payload>): Promise<StoredSnapshotRead<Payload>> {
-  return readStoredSnapshot<Payload>({
+  pendingPayload,
+  servesStaleWithoutWaiting,
+}: StoredOrgCardStatsInput<Payload>): StoredSnapshotSource<Payload> {
+  return {
     stateKey: `org\u0000${orgId}\u0000${variant}`,
     pricingKey,
     staleKey: day,
@@ -61,6 +78,8 @@ export function readStoredOrgCardStats<Payload>({
       );
     },
     compute,
+    pendingPayload,
+    servesStaleWithoutWaiting,
     store: async (payload, computeStartedAt, computeDurationMs) => {
       await db.execute(sql`
         INSERT INTO ${orgCardStats}
@@ -76,5 +95,5 @@ export function readStoredOrgCardStats<Payload>({
         WHERE ${orgCardStats}.compute_started_at < excluded.compute_started_at
       `);
     },
-  });
+  };
 }

@@ -77,11 +77,19 @@ export function FeatureHighlightsButton() {
         onRetry={() => void timelineQuery.refetch()}
       />
     ) : (
-      <div className="flex flex-col gap-2" aria-busy="true">
+      <div className="flex flex-col gap-2" role="status" aria-busy="true">
         <span className="sr-only">{t("a11y.loading")}</span>
-        <Skeleton className="aspect-video w-full rounded-lg" />
-        <Skeleton className="h-4 w-2/3" />
-        <Skeleton className="h-3 w-full" />
+        {Array.from({ length: FEATURE_HIGHLIGHTS_POPOVER_LIMIT }).map((_, index) => (
+          <div key={index} className="flex flex-col gap-2 rounded-lg bg-foreground/6 p-2.5">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="aspect-video w-full rounded-lg" />
+            <div className="flex flex-col gap-1">
+              <Skeleton className="h-3.5 w-2/3" />
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-4/5" />
+            </div>
+          </div>
+        ))}
       </div>
     )
   ) : highlights.length === 0 ? (

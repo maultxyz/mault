@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -28,6 +27,7 @@ import {
 import { channelLabel, roleLabel } from "@/features/integrations/lib/discord-settings";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
+import { RuleFormSkeleton } from "@/features/rules/components/rule-form-skeleton";
 import { createGroup } from "@/features/rules/lib/rules";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
@@ -154,7 +154,7 @@ export default function NotificationRuleScreen() {
         {isLoadError ? (
           <QueryErrorState onRetry={retryLoad} isRetrying={rules.isFetching || integration.isFetching} />
         ) : isLoading ? (
-          <PageSkeleton />
+          <RuleFormSkeleton fields={3} />
         ) : (
           <>
             <Controller

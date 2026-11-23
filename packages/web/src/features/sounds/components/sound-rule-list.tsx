@@ -1,6 +1,6 @@
 import { PlanNotice } from "@/components/plan-notice";
+import { SoundRuleListSkeleton } from "@/features/sounds/components/sound-skeletons";
 import { DeleteDialog } from "@/components/delete-dialog";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { EmptyState } from "@/components/empty-state";
 import { SaveBar } from "@/components/save-bar";
@@ -110,7 +110,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
           onRetry={() => void refetch()}
         />
       )}
-      {(isLoading || isClipsLoading) && <ListSkeleton rows={3} />}
+      {(isLoading || isClipsLoading) && <SoundRuleListSkeleton />}
       {!isClipsLoading && clips.length === 0 && (
         <EmptyState size="compact" icon={IconUpload} title={t("rules.needsClip")} />
       )}

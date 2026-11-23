@@ -1,6 +1,6 @@
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ShareLinkListSkeleton } from "@/features/share-links/components/share-link-list-skeleton";
 import { sharedCardLinksQueryOptions } from "@/features/cards/api/card-share-links";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useShareLinks } from "@/features/share-links/api/use-share-links";
@@ -29,7 +29,7 @@ export function SharedCardLinkList({ collectionGuid }: SharedCardLinkListProps) 
   if (isError) {
     return <LoadErrorCallout message={t("loadFailed")} onRetry={() => void refetch()} />;
   }
-  if (isLoading || !links) return <Skeleton className="h-14 w-full" />;
+  if (isLoading || !links) return <ShareLinkListSkeleton />;
   if (links.length === 0) {
     return (
       <EmptyState

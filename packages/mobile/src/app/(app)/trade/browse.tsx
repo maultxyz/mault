@@ -57,7 +57,7 @@ export default function TradeBrowseScreen() {
         accessibilityLabel={t("trade.searchLinkCards")}
       />
       {cards.isLoading ? (
-        <ListSkeleton />
+        <ListSkeleton rows={5} leading="thumbnail" hasSubtitle hasTrailing={false} />
       ) : cards.isError && entries.length === 0 ? (
         <Callout
           tone="destructive"

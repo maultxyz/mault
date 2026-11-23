@@ -16,7 +16,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconBadge } from "@/components/ui/icon-badge";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
-import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { Pill } from "@/components/ui/pill";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -34,8 +33,10 @@ import {
   MY_CARD_RESERVATION_ACTION_OPEN_CATALOG,
   MY_CARD_RESERVATION_OPTION_SEPARATOR,
   MY_CARD_RESERVATION_STATUS_TONES,
+  CARD_RESERVATION_SKELETON_CARDS_PER_GROUP,
+  CARD_RESERVATION_SKELETON_GROUP_COUNT,
 } from "@/lib/constants/card-reservations";
-import { TRADE_OFFERS_SKELETON_ROWS } from "@/lib/constants/trade-offers";
+import { CardReservationGroupsSkeleton } from "@/features/card-reservations/components/card-reservation-groups-skeleton";
 import { SPACING } from "@/lib/constants/theme";
 import { LIST_ROW_ICON_SIZE } from "@/lib/constants/ui";
 import type {
@@ -224,7 +225,14 @@ export function MyCardReservationsView() {
     ];
   };
 
-  if (reservations.isPending) return <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />;
+  if (reservations.isPending) {
+    return (
+      <CardReservationGroupsSkeleton
+        groupCount={CARD_RESERVATION_SKELETON_GROUP_COUNT}
+        cardsPerGroup={CARD_RESERVATION_SKELETON_CARDS_PER_GROUP}
+      />
+    );
+  }
   if (reservations.isError) {
     return (
       <Callout

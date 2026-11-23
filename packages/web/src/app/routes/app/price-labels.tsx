@@ -6,7 +6,10 @@ import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { priceLabelCardsQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
@@ -34,6 +37,10 @@ import {
   PRICE_LABEL_SOURCE_GUID_PARAM,
   PRICE_LABEL_SOURCE_PARAM,
 } from "@/lib/constants/price-labels";
+import {
+  PRICE_LABEL_CARD_SKELETON_COLUMNS,
+  PRICE_LABEL_CARD_SKELETON_ROWS,
+} from "@/lib/constants/skeletons";
 import type { PriceLabelsViewProps } from "@/lib/interfaces/price-labels";
 import { cn } from "@/lib/utils";
 import {
@@ -116,7 +123,17 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
       description={t("priceLabels.empty.pickSourceDescription")}
     />
   ) : cardsQuery.isPending ? (
-    <ListSkeleton />
+    <SkeletonStatus className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-1.5">
+        <Skeleton className="h-3.5 w-32" />
+        <Skeleton className="h-10 w-20 rounded-lg md:h-7" />
+      </div>
+      <TableSkeleton
+        columns={PRICE_LABEL_CARD_SKELETON_COLUMNS}
+        rows={PRICE_LABEL_CARD_SKELETON_ROWS}
+        rowClassName="min-h-9"
+      />
+    </SkeletonStatus>
   ) : cardsQuery.isError ? (
     <LoadErrorCallout message={t("errors.loadFailed")} onRetry={() => void cardsQuery.refetch()} />
   ) : !loaded || loaded.cards.length === 0 ? (

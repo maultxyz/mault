@@ -220,3 +220,10 @@ export interface ReservationRequestsAlertsProps {
   groups: CardReservationRequestGroup[];
   onOpenReservations: () => void;
 }
+
+export interface BusinessDetailSkeletonProps {
+  pillCount: number;
+  statTileCount: number;
+  hasStatHeading?: boolean;
+  children?: ReactNode;
+}

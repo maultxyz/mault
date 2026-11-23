@@ -9,9 +9,9 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { shortLinkQueryOptions } from "@/features/share-links/api/short-links";
 import { useOpenStorageLabel } from "@/features/storage/api/use-open-storage-label";
 import { tradeLinkCardsQueryOptions, tradeLinkInfoQueryOptions } from "@/features/trade-offers/api/public-trade";
@@ -19,6 +19,8 @@ import { TradeCardRow } from "@/features/trade-offers/components/trade-card-row"
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { WEB_URL } from "@/lib/constants/config";
+import { CONTROL_RADIUS } from "@/lib/constants/theme";
+import { SEARCH_INPUT_HEIGHT } from "@/lib/constants/ui";
 import type { TradeLinkRef } from "@/lib/interfaces/trade";
 
 export default function SharedLinkScreen() {
@@ -84,12 +86,16 @@ export default function SharedLinkScreen() {
     />
   );
 
+  const loadingCards = <ListSkeleton rows={5} leading="thumbnail" hasSubtitle hasTrailing={false} />;
+  const loadingScreen = (
+    <Screen header={header}>
+      <Skeleton height={SEARCH_INPUT_HEIGHT} radius={CONTROL_RADIUS} />
+      {loadingCards}
+    </Screen>
+  );
+
   if (params.shortCode && (shortLink.isLoading || shortLinkTarget)) {
-    return (
-      <Screen header={header}>
-        <PageSkeleton />
-      </Screen>
-    );
+    return loadingScreen;
   }
   if (!link || info.isError) {
     return (
@@ -99,11 +105,7 @@ export default function SharedLinkScreen() {
     );
   }
   if (info.isLoading || !isViewLink) {
-    return (
-      <Screen header={header}>
-        <PageSkeleton />
-      </Screen>
-    );
+    return loadingScreen;
   }
 
   return (
@@ -115,7 +117,7 @@ export default function SharedLinkScreen() {
         accessibilityLabel={t("sharedLink.search")}
       />
       {cards.isLoading ? (
-        <ListSkeleton />
+        loadingCards
       ) : cards.isError ? (
         <EmptyState icon="share" title={t("sharedLink.loadFailed")} />
       ) : entries.length === 0 ? (

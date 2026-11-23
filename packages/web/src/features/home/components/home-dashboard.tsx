@@ -2,13 +2,13 @@ import { Callout } from "@/components/callout";
 import { CompactCount, CompactPrice } from "@/components/compact-value";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { widgetSummaryQueryOptions } from "@/features/home/api/widget-summary";
 import { HomeCardRail } from "@/features/home/components/home-card-rail";
+import { HomeDashboardSkeleton } from "@/features/home/components/home-dashboard-skeleton";
 import { HomeHighlightRow } from "@/features/home/components/home-highlight-row";
 import { usePendingTradeOffers } from "@/features/trade-offers/api/trade-offers";
 import { ColumnChart } from "@/features/stats/components/column-chart";
@@ -95,16 +95,20 @@ export function HomeDashboard() {
       )}
 
       {overview.isPending ? (
-        <Skeleton className="h-60 rounded-card" />
+        <HomeDashboardSkeleton />
       ) : overviewData ? (
         <>
           <ValueHero
             label={t("hero.value")}
             value={
-              <CompactPrice
-                value={overviewData.totalValue}
-                compactsOnlyBelowMd
-              />
+              overviewData.isValuePending ? (
+                <span className="text-2xl md:text-lg">{t("hero.valueCalculating")}</span>
+              ) : (
+                <CompactPrice
+                  value={overviewData.totalValue}
+                  compactsOnlyBelowMd
+                />
+              )
             }
             change={change ? { change, caption: changeCaption } : null}
             sparklineValues={

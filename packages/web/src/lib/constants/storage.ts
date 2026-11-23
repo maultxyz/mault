@@ -1,3 +1,4 @@
+import type { TableSkeletonColumn } from "@/lib/interfaces/skeletons";
 import type { CalloutVariant } from "@/lib/interfaces/callout";
 import type {
   StorageLocationNameFormValues,
@@ -85,3 +86,33 @@ export function storageLabelsPath(locationGuids: string[] = []): string {
 }
 
 export const STORAGE_PRESET_USES_HEADING_ID = "storage-preset-uses-heading";
+
+export const STORAGE_CARDS_SKELETON_ROWS = 8;
+export const STORAGE_CARDS_SKELETON_TILES = 12;
+
+export const STORAGE_CARD_TABLE_SKELETON_COLUMNS: readonly TableSkeletonColumn[] = [
+  { barClassName: "w-6", alignsEnd: true, className: "max-w-12" },
+  { barClassName: "", isThumbnail: true, className: "max-w-10" },
+  { barClassName: "w-32", className: "flex-[2]" },
+  { barClassName: "w-20", className: "hidden sm:flex" },
+  { barClassName: "w-8", className: "hidden sm:flex" },
+  { barClassName: "w-12", className: "hidden md:flex" },
+  { barClassName: "w-20", className: "hidden lg:flex" },
+  { barClassName: "w-10", alignsEnd: true },
+  { barClassName: "w-10", alignsEnd: true },
+  { barClassName: "w-10", alignsEnd: true },
+];
+
+export const STORAGE_SEARCH_TABLE_SKELETON_COLUMNS: readonly TableSkeletonColumn[] = [
+  { barClassName: "w-24" },
+  ...STORAGE_CARD_TABLE_SKELETON_COLUMNS.slice(1),
+];
+
+export const STORAGE_CHECK_LIST_SKELETON_COLUMNS: readonly TableSkeletonColumn[] = [
+  { barClassName: "size-4 rounded-sm", className: "max-w-10" },
+  { barClassName: "w-6", alignsEnd: true, className: "max-w-12" },
+  { barClassName: "", isThumbnail: true, className: "max-w-10" },
+  { barClassName: "w-32", className: "flex-[2]" },
+  { barClassName: "w-20", className: "hidden sm:flex" },
+  { barClassName: "w-20", className: "hidden lg:flex" },
+];

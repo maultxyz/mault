@@ -14,12 +14,12 @@ const router = new Hono<AppEnv>()
   })
   .get("/widgets", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
-    const { summary, currency, collectionValues } = await loadCachedWidgetSummary(
+    const { summary, currency, collectionValues, isValuePending } = await loadCachedWidgetSummary(
       c.get("jwtClaims"),
       orgId,
       { includeCollectionSummaries: c.req.query("includeCollectionSummaries") !== "false" },
     );
-    if (isCollectionValueSnapshotDue(orgId)) {
+    if (!isValuePending && isCollectionValueSnapshotDue(orgId)) {
       void writeCollectionValueSnapshots(orgId, currency, collectionValues).catch(
         (err) => console.error("[overview] collection value snapshot:", err),
       );

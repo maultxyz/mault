@@ -88,3 +88,7 @@ export interface InPersonGivenTradeCard {
   subtitle: string;
   imageUrl: string | null;
 }
+
+export interface TradeOfferReviewSkeletonProps {
+  hasValueSummary: boolean;
+}

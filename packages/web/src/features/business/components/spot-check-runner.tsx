@@ -1,4 +1,3 @@
-import { ListSkeleton } from "@/components/list-skeleton";
 import { StatGroup } from "@/components/stat-group";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -7,6 +6,7 @@ import {
   recordAccuracySample,
 } from "@/features/business/api/business";
 import { useBusinessAction } from "@/features/business/api/use-business";
+import { SpotCheckSkeleton } from "@/features/business/components/spot-check-skeleton";
 import { StatusBadge } from "@/features/business/components/status-badge";
 import { formatPercent } from "@/features/business/lib/format";
 import { collectionViewPath } from "@/lib/constants/collections";
@@ -34,7 +34,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
   const [index, setIndex] = useState<number | null>(null);
   const [pending, setPending] = useState(false);
 
-  if (isLoading || !check) return <ListSkeleton rows={8} />;
+  if (isLoading || !check) return <SpotCheckSkeleton />;
 
   const firstOpen = check.samples.findIndex((sample) => sample.result === null);
   const current = Math.min(

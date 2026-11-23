@@ -108,11 +108,24 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
         data-tour="scan-stats"
         role="status"
         aria-label={t("scanStats.loading")}
-        className="grid grid-cols-2 gap-2 md:gap-1.5"
+        className={cn(
+          "@container rounded-lg",
+          scrollable && "min-h-0",
+          className,
+        )}
       >
-        {SCAN_STATS_SKELETON_TILE_KEYS.map((key) => (
-          <Skeleton key={key} className="h-16 rounded-card md:h-12" />
-        ))}
+        <div className="flex flex-col gap-2 @2xl:grid @2xl:grid-cols-2 @2xl:items-start @5xl:grid-cols-3">
+          {SCAN_STATS_SKELETON_TILE_KEYS.map((key) => (
+            <div
+              key={key}
+              className="flex items-center gap-2 rounded-card bg-card p-3"
+            >
+              <Skeleton className="h-3 w-16 shrink-0 rounded-sm" />
+              <Skeleton className="h-3 w-1/3 rounded-sm" />
+              <Skeleton className="ml-auto size-4 shrink-0 rounded-sm" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

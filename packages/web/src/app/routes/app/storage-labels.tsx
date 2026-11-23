@@ -3,11 +3,17 @@ import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage-locations";
 import { StorageLabelOptionsForm } from "@/features/storage-labels/components/storage-label-options-form";
 import { StorageLabelSheet } from "@/features/storage-labels/components/storage-label-sheet";
+import {
+  LabelSheetPreviewSkeleton,
+  StorageLabelOptionsFormSkeleton,
+} from "@/features/storage-labels/components/storage-labels-skeletons";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   MOBILE_NAV_SCROLL_PADDING_CLASS,
@@ -112,7 +118,11 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
         </MobilePageHeader>
         <div className={MOBILE_PAGE_BODY_CLASS}>
           {isPending ? (
-            <ListSkeleton />
+            <SkeletonStatus className="flex flex-col gap-5">
+              <Skeleton className="h-12 w-full rounded-lg" />
+              <StorageLabelOptionsFormSkeleton />
+              <LabelSheetPreviewSkeleton />
+            </SkeletonStatus>
           ) : locations.length === 0 ? (
             emptyLocations
           ) : (
@@ -134,7 +144,9 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
       <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-y-auto border-r bg-sidebar/70 p-2 lg:col-span-3">
           {isPending ? (
-            <ListSkeleton />
+            <SkeletonStatus>
+              <StorageLabelOptionsFormSkeleton />
+            </SkeletonStatus>
           ) : (
             locations.length > 0 && <StorageLabelOptionsForm form={form} locations={locations} />
           )}
@@ -150,7 +162,10 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
           />
           <div className="flex flex-col gap-2 px-3 py-2">
             {isPending ? (
-              <ListSkeleton />
+              <div aria-hidden="true" className="flex flex-col gap-2">
+                <Skeleton className="h-12 w-full rounded-lg" />
+                <LabelSheetPreviewSkeleton />
+              </div>
             ) : locations.length === 0 ? (
               emptyLocations
             ) : (

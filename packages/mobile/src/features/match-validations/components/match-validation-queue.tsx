@@ -17,7 +17,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { Pill } from "@/components/ui/pill";
 import { QueryErrorState } from "@/components/ui/query-error-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { MatchValidationQueueSkeleton } from "@/features/match-validations/components/match-validation-queue-skeleton";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import {
   MATCH_VALIDATION_SCANS_QUERY_KEY,
@@ -83,14 +83,7 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
         {queueQuery.isError && !current ? (
           <QueryErrorState onRetry={() => void queueQuery.refetch()} isRetrying={queueQuery.isFetching} />
         ) : queueQuery.isPending || isLoadingMore ? (
-          <View style={{ flexDirection: "row", gap: SPACING.md }}>
-            <View style={{ flex: 1, aspectRatio: CARD_ASPECT_RATIO }}>
-              <Skeleton height="100%" radius={CARD_ART_RADIUS} />
-            </View>
-            <View style={{ flex: 1, aspectRatio: CARD_ASPECT_RATIO }}>
-              <Skeleton height="100%" radius={CARD_ART_RADIUS} />
-            </View>
-          </View>
+          <MatchValidationQueueSkeleton />
         ) : !current ? (
           <View style={{ gap: SPACING.md }}>
             <EmptyState

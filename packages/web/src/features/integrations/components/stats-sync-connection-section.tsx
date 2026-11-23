@@ -10,7 +10,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { useStatsSyncConnection } from "@/features/integrations/api/use-stats-sync";
 import { formatShortDateTime } from "@/lib/format";
 import {
@@ -84,7 +84,7 @@ export function StatsSyncConnectionSection() {
           onRetry={() => void refetch()}
         />
       )}
-      {isLoading && <Skeleton className="h-14 w-full" />}
+      {isLoading && <DividedRowsSkeleton rows={1} />}
       {status && !canManage && (
         <Callout variant="neutral">
           {t("statsSync.connection.managersOnly")}

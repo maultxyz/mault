@@ -1,6 +1,6 @@
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { EmptyState } from "@/components/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ShareLinkListSkeleton } from "@/features/share-links/components/share-link-list-skeleton";
 import { useShareLinks } from "@/features/share-links/api/use-share-links";
 import { ShareLinkRow } from "@/features/share-links/components/share-link-row";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -21,7 +21,7 @@ export function ShareLinkList({
   const { links, isLoading, isError, retry, revoke } = useShareLinks(subjectGuid);
 
   if (isError) return <LoadErrorCallout message={t("loadFailed")} onRetry={retry} />;
-  if (isLoading) return <Skeleton className="h-14 w-full" />;
+  if (isLoading) return <ShareLinkListSkeleton leadsWithBadges />;
   if (links.length === 0) {
     return (
       <EmptyState

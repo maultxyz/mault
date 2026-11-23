@@ -20,14 +20,18 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { MultilineFieldSkeleton } from "@/components/ui/multiline-field-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Surface } from "@/components/ui/surface";
 import { TextField } from "@/components/ui/text-field";
 import {
@@ -47,7 +51,7 @@ import {
   updateOfferedCard,
 } from "@/features/trade-offers/lib/trade-draft";
 import { useSession } from "@/lib/auth/session";
-import { SPACING } from "@/lib/constants/theme";
+import { FONT_SIZE, SPACING } from "@/lib/constants/theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 import type { OfferedTradeCard, TradeLinkRef } from "@/lib/interfaces/trade";
 
@@ -172,7 +176,19 @@ export default function TradeScreen() {
   if (info.isLoading) {
     return (
       <Screen header={header}>
-        <PageSkeleton />
+        <Skeleton width="80%" height={FONT_SIZE.sm} />
+        <SectionSkeleton>
+          <Surface style={{ gap: SPACING.md }}>
+            <FormSkeleton fields={2} />
+            <MultilineFieldSkeleton />
+          </Surface>
+        </SectionSkeleton>
+        <SectionSkeleton hasDescription>
+          <ListSkeleton rows={1} hasTrailing={false} />
+        </SectionSkeleton>
+        <SectionSkeleton hasDescription>
+          <ListSkeleton rows={2} hasTrailing={false} />
+        </SectionSkeleton>
       </Screen>
     );
   }

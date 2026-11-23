@@ -12,13 +12,13 @@ import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast-provider";
 import { importCollectionCsv, previewCollectionCsvImport } from "@/features/collections/api/collections";
 import { useTheme } from "@/hooks/use-theme";
 import { COLLECTION_CSV_IMPORT_MIME_TYPES } from "@/lib/constants/collections";
-import { SPACING } from "@/lib/constants/theme";
+import { FONT_SIZE, SPACING } from "@/lib/constants/theme";
 import type { CollectionCsvImportFile } from "@/lib/interfaces/collections";
 
 export default function CollectionCsvImportScreen() {
@@ -105,7 +105,11 @@ export default function CollectionCsvImportScreen() {
                     .filter(Boolean)
                     .join(" ")}
                 </AppText>
-                {preview.isPending ? <PageSkeleton sections={1} /> : null}
+                {preview.isPending ? (
+                  <View style={{ height: Math.round(FONT_SIZE.base * 1.45), justifyContent: "center" }}>
+                    <Skeleton width="45%" height={FONT_SIZE.base} />
+                  </View>
+                ) : null}
                 {preview.isError ? (
                   <Callout tone="destructive" title={preview.error.message || t("collections.importCsv.previewFailed")} />
                 ) : null}

@@ -1,7 +1,7 @@
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
-import { Skeleton } from "@/components/ui/skeleton";
 import { matchValidationScansQueryOptions } from "@/features/match-validations/api/match-validations";
+import { MatchValidationScanGridSkeleton } from "@/features/match-validations/components/match-validation-skeletons";
 import { MatchValidationScanTile } from "@/features/match-validations/components/match-validation-scan-tile";
 import { MatchValidationSummary } from "@/features/match-validations/components/match-validation-summary";
 import { setPageSize, usePageSize } from "@/lib/page-size-store";
@@ -26,13 +26,7 @@ export function MatchValidationScanGrid({ gameKey }: MatchValidationGameFilterPr
   const pagination = toServerPagination(data, setPage);
 
   if (isPending) {
-    return (
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        {Array.from({ length: pageSize }, (_, index) => (
-          <Skeleton key={index} className="aspect-square w-full rounded-lg" />
-        ))}
-      </div>
-    );
+    return <MatchValidationScanGridSkeleton />;
   }
 
   if (!data || data.items.length === 0) {

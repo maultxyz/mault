@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { formatMonthlyRecurringRevenue } from "@magic-vault/shared";
+import { formatMonthlyRecurringRevenue, PAID_PLAN_KEYS } from "@magic-vault/shared";
 import { Callout } from "@/components/ui/callout";
 import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
@@ -23,10 +23,15 @@ export function SubscriptionSummaryPanel() {
   return (
     <SettingsSection title={t("admin.plans.subscriptions.heading")} description={t("admin.plans.subscriptions.description")}>
       {summaryQuery.isPending ? (
-        <StatGroup>
-          <StatTileSkeleton />
-          <StatTileSkeleton />
-        </StatGroup>
+        <View style={{ gap: SPACING.md }}>
+          {[t("admin.plans.subscriptions.subscribersHeading"), t("admin.plans.subscriptions.revenueHeading")].map((heading) => (
+            <StatGroup key={heading} heading={heading}>
+              {[...PAID_PLAN_KEYS, "total"].map((key) => (
+                <StatTileSkeleton key={key} hasIcon={false} hasHint={false} />
+              ))}
+            </StatGroup>
+          ))}
+        </View>
       ) : !summary ? (
         <Callout tone="destructive" title={t("admin.plans.subscriptions.loadFailed")} />
       ) : (

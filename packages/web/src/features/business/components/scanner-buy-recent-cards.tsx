@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { intakeLotCardsQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { IntakeOfferEditor } from "@/features/business/components/intake-offer-editor";
@@ -7,6 +7,7 @@ import { usePriceSource } from "@/hooks/use-price-source";
 import {
   SCANNER_BUY_RECENT_CARDS_COUNT,
   SCANNER_BUY_RECENT_CARDS_PAGE,
+  SCANNER_BUY_RECENT_CARDS_SKELETON_ROWS,
 } from "@/lib/constants/business";
 import type { ScannerBuyRecentCardsProps } from "@/lib/interfaces/business";
 import { cn } from "@/lib/utils";
@@ -49,11 +50,13 @@ export function ScannerBuyRecentCards({ lot, editsOffers }: ScannerBuyRecentCard
       {isExpanded && (
         <div id={listId}>
           {isPending ? (
-            <div className="flex flex-col gap-1">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <Skeleton key={index} className="h-8 rounded-lg" />
-              ))}
-            </div>
+            <ListSkeleton
+              rows={SCANNER_BUY_RECENT_CARDS_SKELETON_ROWS}
+              hasSubtitle
+              hasTrailing={showsMoney}
+              className="gap-0 divide-y divide-border rounded-lg bg-foreground/6"
+              rowClassName="min-h-9 gap-3 px-3"
+            />
           ) : cards.length === 0 ? (
             <p className="text-xs text-foreground/70">{t("scannerBuy.noRecentCards")}</p>
           ) : (

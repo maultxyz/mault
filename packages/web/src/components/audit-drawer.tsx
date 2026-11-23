@@ -6,7 +6,9 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AUDIT_LOG_SKELETON_ROWS } from "@/lib/constants/skeletons";
 import type { AuditDrawerProps } from "@/lib/interfaces/audit";
 import { IconClockHour3, IconRotateClockwise2, IconX } from "@tabler/icons-react";
 import { useState } from "react";
@@ -52,15 +54,23 @@ export function AuditDrawer({
 
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
-            <div className="flex flex-col gap-3 md:gap-2 p-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex flex-col gap-2 p-3 border rounded-lg">
-                  <Skeleton className="h-3 w-32" />
-                  <Skeleton className="h-3 w-full" />
-                  <Skeleton className="h-3 w-3/4" />
+            <SkeletonStatus className="flex flex-col divide-y">
+              {Array.from({ length: AUDIT_LOG_SKELETON_ROWS }).map((_, i) => (
+                <div key={i} className="flex flex-col gap-2 p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex flex-col gap-1">
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                    {i > 0 && <Skeleton className="h-10 w-20 shrink-0 rounded-lg md:h-7" />}
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Skeleton className="h-3.5 w-full" />
+                    <Skeleton className="h-3.5 w-3/4" />
+                  </div>
                 </div>
               ))}
-            </div>
+            </SkeletonStatus>
           ) : entries.length === 0 ? (
             <p className="p-4 text-sm text-foreground/70">
               {t("auditDrawer.noHistory")}

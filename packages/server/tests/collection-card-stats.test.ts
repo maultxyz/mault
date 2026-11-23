@@ -150,6 +150,48 @@ test("stored stats: stats are still returned, unstored, when dirty marks cannot 
   assert.equal(calls.store, 0);
 });
 
+test("stored stats: a slow repricing serves the pending payload built from the previous snapshot", async () => {
+  let finishCompute: (value: string) => void = () => {};
+  const pendingFrom: (string | null)[] = [];
+  const { source, calls } = sourceFor(
+    "repriced-slow",
+    { ...stored, pricingKey: "old pricing" },
+    {
+      compute: () =>
+        new Promise<string>((resolve) => {
+          calls.compute += 1;
+          finishCompute = resolve;
+        }),
+      pendingPayload: async (previous) => {
+        pendingFrom.push(previous);
+        return "pending";
+      },
+    },
+  );
+  const read = await readStoredSnapshot(source);
+  assert.equal(read.payload, "pending");
+  assert.equal(read.isRefreshing, true);
+  assert.match(read.version, /^pending:/);
+  assert.deepEqual(pendingFrom, ["stored"]);
+  assert.equal(calls.compute, 1);
+  finishCompute("computed");
+});
+
+test("stored stats: a quick repricing is returned instead of the pending payload", async () => {
+  const { source } = sourceFor("repriced-quick", null, { pendingPayload: async () => "pending" });
+  const read = await readStoredSnapshot(source);
+  assert.equal(read.payload, "computed");
+  assert.equal(read.isRefreshing, false);
+});
+
+test("stored stats: a stale snapshot is served at once when the source does not wait", async () => {
+  const { source, calls } = sourceFor("dirty-no-wait", { ...stored, isDirty: true }, { servesStaleWithoutWaiting: true });
+  const read = await readStoredSnapshot(source);
+  assert.deepEqual(read, { payload: "stored", version: stored.computeStartedAt, isRefreshing: true });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(calls.compute, 1);
+});
+
 test("stored stats: only an unfiltered query reads the stored collection snapshot", () => {
   const unfiltered = { search: "", sort: "name", filters: EMPTY_CARD_FILTERS, grouped: true, unreviewed: false };
   assert.equal(isUnfilteredCardsQuery(unfiltered), true);

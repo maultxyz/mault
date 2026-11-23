@@ -1,7 +1,7 @@
 import { DeleteDialog } from "@/components/delete-dialog";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   linkedSignInAccountsQueryKey,
   linkedSignInAccountsQueryOptions,
@@ -96,12 +96,7 @@ export function SignInMethodsList() {
     <div className="flex flex-col gap-3 md:gap-2">
       <p className="text-xs text-foreground/70">{t("signInMethods.description")}</p>
 
-      {isLoading && (
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </div>
-      )}
+      {isLoading && <DividedRowsSkeleton rows={2} />}
 
       {!isLoading && loadFailed && !accounts && (
         <LoadErrorCallout

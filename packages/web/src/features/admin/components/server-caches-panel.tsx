@@ -1,7 +1,8 @@
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ import {
   SERVER_CACHE_ORG_FORM_ID,
   SERVER_CACHES_QUERY_KEY,
 } from "@/lib/constants/admin";
+import { SERVER_CACHES_SKELETON_COLUMNS } from "@/lib/constants/skeletons";
 import { toast } from "@/lib/toast";
 import { adminCacheOrgFormSchema, type AdminCacheOrgFormValues } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -176,7 +178,9 @@ export function ServerCachesPanel() {
               onRetry={() => void cachesQuery.refetch()}
             />
           ) : !cachesQuery.data ? (
-            <ListSkeleton />
+            <SkeletonStatus>
+              <TableSkeleton columns={SERVER_CACHES_SKELETON_COLUMNS} rows={8} />
+            </SkeletonStatus>
           ) : cachesQuery.data.length === 0 ? (
             <EmptyState
               size="compact"

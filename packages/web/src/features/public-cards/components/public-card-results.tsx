@@ -1,7 +1,8 @@
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { PublicCardTileSkeletons } from "@/features/public-cards/components/public-card-tile-skeletons";
 import { PublicCardTile } from "@/features/public-cards/components/public-card-tile";
 import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
 import type { PublicCardResultsProps } from "@/lib/interfaces/public-cards";
@@ -43,7 +44,9 @@ export function PublicCardResults({
       ) : isError ? (
         <LoadErrorCallout message={t("publicBrowse.loadFailed")} onRetry={onRetry} />
       ) : isPending ? (
-        <ListSkeleton />
+        <SkeletonStatus>
+          <PublicCardTileSkeletons />
+        </SkeletonStatus>
       ) : cards.length === 0 ? (
         <EmptyState icon={IconCards} title={t("publicBrowse.noResults")} />
       ) : (

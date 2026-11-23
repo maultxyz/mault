@@ -14,5 +14,5 @@ export const HOME_CARD_RAIL_TILE_WIDTH = 112;
 export const HOME_CARD_OF_THE_DAY_TILE_WIDTH = 148;
 export const HOME_CARD_RAIL_LOADING_TILE_COUNT = WIDGET_SUMMARY_CARDS_OF_THE_DAY;
 export const HOME_CARD_RAIL_SKELETON_LINE_HEIGHT = 12;
-export const HOME_SKELETON_HEIGHTS = { hero: 190, topCardRow: 52, activityChart: 120 } as const;
+export const HOME_SKELETON_HEIGHTS = { hero: 190, activityChart: 120 } as const;
 export const HOME_TOP_CARDS_LIST_COUNT = 5;

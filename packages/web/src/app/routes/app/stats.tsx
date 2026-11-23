@@ -3,11 +3,11 @@ import { EmptyState } from "@/components/empty-state";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { statsReportQueryOptions } from "@/features/stats/api/stats";
 import { StatsControls } from "@/features/stats/components/stats-controls";
 import { StatsDashboard } from "@/features/stats/components/stats-dashboard";
+import { StatsDashboardSkeleton } from "@/features/stats/components/stats-dashboard-skeleton";
 import { StatsLeaderboardButton } from "@/features/stats/components/stats-leaderboard";
 import { useBackNavigation } from "@/hooks/use-back-navigation";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -91,11 +91,7 @@ export default function StatsPage() {
         {t("error")}
       </Callout>
     ) : isLoading || !report ? (
-      <div className="flex flex-col gap-4 md:gap-2">
-        <Skeleton className="h-24 rounded-card" />
-        <Skeleton className="h-56 rounded-card" />
-        <Skeleton className="h-48 rounded-card" />
-      </div>
+      <StatsDashboardSkeleton />
     ) : report.totals.cardCount === 0 ? (
       <EmptyState
         icon={IconChartBar}

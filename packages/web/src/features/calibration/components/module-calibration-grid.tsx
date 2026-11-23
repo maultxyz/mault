@@ -107,7 +107,13 @@ export function ServoControl({
       </div>
 
       {isLoading ? (
-        <Skeleton className="h-4 w-full rounded-sm" />
+        <div className="flex w-full">
+          {servo.positions.map((position) => (
+            <div key={position} className="flex h-5 flex-1 items-center justify-center">
+              <Skeleton className="h-3.5 w-10" />
+            </div>
+          ))}
+        </div>
       ) : calibration ? (
         <div className="flex w-full">
           {servo.positions.map((position) => {

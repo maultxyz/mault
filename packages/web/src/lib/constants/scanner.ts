@@ -402,3 +402,6 @@ export const PI_SORTER_RECONNECT_INTERVAL_MS = 5000;
 export const FOIL_NUDGE_DIAGNOSTIC_IMAGE_WIDTH = 224;
 export const FOIL_NUDGE_DIAGNOSTIC_JPEG_QUALITY = 0.8;
 export const FOIL_NONE_VALUE = "none";
+
+export const MONITOR_CARD_GRID_CLASS =
+  "grid gap-2 p-4 md:gap-1.5 md:px-3 md:py-2 grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 @5xl:grid-cols-8";

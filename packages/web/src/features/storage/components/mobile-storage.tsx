@@ -6,7 +6,8 @@ import { StorageLocationDialogs } from "@/features/storage/components/storage-lo
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { MobileListSkeleton } from "@/components/mobile-list-skeleton";
+import { StorageSearchResultsSkeleton } from "@/features/storage/components/storage-search-results-skeleton";
 import { MobileListRow } from "@/components/mobile-list-row";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
@@ -43,6 +44,7 @@ import {
 } from "@/lib/constants/nav";
 import {
   STORAGE_CARD_SEARCH_PARAM,
+  STORAGE_LIST_SKELETON_COUNT,
   STORAGE_LOCATION_SEARCH_PARAM,
   STORAGE_PICK_LIST_PATH,
   STORAGE_REVIEW_SEARCH_PARAM,
@@ -396,7 +398,7 @@ export function MobileStorage() {
             </Callout>
           )}
           {isLoading ? (
-            <ListSkeleton />
+            <MobileListSkeleton rows={STORAGE_LIST_SKELETON_COUNT} />
           ) : isError && locations.length === 0 ? (
             <LoadErrorCallout
               message={t("page.loadFailed")}
@@ -422,7 +424,7 @@ export function MobileStorage() {
                 }}
               />
             ) : (
-              <ListSkeleton />
+              <StorageSearchResultsSkeleton />
             )
           ) : (
             <div className={MOBILE_LIST_CLASS}>

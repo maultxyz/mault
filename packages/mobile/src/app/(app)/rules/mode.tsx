@@ -19,8 +19,8 @@ import { Callout } from "@/components/ui/callout";
 import { Input } from "@/components/ui/input";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SaveBar } from "@/components/ui/save-bar";
@@ -178,7 +178,7 @@ export default function SortingModeScreen() {
             isRetrying={isRefetchingRulesData}
           />
         ) : isRulesDataPending ? (
-          <PageSkeleton />
+          <ListSkeleton rows={SORTING_MODES.length} leading="none" hasSubtitle hasTrailing={false} />
         ) : (
           <>
             {!editable ? <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} /> : null}

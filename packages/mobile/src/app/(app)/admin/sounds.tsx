@@ -155,7 +155,7 @@ function AdminSoundsContent() {
       {message ? <Callout tone={message.tone} title={message.text} /> : null}
       <SettingsSection title={t("admin.sounds.heading")} description={t("admin.sounds.description")}>
         {clips.isPending ? (
-          <ListSkeleton />
+          <ListSkeleton hasSubtitle hasTrailing={false} />
         ) : clips.isError ? (
           <Callout
             tone="destructive"

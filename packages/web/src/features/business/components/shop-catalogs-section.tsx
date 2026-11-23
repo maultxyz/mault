@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ShopCatalogsSkeleton } from "@/features/business/components/shop-catalogs-skeleton";
 import { useShopCatalogs } from "@/features/business/api/use-shop-catalogs";
 import { ShopCatalogDialog } from "@/features/business/components/shop-catalog-dialog";
 import { ShopPhotoSettings } from "@/features/business/components/shop-photo-settings";
@@ -85,7 +85,7 @@ export function ShopCatalogsSection() {
           onRetry={() => void refetch()}
         />
       )}
-      {isLoading && <Skeleton className="h-14 w-full rounded-lg" />}
+      {isLoading && <ShopCatalogsSkeleton />}
       {!isLoading && canManage && !isError && catalogs.length === 0 && (
         <EmptyState
           size="compact"

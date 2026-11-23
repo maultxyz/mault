@@ -3,10 +3,13 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
+import { Surface } from "@/components/ui/surface";
 import { AdminGate } from "@/features/admin/components/admin-gate";
 import { GamesEditor } from "@/features/admin/components/games-editor";
 import { gamesQueryOptions } from "@/features/games/api/games";
@@ -35,7 +38,21 @@ export default function AdminEditGameScreen() {
             isRetrying={games.isFetching}
           />
         ) : games.isLoading ? (
-          <PageSkeleton />
+          <>
+            <SectionSkeleton hasDescription>
+              <Surface>
+                <FormSkeleton fields={3} />
+              </Surface>
+            </SectionSkeleton>
+            <SectionSkeleton hasDescription>
+              <Surface>
+                <FormSkeleton fields={1} />
+              </Surface>
+            </SectionSkeleton>
+            <SectionSkeleton hasDescription>
+              <ListSkeleton rows={3} leading="none" hasSubtitle />
+            </SectionSkeleton>
+          </>
         ) : (
           <EmptyState
             icon="game"

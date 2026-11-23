@@ -1,7 +1,7 @@
-import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
+import { SettingsSectionsSkeleton } from "@/components/settings-section-skeleton";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -45,9 +45,16 @@ export function ShareLinkLengthsManager() {
 
   if (isLoading) {
     return (
-      <SettingsSection heading={heading}>
-        <ListSkeleton />
-      </SettingsSection>
+      <SettingsSectionsSkeleton
+        sections={[
+          {
+            fields: SHARE_LINK_HOURS_FIELDS.length + 1,
+            hasAction: true,
+            hasFieldDescriptions: true,
+            controlClassName: "max-w-40",
+          },
+        ]}
+      />
     );
   }
 

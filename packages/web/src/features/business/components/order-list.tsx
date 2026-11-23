@@ -2,7 +2,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SidebarListSkeleton } from "@/components/sidebar-list-skeleton";
 import { StatusBadge } from "@/features/business/components/status-badge";
 import { formatDay } from "@/features/business/lib/format";
 import { BUSINESS_LIST_SKELETON_COUNT } from "@/lib/constants/business";
@@ -27,13 +27,7 @@ export function OrderList({
   const { onMouseDown: onCheckboxMouseDown, consumeShift } = useShiftClick();
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col gap-2 max-md:gap-2">
-        {Array.from({ length: BUSINESS_LIST_SKELETON_COUNT }).map((_, i) => (
-          <Skeleton key={i} className="h-13 rounded-lg" />
-        ))}
-      </div>
-    );
+    return <SidebarListSkeleton rows={BUSINESS_LIST_SKELETON_COUNT} />;
   }
 
   if (orders.length === 0 && (search || isFiltered)) {

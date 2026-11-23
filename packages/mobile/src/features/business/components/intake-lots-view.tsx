@@ -96,7 +96,7 @@ export function IntakeLotsView({ canAct }: BusinessListViewProps) {
     return (
       <View style={{ gap: SPACING.md }}>
         {searchInput}
-        <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />
+        <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} hasSubtitle subtitleLines={2} />
       </View>
     );
   }

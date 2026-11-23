@@ -551,10 +551,32 @@ export function CameraPrintingScore({
 
                 <div className="flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto lg:pr-1">
                   {isRating && (
-                    <div className="flex flex-col gap-2">
-                      <Skeleton className="h-28 w-full" />
-                      <Skeleton className="h-10 w-full" />
-                      <Skeleton className="h-40 w-full" />
+                    <div role="status" aria-busy="true" className="flex flex-col gap-3">
+                      <span className="sr-only">{t("a11y.loading", { ns: "common" })}</span>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Array.from({ length: 2 }).map((_, index) => (
+                          <div key={index} className="flex flex-col gap-1">
+                            <Skeleton className="aspect-[2.5/3.5] w-full rounded-md" />
+                            <Skeleton className="h-2.5 w-1/2" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex flex-col gap-2 rounded-lg bg-foreground/6 p-2.5">
+                        <Skeleton className="h-3 w-3/4" />
+                        <Skeleton className="h-5 w-1/3" />
+                        <Skeleton className="h-1.5 w-full rounded-full" />
+                        <Skeleton className="h-2.5 w-1/4" />
+                      </div>
+                      <Skeleton className="h-10 w-full rounded-lg" />
+                      <div className="flex flex-col gap-2 rounded-lg bg-foreground/6 p-2.5">
+                        <Skeleton className="h-3 w-1/3" />
+                        {Array.from({ length: 4 }).map((_, index) => (
+                          <div key={index} className="flex gap-4">
+                            <Skeleton className="h-3 w-20" />
+                            <Skeleton className="h-3 w-1/3" />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 

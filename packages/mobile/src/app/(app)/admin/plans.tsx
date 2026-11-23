@@ -2,16 +2,20 @@ import { router, useNavigation, usePreventRemove } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
-import { PLAN_KEYS, PLAN_LIMIT_KEYS, type PlanKey } from "@magic-vault/shared";
+import { PLAN_FEATURE_KEYS, PLAN_KEYS, PLAN_LIMIT_KEYS, type PlanKey } from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Screen } from "@/components/ui/screen";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { SelectField } from "@/components/ui/select-field";
+import { StatGroup } from "@/components/ui/stat-group";
+import { StatTileSkeleton } from "@/components/ui/stat-tile-skeleton";
 import { Surface } from "@/components/ui/surface";
+import { SwitchRowSkeleton } from "@/components/ui/switch-row-skeleton";
 import { usePlanSettingsDraft } from "@/features/admin/api/plans-settings-draft";
 import { AdminGate } from "@/features/admin/components/admin-gate";
 import { PlansFeatureRows } from "@/features/admin/components/plans-feature-rows";
@@ -53,7 +57,28 @@ function PlanSettingsEditor() {
         }
       >
         {draft.isLoading ? (
-          <PageSkeleton />
+          <>
+            <SectionSkeleton hasDescription>
+              <StatGroup>
+                <StatTileSkeleton />
+                <StatTileSkeleton />
+              </StatGroup>
+            </SectionSkeleton>
+            {Array.from({ length: 3 }).map((_, index) => (
+              <SectionSkeleton key={index} hasDescription>
+                <Surface>
+                  <FormSkeleton fields={1} />
+                </Surface>
+              </SectionSkeleton>
+            ))}
+            <SectionSkeleton hasDescription>
+              <Surface style={{ gap: SPACING.md }}>
+                {PLAN_FEATURE_KEYS.map((feature) => (
+                  <SwitchRowSkeleton key={feature} hasDescription />
+                ))}
+              </Surface>
+            </SectionSkeleton>
+          </>
         ) : draft.isLoadError || !draft.data ? (
           <Callout tone="destructive" title={t("admin.plans.loadFailed")} />
         ) : (

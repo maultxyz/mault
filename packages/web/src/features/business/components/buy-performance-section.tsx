@@ -2,6 +2,8 @@ import { CompactPrice } from "@/components/compact-value";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { StatGroupSkeleton } from "@/components/stat-group-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { buyPerformanceQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
@@ -21,7 +23,14 @@ export function BuyPerformanceSection({ lot }: BuyPerformanceSectionProps) {
   const performance = useQuery(buyPerformanceQueryOptions(lot.guid, isVisible));
 
   if (!isVisible) return null;
-  if (performance.isPending) return <Skeleton className="h-32 rounded-card" />;
+  if (performance.isPending) {
+    return (
+      <SkeletonStatus className="flex flex-col gap-2">
+        <StatGroupSkeleton tiles={7} gridClassName="grid-cols-2 sm:grid-cols-4" hasDetails />
+        <Skeleton className="h-7 w-28 rounded-lg max-md:h-10" />
+      </SkeletonStatus>
+    );
+  }
   if (performance.isError || !performance.data) {
     return (
       <LoadErrorCallout

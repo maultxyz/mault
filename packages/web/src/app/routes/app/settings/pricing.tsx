@@ -7,14 +7,20 @@ import {
   SettingsSection,
   SettingsSections,
 } from "@/components/settings-section";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useBusinessSettingsDraft } from "@/features/business/api/use-business-settings-draft";
 import { useHasBusinessTools } from "@/features/business/api/use-has-business-tools";
 import { BuylistSettings } from "@/features/business/components/buylist-settings";
+import {
+  BuylistSettingsSkeleton,
+  SellPriceSettingsSkeleton,
+} from "@/features/business/components/pricing-settings-skeletons";
 import { SellPriceSettings } from "@/features/business/components/sell-price-settings";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
 import type { MarketPricingSectionsProps } from "@/lib/interfaces/settings";
+import { CARD_CONDITIONS, PRICE_SOURCES } from "@magic-vault/shared";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -30,10 +36,11 @@ function MarketPricingSections({ draft }: MarketPricingSectionsProps) {
       >
         {!draft.isLoading && !draft.canManageOrgSettings && <ManagersOnlyNote />}
         {draft.isLoading ? (
-          <div className="flex gap-2">
-            <Skeleton className="h-14 w-36 rounded-lg" />
-            <Skeleton className="h-14 w-36 rounded-lg" />
-          </div>
+          <SkeletonStatus className="flex gap-2">
+            {PRICE_SOURCES.map((source) => (
+              <Skeleton key={source} className="h-14 w-36 rounded-lg" />
+            ))}
+          </SkeletonStatus>
         ) : (
           <Controller
             control={draft.control}
@@ -53,7 +60,20 @@ function MarketPricingSections({ draft }: MarketPricingSectionsProps) {
         description={t("conditionPricing.description")}
       >
         {draft.isLoading ? (
-          <Skeleton className="h-32 w-full" />
+          <div aria-hidden="true" className="flex flex-col gap-2">
+            <div className="divide-y rounded-lg border">
+              {CARD_CONDITIONS.map((condition) => (
+                <div key={condition} className="flex items-center justify-between gap-3 px-3 py-2">
+                  <Skeleton className="h-3.5 w-28" />
+                  <span className="flex items-center gap-2">
+                    <Skeleton className="h-11 w-20 rounded-lg md:h-7" />
+                    <Skeleton className="h-3 w-3" />
+                  </span>
+                </div>
+              ))}
+            </div>
+            <Skeleton className="h-2.5 w-2/3" />
+          </div>
         ) : (
           <Controller
             control={draft.control}
@@ -99,13 +119,23 @@ function PricingSettingsWithBusiness() {
         heading={t("settings.sell.heading")}
         description={t("settings.sell.description")}
       >
-        <SellPriceSettings control={businessDraft.control} disabled={businessDisabled} />
+        {businessDraft.isLoading ? (
+          <SkeletonStatus>
+            <SellPriceSettingsSkeleton />
+          </SkeletonStatus>
+        ) : (
+          <SellPriceSettings control={businessDraft.control} disabled={businessDisabled} />
+        )}
       </SettingsSection>
       <SettingsSection
         heading={t("settings.buylist.heading")}
         description={t("settings.buylist.description")}
       >
-        <BuylistSettings control={businessDraft.control} disabled={businessDisabled} />
+        {businessDraft.isLoading ? (
+          <BuylistSettingsSkeleton />
+        ) : (
+          <BuylistSettings control={businessDraft.control} disabled={businessDisabled} />
+        )}
       </SettingsSection>
       <SaveBar
         show={isDirty}

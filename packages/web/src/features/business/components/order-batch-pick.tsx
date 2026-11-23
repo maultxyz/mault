@@ -1,7 +1,8 @@
 import { Callout } from "@/components/callout";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { PickWalkSkeleton } from "@/features/business/components/pick-walk-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
@@ -188,7 +189,9 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
       )}
       <div className="flex flex-col gap-4 p-4 md:gap-3 md:px-3 md:py-2">
         {isPending ? (
-          <ListSkeleton rows={8} />
+          <SkeletonStatus>
+            <PickWalkSkeleton />
+          </SkeletonStatus>
         ) : failedQuery ? (
           <LoadErrorCallout
             message={t("errors.loadFailed")}

@@ -1,6 +1,6 @@
 import { MobileListRow } from "@/components/mobile-list-row";
+import { MobileListSkeleton } from "@/components/mobile-list-skeleton";
 import { MobileSection } from "@/components/mobile-section";
-import { Skeleton } from "@/components/ui/skeleton";
 import { devicesQueryOptions } from "@/features/calibration/api/devices";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { sorterLinksQueryOptions } from "@/features/scanner/api/sorter-link";
@@ -23,7 +23,7 @@ export function MobileRemoteSorters({
   if (devices.isPending || links.isPending) {
     return (
       <MobileSection title={t("mobileSorter.remote.title")}>
-        <Skeleton className="h-16 rounded-lg" />
+        <MobileListSkeleton rows={1} />
       </MobileSection>
     );
   }

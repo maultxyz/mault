@@ -16,14 +16,16 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Screen } from "@/components/ui/screen";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { SwitchRow } from "@/components/ui/switch-row";
+import { SwitchRowSkeleton } from "@/components/ui/switch-row-skeleton";
 import {
   hasSameValues,
   platformDiscordAdminDraftSchema,
@@ -186,7 +188,21 @@ function AdminDiscordContent() {
         {saveError ? <Callout tone="destructive" title={t("settings.draft.saveFailed")} /> : null}
         {message ? <Callout tone={message.tone} title={message.text} /> : null}
         {isLoading ? (
-          <PageSkeleton />
+          <>
+            <SectionSkeleton hasDescription>
+              <FormSkeleton fields={2} />
+              <View style={{ gap: SPACING.md }}>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <SwitchRowSkeleton key={index} hasDescription />
+                ))}
+              </View>
+            </SectionSkeleton>
+            {Array.from({ length: 3 }).map((_, index) => (
+              <SectionSkeleton key={index} hasDescription>
+                <FormSkeleton fields={2} />
+              </SectionSkeleton>
+            ))}
+          </>
         ) : loadFailed ? (
           <Callout
             tone="destructive"
@@ -270,7 +286,7 @@ function AdminDiscordContent() {
 
         <SettingsSection title={t("admin.discord.announcements.heading")} description={t("admin.discord.announcements.description")}>
           {announcementsQuery.isPending ? (
-            <ListSkeleton withIcon={false} />
+            <ListSkeleton rows={2} leading="none" hasSubtitle />
           ) : announcementsQuery.isError ? (
             <Callout tone="destructive" title={t("admin.discord.announcements.loadFailed")} />
           ) : (

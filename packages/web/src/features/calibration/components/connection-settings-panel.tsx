@@ -25,7 +25,7 @@ export function ConnectionSettingsPanel({
               onCheckedChange={(checked) => onChange("autoConnect", checked)}
             />
           ) : (
-            <Skeleton className="h-4 w-7 rounded-full" />
+            <Skeleton className="h-4 w-7 shrink-0 rounded-full max-md:h-6 max-md:w-10" />
           )}
         </label>
         <p className="text-xs text-foreground/70">
@@ -44,7 +44,7 @@ export function ConnectionSettingsPanel({
               onCheckedChange={(checked) => onChange("testOnConnect", checked)}
             />
           ) : (
-            <Skeleton className="h-4 w-7 rounded-full" />
+            <Skeleton className="h-4 w-7 shrink-0 rounded-full max-md:h-6 max-md:w-10" />
           )}
         </label>
         <p className="text-xs text-foreground/70">

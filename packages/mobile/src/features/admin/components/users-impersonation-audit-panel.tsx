@@ -15,7 +15,7 @@ export function ImpersonationAuditPanel() {
   const entries = auditQuery.data ?? [];
   const unknownEmail = t("admin.users.audit.unknownUser");
 
-  if (auditQuery.isPending) return <ListSkeleton />;
+  if (auditQuery.isPending) return <ListSkeleton rows={5} leading="none" hasSubtitle hasTrailing={false} />;
   if (auditQuery.isError) return <Callout tone="destructive" title={t("admin.users.audit.loadFailed")} />;
   if (entries.length === 0) return <EmptyState icon="clock" title={t("admin.users.audit.empty")} />;
 

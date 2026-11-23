@@ -11,7 +11,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
-import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Screen } from "@/components/ui/screen";
@@ -23,10 +22,11 @@ import { usePickActions } from "@/features/business/api/use-pick-actions";
 import { usePickWalk } from "@/features/business/api/use-pick-walk";
 import { PickWalkEntryRow } from "@/features/business/components/pick-walk-entry-row";
 import { PickWalkNextCard } from "@/features/business/components/pick-walk-next-card";
+import { PickWalkSkeleton } from "@/features/business/components/pick-walk-skeleton";
 import { pickPlaceTitle } from "@/features/business/lib/pick-walk-labels";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { BUSINESS_LIST_SKELETON_ROWS, PICK_WALK_ORDERS_SEPARATOR } from "@/lib/constants/business";
+import { PICK_WALK_ORDERS_SEPARATOR } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
 
 export default function PickWalkScreen() {
@@ -80,7 +80,7 @@ export default function PickWalkScreen() {
       }
     >
       {walk.isLoading ? (
-        <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />
+        <PickWalkSkeleton />
       ) : walk.isError ? (
         <Callout
           tone="destructive"

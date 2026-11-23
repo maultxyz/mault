@@ -1,5 +1,6 @@
 import { Callout } from "@/components/callout";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { SettingsSectionsSkeleton } from "@/components/settings-section-skeleton";
+import { DISCORD_INTEGRATION_SKELETON_SECTIONS } from "@/lib/constants/skeletons";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SaveBar } from "@/components/save-bar";
 import {
@@ -81,7 +82,7 @@ export function DiscordIntegration() {
           />
         )}
         {isLinked && !integration && isIntegrationLoading && (
-          <ListSkeleton rows={4} />
+          <SettingsSectionsSkeleton sections={DISCORD_INTEGRATION_SKELETON_SECTIONS} />
         )}
 
         {isLinked && integration && (

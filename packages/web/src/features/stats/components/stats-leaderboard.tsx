@@ -16,7 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
   Table,
@@ -30,6 +31,10 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { leaderboardQueryOptions } from "@/features/stats/api/leaderboard";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import {
+  STATS_LEADERBOARD_SKELETON_COLUMNS,
+  STATS_LEADERBOARD_SKELETON_ROWS,
+} from "@/lib/constants/skeletons";
 import type {
   StatsLeaderboardButtonProps,
   StatsLeaderboardContentProps,
@@ -129,11 +134,12 @@ function StatsLeaderboardContent({
       {t("leaderboard.error")}
     </Callout>
   ) : isLoading || !leaderboard ? (
-    <div className="flex flex-col gap-2">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <Skeleton key={i} className="h-8 rounded-sm" />
-      ))}
-    </div>
+    <SkeletonStatus>
+      <TableSkeleton
+        columns={STATS_LEADERBOARD_SKELETON_COLUMNS}
+        rows={STATS_LEADERBOARD_SKELETON_ROWS}
+      />
+    </SkeletonStatus>
   ) : (
     <>
       {!leaderboard.optedIn && (

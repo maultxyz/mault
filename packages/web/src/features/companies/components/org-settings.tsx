@@ -1,7 +1,9 @@
 import { PlanNotice } from "@/components/plan-notice";
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { DeleteDialog } from "@/components/delete-dialog";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { SaveBar } from "@/components/save-bar";
+import { SELECT_SKELETON_TRAILING } from "@/lib/constants/skeletons";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -235,11 +237,24 @@ export function OrgSettings() {
     <>
       <div className="flex flex-col gap-6 md:gap-2">
         {!activeOrg && isActiveOrgPending && (
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-7 w-full" />
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
-          </div>
+          <>
+            <div className="flex flex-col gap-2">
+              <div className="flex h-5 items-center">
+                <Skeleton className="h-3.5 w-40" />
+              </div>
+              <Skeleton className="h-11 w-full rounded-lg md:h-7" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex h-5 items-center">
+                <Skeleton className="h-3.5 w-24" />
+              </div>
+              <DividedRowsSkeleton
+                leading="none"
+                trailing={SELECT_SKELETON_TRAILING}
+                rowClassName="px-3 py-2"
+              />
+            </div>
+          </>
         )}
 
         {!activeOrg && !isActiveOrgPending && (

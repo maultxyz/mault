@@ -2,6 +2,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardGrid } from "@/features/cards/components/card-grid";
+import { ScannedCardGridSkeleton } from "@/features/cards/components/scanned-card-grid-skeleton";
 import {
   clearUnmatchedScans,
   removeUnmatchedScan,
@@ -15,6 +16,7 @@ import {
   COLLECTIONS_PATH,
   monitorCollectionPath,
 } from "@/lib/constants/collections";
+import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
 import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { STATS_COLLECTION_PARAM, STATS_PATH } from "@/lib/constants/stats";
 import { cn } from "@/lib/utils";
@@ -48,11 +50,33 @@ export default function CollectionViewPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-3 border-b px-4 py-2 md:gap-1.5 md:px-3">
-        <Skeleton className="size-10 rounded-lg md:size-7" />
-        <div className="flex flex-1 flex-col gap-1.5">
-          <Skeleton className="h-3.5 w-40" />
-          <Skeleton className="h-3 w-64" />
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b px-4 py-2 md:gap-x-1.5 md:px-3">
+          <Skeleton className="size-10 shrink-0 rounded-lg md:size-7" />
+          <div className="flex min-w-0 flex-1 basis-40 flex-col">
+            <div className="flex h-7 items-center">
+              <Skeleton className="h-4 w-40" />
+            </div>
+            <div className="flex h-4 items-center">
+              <Skeleton className="h-3 w-56 max-w-full" />
+            </div>
+          </div>
+          <Skeleton className="h-10 w-28 rounded-lg md:h-7" />
+          <Skeleton className="size-10 rounded-lg md:size-7" />
+          <Skeleton className="h-10 w-24 rounded-lg md:h-7" />
+          <Skeleton className="h-10 w-36 rounded-lg md:h-7" />
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="flex items-center gap-1.5 border-b p-2">
+            <Skeleton className="h-11 flex-1 rounded-lg md:h-7" />
+            <Skeleton className="h-11 w-full shrink-0 rounded-lg sm:w-64 md:h-7" />
+            <Skeleton className="size-10 shrink-0 rounded-lg md:size-7" />
+            <Skeleton className="size-10 shrink-0 rounded-lg md:size-7" />
+            <Skeleton className="size-10 shrink-0 rounded-lg md:size-7" />
+          </div>
+          <div className="@container p-2">
+            <ScannedCardGridSkeleton className={CARD_GRID_CLASS} />
+          </div>
         </div>
       </div>
     );

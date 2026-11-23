@@ -1,5 +1,6 @@
 import { EmptyState } from "@/components/empty-state";
 import { DeleteDialog } from "@/components/delete-dialog";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useOrgLocal } from "@/features/companies/api/use-organization.local";
 import { apiGet } from "@/lib/api/client";
 import { localDelete, localPost } from "@/lib/auth/local-api";
@@ -149,7 +149,7 @@ export function LocalOrgInvites() {
         </Button>
       </div>
 
-      {isLoading && <Skeleton className="h-12 w-full" />}
+      {isLoading && <DividedRowsSkeleton rows={2} />}
 
       {!isLoading && invites?.length === 0 && (
         <EmptyState size="compact" icon={IconMailForward} title={t("invites.empty")} />

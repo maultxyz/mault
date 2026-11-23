@@ -42,3 +42,5 @@ export const GUEST_CANCEL_REQUEST_KEY_PREFIX = "request:";
 export function myCardReservationRequestElementId(requestGuid: string): string {
   return `my-reservation-request-${requestGuid}`;
 }
+export const CARD_RESERVATION_REQUEST_SKELETON_COUNT = 2;
+export const CARD_RESERVATION_REQUEST_SKELETON_CARD_COUNT = 2;

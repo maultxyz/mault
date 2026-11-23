@@ -19,6 +19,7 @@ import { StoragePlanDialogs } from "@/features/bins/components/storage-plan-dial
 import { StoragePlanFill } from "@/features/bins/components/storage-plan-fill";
 import { StoragePlanRowActions } from "@/features/bins/components/storage-plan-row-actions";
 import { StoragePlanStatusBadge } from "@/features/bins/components/storage-plan-status-badge";
+import { STORAGE_PLAN_SKELETON_ROWS } from "@/lib/constants/skeletons";
 import {
   STORAGE_LOCATION_SEARCH_PARAM,
   STORAGE_PATH,
@@ -76,7 +77,52 @@ export function StoragePlanPanel() {
         <>
           {plan.rows.length > 0 && <StoragePlanBinsStrip claims={plan.claims} />}
           {plan.isLoading ? (
-            <Skeleton className="h-40 rounded-card" />
+            <div role="status" aria-busy="true">
+              <span className="sr-only">{t("a11y.loading", { ns: "common" })}</span>
+              <Table aria-hidden>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-10">{t("storagePlan.table.order")}</TableHead>
+                    <TableHead>{t("storagePlan.table.location")}</TableHead>
+                    <TableHead className="w-1/4">{t("storagePlan.table.fill")}</TableHead>
+                    <TableHead>{t("storagePlan.table.capacity")}</TableHead>
+                    <TableHead>{t("storagePlan.table.batch")}</TableHead>
+                    <TableHead>{t("storagePlan.table.filling")}</TableHead>
+                    <TableHead className="w-10" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.from({ length: STORAGE_PLAN_SKELETON_ROWS }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Skeleton className="h-3 w-3" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-3 w-28" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="h-1 min-w-12 flex-1 rounded-full" />
+                          <Skeleton className="h-3 w-12" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-3 w-8" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-3 w-8" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-14 rounded-sm" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="ml-auto size-7 rounded-lg" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           ) : plan.rows.length === 0 ? (
             <EmptyState
               size="compact"

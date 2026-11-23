@@ -1,10 +1,14 @@
 import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  SHORT_LINK_SKELETON_LINES,
+  SHORT_LINK_SKELETON_TRAILING,
+} from "@/lib/constants/skeletons";
 import { useCustomShortLinks } from "@/features/admin/api/use-custom-short-links";
 import { CustomShortLinkDialog } from "@/features/admin/components/custom-short-link-dialog";
 import { copyWithToast } from "@/lib/clipboard";
@@ -50,7 +54,12 @@ export function CustomShortLinksManager() {
         <LoadErrorCallout message={t("shortLinks.loadFailed")} onRetry={() => void refetch()} />
       )}
 
-      {isLoading && <Skeleton className="h-14 w-full" />}
+      {isLoading && (
+        <DividedRowsSkeleton
+          lines={SHORT_LINK_SKELETON_LINES}
+          trailing={SHORT_LINK_SKELETON_TRAILING}
+        />
+      )}
 
       {overview && !overview.enabled && (
         <Callout icon={IconInfoCircle} title={t("shortLinks.disabledTitle")}>

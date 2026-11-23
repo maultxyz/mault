@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { useCompactCount } from "@/hooks/use-compact-count";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Surface } from "@/components/ui/surface";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
@@ -105,20 +107,17 @@ export default function HomeScreen() {
       {overview.isPending ? (
         <View style={{ gap: SPACING.lg + SPACING.xs }}>
           <Skeleton height={HOME_SKELETON_HEIGHTS.hero} radius={SURFACE_RADIUS} />
-          <View style={{ gap: SPACING.sm }}>
-            <Skeleton width="40%" height={20} />
-            <Surface style={{ gap: SPACING.md }}>
-              {Array.from({ length: HOME_TOP_CARDS_LIST_COUNT }).map((_, index) => (
-                <Skeleton key={index} height={HOME_SKELETON_HEIGHTS.topCardRow} />
-              ))}
-            </Surface>
-          </View>
+          <SectionSkeleton>
+            <ListSkeleton rows={HOME_TOP_CARDS_LIST_COUNT} leading="thumbnail" hasSubtitle />
+          </SectionSkeleton>
         </View>
       ) : overviewData ? (
         <>
           <HomeHero
             label={t("home.hero.value")}
-            value={pricing.format(overviewData.totalValue)}
+            value={
+              overviewData.isValuePending ? t("home.hero.valueCalculating") : pricing.format(overviewData.totalValue)
+            }
             change={change}
             changeCaption={changeCaption}
             sparklineValues={

@@ -86,7 +86,7 @@ export function CardPricingSection({
           action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={onRetryLoad} />}
         />
       ) : (
-        <ListSkeleton rows={2} />
+        <ListSkeleton rows={2} leading="none" />
       )}
     </CollapsibleSection>
   );

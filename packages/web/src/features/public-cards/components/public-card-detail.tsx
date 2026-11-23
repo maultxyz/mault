@@ -3,7 +3,7 @@ import { CardImage } from "@/components/card-image";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PublicCardDetailSkeleton } from "@/features/public-cards/components/public-card-detail-skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   isPublicCardsUnavailableError,
@@ -91,13 +91,7 @@ export function PublicCardDetailView({
               </div>
             )
           ) : (
-            <>
-              <Skeleton className="h-6 w-48" />
-              <div className="flex flex-wrap gap-3 max-md:grid max-md:grid-cols-2">
-                <Skeleton className="aspect-[2.5/3.5] w-56 max-md:w-full" />
-                <Skeleton className="aspect-[2.5/3.5] w-56 max-md:w-full" />
-              </div>
-            </>
+            <PublicCardDetailSkeleton />
           )}
         </div>
       </div>

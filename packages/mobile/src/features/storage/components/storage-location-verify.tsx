@@ -12,9 +12,12 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroupItem } from "@/components/ui/list-group-item";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TextLineSkeleton } from "@/components/ui/text-line-skeleton";
 import { useStorageVerify } from "@/features/storage/api/use-storage-verify";
 import { absoluteUrl } from "@/lib/url";
-import { SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
+import { BUTTON_HEIGHTS, PROGRESS_BAR_HEIGHT } from "@/lib/constants/ui";
 import type { StorageLocationVerifyProps } from "@/lib/interfaces/storage";
 
 export function StorageLocationVerify({ location }: StorageLocationVerifyProps) {
@@ -30,8 +33,27 @@ export function StorageLocationVerify({ location }: StorageLocationVerifyProps) 
 
   if (verify.isLoading) {
     return (
-      <View style={{ paddingTop: SPACING.md }}>
-        <ListSkeleton rows={3} />
+      <View>
+        <View style={{ gap: SPACING.md, paddingVertical: SPACING.md }}>
+          <AppText size="sm" tone="secondary">
+            {t("storage.verify.description")}
+          </AppText>
+          <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+            <View style={{ flex: 1 }}>
+              <Skeleton height={BUTTON_HEIGHTS.md} radius={CONTROL_RADIUS} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Skeleton height={BUTTON_HEIGHTS.md} radius={CONTROL_RADIUS} />
+            </View>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
+            <TextLineSkeleton size="xs" width={88} />
+            <View style={{ flex: 1 }}>
+              <Skeleton height={PROGRESS_BAR_HEIGHT} radius={RADIUS.full} />
+            </View>
+          </View>
+        </View>
+        <ListSkeleton rows={5} leading="thumbnail" hasSubtitle hasTrailing={false} />
       </View>
     );
   }

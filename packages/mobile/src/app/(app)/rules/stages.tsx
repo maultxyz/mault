@@ -27,7 +27,7 @@ export default function PresetStagesScreen() {
       {isError && !workflow ? (
         <QueryErrorState title={t("rules.loadFailed")} onRetry={() => void refetch()} isRetrying={isRefetching} />
       ) : isPending ? (
-        <ListSkeleton />
+        <ListSkeleton leading="none" hasSubtitle />
       ) : workflow ? (
         <ListGroup>
           {orderedWorkflowSteps(workflow).map((step, index) => {

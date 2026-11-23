@@ -38,8 +38,12 @@ import type {
   WidgetCollectionCardPick,
   WidgetScanActivityRow,
 } from "./interfaces/widget-summary";
-import type { OrgCardValueSummary } from "./interfaces/org-card-value-summary";
-import { loadStoredOrgCardValueSummary, utcDayKey } from "./org-card-value-summary";
+import type { OrgCardValueSummary, OrgWidgetPicks } from "./interfaces/org-card-value-summary";
+import {
+  loadStoredOrgCardValueSummary,
+  loadStoredOrgWidgetPicks,
+  utcDayKey,
+} from "./org-card-value-summary";
 import { loadOrgOverviewCards } from "./org-overview";
 import { createOrgReadCache } from "./org-read-cache";
 
@@ -187,12 +191,14 @@ async function loadScansAllTime(tx: Transaction, orgId: string): Promise<number>
 export async function loadWidgetSummary(
   tx: Transaction,
   orgId: string,
-  picks: OrgCardValueSummary,
+  values: OrgCardValueSummary,
+  picks: OrgWidgetPicks,
   { includeCollectionSummaries }: { includeCollectionSummaries: boolean },
 ): Promise<LoadedWidgetSummary> {
-  const { day, pricing } = picks;
+  const { day, pricing } = values;
+  const isValuePending = values.is_value_pending === true;
   const currency = PRICE_SOURCE_FIELDS[pricing.source].currency;
-  const collectionValues: CollectionValueRow[] = picks.collection_values.flatMap((row) =>
+  const collectionValues: CollectionValueRow[] = values.collection_values.flatMap((row) =>
     row.guid == null
       ? []
       : [{
@@ -202,7 +208,8 @@ export async function loadWidgetSummary(
           totalValue: row.value == null ? 0 : Number(row.value),
         }],
   );
-  const previous = await loadPreviousCollectionValues(tx, orgId, currency);
+  const previous = isValuePending ? null : await loadPreviousCollectionValues(tx, orgId, currency);
+  const todayValuePoint = (totalValue: number) => (isValuePending ? [] : [{ day, totalValue }]);
   const listedCollections = includeCollectionSummaries
     ? [...collectionValues]
         .sort((first, second) => second.totalValue - first.totalValue || first.name.localeCompare(second.name))
@@ -245,7 +252,7 @@ export async function loadWidgetSummary(
     ...valueTrend(collection, previous, previous?.byCollectionGuid.get(collection.guid)),
     topCards: topCards.filter((card) => card.collectionGuid === collection.guid),
     cardsOfTheDay: cardsOfTheDay.filter((card) => card.collectionGuid === collection.guid),
-    valueHistory: [...(valueHistories.get(collection.guid) ?? []), { day, totalValue: collection.totalValue }],
+    valueHistory: [...(valueHistories.get(collection.guid) ?? []), ...todayValuePoint(collection.totalValue)],
   }));
   const orgTotals = sumValues(collectionValues);
   const summary: WidgetSummary = {
@@ -258,7 +265,7 @@ export async function loadWidgetSummary(
       cardsOfTheDay: orgCardsOfTheDay,
       valueHistory: [
         ...(await loadOrgValueHistory(tx, orgId, currency)),
-        { day, totalValue: orgTotals.totalValue },
+        ...todayValuePoint(orgTotals.totalValue),
       ],
     },
     collections: collectionsSummary,
@@ -266,8 +273,9 @@ export async function loadWidgetSummary(
     scanActivity: await loadScanActivity(tx, orgId),
     latestDeviceAlert: await loadLatestDeviceAlert(tx, orgId),
     scansAllTime: await loadScansAllTime(tx, orgId),
+    ...(isValuePending ? { isValuePending: true } : {}),
   };
-  return { summary, currency, collectionValues };
+  return { summary, currency, collectionValues, isValuePending };
 }
 
 export async function loadCachedWidgetSummary(
@@ -275,14 +283,14 @@ export async function loadCachedWidgetSummary(
   orgId: string,
   { includeCollectionSummaries }: { includeCollectionSummaries: boolean },
 ): Promise<LoadedWidgetSummary> {
-  const {
-    payload: picks,
-    version,
-    isRefreshing,
-  } = await loadStoredOrgCardValueSummary(jwtClaims, orgId);
-  const variantKey = `${utcDayKey()}:${version}:${includeCollectionSummaries ? "full" : "withoutCollectionSummaries"}`;
+  const values = await loadStoredOrgCardValueSummary(jwtClaims, orgId);
+  const picks = await loadStoredOrgWidgetPicks(jwtClaims, orgId);
+  const isRefreshing = values.isRefreshing || picks.isRefreshing;
+  const variantKey = `${utcDayKey()}:${values.version}:${picks.version}:${includeCollectionSummaries ? "full" : "withoutCollectionSummaries"}`;
   const loaded = await widgetSummaryCache.get(orgId, variantKey, () =>
-    authQuery(jwtClaims, (tx) => loadWidgetSummary(tx, orgId, picks, { includeCollectionSummaries })),
+    authQuery(jwtClaims, (tx) =>
+      loadWidgetSummary(tx, orgId, values.payload, picks.payload, { includeCollectionSummaries }),
+    ),
   );
   return isRefreshing
     ? { ...loaded, summary: { ...loaded.summary, isRefreshing: true } }

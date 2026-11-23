@@ -7,11 +7,13 @@ import {
   SettingsSection,
   SettingsSections,
 } from "@/components/settings-section";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { THEME_COLORS } from "@/lib/constants/colors";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -30,7 +32,11 @@ export default function SettingsGeneralPage() {
         <div className="flex flex-col gap-1.5">
           <p className="text-sm font-medium">{t("appearance.primaryColor")}</p>
           {draft.isLoading ? (
-            <Skeleton className="h-7 w-full max-w-sm" />
+            <SkeletonStatus className="flex flex-wrap gap-2">
+              {THEME_COLORS.map((color) => (
+                <Skeleton key={color.name} className="size-7 shrink-0 rounded-md" />
+              ))}
+            </SkeletonStatus>
           ) : (
             <Controller
               control={draft.control}

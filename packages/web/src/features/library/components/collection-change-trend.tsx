@@ -6,7 +6,12 @@ import { cn } from "@/lib/utils";
 
 export function CollectionChangeTrend({ values, baseline, change, noChangeLabel, label, isLoading, className }: CollectionChangeTrendProps) {
   if (isLoading) {
-    return <Skeleton className={cn("h-5 w-36 shrink-0 rounded-sm", className)} />;
+    return (
+      <span className={cn("flex shrink-0 items-center gap-2", className)}>
+        <Skeleton className="h-5.5 w-14 rounded-sm" />
+        <Skeleton className="h-5 w-18 rounded-sm" />
+      </span>
+    );
   }
   const { width, height, strokeWidth, baselineDash } = LIBRARY_CHANGE_SPARKLINE;
   const sparkline = sparklinePaths(values, width, height, 0);

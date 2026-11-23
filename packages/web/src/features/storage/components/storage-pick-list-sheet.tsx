@@ -1,6 +1,6 @@
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { StorageCheckListSkeleton } from "@/features/storage/components/storage-check-list-skeleton";
 import { StorageCheckList } from "@/features/storage/components/storage-check-list";
 import type { StoragePickListSheetProps } from "@/lib/interfaces/storage";
 import { storagePickListRows } from "@magic-vault/shared";
@@ -16,7 +16,7 @@ export function StoragePickListSheet({ pickList }: StoragePickListSheetProps) {
     [lines, cards, pickedScanIds],
   );
 
-  if (pickList.isLoading) return <ListSkeleton />;
+  if (pickList.isLoading) return <StorageCheckListSkeleton showLocation />;
   if (pickList.isError) {
     return (
       <LoadErrorCallout

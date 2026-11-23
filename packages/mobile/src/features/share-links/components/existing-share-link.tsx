@@ -4,12 +4,13 @@ import { Share } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { TextLineSkeleton } from "@/components/ui/text-line-skeleton";
 import { orgShareLinkUrl, shareLinksQueryOptions } from "@/features/share-links/api/share-links";
 import { useConfirmRevokeShareLink } from "@/features/share-links/api/use-confirm-revoke-share-link";
 import { useRevokeShareLink } from "@/features/share-links/api/use-revoke-share-link";
 import { ShareLinkQr } from "@/features/share-links/components/share-link-qr";
+import { ShareLinkQrSkeleton } from "@/features/share-links/components/share-link-qr-skeleton";
 import { useActiveOrgId } from "@/hooks/use-org";
 import type { ExistingShareLinkProps } from "@/lib/interfaces/share-links";
 
@@ -39,7 +40,12 @@ export function ExistingShareLink({ linkGuid, subjectGuid, onClose }: ExistingSh
         </>
       }
     >
-      {links.isLoading ? <PageSkeleton /> : null}
+      {links.isLoading ? (
+        <>
+          <TextLineSkeleton size="sm" width="60%" />
+          <ShareLinkQrSkeleton />
+        </>
+      ) : null}
       {revoke.isError ? <Callout tone="destructive" title={t("shareLinks.revokeFailed")} /> : null}
       {!links.isLoading && !link ? <Callout tone="info" title={t("shareLinks.notFound")} /> : null}
       {link && url ? (

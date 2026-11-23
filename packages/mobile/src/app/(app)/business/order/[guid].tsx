@@ -10,17 +10,19 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
 import { allocateOrder, cancelOrder, deleteOrder, orderQueryOptions } from "@/features/business/api/business";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
+import { BusinessDetailSkeleton } from "@/features/business/components/business-detail-skeleton";
 import { BusinessTipsButton } from "@/features/business/components/business-tips-button";
 import { BusinessTipsSheet } from "@/features/business/components/business-tips-sheet";
 import { useBusinessTips } from "@/features/business/lib/use-business-tips";
@@ -147,7 +149,11 @@ export default function OrderScreen() {
       }
     >
       {order.isPending ? (
-        <PageSkeleton />
+        <BusinessDetailSkeleton pillCount={1} statTileCount={4}>
+          <SectionSkeleton>
+            <ListSkeleton rows={4} hasSubtitle hasTrailing={false} />
+          </SectionSkeleton>
+        </BusinessDetailSkeleton>
       ) : !detail && !(order.error instanceof ApiResultError) ? (
         <QueryErrorState onRetry={() => void order.refetch()} isRetrying={order.isFetching} />
       ) : !detail ? (

@@ -29,7 +29,7 @@ function TextLineSkeleton({ width }: StatsTextLineSkeletonProps) {
   );
 }
 
-function SectionSkeleton({ title, children }: StatsSectionSkeletonProps) {
+export function StatsSectionSkeleton({ title, children }: StatsSectionSkeletonProps) {
   return (
     <View style={{ gap: SPACING.sm }}>
       <View style={{ gap: 2 }}>
@@ -41,7 +41,7 @@ function SectionSkeleton({ title, children }: StatsSectionSkeletonProps) {
   );
 }
 
-function HighlightTileSkeleton() {
+export function StatsHighlightTileSkeleton() {
   const colors = useTheme();
   return (
     <View style={{ width: "50%", paddingHorizontal: SPACING.xs }}>
@@ -65,7 +65,7 @@ export function StatsDashboardSkeleton() {
         <SectionHeader title={t("stats.highlights.title")} />
         <View style={{ flexDirection: "row", flexWrap: "wrap", marginHorizontal: -SPACING.xs, rowGap: SPACING.sm }}>
           {Array.from({ length: STATS_SKELETON_HIGHLIGHT_COUNT }).map((_, index) => (
-            <HighlightTileSkeleton key={index} />
+            <StatsHighlightTileSkeleton key={index} />
           ))}
         </View>
       </View>
@@ -74,7 +74,7 @@ export function StatsDashboardSkeleton() {
           <StatTileSkeleton key={index} />
         ))}
       </StatGroup>
-      <SectionSkeleton title={t("stats.activity.title")}>
+      <StatsSectionSkeleton title={t("stats.activity.title")}>
         <Skeleton width="60%" height={STATS_SKELETON_TAB_STRIP_HEIGHT} radius={RADIUS.full} />
         <View style={{ gap: SPACING.sm }}>
           <TextLineSkeleton width="45%" />
@@ -84,8 +84,8 @@ export function StatsDashboardSkeleton() {
             <TextLineSkeleton width={48} />
           </View>
         </View>
-      </SectionSkeleton>
-      <SectionSkeleton title={t("stats.prices.title")}>
+      </StatsSectionSkeleton>
+      <StatsSectionSkeleton title={t("stats.prices.title")}>
         <View style={{ gap: SPACING.sm }}>
           <TextLineSkeleton width="55%" />
           <View
@@ -110,7 +110,7 @@ export function StatsDashboardSkeleton() {
             ))}
           </View>
         </View>
-      </SectionSkeleton>
+      </StatsSectionSkeleton>
     </View>
   );
 }

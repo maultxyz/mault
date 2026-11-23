@@ -147,9 +147,17 @@ export function ReviewQueueList({
             <Callout variant="error">{t("reviewQueue.loadFailed")}</Callout>
           )
         ) : isPending ? (
-          <div className="flex flex-col gap-1.5">
+          <div role="status" aria-busy="true" className="flex flex-col gap-0.5">
+            <span className="sr-only">{t("a11y.loading", { ns: "common" })}</span>
             {Array.from({ length: 8 }).map((_, index) => (
-              <Skeleton key={index} className="h-11 rounded-lg" />
+              <div key={index} className="flex items-center gap-2 px-1.5 py-1">
+                <Skeleton className="size-4 shrink-0 rounded-full" />
+                <Skeleton className="aspect-[2.5/3.5] w-7 shrink-0 rounded-sm" />
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <Skeleton className="h-3 w-3/4 rounded-sm" />
+                  <Skeleton className="h-3 w-1/3 rounded-sm" />
+                </div>
+              </div>
             ))}
           </div>
         ) : (

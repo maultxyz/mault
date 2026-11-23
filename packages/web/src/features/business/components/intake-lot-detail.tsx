@@ -8,7 +8,8 @@ import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { TableSkeleton } from "@/components/table-skeleton";
+import { BusinessDetailSkeleton } from "@/features/business/components/business-detail-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { StatGroup } from "@/components/stat-group";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +56,11 @@ import { formatDateTime } from "@/features/business/lib/format";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
-import { intakeReceiptPath } from "@/lib/constants/business";
+import {
+  BUSINESS_DETAIL_SKELETON_ROWS,
+  INTAKE_CARDS_SKELETON_COLUMNS,
+  intakeReceiptPath,
+} from "@/lib/constants/business";
 import { priceLabelsPath } from "@/lib/constants/price-labels";
 import { toServerPagination } from "@/lib/pagination";
 import type { IntakeLotDetailProps } from "@/lib/interfaces/business";
@@ -159,7 +164,12 @@ export function IntakeLotDetail({
             onRetry={() => void refetch()}
           />
         ) : (
-          <ListSkeleton rows={8} />
+          <BusinessDetailSkeleton statTiles={4} statGridClassName="grid-cols-2 sm:grid-cols-4">
+            <TableSkeleton
+              columns={INTAKE_CARDS_SKELETON_COLUMNS}
+              rows={BUSINESS_DETAIL_SKELETON_ROWS}
+            />
+          </BusinessDetailSkeleton>
         )}
       </>
     );

@@ -172,7 +172,7 @@ export function CardsSyncApiKeysPanel() {
       )}
 
       {keys.isLoading ? (
-        <ListSkeleton rows={2} />
+        <ListSkeleton rows={2} hasSubtitle subtitleLines={3} />
       ) : keys.data && keys.data.length === 0 ? (
         <EmptyState icon="key" title={t("admin.cards.syncApiKeys.empty")} />
       ) : (

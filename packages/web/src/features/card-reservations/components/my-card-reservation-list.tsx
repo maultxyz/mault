@@ -1,6 +1,6 @@
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { CardReservationRequestSkeleton } from "@/features/card-reservations/components/card-reservation-request-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,6 @@ import {
   CARD_RESERVATION_STATUS_BADGE_VARIANTS,
   myCardReservationRequestElementId,
 } from "@/lib/constants/card-reservations";
-import { TRADE_OFFERS_SKELETON_ROWS } from "@/lib/constants/trade-offers";
 import type {
   MyCardReservationRowProps,
   MyCardReservationSectionProps,
@@ -172,7 +171,7 @@ export function MyCardReservationList() {
   }, [linkedRequestGuid, hasLoaded, setSearchParams]);
 
   if (reservations.isPending) {
-    return <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />;
+    return <CardReservationRequestSkeleton />;
   }
 
   if (reservations.isError) {

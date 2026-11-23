@@ -30,9 +30,10 @@ export function MachineCameraView({ machine }: MachinePanelProps) {
           className="absolute inset-0 size-full object-contain"
         />
       ) : isConnecting ? (
-        <Skeleton className="absolute inset-0 rounded-none bg-white/10">
+        <div role="status" aria-busy="true" className="absolute inset-0">
           <span className="sr-only">{t("camera.loading")}</span>
-        </Skeleton>
+          <Skeleton className="absolute inset-0 rounded-none bg-white/10" />
+        </div>
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center text-sm text-white/80">
           <IconCamera aria-hidden className="size-8" />

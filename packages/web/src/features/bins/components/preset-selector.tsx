@@ -50,10 +50,16 @@ export function PresetSelector() {
 
   if (isLoading) {
     return (
-      <ButtonGroup className="w-full">
-        <Skeleton className="h-9 flex-1 rounded-lg" />
-        <Skeleton className="size-9 shrink-0" />
-      </ButtonGroup>
+      <div role="status" aria-busy="true" className="flex flex-col gap-1">
+        <span className="sr-only">{t("a11y.loading", { ns: "common" })}</span>
+        <div className="flex h-4 items-center">
+          <Skeleton className="h-3 w-24" />
+        </div>
+        <div className="flex w-full gap-px">
+          <Skeleton className="h-10 flex-1 rounded-lg md:h-7" />
+          <Skeleton className="size-10 shrink-0 rounded-lg md:size-7" />
+        </div>
+      </div>
     );
   }
 

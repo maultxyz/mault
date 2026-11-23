@@ -56,7 +56,13 @@ export function OrderSubstituteDialog({ order, lineIndex, onOpenChange }: OrderS
           </DialogDescription>
         </DialogHeader>
         {substitutesQuery.isPending ? (
-          <ListSkeleton rows={4} />
+          <ListSkeleton
+            rows={4}
+            leading="thumbnail"
+            hasSubtitle
+            className="gap-0 divide-y divide-border rounded-lg bg-foreground/6"
+            rowClassName="px-2.5 py-2 [&>*:first-child]:w-10"
+          />
         ) : substitutesQuery.isError ? (
           <LoadErrorCallout
             message={t("errors.loadFailed")}

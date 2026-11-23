@@ -8,7 +8,6 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { Pill } from "@/components/ui/pill";
 import { SelectField } from "@/components/ui/select-field";
 import { Surface } from "@/components/ui/surface";
@@ -19,6 +18,7 @@ import { CardsProgressBar } from "@/features/admin/components/cards-progress-bar
 import { CardsSyncByIdPanel } from "@/features/admin/components/cards-sync-by-id-panel";
 import { CardsSyncSourceFields } from "@/features/admin/components/cards-sync-source-fields";
 import { useTheme } from "@/hooks/use-theme";
+import { CardsSyncPanelSkeleton } from "@/features/admin/components/cards-sync-panel-skeleton";
 import { ADMIN_DEFAULT_SYNC_LANGUAGE, ADMIN_SYNC_LOG_VISIBLE_LINES, CARD_SYNC_STATUS_TONES } from "@/lib/constants/admin-cards";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardsSyncSourceSelection } from "@/lib/interfaces/admin-cards";
@@ -54,7 +54,7 @@ export function CardsSyncPanel() {
     announcedStatusRef.current = syncState.status;
   }, [syncState, t]);
 
-  if (syncStatus.isLoading || sources.isLoading) return <PageSkeleton />;
+  if (syncStatus.isLoading || sources.isLoading) return <CardsSyncPanelSkeleton />;
 
   const runningSourceLabel = syncState
     ? `${sources.data?.find((source) => source.gameKey === syncState.gameKey)?.label ?? syncState.gameKey}${

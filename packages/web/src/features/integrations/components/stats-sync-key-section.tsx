@@ -4,7 +4,8 @@ import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
+import { TWO_BUTTONS_SKELETON_TRAILING } from "@/lib/constants/skeletons";
 import { useStatsSyncKey } from "@/features/integrations/api/use-stats-sync";
 import { copyWithToast } from "@/lib/clipboard";
 import { formatShortDate } from "@/lib/format";
@@ -67,7 +68,7 @@ export function StatsSyncKeySection() {
           onRetry={() => void refetch()}
         />
       )}
-      {isLoading && <Skeleton className="h-14 w-full" />}
+      {isLoading && <DividedRowsSkeleton rows={1} trailing={TWO_BUTTONS_SKELETON_TRAILING} />}
       {status && !canManage && (
         <Callout variant="neutral">{t("statsSync.key.managersOnly")}</Callout>
       )}
