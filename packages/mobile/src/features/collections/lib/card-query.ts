@@ -2,6 +2,7 @@ import {
   cardSortableFields,
   cardSortDirectionForField,
   DEFAULT_CARD_SORT,
+  EMPTY_CARD_FILTERS,
   nextCardSortKeyForField,
   type CardFilters,
   type CollectionCardsQuery,
@@ -37,6 +38,11 @@ export function countActiveCardFilters(filters: CardFilters): number {
     filters.foilTypes.length +
     filters.bins.length +
     filters.sets.length +
+    filters.conditions.length +
+    filters.languages.length +
+    (filters.finish === EMPTY_CARD_FILTERS.finish ? 0 : 1) +
+    (filters.minPrice === null ? 0 : 1) +
+    (filters.maxPrice === null ? 0 : 1) +
     (filters.hideDownloaded ? 1 : 0)
   );
 }

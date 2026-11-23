@@ -1,7 +1,10 @@
 import {
   CARD_FILTER_BINS_PARAM,
   CARD_FILTER_ENABLED_PARAM_VALUE,
+  CARD_FILTER_FINISH_PARAM,
   CARD_FILTER_HIDE_DOWNLOADED_PARAM,
+  CARD_FILTER_MAX_PRICE_PARAM,
+  CARD_FILTER_MIN_PRICE_PARAM,
   CARD_FILTER_INTAKE_LOT_PARAM,
   CARD_FILTER_LIST_SEARCH_PARAMS,
   CARD_FILTER_MIN_MATCH_PERCENT_PARAM,
@@ -21,6 +24,7 @@ import {
 } from "@/lib/constants/public-cards";
 import {
   DEFAULT_PUBLIC_CARD_SORT,
+  EMPTY_CARD_FILTERS,
   EMPTY_PUBLIC_CARD_FILTERS,
   PUBLIC_CARD_FINISHES,
   PUBLIC_CARD_SORTS,
@@ -76,6 +80,13 @@ export function writePageNumberSearchParam(
   else searchParams.delete(name);
 }
 
+function readPriceSearchParam(searchParams: URLSearchParams, name: string): number | null {
+  const value = searchParams.get(name);
+  if (!value) return null;
+  const price = Number(value);
+  return Number.isFinite(price) && price >= 0 ? price : null;
+}
+
 export function readCardFiltersFromSearchParams(
   searchParams: URLSearchParams,
 ): CardFilters {
@@ -83,12 +94,20 @@ export function readCardFiltersFromSearchParams(
     searchParams.get(CARD_FILTER_MIN_MATCH_PERCENT_PARAM),
   );
   const intakeLotGuid = searchParams.get(CARD_FILTER_INTAKE_LOT_PARAM);
+  const finish = searchParams.get(CARD_FILTER_FINISH_PARAM);
   return {
     ...(intakeLotGuid ? { intakeLotGuid } : {}),
     colors: searchParams.getAll(CARD_FILTER_LIST_SEARCH_PARAMS.colors),
     rarities: searchParams.getAll(CARD_FILTER_LIST_SEARCH_PARAMS.rarities),
     sets: searchParams.getAll(CARD_FILTER_LIST_SEARCH_PARAMS.sets),
     foilTypes: searchParams.getAll(CARD_FILTER_LIST_SEARCH_PARAMS.foilTypes),
+    conditions: searchParams.getAll(CARD_FILTER_LIST_SEARCH_PARAMS.conditions),
+    languages: searchParams.getAll(CARD_FILTER_LIST_SEARCH_PARAMS.languages),
+    finish:
+      PUBLIC_CARD_FINISHES.find((option) => option === finish) ??
+      EMPTY_CARD_FILTERS.finish,
+    minPrice: readPriceSearchParam(searchParams, CARD_FILTER_MIN_PRICE_PARAM),
+    maxPrice: readPriceSearchParam(searchParams, CARD_FILTER_MAX_PRICE_PARAM),
     bins: searchParams
       .getAll(CARD_FILTER_BINS_PARAM)
       .map((value) =>
@@ -131,6 +150,32 @@ export function writeCardFiltersToSearchParams(
     searchParams,
     CARD_FILTER_LIST_SEARCH_PARAMS.foilTypes,
     filters.foilTypes,
+  );
+  writeListSearchParam(
+    searchParams,
+    CARD_FILTER_LIST_SEARCH_PARAMS.conditions,
+    filters.conditions,
+  );
+  writeListSearchParam(
+    searchParams,
+    CARD_FILTER_LIST_SEARCH_PARAMS.languages,
+    filters.languages,
+  );
+  writeTextSearchParam(
+    searchParams,
+    CARD_FILTER_FINISH_PARAM,
+    filters.finish,
+    EMPTY_CARD_FILTERS.finish,
+  );
+  writeTextSearchParam(
+    searchParams,
+    CARD_FILTER_MIN_PRICE_PARAM,
+    filters.minPrice === null ? "" : String(filters.minPrice),
+  );
+  writeTextSearchParam(
+    searchParams,
+    CARD_FILTER_MAX_PRICE_PARAM,
+    filters.maxPrice === null ? "" : String(filters.maxPrice),
   );
   writeListSearchParam(
     searchParams,

@@ -15,6 +15,11 @@ export const EMPTY_CARD_FILTERS: CardFilters = {
   sets: [],
   minMatchPercent: 0,
   foilTypes: [],
+  conditions: [],
+  languages: [],
+  finish: "all",
+  minPrice: null,
+  maxPrice: null,
 };
 export const COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS = 5_000;
 export const STORED_STATS_REFRESHING_POLL_MS = 5_000;

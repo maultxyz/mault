@@ -36,6 +36,11 @@ describe("card filter search params", () => {
       sets: ["Rock, Paper"],
       minMatchPercent: 80,
       foilTypes: ["Reverse Holo"],
+      conditions: ["NM", "LP"],
+      languages: ["ja"],
+      finish: "foil",
+      minPrice: 1.5,
+      maxPrice: 20,
     };
     const searchParams = new URLSearchParams("page=3");
     writeCardFiltersToSearchParams(searchParams, filters);

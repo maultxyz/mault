@@ -1100,7 +1100,23 @@
       "status": "Status",
       "needsReview": "Needs review",
       "hideDownloaded": "Hide downloaded",
-      "reset": "Reset"
+      "reset": "Reset",
+      "finish": "Finish",
+      "finishes": {
+        "all": "Any finish",
+        "foil": "Foil only",
+        "nonfoil": "Non-foil only"
+      },
+      "condition": "Condition",
+      "language": "Language",
+      "price": "Price ({{currency}})",
+      "minPrice": "Min",
+      "maxPrice": "Max",
+      "sets": "Sets",
+      "findSet": "Find a set",
+      "setsShown": "Showing {{shown, compact}} of {{count, compact}} sets. Search to find others.",
+      "noSetMatches": "No sets match",
+      "optionWithCount": "{{label}} ({{count, compact}})"
     },
     "sort": {
       "title": "Sort by",

@@ -1,4 +1,10 @@
+import {
+  CardFilterCheckboxGroup,
+  CardFilterRadioGroup,
+} from "@/components/card-filter-groups";
 import { Button } from "@/components/ui/button";
+import { CardPriceRangeFilter } from "@/features/cards/components/card-price-range-filter";
+import { PUBLIC_CARD_FILTER_SEARCHABLE_MIN_OPTIONS } from "@/lib/constants/public-cards";
 import { Slider } from "@/components/ui/slider";
 import { CARD_COLOR_ACTIVE_CLASS } from "@/lib/constants/colors";
 import { cn } from "@/lib/utils";
@@ -11,7 +17,13 @@ import {
 } from "@tabler/icons-react";
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
-import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
+import {
+  CARD_CONDITIONS,
+  EMPTY_CARD_FILTERS,
+  isCardCondition,
+  LANGUAGE_LABELS,
+  type PublicCardFinish,
+} from "@magic-vault/shared";
 import type { CardFilterFieldsProps } from "@/lib/interfaces/cards";
 
 function toggle<T>(arr: T[], item: T): T[] {
@@ -30,6 +42,7 @@ export function CardFilterFields({
   availableRarities,
   availableColors,
   availableFoilTypes,
+  filterFacets,
   binCount,
   unmatchedCount = 0,
   onShowUnmatched,
@@ -38,6 +51,22 @@ export function CardFilterFields({
   const { t } = useTranslation("cards");
   const bins = Array.from({ length: binCount ?? 0 }, (_, i) => i + 1);
   const minMatchLabelId = useId();
+  const conditionOptions = [...(filterFacets?.conditions ?? [])]
+    .sort(
+      (left, right) =>
+        CARD_CONDITIONS.indexOf(left.key as (typeof CARD_CONDITIONS)[number]) -
+        CARD_CONDITIONS.indexOf(right.key as (typeof CARD_CONDITIONS)[number]),
+    )
+    .map(({ key, count }) => ({
+      key,
+      label: isCardCondition(key) ? t(`condition.names.${key}`) : key,
+      count,
+    }));
+  const finishOptions: { key: PublicCardFinish; label: string; count?: number }[] = [
+    { key: "all", label: t("publicBrowse.finishAll") },
+    { key: "nonfoil", label: t("publicBrowse.finishNonFoil"), count: filterFacets?.nonFoilCount },
+    { key: "foil", label: t("publicBrowse.finishFoil"), count: filterFacets?.foilCount },
+  ];
 
   return (
     <div className="flex flex-col gap-3 md:gap-2">
@@ -160,6 +189,56 @@ export function CardFilterFields({
             })}
           </div>
         </div>
+      )}
+
+      {filterFacets && (
+        <>
+          <CardFilterRadioGroup
+            legend={t("publicBrowse.finishFilter")}
+            name="finish"
+            value={activeFilters.finish}
+            onChange={(finish) => onFiltersChange({ ...activeFilters, finish })}
+            options={finishOptions}
+          />
+          <CardFilterCheckboxGroup
+            legend={t("condition.label")}
+            options={conditionOptions}
+            selected={activeFilters.conditions}
+            onChange={(conditions) => onFiltersChange({ ...activeFilters, conditions })}
+          />
+          {(filterFacets.languages.length > 1 || activeFilters.languages.length > 0) && (
+            <CardFilterCheckboxGroup
+              legend={t("publicBrowse.languageFilter")}
+              options={filterFacets.languages.map(({ key, count }) => ({
+                key,
+                label: LANGUAGE_LABELS[key] ?? key,
+                count,
+              }))}
+              selected={activeFilters.languages}
+              onChange={(languages) => onFiltersChange({ ...activeFilters, languages })}
+            />
+          )}
+          <CardPriceRangeFilter
+            minPrice={activeFilters.minPrice}
+            maxPrice={activeFilters.maxPrice}
+            onChange={(range) => onFiltersChange({ ...activeFilters, ...range })}
+          />
+          <CardFilterCheckboxGroup
+            legend={t("publicBrowse.setFilter")}
+            searchPlaceholder={
+              filterFacets.sets.length > PUBLIC_CARD_FILTER_SEARCHABLE_MIN_OPTIONS
+                ? t("publicBrowse.findSet")
+                : undefined
+            }
+            options={filterFacets.sets.filter(({ code }) => !!code).map(({ code, name, count }) => ({
+              key: code,
+              label: name || code,
+              count,
+            }))}
+            selected={activeFilters.sets}
+            onChange={(sets) => onFiltersChange({ ...activeFilters, sets })}
+          />
+        </>
       )}
 
       {binCount !== undefined && (
@@ -344,7 +423,7 @@ export function CardFilterFields({
         </button>
       </div>
 
-      {activeFilters.sets.length > 0 && (
+      {!filterFacets && activeFilters.sets.length > 0 && (
         <div>
           <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">
             {t("cardFilterPopover.sets")}

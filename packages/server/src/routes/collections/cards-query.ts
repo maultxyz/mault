@@ -4,6 +4,9 @@ import {
   cardPriceSortSource,
   DEFAULT_CARD_SORT,
   EMPTY_CARD_FILTERS,
+  PUBLIC_CARD_FILTER_VALUE_MAX_LENGTH,
+  PUBLIC_CARD_FILTER_VALUES_MAX,
+  PUBLIC_CARD_FINISHES,
   type BinWindow,
   type CardFilters,
   type CardStatsAggregate,
@@ -51,6 +54,7 @@ import {
 } from "../../lib/grouped-card-ranking";
 import { integerArraySql, pgTextArray, uuidArraySql } from "../../lib/sql-arrays";
 import {
+  CARD_FILTER_LANGUAGE_SQL,
   CARD_STATS_CATALOG_CTE,
   CARD_STATS_KEYS_CTE,
   CARD_STATS_PRICES_CTE,
@@ -65,6 +69,7 @@ import {
   cardPricesJoinSql,
   joinedCardPricesJsonSql,
   joinedScannedCardPriceSql,
+  scannedCardPriceSql,
 } from "../../lib/card-price-sql";
 import { cardCatalogJoinSql } from "../../lib/card-catalog-sql";
 import {
@@ -77,6 +82,13 @@ import type {
   CardPriceKey,
 } from "../../lib/interfaces/card-prices";
 
+const cardFilterValuesSchema = z
+  .array(z.string().max(PUBLIC_CARD_FILTER_VALUE_MAX_LENGTH))
+  .max(PUBLIC_CARD_FILTER_VALUES_MAX)
+  .default([]);
+
+const cardFilterPriceBoundSchema = z.number().finite().min(0).nullable().default(null);
+
 const cardFiltersSchema = z.object({
   colors: z.array(z.string()).default([]),
   rarities: z.array(z.string()).default([]),
@@ -86,6 +98,11 @@ const cardFiltersSchema = z.object({
   sets: z.array(z.string()).default([]),
   minMatchPercent: z.number().min(0).max(100).default(0),
   foilTypes: z.array(z.string()).default([]),
+  conditions: cardFilterValuesSchema,
+  languages: cardFilterValuesSchema,
+  finish: z.enum(PUBLIC_CARD_FINISHES).default("all"),
+  minPrice: cardFilterPriceBoundSchema,
+  maxPrice: cardFilterPriceBoundSchema,
   intakeLotGuid: z.string().uuid().nullable().default(null),
 });
 
@@ -131,8 +148,12 @@ export function isUnfilteredCardsQuery({
   return (
     !search &&
     !unreviewed &&
-    Object.values(filters).every((value) =>
-      Array.isArray(value) ? value.length === 0 : !value,
+    Object.entries(filters).every(([key, value]) =>
+      key === "finish"
+        ? value === EMPTY_CARD_FILTERS.finish
+        : Array.isArray(value)
+          ? value.length === 0
+          : !value,
     )
   );
 }
@@ -253,9 +274,14 @@ function anyOf(values: string[]): SQL {
   return sql`ANY(${pgTextArray(values)}::text[])`;
 }
 
+export function cardQueryFiltersByPrice({ filters }: CollectionCardsQuery): boolean {
+  return filters.minPrice !== null || filters.maxPrice !== null;
+}
+
 export function cardFilterSql(
   { filters, search, unreviewed }: CollectionCardsQuery,
   keepScanId?: string,
+  pricing: OrgPricing | null = null,
 ): SQL {
   const conditions: SQL[] = [];
 
@@ -314,6 +340,28 @@ export function cardFilterSql(
 
   if (filters.foilTypes.length > 0) {
     conditions.push(sql`${FOIL_LABEL} = ${anyOf(filters.foilTypes)}`);
+  }
+
+  if (filters.conditions.length > 0) {
+    conditions.push(sql`cc.condition = ${anyOf(filters.conditions)}`);
+  }
+
+  if (filters.languages.length > 0) {
+    conditions.push(sql`${CARD_FILTER_LANGUAGE_SQL} = ${anyOf(filters.languages)}`);
+  }
+
+  if (filters.finish === "foil") conditions.push(sql`cc.is_foil`);
+  if (filters.finish === "nonfoil") conditions.push(sql`NOT cc.is_foil`);
+
+  if (filters.minPrice !== null || filters.maxPrice !== null) {
+    if (!pricing) throw new Error("Filtering cards by price needs the org's pricing.");
+    const price = scannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS);
+    if (filters.minPrice !== null) {
+      conditions.push(sql`${price} >= ${filters.minPrice}::float8`);
+    }
+    if (filters.maxPrice !== null) {
+      conditions.push(sql`${price} <= ${filters.maxPrice}::float8`);
+    }
   }
 
   if (filters.intakeLotGuid) {
@@ -452,7 +500,7 @@ function rankedCardRowsCte(
       ${STORAGE_LOCATION_JOIN}
       ${cardQueryUsesCatalog(query, collection) ? cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS) : sql``}
       ${sortUsesStoredPrices(query.sort, collection) ? cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS) : sql``}
-      WHERE cc.collection_id = ${collection.id} AND ${cardFilterSql(query, keepScanId)}
+      WHERE cc.collection_id = ${collection.id} AND ${cardFilterSql(query, keepScanId, collection.pricing)}
     )`;
 }
 
@@ -524,7 +572,7 @@ async function loadUngroupedCardsPage(
   pageSize: number,
   totalsAreLoadedSeparately: boolean,
 ): Promise<CardsPageRows> {
-  const filter = cardFilterSql(query);
+  const filter = cardFilterSql(query, undefined, collection.pricing);
   if (totalsAreLoadedSeparately) {
     const pageResult = await tx.execute(sql`
       SELECT ${CARD_ROW_COLUMNS},
@@ -907,7 +955,23 @@ function cardStatsJsonSql(source: SQL): SQL {
         FROM ${source} WHERE foil_type IS NOT NULL OR is_foil
         GROUP BY COALESCE(foil_type, 'Foil')
       ) ft
-    )
+    ),
+    'conditions', (
+      SELECT COALESCE(json_agg(cd), '[]'::json) FROM (
+        SELECT condition AS key, count(*)::int AS count
+        FROM ${source} WHERE condition IS NOT NULL
+        GROUP BY condition
+      ) cd
+    ),
+    'languages', (
+      SELECT COALESCE(json_agg(lg), '[]'::json) FROM (
+        SELECT language AS key, count(*)::int AS count
+        FROM ${source} WHERE language IS NOT NULL
+        GROUP BY language
+      ) lg
+    ),
+    'foilCount', (SELECT count(*) FILTER (WHERE is_foil)::int FROM ${source}),
+    'nonFoilCount', (SELECT count(*) FILTER (WHERE NOT is_foil)::int FROM ${source})
   )`;
 }
 
@@ -953,7 +1017,8 @@ function cardStatsCtesSql(
     SELECT cc.card_id AS card_key, cc.card_name AS name, cc.card_set AS set_code,
       ${CATALOG_CC_ALIAS_COLUMNS.setName} AS set_name, ${CATALOG_CC_ALIAS_COLUMNS.rarity} AS rarity,
       ${CATALOG_CC_ALIAS_COLUMNS.colorIdentity} AS colors,
-      cc.is_foil, cc.foil_type, cc.scanned_at,
+      cc.is_foil, cc.foil_type, cc.scanned_at, cc.condition,
+      COALESCE(cc.language, cc.card_lang, ${source.scope.lang}) AS language,
       ${price} AS price, (${filter}) AS in_filter
     FROM collection_cards cc
     ${source.joins}

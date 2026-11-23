@@ -120,7 +120,8 @@
     "resetFilters": "Filter zurücksetzen",
     "unmatched": "Nicht erkannt",
     "buy": "Wareneingang",
-    "onlyThisBuy": "Nur dieser Wareneingang"
+    "onlyThisBuy": "Nur dieser Wareneingang",
+    "priceInCurrency": "Preis ({{currency}})"
   },
   "cardGrid": {
     "noCollectionSelected": "Keine Sammlung ausgewählt",

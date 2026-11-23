@@ -120,7 +120,8 @@
     "resetFilters": "Reset filters",
     "unmatched": "Unmatched",
     "buy": "Intake",
-    "onlyThisBuy": "Only this intake"
+    "onlyThisBuy": "Only this intake",
+    "priceInCurrency": "Price ({{currency}})"
   },
   "cardGrid": {
     "noCollectionSelected": "No collection selected",

@@ -57,7 +57,13 @@ export const CARD_FILTER_LIST_SEARCH_PARAMS = {
   rarities: "rarities",
   sets: "sets",
   foilTypes: "foils",
+  conditions: "conditions",
+  languages: "languages",
 } as const;
+export const CARD_FILTER_FINISH_PARAM = "finish";
+export const CARD_FILTER_MIN_PRICE_PARAM = "minPrice";
+export const CARD_FILTER_MAX_PRICE_PARAM = "maxPrice";
+export const CARD_FILTER_PRICE_INPUT_DEBOUNCE_MS = 400;
 export const CARD_FILTER_BINS_PARAM = "bins";
 export const CARD_FILTER_NO_BIN_PARAM_VALUE = "none";
 export const CARD_FILTER_NEEDS_ATTENTION_PARAM = "attention";
@@ -72,6 +78,9 @@ export const CARD_FILTER_SEARCH_PARAM_NAMES: readonly string[] = [
   CARD_FILTER_HIDE_DOWNLOADED_PARAM,
   CARD_FILTER_MIN_MATCH_PERCENT_PARAM,
   CARD_FILTER_INTAKE_LOT_PARAM,
+  CARD_FILTER_FINISH_PARAM,
+  CARD_FILTER_MIN_PRICE_PARAM,
+  CARD_FILTER_MAX_PRICE_PARAM,
 ];
 export const REVIEW_QUEUE_MAX_PAGES = 20;
 

@@ -7,6 +7,7 @@ import type {
   UnmatchedCard,
 } from "./scanner.interface";
 import type { CardStorageLocation } from "./storage-locations.interface";
+import type { PublicCardFinish } from "./public-cards.interface";
 
 export interface CardFilters {
   colors: string[];
@@ -17,6 +18,11 @@ export interface CardFilters {
   sets: string[];
   minMatchPercent: number;
   foilTypes: string[];
+  conditions: string[];
+  languages: string[];
+  finish: PublicCardFinish;
+  minPrice: number | null;
+  maxPrice: number | null;
   intakeLotGuid?: string | null;
 }
 
@@ -86,6 +92,10 @@ export interface CardStatsAggregate {
   rarities: { key: string; count: number }[];
   colors: { key: string; count: number }[];
   foilTypes: { key: string; count: number }[];
+  conditions?: { key: string; count: number }[];
+  languages?: { key: string; count: number }[];
+  foilCount?: number;
+  nonFoilCount?: number;
 }
 
 export interface CollectionCardsSummary {

@@ -244,7 +244,7 @@ export async function readCardsSummary(
       const collection = await findCardsCollection(tx, guid, orgId);
       if (!collection) return null;
       const pricing = await loadOrgPricing(tx, orgId);
-      return loadCardStats(tx, collection, cardFilterSql(query), pricing);
+      return loadCardStats(tx, collection, cardFilterSql(query, undefined, pricing), pricing);
     }),
   );
 }
@@ -264,7 +264,7 @@ export async function readCardsCount(
         totalCount: await loadCardsCount(
           tx,
           collection,
-          cardFilterSql(query),
+          cardFilterSql(query, undefined, collection.pricing),
           cardQueryUsesCatalog(query, collection),
         ),
       };
@@ -303,7 +303,7 @@ export async function readScanTimelineBuckets(
           buckets: await loadScanTimelineBuckets(
             tx,
             collection,
-            cardFilterSql(query),
+            cardFilterSql(query, undefined, collection.pricing),
             cardQueryUsesCatalog(query, collection),
             grouping,
             timeZone,

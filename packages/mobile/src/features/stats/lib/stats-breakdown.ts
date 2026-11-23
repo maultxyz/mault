@@ -37,6 +37,10 @@ export function toStatsBreakdown(aggregate: CardStatsAggregate): StatsBreakdown 
     foilTypes: [...aggregate.foilTypes]
       .sort((a, b) => b.count - a.count)
       .map(({ key, count }) => ({ key, label: key, count })),
+    conditions: aggregate.conditions ?? [],
+    languages: [...(aggregate.languages ?? [])].sort((a, b) => b.count - a.count),
+    foilCount: aggregate.foilCount ?? 0,
+    nonFoilCount: aggregate.nonFoilCount ?? 0,
   };
 }
 

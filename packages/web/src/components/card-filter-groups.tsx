@@ -1,9 +1,9 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import type {
-  PublicCardFilterGroupProps,
-  PublicCardRadioGroupProps,
-} from "@/lib/interfaces/public-cards";
+  CardFilterCheckboxGroupProps,
+  CardFilterRadioGroupProps,
+} from "@/lib/interfaces/cards";
 import {
   PUBLIC_CARD_FILTER_COUNT_CLASS as COUNT_CLASS,
   PUBLIC_CARD_FILTER_LABEL_CLASS as LABEL_CLASS,
@@ -13,13 +13,13 @@ import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 
-export function PublicCardFilterGroup({
+export function CardFilterCheckboxGroup({
   legend,
   options,
   selected,
   onChange,
   searchPlaceholder,
-}: PublicCardFilterGroupProps) {
+}: CardFilterCheckboxGroupProps) {
   const { t } = useTranslation("cards");
   const idPrefix = useId();
   const [query, setQuery] = useState("");
@@ -74,13 +74,13 @@ export function PublicCardFilterGroup({
   );
 }
 
-export function PublicCardRadioGroup<T extends string>({
+export function CardFilterRadioGroup<T extends string>({
   legend,
   name,
   options,
   value,
   onChange,
-}: PublicCardRadioGroupProps<T>) {
+}: CardFilterRadioGroupProps<T>) {
   const idPrefix = useId();
   return (
     <fieldset className="flex min-w-0 flex-col">

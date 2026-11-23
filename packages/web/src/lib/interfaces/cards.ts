@@ -269,6 +269,7 @@ export interface CardToolbarProps {
   availableRarities?: ScanStats["rarities"];
   availableColors?: ScanStats["colors"];
   availableFoilTypes?: { key: string; label: string }[];
+  filterFacets?: CardFilterFacets;
   binCount?: number;
   openBuyGuid?: string | null;
   viewMode: CardViewMode;
@@ -599,6 +600,20 @@ export interface ReviewGridCorrectionDialogProps {
   onClose: () => void;
 }
 
+export interface CardFilterFacets {
+  sets: { code: string; name: string; count: number }[];
+  conditions: { key: string; count: number }[];
+  languages: { key: string; count: number }[];
+  foilCount: number;
+  nonFoilCount: number;
+}
+
+export interface CardPriceRangeFilterProps {
+  minPrice: number | null;
+  maxPrice: number | null;
+  onChange: (range: { minPrice: number | null; maxPrice: number | null }) => void;
+}
+
 export interface CardFilterFieldsProps {
   activeFilters: CardFilters;
   onFiltersChange: (filters: CardFilters) => void;
@@ -606,6 +621,7 @@ export interface CardFilterFieldsProps {
   availableRarities: ScanStats["rarities"];
   availableColors: ScanStats["colors"];
   availableFoilTypes: { key: string; label: string }[];
+  filterFacets?: CardFilterFacets;
   binCount?: number;
   unmatchedCount?: number;
   onShowUnmatched?: () => void;
@@ -826,4 +842,26 @@ export interface CollectionCsvImportDialogProps {
 export interface CollectionCsvImportFile {
   fileName: string;
   parsed: CollectionCsvParseResult;
+}
+
+export interface CardFilterOption {
+  key: string;
+  label: string;
+  count: number;
+}
+
+export interface CardFilterCheckboxGroupProps {
+  legend: string;
+  options: CardFilterOption[];
+  selected: string[];
+  onChange: (selected: string[]) => void;
+  searchPlaceholder?: string;
+}
+
+export interface CardFilterRadioGroupProps<T extends string> {
+  legend: string;
+  name: string;
+  options: { key: T; label: string; count?: number }[];
+  value: T;
+  onChange: (value: T) => void;
 }
