@@ -297,7 +297,9 @@
     "lastSearchImageAlt": "Last search image",
     "pausedTabHidden": {
       "title": "Scanning paused",
-      "description": "The scanner tab was hidden, so scanning and auto-feed were paused. The camera preview freezes while the tab isn't visible. Press Resume to continue."
+      "description": "The scanner tab was hidden, so scanning and auto-feed were paused. The camera preview freezes while the tab isn't visible. Press Resume to continue.",
+      "desktopAppHint": "The MAULT desktop app keeps scanning while its window is in the background.",
+      "desktopAppLink": "Get the desktop app"
     }
   },
   "documentTitle": {

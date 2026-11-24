@@ -1,15 +1,19 @@
 import { CHART_NICE_STEPS } from "./constants/chart.constant";
 import type { ChartPoint, SparklinePaths } from "./interfaces/chart.interface";
 
-export function sparklinePaths(values: number[], width: number, height: number, top: number): SparklinePaths | null {
-  if (values.length < 2 || width <= 0 || height <= 0) return null;
+export function sparklinePoints(values: number[], width: number, height: number, top: number): ChartPoint[] {
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min || 1;
-  const points = values.map((value, index) => ({
-    x: (index / (values.length - 1)) * width,
+  return values.map((value, index) => ({
+    x: values.length === 1 ? width / 2 : (index / (values.length - 1)) * width,
     y: top + height - ((value - min) / range) * height,
   }));
+}
+
+export function sparklinePaths(values: number[], width: number, height: number, top: number): SparklinePaths | null {
+  if (values.length < 2 || width <= 0 || height <= 0) return null;
+  const points = sparklinePoints(values, width, height, top);
   const line = smoothLinePath(points);
   const bottom = top + height;
   return { line, area: `${line} L ${width} ${bottom + 1000} L 0 ${bottom + 1000} Z` };

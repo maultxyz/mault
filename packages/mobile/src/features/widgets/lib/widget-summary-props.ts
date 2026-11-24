@@ -1,6 +1,6 @@
 import {
   WIDGET_SUMMARY_TOP_CARDS_PER_COLLECTION,
-  cardPriceChangeSinceScanOf,
+  cardPriceChangeInLatestUpdateOf,
   formatCompactNumber,
   valueChangeOf,
   type OrgOverviewCard,
@@ -274,7 +274,7 @@ export function buildTopCardsWidgetProps(options: WidgetSummaryPropsOptions): Wi
 }
 
 function toCardOfTheDayWidgetCard(card: OrgOverviewCard, fallbackDetail: string, options: WidgetSummaryPropsOptions): WidgetCard {
-  const priceChange = cardPriceChangeSinceScanOf(card, options.formatPrice, options.locale);
+  const priceChange = cardPriceChangeInLatestUpdateOf(card, options.formatPrice, options.locale);
   return priceChange
     ? toWidgetCard(card, priceChange.change, options, false, priceChange.direction)
     : toWidgetCard(card, fallbackDetail, options);

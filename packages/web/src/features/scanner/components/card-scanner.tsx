@@ -42,6 +42,7 @@ import { usePiHost } from "@/hooks/use-pi-host";
 import { useRole } from "@/hooks/use-role";
 import {
   PAUSE_WHEN_HIDDEN_STATUSES,
+  PAUSED_TAB_HIDDEN_TOAST_ID,
   SESSION_TIMER_RUNNING_STATUSES,
   STATION_ATTENTION_FIXES,
 } from "@/lib/constants/scanner";
@@ -75,6 +76,7 @@ import {
   useHandScanBins,
 } from "@/features/scanner/lib/hand-scan";
 import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
+import { PausedTabHiddenToastBody } from "@/features/scanner/components/paused-tab-hidden-toast-body";
 
 export function CardScanner({
   className,
@@ -440,15 +442,25 @@ export function CardScanner({
       if (!document.hidden) return;
       if (!PAUSE_WHEN_HIDDEN_STATUSES.includes(statusRef.current)) return;
       pause();
+      const suggestsDesktopApp = !window.maultDesktop && !isMobile;
       toast.info(t("cardScanner.pausedTabHidden.title"), {
-        id: "scanner-paused-tab-hidden",
-        description: t("cardScanner.pausedTabHidden.description"),
+        id: PAUSED_TAB_HIDDEN_TOAST_ID,
+        description: suggestsDesktopApp ? (
+          <PausedTabHiddenToastBody />
+        ) : (
+          t("cardScanner.pausedTabHidden.description")
+        ),
+        duration: suggestsDesktopApp ? Infinity : undefined,
       });
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () =>
       document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [toast, pause, piScan.cameraReady, t]);
+  }, [toast, pause, piScan.cameraReady, t, isMobile]);
+
+  useEffect(() => {
+    if (status !== "paused") toast.dismiss(PAUSED_TAB_HIDDEN_TOAST_ID);
+  }, [status, toast]);
 
   const deviceNeutralRef = useRef(false);
 

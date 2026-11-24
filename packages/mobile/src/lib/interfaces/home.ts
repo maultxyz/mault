@@ -1,4 +1,4 @@
-import type { CardPriceChangeSinceScan, OrgOverviewCard } from "@magic-vault/shared";
+import type { CardPriceChange, OrgOverviewCard } from "@magic-vault/shared";
 import type { IconName } from "@/lib/interfaces/ui";
 import type { ValueChange } from "@magic-vault/shared";
 
@@ -24,7 +24,7 @@ export interface HomeCardRailProps {
   title: string;
   cards: OrgOverviewCard[];
   captionOf: (card: OrgOverviewCard) => string;
-  priceChangeOf?: (card: OrgOverviewCard) => CardPriceChangeSinceScan | null;
+  priceChangeOf?: (card: OrgOverviewCard) => CardPriceChange | null;
   tileWidth?: number;
   action?: { label: string; onPress: () => void };
   isLoading?: boolean;

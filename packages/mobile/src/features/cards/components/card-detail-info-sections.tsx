@@ -1,14 +1,18 @@
+import { DEFAULT_CARD_LANGUAGE } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { Surface } from "@/components/ui/surface";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
+import { CardPriceHistory } from "@/features/cards/components/card-price-history";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { SPACING } from "@/lib/constants/theme";
 import type { CardDetailInfoSectionsProps } from "@/lib/interfaces/cards";
 
 export function CardDetailInfoSections({
   card,
+  gameKey,
+  lang,
   binNumber,
   isFoil,
   foilType,
@@ -26,6 +30,14 @@ export function CardDetailInfoSections({
       <CollapsibleSection title={t("cardDetail.prices")} initiallyOpen>
         <Surface style={{ gap: SPACING.md }}>
           <CardPriceDetails card={card} isFoil={isFoil} foilType={foilType} stamp={stamp} condition={condition} />
+          {gameKey ? (
+            <CardPriceHistory
+              card={card}
+              gameKey={card.gameKey ?? gameKey}
+              lang={card.lang ?? lang ?? DEFAULT_CARD_LANGUAGE}
+              isFoil={isFoil}
+            />
+          ) : null}
           <CardPurchaseLinks card={card} />
         </Surface>
       </CollapsibleSection>

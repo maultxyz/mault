@@ -8,7 +8,7 @@ import {
   apiGet,
   apiPost,
   apiPut,
-  getAuthHeaders,
+  fetchWithAuthRetry,
   handleForbidden,
 } from "@/lib/api/client";
 import {
@@ -46,7 +46,6 @@ import type {
   UnmatchedSaveResult,
 } from "@/lib/interfaces/scanner";
 import { queryOptions } from "@tanstack/react-query";
-import { API_BASE } from "@/lib/constants/api";
 
 export async function loadCollections(): Promise<Result<Collection[]>> {
   return apiGet<Result<Collection[]>>("/api/collections");
@@ -154,10 +153,9 @@ export const cardScanOriginQueryOptions = (
     staleTime: Infinity,
   });
 
-async function scanSaveHeaders(orgId: string | null | undefined) {
+function scanSaveHeaders(orgId: string | null | undefined): Record<string, string> {
   return {
     "Content-Type": "application/json",
-    ...(await getAuthHeaders()),
     ...(orgId ? { "X-Org-Id": orgId } : {}),
   };
 }
@@ -167,9 +165,9 @@ export async function addCollectionCard(
   record: ScannedCard,
   { deviceGuid, orgId, isRetry }: ScanSaveOptions,
 ): Promise<CardSaveResult> {
-  const res = await fetch(`${API_BASE}/api/collections/${guid}/cards`, {
+  const { res } = await fetchWithAuthRetry(`/api/collections/${guid}/cards`, {
     method: "POST",
-    headers: await scanSaveHeaders(orgId),
+    headers: scanSaveHeaders(orgId),
     body: JSON.stringify(buildScanSaveRequest(record, { deviceGuid, isRetry })),
     signal: AbortSignal.timeout(SCAN_SAVE_REQUEST_TIMEOUT_MS),
   });
@@ -185,9 +183,9 @@ export async function recordSortOnlyScan(
   request: SortOnlyScanRequest,
   orgId: string | null,
 ): Promise<CardSaveResult> {
-  const res = await fetch(`${API_BASE}/api/collections/${guid}/cards/sorted`, {
+  const { res } = await fetchWithAuthRetry(`/api/collections/${guid}/cards/sorted`, {
     method: "POST",
-    headers: await scanSaveHeaders(orgId),
+    headers: scanSaveHeaders(orgId),
     body: JSON.stringify(request),
     signal: AbortSignal.timeout(SCAN_SAVE_REQUEST_TIMEOUT_MS),
   });
@@ -433,9 +431,9 @@ export async function addUnmatchedCard(
   record: UnmatchedCard,
   { deviceGuid, orgId, isRetry }: ScanSaveOptions,
 ): Promise<UnmatchedSaveResult> {
-  const res = await fetch(`${API_BASE}/api/collections/${guid}/unmatched`, {
+  const { res } = await fetchWithAuthRetry(`/api/collections/${guid}/unmatched`, {
     method: "POST",
-    headers: await scanSaveHeaders(orgId),
+    headers: scanSaveHeaders(orgId),
     body: JSON.stringify(buildScanSaveRequest(record, { deviceGuid, isRetry })),
     signal: AbortSignal.timeout(SCAN_SAVE_REQUEST_TIMEOUT_MS),
   });

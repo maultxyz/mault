@@ -2,6 +2,7 @@ import type { AdminUserSummary, OrgRole } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import * as jose from "jose";
 import { db } from "../db";
+import { NEON_JWT_CLOCK_TOLERANCE_SECONDS } from "../lib/constants/auth";
 import type { AuthProvider } from "../lib/interfaces/auth";
 
 let jwks: ReturnType<typeof jose.createRemoteJWKSet> | undefined;
@@ -19,6 +20,7 @@ export const neonAuthProvider: AuthProvider = {
     try {
       const { payload } = await jose.jwtVerify(token, getJwks(), {
         issuer: new URL(process.env.NEON_AUTH_URL!).origin,
+        clockTolerance: NEON_JWT_CLOCK_TOLERANCE_SECONDS,
       });
       return payload.sub ? { sub: payload.sub } : null;
     } catch {

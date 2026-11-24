@@ -2284,6 +2284,32 @@ export const cardPrices = pgTable(
   ],
 ).enableRLS();
 
+export const cardPriceHistory = pgTable(
+  "card_price_history",
+  {
+    gameKey: text("game_key").notNull(),
+    lang: text("lang").notNull(),
+    cardId: text("card_id").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    priceCents: integer("price_cents"),
+    priceFoilCents: integer("price_foil_cents"),
+    priceEurCents: integer("price_eur_cents"),
+    priceEurFoilCents: integer("price_eur_foil_cents"),
+    priceCardKingdomCents: integer("price_card_kingdom_cents"),
+    priceCardKingdomFoilCents: integer("price_card_kingdom_foil_cents"),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.gameKey, table.lang, table.cardId, table.day],
+    }),
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
 export const binSetRelations = relations(binSets, ({ many, one }) => ({
   bins: many(bins),
   game: one(games, {

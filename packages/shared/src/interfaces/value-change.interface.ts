@@ -4,7 +4,7 @@ export interface ValueChange {
   percent: string;
 }
 
-export interface CardPriceChangeSinceScan {
+export interface CardPriceChange {
   direction: "up" | "down";
   change: string;
 }

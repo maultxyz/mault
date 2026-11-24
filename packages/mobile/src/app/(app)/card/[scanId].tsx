@@ -708,44 +708,6 @@ export default function CardDetailScreen() {
               </View>
             ) : null}
 
-            {candidates.length > 1 ? (
-              <View style={{ gap: SPACING.sm }}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t("cardDetail.similarMatchesCount", { count: candidates.length })}
-                  accessibilityState={{ expanded: areMatchesOpen }}
-                  onPress={() => setMatchesOpenState({ scanId, isOpen: !areMatchesOpen })}
-                >
-                  <SectionHeader
-                    title={t("cardDetail.similarMatches")}
-                    action={
-                      <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
-                        <Pill label={String(candidates.length)} />
-                        <Icon name={areMatchesOpen ? "collapse" : "expand"} size={16} color={colors.foregroundSecondary} />
-                      </View>
-                    }
-                  />
-                </Pressable>
-                {areMatchesOpen ? (
-                  <>
-                    {!isReviewed ? (
-                      <AppText size="sm" tone="secondary">
-                        {t("cardDetail.similarMatchesHint")}
-                      </AppText>
-                    ) : null}
-                    <CandidateStrip
-                      candidates={candidates}
-                      selectedId={card?.id}
-                      disabled={correction.isPending}
-                      onSelect={(selected) => {
-                        if (selected.id !== card?.id) void applyCorrection(selected);
-                      }}
-                    />
-                  </>
-                ) : null}
-              </View>
-            ) : null}
-
             <View style={{ flexDirection: "row", gap: SPACING.md, alignItems: "flex-start" }}>
               {showCaptured ? (
                 <View style={{ flex: 1, gap: 6 }}>
@@ -804,6 +766,44 @@ export default function CardDetailScreen() {
               <CardDetailArt card={card} caption={showCaptured ? t("cardDetail.matchedCard") : undefined} />
             </View>
 
+            {candidates.length > 1 ? (
+              <View style={{ gap: SPACING.sm }}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t("cardDetail.similarMatchesCount", { count: candidates.length })}
+                  accessibilityState={{ expanded: areMatchesOpen }}
+                  onPress={() => setMatchesOpenState({ scanId, isOpen: !areMatchesOpen })}
+                >
+                  <SectionHeader
+                    title={t("cardDetail.similarMatches")}
+                    action={
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
+                        <Pill label={String(candidates.length)} />
+                        <Icon name={areMatchesOpen ? "collapse" : "expand"} size={16} color={colors.foregroundSecondary} />
+                      </View>
+                    }
+                  />
+                </Pressable>
+                {areMatchesOpen ? (
+                  <>
+                    {!isReviewed ? (
+                      <AppText size="sm" tone="secondary">
+                        {t("cardDetail.similarMatchesHint")}
+                      </AppText>
+                    ) : null}
+                    <CandidateStrip
+                      candidates={candidates}
+                      selectedId={card?.id}
+                      disabled={correction.isPending}
+                      onSelect={(selected) => {
+                        if (selected.id !== card?.id) void applyCorrection(selected);
+                      }}
+                    />
+                  </>
+                ) : null}
+              </View>
+            ) : null}
+
             {reviewMode && entry ? (
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.correctCard")} />
@@ -821,6 +821,8 @@ export default function CardDetailScreen() {
             {card ? (
               <CardDetailInfoSections
                 card={card}
+                gameKey={collection?.game?.key}
+                lang={collection?.lang}
                 binNumber={entry?.binNumber}
                 isFoil={draftFoil != null}
                 foilType={draftFoil}

@@ -14,3 +14,10 @@ export const CARD_DETAIL_SKELETON_PRICE_ROWS = 2;
 export const CARD_DETAIL_HEADER_ACTION_COUNT = 3;
 export const CARD_REVIEW_ACCEPT_MUTATION_KEY = "card-review-accept";
 export const CARD_ART_TRANSITION_MS = 150;
+
+export const CARD_PRICE_HISTORY_QUERY_KEY = "card-price-history";
+
+export const CARD_PRICE_HISTORY_STALE_MS = 60 * 60 * 1000;
+
+export const CARD_PRICE_HISTORY_SPARKLINE = { width: 192, height: 48, verticalPadding: 6, strokeWidth: 1.5, dotRadius: 3 } as const;
+

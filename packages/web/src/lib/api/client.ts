@@ -5,9 +5,17 @@ import {
   getImpersonationState,
 } from "@/lib/auth/impersonation";
 import { setLocalToken } from "@/lib/auth/local-token";
-import { getAuthSession, getOrgId } from "@/lib/auth/session";
+import {
+  getAuthSession,
+  getOrgId,
+  refreshAuthTokenRejectedByApi,
+} from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/api";
-import type { ApiPostFormOptions } from "@/lib/interfaces/api-client";
+import type {
+  ApiPostFormOptions,
+  AuthenticatedRequestInit,
+  AuthenticatedResponse,
+} from "@/lib/interfaces/api-client";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { readMemberSeatLimit, setMemberSeatLock } from "@/lib/member-seat-lock";
 import { getPlanPreview } from "@/lib/plan-preview";
@@ -86,32 +94,46 @@ export async function publicGet<T>(path: string): Promise<T> {
   return res.json();
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
+export async function fetchWithAuthRetry(
+  path: string,
+  init: AuthenticatedRequestInit = {},
+): Promise<AuthenticatedResponse> {
   const wasImpersonating = !!getImpersonationState();
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { ...(await getAuthHeaders()) },
-  });
+  const sendRequest = async (authHeaders: Record<string, string>) =>
+    fetch(`${API_BASE}${path}`, {
+      ...init,
+      headers: { ...authHeaders, ...init.headers },
+    });
+  const authHeaders = (await getAuthHeaders()) as Record<string, string>;
+  const res = await sendRequest(authHeaders);
+  const rejectedToken = authHeaders.Authorization?.slice("Bearer ".length);
+  if (res.status !== 401 || wasImpersonating || !rejectedToken) {
+    return { res, wasImpersonating };
+  }
+  const refreshedToken = await refreshAuthTokenRejectedByApi(rejectedToken);
+  if (!refreshedToken) return { res, wasImpersonating };
+  return {
+    res: await sendRequest({ ...authHeaders, Authorization: `Bearer ${refreshedToken}` }),
+    wasImpersonating,
+  };
+}
+
+export async function apiGet<T>(path: string): Promise<T> {
+  const { res, wasImpersonating } = await fetchWithAuthRetry(path);
   await checkResponse(res, wasImpersonating);
   return res.json();
 }
 
 export async function apiGetBlob(path: string): Promise<Blob> {
-  const wasImpersonating = !!getImpersonationState();
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { ...(await getAuthHeaders()) },
-  });
+  const { res, wasImpersonating } = await fetchWithAuthRetry(path);
   await checkResponse(res, wasImpersonating);
   return res.blob();
 }
 
 export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
-  const wasImpersonating = !!getImpersonationState();
-  const res = await fetch(`${API_BASE}${path}`, {
+  const { res, wasImpersonating } = await fetchWithAuthRetry(path, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(await getAuthHeaders()),
-    },
+    headers: { "Content-Type": "application/json" },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   await checkResponse(res, wasImpersonating);
@@ -119,13 +141,9 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
 }
 
 export async function apiPostBlob(path: string, body: unknown): Promise<Blob> {
-  const wasImpersonating = !!getImpersonationState();
-  const res = await fetch(`${API_BASE}${path}`, {
+  const { res, wasImpersonating } = await fetchWithAuthRetry(path, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(await getAuthHeaders()),
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   await checkResponse(res, wasImpersonating);
@@ -133,13 +151,9 @@ export async function apiPostBlob(path: string, body: unknown): Promise<Blob> {
 }
 
 export async function apiPut<T>(path: string, body?: unknown): Promise<T> {
-  const wasImpersonating = !!getImpersonationState();
-  const res = await fetch(`${API_BASE}${path}`, {
+  const { res, wasImpersonating } = await fetchWithAuthRetry(path, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...(await getAuthHeaders()),
-    },
+    headers: { "Content-Type": "application/json" },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   await checkResponse(res, wasImpersonating);
@@ -147,11 +161,7 @@ export async function apiPut<T>(path: string, body?: unknown): Promise<T> {
 }
 
 export async function apiDelete<T>(path: string): Promise<T> {
-  const wasImpersonating = !!getImpersonationState();
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: "DELETE",
-    headers: { ...(await getAuthHeaders()) },
-  });
+  const { res, wasImpersonating } = await fetchWithAuthRetry(path, { method: "DELETE" });
   await checkResponse(res, wasImpersonating);
   return res.json();
 }
@@ -161,10 +171,8 @@ export async function apiPostForm<T>(
   formData: FormData,
   { timeoutMs, reportsHttpStatus = false }: ApiPostFormOptions = {},
 ): Promise<T> {
-  const wasImpersonating = !!getImpersonationState();
-  const res = await fetch(`${API_BASE}${path}`, {
+  const { res, wasImpersonating } = await fetchWithAuthRetry(path, {
     method: "POST",
-    headers: { ...(await getAuthHeaders()) },
     body: formData,
     signal: timeoutMs ? AbortSignal.timeout(timeoutMs) : undefined,
   });

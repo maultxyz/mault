@@ -126,7 +126,7 @@ export default function CatalogCardScreen() {
             <View style={{ flexDirection: "row", gap: SPACING.md, alignItems: "flex-start" }}>
               <CardDetailArt card={card} />
             </View>
-            <CardDetailInfoSections card={card} isFoil={false} foilType={null} stamp={null} />
+            <CardDetailInfoSections card={card} gameKey={gameKey} lang={game?.lang} isFoil={false} foilType={null} stamp={null} />
             <CardPrintingsGrid
               game={game}
               openedCardId={id}

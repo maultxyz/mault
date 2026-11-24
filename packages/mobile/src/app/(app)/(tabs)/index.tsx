@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { cardPriceChangeSinceScanOf, valueChangeOf, type OrgOverviewCard } from "@magic-vault/shared";
+import { cardPriceChangeInLatestUpdateOf, valueChangeOf, type OrgOverviewCard } from "@magic-vault/shared";
 import { router, useIsFocused } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -76,7 +76,7 @@ export default function HomeScreen() {
   const liveScanners = Object.entries(locks);
   const pendingTradeOfferList = pendingTradeOffers.data ?? [];
 
-  const cardOfTheDayPriceChange = (card: OrgOverviewCard) => cardPriceChangeSinceScanOf(card, pricing.format, locale);
+  const cardOfTheDayPriceChange = (card: OrgOverviewCard) => cardPriceChangeInLatestUpdateOf(card, pricing.format, locale);
   const cardOfTheDayCaption = (card: OrgOverviewCard) => {
     const price = card.price != null ? pricing.format(card.price) : null;
     return cardOfTheDayPriceChange(card)

@@ -8,7 +8,9 @@ import {
 import { sql, type SQL } from "drizzle-orm";
 import { authQuery, type Transaction } from "../db";
 import {
-  joinedScannedCardPriceRiseSql,
+  cardLastPriceDaySql,
+  cardPriceMoveOnDaySql,
+  hasCurrentFoilPriceSql,
   joinedScannedCardPriceSql,
 } from "./card-price-sql";
 import {
@@ -26,6 +28,7 @@ import type {
   OrgWidgetPicks,
   OrgWidgetPicksRow,
 } from "./interfaces/org-card-value-summary";
+import type { CardPriceMoveColumns } from "./interfaces/card-prices";
 import type { StoredSnapshotRead } from "./interfaces/stored-snapshots";
 import { inventoryCardSql } from "./inventory-sql";
 import { readStoredOrgCardStats, refreshStoredOrgCardStats } from "./org-card-stats";
@@ -61,7 +64,6 @@ function pricedInventoryGroupsCtesSql(orgId: string, pricing: OrgPricing): SQL {
   const keyColumns = sql.raw(INVENTORY_GROUP_KEY_COLUMNS.map((column) => `cc.${column}`).join(", "));
   const groupAlias = sql.raw(INVENTORY_GROUP_ALIAS);
   const price = joinedScannedCardPriceSql(pricing, INVENTORY_GROUP_SQL_COLUMNS, "cp");
-  const priceChange = joinedScannedCardPriceRiseSql(pricing, INVENTORY_GROUP_SQL_COLUMNS, "cp");
   return sql`
     ${liveCollectionsCteSql(orgId)},
     inventory_groups AS MATERIALIZED (
@@ -82,7 +84,9 @@ function pricedInventoryGroupsCtesSql(orgId: string, pricing: OrgPricing): SQL {
       JOIN card_prices cp ON cp.game_key = k.game_key AND cp.lang = k.lang AND cp.card_id = k.card_id
     ),
     priced_groups AS MATERIALIZED (
-      SELECT ${groupAlias}.*, (${price})::float8 AS price, (${priceChange})::float8 AS price_change
+      SELECT ${groupAlias}.*, (${price})::float8 AS price,
+        cp.game_key AS price_game_key, cp.lang AS price_lang, cp.card_id AS price_card_id,
+        ${hasCurrentFoilPriceSql(pricing, "cp")} AS has_current_foil_price
       FROM inventory_groups ${groupAlias}
       JOIN live ON live.id = ${groupAlias}.collection_id
       LEFT JOIN inventory_card_prices cp
@@ -170,15 +174,27 @@ function pickedRowOfBestGroupSql(cteName: string, aggregate: "max" | "min", comp
       md5(cc.guid::text || ${day}) AS daily_shuffle
     FROM (
       SELECT collection_id, ${sql.raw(aggregate)}(price_change) AS price_change
-      FROM priced_groups
+      FROM moved_groups
       WHERE ${comparison}
       GROUP BY collection_id
     ) best
-    JOIN priced_groups best_group
+    JOIN moved_groups best_group
       ON best_group.collection_id = best.collection_id AND best_group.price_change = best.price_change
     ${inventoryRowsOfGroupJoinSql("best_group")}
     ORDER BY best_group.collection_id, md5(cc.guid::text || ${day})
   )`;
+}
+
+function priceMoveColumnsOf(alias: string): CardPriceMoveColumns {
+  const column = (name: string) => sql.raw(`${alias}.${name}`);
+  return {
+    gameKey: column("price_game_key"),
+    lang: column("price_lang"),
+    cardId: column("price_card_id"),
+    isFoil: column("is_foil"),
+    condition: column("condition"),
+    hasCurrentFoilPrice: column("has_current_foil_price"),
+  };
 }
 
 async function loadOrgWidgetPicksRow(
@@ -187,8 +203,29 @@ async function loadOrgWidgetPicksRow(
   pricing: OrgPricing,
   day: string,
 ): Promise<OrgWidgetPicksRow> {
+  const priceMoveOnLatestUpdate = cardPriceMoveOnDaySql(
+    pricing,
+    priceMoveColumnsOf("priced_group_days"),
+    sql`latest_price_update.day`,
+  );
   const result = await tx.execute(sql`
     WITH ${pricedInventoryGroupsCtesSql(orgId, pricing)},
+    priced_group_days AS MATERIALIZED (
+      SELECT priced_groups.*,
+        ${cardLastPriceDaySql(priceMoveColumnsOf("priced_groups"), day)} AS last_price_day
+      FROM priced_groups
+    ),
+    latest_price_update AS (
+      SELECT max(last_price_day) AS day FROM priced_group_days
+    ),
+    moved_groups AS MATERIALIZED (
+      SELECT priced_group_days.*,
+        CASE WHEN priced_group_days.last_price_day = latest_price_update.day
+          THEN (${priceMoveOnLatestUpdate})::float8
+        END AS price_change
+      FROM priced_group_days
+      CROSS JOIN latest_price_update
+    ),
     top_ranked_groups AS (
       SELECT priced_groups.*,
         row_number() OVER (PARTITION BY collection_id ORDER BY price DESC) AS group_rank
@@ -275,6 +312,7 @@ async function loadOrgWidgetPicksRow(
           LIMIT ${WIDGET_SUMMARY_CARDS_OF_THE_DAY}
         ) shuffled
       ) AS org_daily_shuffle_scan_ids,
+      (SELECT to_char(day, 'YYYY-MM-DD') FROM latest_price_update) AS latest_price_update_day,
       (SELECT count(*)::int FROM review) AS needs_review_count,
       (
         SELECT COALESCE(json_agg(recent_review.scan_id ORDER BY recent_review.scanned_at DESC), '[]'::json)

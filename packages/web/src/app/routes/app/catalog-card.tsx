@@ -138,7 +138,7 @@ export default function CatalogCardPage() {
               </div>
               <div className={CARD_DETAIL_SECTIONS_CLASS}>
                 <CardRulesSection card={card} />
-                <CardPricesSection card={card} isFoil={false} />
+                <CardPricesSection card={card} gameKey={gameKey} lang={game?.lang} isFoil={false} />
               </div>
             </div>
             <CardPrintingsGrid

@@ -297,7 +297,9 @@
     "lastSearchImageAlt": "Dernière image de recherche",
     "pausedTabHidden": {
       "title": "Numérisation en pause",
-      "description": "L'onglet du scanner a été masqué, la numérisation et l'alimentation automatique ont donc été mises en pause. L'aperçu de la caméra se fige tant que l'onglet n'est pas visible. Appuie sur Reprendre pour continuer."
+      "description": "L'onglet du scanner a été masqué, la numérisation et l'alimentation automatique ont donc été mises en pause. L'aperçu de la caméra se fige tant que l'onglet n'est pas visible. Appuie sur Reprendre pour continuer.",
+      "desktopAppHint": "L'application de bureau MAULT continue la numérisation quand sa fenêtre est en arrière-plan.",
+      "desktopAppLink": "Télécharger l'application de bureau"
     }
   },
   "documentTitle": {
