@@ -122,6 +122,8 @@ export interface CardRulesSectionProps {
 
 export interface CardPricesSectionProps {
   card: PlayingCard;
+  gameKey?: string | null;
+  lang?: string | null;
   isFoil?: boolean;
   foilType?: string | null;
   stamp?: string | null;
@@ -865,4 +867,25 @@ export interface CardFilterRadioGroupProps<T extends string> {
   options: { key: T; label: string; count?: number }[];
   value: T;
   onChange: (value: T) => void;
+}
+
+export interface CardPriceHistoryRequest {
+  gameKey: string;
+  lang: string;
+  cardId: string;
+}
+
+export interface PriceHistorySparklineProps {
+  values: number[];
+  selectedIndex: number;
+  onSelectedIndexChange: (index: number | null) => void;
+  ariaLabel: string;
+  ariaValueText: string;
+}
+
+export interface CardPriceHistoryProps {
+  card: PlayingCard;
+  gameKey: string;
+  lang: string;
+  isFoil: boolean;
 }

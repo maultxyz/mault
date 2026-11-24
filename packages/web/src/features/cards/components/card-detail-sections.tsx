@@ -1,11 +1,13 @@
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
+import { CardPriceHistory } from "@/features/cards/components/card-price-history";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import type {
   CardPricesSectionProps,
   CardRulesSectionProps,
 } from "@/lib/interfaces/cards";
+import { DEFAULT_CARD_LANGUAGE } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 export function CardRulesSection({ card }: CardRulesSectionProps) {
@@ -26,6 +28,8 @@ export function CardRulesSection({ card }: CardRulesSectionProps) {
 
 export function CardPricesSection({
   card,
+  gameKey,
+  lang,
   isFoil,
   foilType,
   stamp,
@@ -43,6 +47,14 @@ export function CardPricesSection({
           stamp={stamp}
           condition={condition}
         />
+        {gameKey && (
+          <CardPriceHistory
+            card={card}
+            gameKey={card.gameKey ?? gameKey}
+            lang={card.lang ?? lang ?? DEFAULT_CARD_LANGUAGE}
+            isFoil={isFoil ?? false}
+          />
+        )}
         <CardPurchaseLinks card={card} />
         {children}
       </div>

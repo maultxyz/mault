@@ -2671,6 +2671,13 @@
     "leave": "La laisser dans le bac {{bin}}",
     "ok": "OK"
   },
+  "priceHistory": {
+    "title": "Historique des prix {{source}}",
+    "titleFoil": "Historique des prix foil {{source}}",
+    "unchangedSince": "Aucun changement de prix depuis le {{date}}.",
+    "empty": "Aucun historique des prix pour le moment.",
+    "loadFailed": "Impossible de charger l'historique des prix."
+  },
   "priceTable": {
     "heading": "TCGplayer",
     "cardmarketHeading": "Cardmarket",

@@ -1182,6 +1182,8 @@ export function CardDetailPanel({
 
                     <CardPricesSection
                       card={selectedCard}
+                      gameKey={collection?.game?.key}
+                      lang={collection?.lang}
                       isFoil={draftIsFoil}
                       foilType={currentFoilType}
                       stamp={currentStamp}

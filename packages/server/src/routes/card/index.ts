@@ -8,6 +8,7 @@ import { printingScoreRoute } from "./printing-score";
 import { searchByVectorRoute } from "./search-by-vector";
 import { searchCardByIdRoute } from "./search-by-id";
 import { cardPrintingsRoute } from "./printings";
+import { cardPriceHistoryRoute } from "./price-history";
 import { searchCardRoute } from "./search";
 import { setPrintingsRoute } from "./set-printings";
 import { cardSetsRoute } from "./sets";
@@ -26,6 +27,7 @@ const router = new Hono<AppEnv>()
   .route("/", searchCardRoute)
   .route("/", searchCardByIdRoute)
   .route("/", cardPrintingsRoute)
+  .route("/", cardPriceHistoryRoute)
   .route("/", imageProxyRoute)
   .route("/", netdeckImageRoute);
 

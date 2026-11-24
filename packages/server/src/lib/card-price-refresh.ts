@@ -2,6 +2,7 @@ import type { PlayingCard } from "@magic-vault/shared";
 import { and, asc, eq, gt, isNotNull, sql } from "drizzle-orm";
 import { db } from "../db";
 import { cardImageVectors, cardPrices } from "../db/schema";
+import { recordCardPriceHistory } from "./card-price-history";
 import { resolveLiveCardPrices } from "./card-search/card-prices";
 import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import {
@@ -98,24 +99,38 @@ export async function refreshCardPrices({
         details: detailsOf(priced[i]),
       }));
 
-      const changed = await db
-        .insert(cardPrices)
-        .values(values)
-        .onConflictDoUpdate({
-          target: [cardPrices.gameKey, cardPrices.lang, cardPrices.cardId],
-          set: {
-            price: sql`excluded.price`,
-            priceFoil: sql`excluded.price_foil`,
-            priceEur: sql`excluded.price_eur`,
-            priceEurFoil: sql`excluded.price_eur_foil`,
-            priceCardKingdom: sql`excluded.price_card_kingdom`,
-            priceCardKingdomFoil: sql`excluded.price_card_kingdom_foil`,
-            details: sql`excluded.details`,
-            updatedAt: new Date(),
-          },
-          setWhere: PRICES_CHANGED,
-        })
-        .returning({ cardId: cardPrices.cardId });
+      const changed = await db.transaction(async (tx) => {
+        const changedPrices = await tx
+          .insert(cardPrices)
+          .values(values)
+          .onConflictDoUpdate({
+            target: [cardPrices.gameKey, cardPrices.lang, cardPrices.cardId],
+            set: {
+              price: sql`excluded.price`,
+              priceFoil: sql`excluded.price_foil`,
+              priceEur: sql`excluded.price_eur`,
+              priceEurFoil: sql`excluded.price_eur_foil`,
+              priceCardKingdom: sql`excluded.price_card_kingdom`,
+              priceCardKingdomFoil: sql`excluded.price_card_kingdom_foil`,
+              details: sql`excluded.details`,
+              updatedAt: new Date(),
+            },
+            setWhere: PRICES_CHANGED,
+          })
+          .returning({
+            gameKey: cardPrices.gameKey,
+            lang: cardPrices.lang,
+            cardId: cardPrices.cardId,
+            price: cardPrices.price,
+            priceFoil: cardPrices.priceFoil,
+            priceEur: cardPrices.priceEur,
+            priceEurFoil: cardPrices.priceEurFoil,
+            priceCardKingdom: cardPrices.priceCardKingdom,
+            priceCardKingdomFoil: cardPrices.priceCardKingdomFoil,
+          });
+        await recordCardPriceHistory(tx, changedPrices);
+        return changedPrices;
+      });
       written += changed.length;
       batches++;
       if (batches % CARD_PRICE_REFRESH_PROGRESS_LOG_EVERY_BATCHES === 0) {

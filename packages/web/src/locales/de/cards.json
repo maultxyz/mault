@@ -19,6 +19,13 @@
     "noCardsFound": "Keine Karten gefunden",
     "searchLabel": "Karten suchen"
   },
+  "priceHistory": {
+    "title": "{{source}}-Preisverlauf",
+    "titleFoil": "{{source}}-Preisverlauf (Foil)",
+    "unchangedSince": "Keine Preisänderung seit {{date}}.",
+    "empty": "Noch kein Preisverlauf.",
+    "loadFailed": "Der Preisverlauf konnte nicht geladen werden."
+  },
   "priceTable": {
     "heading": "TCGplayer",
     "cardmarketHeading": "Cardmarket",

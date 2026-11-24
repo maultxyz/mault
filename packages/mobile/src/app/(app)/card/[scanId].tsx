@@ -821,6 +821,8 @@ export default function CardDetailScreen() {
             {card ? (
               <CardDetailInfoSections
                 card={card}
+                gameKey={collection?.game?.key}
+                lang={collection?.lang}
                 binNumber={entry?.binNumber}
                 isFoil={draftFoil != null}
                 foilType={draftFoil}

@@ -1,0 +1,5 @@
+export const CARD_PRICE_HISTORY_MAX_DAYS = 365;
+
+export const CARD_PRICE_HISTORY_SHOWN_DAYS = 30;
+
+export const CARD_PRICE_HISTORY_DAY_MS = 86_400_000;

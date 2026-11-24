@@ -2671,6 +2671,13 @@
     "leave": "Leave it in Bin {{bin}}",
     "ok": "OK"
   },
+  "priceHistory": {
+    "title": "{{source}} price history",
+    "titleFoil": "{{source}} foil price history",
+    "unchangedSince": "No price changes since {{date}}.",
+    "empty": "No price history yet.",
+    "loadFailed": "Couldn't load the price history."
+  },
   "priceTable": {
     "heading": "TCGplayer",
     "cardmarketHeading": "Cardmarket",
