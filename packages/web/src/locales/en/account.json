@@ -110,5 +110,17 @@
     "heading": "Guided tour",
     "description": "Replay the onboarding walkthrough of the scanner, collections, and sorting rules.",
     "restartButton": "Restart tutorial"
+  },
+  "seasonalDecor": {
+    "heading": "Seasonal decorations",
+    "description": "Holiday touches around the app, like spider webs in October, autumn leaves in November and ornaments in December. Saved on this device.",
+    "label": "Seasonal decorations",
+    "options": {
+      "auto": "Automatic (by date)",
+      "off": "Off",
+      "halloween": "Halloween",
+      "thanksgiving": "Thanksgiving",
+      "christmas": "Christmas"
+    }
   }
 }

@@ -223,9 +223,9 @@ code {
   --text-control: 0.75rem;
   --text-control--line-height: 1rem;
   --z-index-lock-screen: 60;
-  --z-index-decor: 999;
-  --z-index-skip-link: 1000;
   --z-index-loading-gate: 9999;
+  --z-index-decor: 10000;
+  --z-index-skip-link: 10001;
 }
 
 :root {
@@ -422,6 +422,16 @@ code {
   32% {
     transform: scaleX(0.7);
     opacity: 0.45;
+  }
+}
+
+@keyframes seasonal-sway {
+  0%,
+  100% {
+    rotate: -5deg;
+  }
+  50% {
+    rotate: 5deg;
   }
 }
 

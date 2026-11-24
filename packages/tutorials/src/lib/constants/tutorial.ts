@@ -82,6 +82,7 @@ export const TUTORIAL_PRESEEDED_LOCAL_STORAGE: Record<string, string> = {
   "magic-vault:match-validation-guide-seen": "true",
   "magic-vault:scanner-hand-scan": "true",
   "magic-vault:support-prompt": JSON.stringify({ scans: 0, lastShownAt: null, optedOut: true }),
+  "magic-vault:seasonal-decor": "off",
   theme: "light",
 };
 

@@ -1,5 +1,5 @@
 import { BrandIcon } from "@/components/brand-icon";
-import { SpiderWeb } from "@/components/halloween-decor";
+import { SeasonalCornerDecor } from "@/components/seasonal-decor";
 import {
   LOADING_LOGO_CYCLE_MS,
   LOADING_QUIP_INTERVAL_MS,
@@ -69,7 +69,7 @@ export function AppLoadingScreen({
         if (event.target === event.currentTarget) onTransitionEnd?.();
       }}
     >
-      <SpiderWeb corner="top-left" withSpider className="size-28" />
+      <SeasonalCornerDecor corner="top-left" withHangingAccent className="size-28" />
       <div className="relative flex flex-col items-center">
         <HoppingLogo />
         <LoadingQuip />

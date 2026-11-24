@@ -110,5 +110,17 @@
     "empty": "Noch keine API-Schlüssel",
     "expires": "läuft am {{date}} ab",
     "noExpiry": "läuft nicht ab"
+  },
+  "seasonalDecor": {
+    "heading": "Saisonale Dekorationen",
+    "description": "Festliche Details in der App, etwa Spinnennetze im Oktober, Herbstlaub im November und Christbaumkugeln im Dezember. Wird auf diesem Gerät gespeichert.",
+    "label": "Saisonale Dekorationen",
+    "options": {
+      "auto": "Automatisch (nach Datum)",
+      "off": "Aus",
+      "halloween": "Halloween",
+      "thanksgiving": "Thanksgiving",
+      "christmas": "Weihnachten"
+    }
   }
 }
