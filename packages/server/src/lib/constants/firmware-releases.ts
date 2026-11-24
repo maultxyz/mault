@@ -4,3 +4,5 @@ export const FIRMWARE_RELEASE_TAG_PREFIX = "firmware-v";
 export const ESP32_FIRMWARE_ASSET_NAME = "esp32-latest.bin";
 export const FIRMWARE_SKETCH_PATH = "firmware/main/main.ino";
 export const FIRMWARE_SKETCH_VERSION_PATTERN = /#define FIRMWARE_VERSION "([^"]+)"/;
+export const PI_CONTROLLER_FIRMWARE_PATH = "scripts/pi/controller/core.py";
+export const PI_CONTROLLER_VERSION_PATTERN = /^VERSION = "(pi-[^"]+)"/m;

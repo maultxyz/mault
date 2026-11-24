@@ -28,7 +28,7 @@ import type {
   PiUpdateCheck,
 } from "./interfaces/pi-update";
 import { getActiveScanLockStats } from "./scan-lock";
-import { sorterPortOwner } from "./pi-serial-port";
+import { suspendSortersForUpdate } from "./pi-serial-port";
 import { getStatus as syncStatus } from "./sync-job/state";
 
 export const piUpdateRuntime = {
@@ -94,6 +94,22 @@ let cachedCheck: PiUpdateCheck | null = null;
 let checkedAt = 0;
 let checking: Promise<PiUpdateCheck> | null = null;
 let launching = false;
+let sorterUpdateReservation: (() => void) | null = null;
+
+function releaseFinishedUpdate(
+  state: PiUpdateState,
+  reservation: (() => void) | null,
+): PiUpdateState {
+  if (
+    state.phase !== "running" &&
+    reservation &&
+    sorterUpdateReservation === reservation
+  ) {
+    reservation();
+    sorterUpdateReservation = null;
+  }
+  return state;
+}
 
 async function command(program: string, args: string[]): Promise<string> {
   const result = await piUpdateRuntime.run(program, args, {
@@ -151,6 +167,8 @@ async function rootUpdaterActive(): Promise<boolean> {
 }
 
 export async function readPiUpdateState(): Promise<PiUpdateState> {
+  // A poll that began before a new request must not release its reservation.
+  const reservation = sorterUpdateReservation;
   const requestedAt = await pendingRequestTime();
   const state: PiUpdateState =
     requestedAt !== null
@@ -161,23 +179,29 @@ export async function readPiUpdateState(): Promise<PiUpdateState> {
     Date.now() - (state.startedAt ?? 0) <= PI_UPDATE_LAUNCH_GRACE_MS ||
     (await rootUpdaterActive())
   ) {
-    return state;
+    return releaseFinishedUpdate(state, reservation);
   }
   if (requestedAt !== null) {
     await unlink(requestPath()).catch(() => {});
-    return {
+    return releaseFinishedUpdate(
+      {
+        ...state,
+        phase: "failed",
+        message:
+          "The updater did not pick up the request. Run once on the board: sudo mault update",
+      },
+      reservation,
+    );
+  }
+  return releaseFinishedUpdate(
+    {
       ...state,
       phase: "failed",
       message:
-        "The updater did not pick up the request. Run once on the board: sudo mault update",
-    };
-  }
-  return {
-    ...state,
-    phase: "failed",
-    message:
-      "The updater stopped before completion. Check the update log with: sudo mault logs update",
-  };
+        "The updater stopped before completion. Check the update log with: sudo mault logs update",
+    },
+    reservation,
+  );
 }
 
 export async function piUpdateRunning(): Promise<boolean> {
@@ -270,12 +294,12 @@ export async function getPiUpdateStatus(): Promise<PiUpdateStatus> {
 export async function startPiUpdate(): Promise<PiUpdateState> {
   if (launching) throw new Error("An update is already running.");
   launching = true;
+  let resumeSorters: (() => void) | undefined;
   try {
     if ((await readPiUpdateState()).phase === "running")
       throw new Error("An update is already running.");
     if (
       getActiveScanLockStats().sessions > 0 ||
-      sorterPortOwner() ||
       syncStatus().status === "running"
     ) {
       throw new Error(
@@ -290,15 +314,25 @@ export async function startPiUpdate(): Promise<PiUpdateState> {
         `In-app updates need a one-time reinstall on the board (settings and cards stay): curl -fsSL ${new URL("install.sh", manifestUrl).href} | sudo bash`,
       );
     }
-    const state: PiUpdateState = {
+    try {
+      resumeSorters = suspendSortersForUpdate();
+    } catch {
+      throw new Error(
+        "Finish scanning, disconnect the sorter, and stop database syncing before updating.",
+      );
+    }
+    const state = {
       phase: "running",
       startedAt: Date.now(),
       message: null,
-    };
+    } satisfies PiUpdateState;
     await writeFile(requestPath(), String(state.startedAt), { mode: 0o600 });
+    sorterUpdateReservation = resumeSorters;
+    resumeSorters = undefined;
     cachedCheck = null;
     return state;
   } finally {
+    resumeSorters?.();
     launching = false;
   }
 }

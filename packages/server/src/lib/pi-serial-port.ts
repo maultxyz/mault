@@ -16,12 +16,23 @@ export class SorterPortError extends Error {
 }
 
 const claimedPorts = new Map<string, SorterPortClaim>();
+let suspendedForUpdate = false;
 const controllerHub = new PiControllerHub(() =>
   PiControllerPort.open(piControllerSocket()),
 );
 
 export function sorterPortOwner(): SorterPortOwner | null {
   return controllerHub.owner() ?? claimedPorts.values().next().value?.owner ?? null;
+}
+
+export function suspendSortersForUpdate(): () => void {
+  if (suspendedForUpdate || claimedPorts.size) throw new SorterPortError("busy");
+  const resumeController = controllerHub.suspendForUpdate();
+  suspendedForUpdate = true;
+  return () => {
+    suspendedForUpdate = false;
+    resumeController();
+  };
 }
 
 export const piSerialRuntime = {
@@ -85,7 +96,9 @@ export async function claimSorterPort(
   next: SorterPortOwner,
   options?: SorterPortOptions,
 ): Promise<SorterPort> {
+  if (suspendedForUpdate) throw new SorterPortError("busy");
   const target = await resolveSorterTarget(options?.controllerId);
+  if (suspendedForUpdate) throw new SorterPortError("busy");
   if (target === "gpio") {
     try {
       return await controllerHub.open(next);

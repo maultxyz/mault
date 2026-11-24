@@ -8,26 +8,40 @@ import {
   FIRMWARE_RELEASE_TAG_PREFIX,
   FIRMWARE_SKETCH_PATH,
   FIRMWARE_SKETCH_VERSION_PATTERN,
+  PI_CONTROLLER_FIRMWARE_PATH,
+  PI_CONTROLLER_VERSION_PATTERN,
 } from "./constants/firmware-releases";
 import type {
   Esp32FirmwareRelease,
   GitHubRelease,
 } from "./interfaces/firmware-releases";
+import { isPiSorter } from "./pi-host";
 
-function readCheckedOutFirmwareVersion(): string | null {
+function readCheckedOutFirmwareVersion(
+  sourcePath = FIRMWARE_SKETCH_PATH,
+  versionPattern = FIRMWARE_SKETCH_VERSION_PATTERN,
+): string | null {
   let directory = process.cwd();
-  while (!existsSync(join(directory, FIRMWARE_SKETCH_PATH))) {
+  while (!existsSync(join(directory, sourcePath))) {
     const parent = dirname(directory);
     if (parent === directory) return null;
     directory = parent;
   }
-  const sketch = readFileSync(join(directory, FIRMWARE_SKETCH_PATH), "utf8");
-  return sketch.match(FIRMWARE_SKETCH_VERSION_PATTERN)?.[1] ?? null;
+  const source = readFileSync(join(directory, sourcePath), "utf8");
+  return source.match(versionPattern)?.[1] ?? null;
 }
 
 let checkedOutFirmwareVersion: string | null | undefined;
+let checkedOutPiFirmwareVersion: string | null | undefined;
 
 export function getLatestFirmwareVersion(): string | null {
+  if (isPiSorter()) {
+    checkedOutPiFirmwareVersion ??= readCheckedOutFirmwareVersion(
+      PI_CONTROLLER_FIRMWARE_PATH,
+      PI_CONTROLLER_VERSION_PATTERN,
+    );
+    return checkedOutPiFirmwareVersion;
+  }
   checkedOutFirmwareVersion ??= readCheckedOutFirmwareVersion();
   return (
     checkedOutFirmwareVersion ||

@@ -4,6 +4,7 @@ import { useSerial } from "@/features/scanner/api/use-serial";
 import { Esp32FlashDialog } from "@/features/scanner/components/esp32-flash-dialog";
 import type { AppAlert } from "@/lib/interfaces/alerts";
 import { useLatestFirmwareVersion } from "@/hooks/use-latest-firmware-version";
+import { usePiHostState } from "@/hooks/use-pi-host";
 import { FIRMWARE_RELEASES_URL } from "@/lib/constants/links";
 import { isFirmwareVersionOutdated } from "@magic-vault/shared";
 import { IconAlertTriangle } from "@tabler/icons-react";
@@ -18,6 +19,7 @@ export function useFirmwareVersionAlert(): {
   const { isConnected, firmwareVersion, board, transport, isFlashing } =
     useSerial();
   const latestFirmwareVersion = useLatestFirmwareVersion();
+  const { piSorter } = usePiHostState();
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
 
   const showAlert =
@@ -29,7 +31,7 @@ export function useFirmwareVersionAlert(): {
   const isEsp32OverCloud =
     board === "esp32" && transport === "cloud" && !isFlashing;
 
-  const portal = (
+  const portal = piSorter ? null : (
     <Esp32FlashDialog
       open={flashDialogOpen}
       onOpenChange={setFlashDialogOpen}
@@ -44,17 +46,19 @@ export function useFirmwareVersionAlert(): {
       severity: "warning",
       icon: IconAlertTriangle,
       message: t(
-        isEsp32OverBluetooth
-          ? "serial.firmwareOutdatedBannerBluetooth"
-          : isEsp32OverCloud
-            ? "serial.firmwareOutdatedBannerCloud"
-            : "serial.firmwareOutdatedBanner",
+        piSorter
+          ? "serial.firmwareOutdatedBannerPi"
+          : isEsp32OverBluetooth
+            ? "serial.firmwareOutdatedBannerBluetooth"
+            : isEsp32OverCloud
+              ? "serial.firmwareOutdatedBannerCloud"
+              : "serial.firmwareOutdatedBanner",
         {
           version: firmwareVersion,
           latest: latestFirmwareVersion,
         },
       ),
-      actions: isEsp32OverBluetooth || isEsp32OverCloud ? undefined : isEsp32 ? (
+      actions: piSorter || isEsp32OverBluetooth || isEsp32OverCloud ? undefined : isEsp32 ? (
         <Button
           variant="outline"
           className={ALERT_BANNER_ACTION_CLASS}
