@@ -185,7 +185,8 @@
       "offline": "Cette trieuse n'est pas en ligne pour le moment. Vérifie qu'elle est allumée et connectée au Wi-Fi.",
       "inUse": "Quelqu'un d'autre contrôle déjà cette trieuse en Wi-Fi.",
       "failed": "Impossible de joindre la trieuse via le serveur. Réessaie dans un instant."
-    }
+    },
+    "firmwareOutdatedBannerPi": "Le contrôleur intégré utilise {{version}} ; cette installation de Mault inclut {{latest}}. Redémarre Mault sur le Pi pour charger le logiciel du contrôleur inclus."
   },
   "sessionMonitor": {
     "connectionLost": "Connexion à la session perdue."

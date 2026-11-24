@@ -586,7 +586,9 @@
     "unoNote": "Arduino Uno R4 Boards können nicht im Browser geflasht werden. Lade die Firmware herunter und spiele sie mit der Arduino IDE auf.",
     "notConnectedHint": "Verbinde einen Sortierer, um seine Version zu sehen, oder flashe einen ESP32-S3 per USB, ohne ihn vorher zu verbinden.",
     "unsupported": "Dieser Browser kann keine Boards flashen. Verwende Chrome oder Edge auf einem Computer.",
-    "cloudNote": "Flashen funktioniert nicht über WLAN. Schließe den Sortierer per USB-Kabel an, um ihn zu flashen."
+    "cloudNote": "Flashen funktioniert nicht über WLAN. Schließe den Sortierer per USB-Kabel an, um ihn zu flashen.",
+    "bundled": "In Mault enthalten",
+    "piDescription": "Der integrierte GPIO-Controller wird zusammen mit Mault auf diesem Pi aktualisiert."
   },
   "sectionIntros": {
     "connection": "Verbinde den Sortierer per USB oder Bluetooth, halte seine Firmware aktuell und lege fest, was beim Verbinden passiert.",

@@ -34,6 +34,76 @@ async function request(port: SorterPort, command: Record<string, unknown>) {
   return JSON.parse((await received)[0].toString()) as Record<string, unknown>;
 }
 
+test("updates close idle GPIO viewers and prevent reconnects until resumed", async () => {
+  const ports: FakeControllerPort[] = [];
+  const hub = new PiControllerHub(async () => {
+    const port = new FakeControllerPort();
+    ports.push(port);
+    return port;
+  });
+  const desktop = await hub.open("bridge");
+  const mobile = await hub.open("bridge");
+  desktop.write('{"getStatus":true,"seq":1}\n');
+  const resume = hub.suspendForUpdate();
+  assert.equal(desktop.isOpen, false);
+  assert.equal(mobile.isOpen, false);
+  assert.equal(ports[0].isOpen, false);
+  assert.equal(hub.owner(), null);
+  await assert.rejects(hub.open("bridge"), /busy/);
+  await assert.rejects(hub.open("session"), /busy/);
+  assert.throws(() => hub.suspendForUpdate(), /busy/);
+  assert.equal(ports[0].commands.length, 1);
+  resume();
+  const reconnected = await hub.open("bridge");
+  assert.equal(reconnected.isOpen, true);
+  assert.equal(ports.length, 2);
+  reconnected.close();
+});
+
+test("updates refuse active GPIO motion and queued configuration without disconnecting", async () => {
+  const physical = new FakeControllerPort();
+  const hub = new PiControllerHub(async () => physical);
+  const browser = await hub.open("bridge");
+  browser.write('{"test":true,"seq":1}\n');
+  assert.throws(() => hub.suspendForUpdate(), /busy/);
+  assert.equal(browser.isOpen, true);
+  assert.equal(physical.isOpen, true);
+  physical.reply(0);
+  browser.write('{"getStatus":true,"seq":2}\n');
+  browser.write('{"setConfig":{"module":1},"seq":3}\n');
+  assert.throws(() => hub.suspendForUpdate(), /busy/);
+  physical.reply(1);
+  physical.reply(2);
+  hub.suspendForUpdate()();
+});
+
+test("updates refuse a GPIO scan reservation even between commands", async () => {
+  const hub = new PiControllerHub(async () => new FakeControllerPort());
+  const scan = await hub.open("session");
+  assert.throws(() => hub.suspendForUpdate(), /busy/);
+  assert.equal(scan.isOpen, true);
+  scan.close();
+});
+
+test("updates refuse GPIO connections that are still opening", async () => {
+  let opened!: (port: SorterPort) => void;
+  const hub = new PiControllerHub(() => new Promise((resolve) => { opened = resolve; }));
+  const connection = hub.open("bridge");
+  assert.throws(() => hub.suspendForUpdate(), /busy/);
+  opened(new FakeControllerPort());
+  (await connection).close();
+});
+
+test("updates wait for emergency stop confirmation", async () => {
+  const physical = new FakeControllerPort();
+  const hub = new PiControllerHub(async () => physical);
+  const browser = await hub.open("bridge");
+  browser.write('{"stop":true,"seq":1}\n');
+  assert.throws(() => hub.suspendForUpdate(), /busy/);
+  physical.reply(0, { status: "stopped" });
+  hub.suspendForUpdate()();
+});
+
 for (const owner of ["bridge", "session"] as const) {
   test(`pipelined feed events reach only the routing ${owner}, not other browsers`, async (context) => {
     const physical = new FakeControllerPort();
