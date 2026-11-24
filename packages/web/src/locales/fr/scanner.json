@@ -993,6 +993,8 @@
       "retractDescription": "Faire tourner l'alimentation à l'envers pour ramener une carte dans le bac",
       "neutral": "Remettre au neutre",
       "neutralDescription": "Ramener chaque servo à sa position de repos",
+      "stopSession": "Arrêter la session",
+      "stopSessionDescription": "Arrêter le tri et libérer le trieur",
       "sorterDescription": "Connexion, autotest et état"
     },
     "condition": "État",

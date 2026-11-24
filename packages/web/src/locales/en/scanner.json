@@ -993,6 +993,8 @@
       "retractDescription": "Run the feeder backward to pull a card back into the hopper",
       "neutral": "Reset to neutral",
       "neutralDescription": "Move every servo back to its resting position",
+      "stopSession": "Stop session",
+      "stopSessionDescription": "Stop scanning and release the sorter",
       "sorterDescription": "Connection, self-test and status"
     },
     "condition": "Condition",

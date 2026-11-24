@@ -992,11 +992,11 @@ export function CardScanner({
         />
         <CameraConnectingOverlay />
         {renderChrome({
-          status,
+          status: displayStatus,
           errorMessage,
           isCameraActive,
-          isConnected,
-          isReady,
+          isConnected: isConnected || piScanLive,
+          isReady: isReady || piScan.cameraReady,
           sensorBlockedModule,
           firmwareVersion,
           hasCatchAll,
@@ -1005,25 +1005,41 @@ export function CardScanner({
           isAtScanLimit,
           cameras,
           selectedCameraId,
-          onPause: pause,
+          onPause: piScan.cameraReady ? () => void piScan.pause() : pause,
           onResume: () => void handleResumeScanning(),
           onScanOnce: () => void handleForceScanClick(),
           onRetry: handleRetryError,
           onResolveSensorBlocked: reopenSensorBlockedToast,
           onSelectCamera: selectStationCamera,
-          onAutoFeedChange: setAutoFeed,
+          onAutoFeedChange: changeAutoFeed,
           onAllowDuplicatesChange: setAllowDuplicates,
-          isFeeding,
+          isFeeding:
+            isFeeding ||
+            piScan.starting ||
+            (piScan.state.phase === "running" && !piWaitingForFeed),
           isClearingDevice,
           isResettingDevice,
-          onFeed: () => void handleFeed(),
+          onFeed: piScan.cameraReady
+            ? () => {
+                if (piScanLive) {
+                  piScan.feed();
+                  return;
+                }
+                startPiScan();
+              }
+            : () => void handleFeed(),
           onClearDevice: () => void handleClearDevice(),
           onResetDevice: () => void handleResetToNeutral(),
-          isEmergencyStopped,
+          isEmergencyStopped: piScan.cameraReady
+            ? piScanEmergencyStopped
+            : isEmergencyStopped,
           isResettingSorter,
-          onEmergencyStop: () => void emergencyStop(),
+          onEmergencyStop: piScan.cameraReady
+            ? () => void piScan.emergencyStop()
+            : () => void emergencyStop(),
           onResetAfterEmergencyStop: () =>
             void handleResetAfterEmergencyStop(),
+          onStopSession: piScanLive ? () => void piScan.stop() : null,
           handScan,
           handScanActive,
           lastRoutedBin: visibleLastRoutedBin,

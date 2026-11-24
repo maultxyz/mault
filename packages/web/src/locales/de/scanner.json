@@ -993,6 +993,8 @@
       "retractDescription": "Die Zuführung rückwärts laufen lassen, um eine Karte zurück in den Kartenschacht zu ziehen",
       "neutral": "Auf neutral zurücksetzen",
       "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
+      "stopSession": "Sitzung beenden",
+      "stopSessionDescription": "Sortierung stoppen und den Sorter freigeben",
       "sorterDescription": "Verbindung, Selbsttest und Status"
     },
     "condition": "Zustand",

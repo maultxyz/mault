@@ -21,7 +21,7 @@ import NotFoundPage from "@/app/routes/not-found";
 import { RouteLoadingFallback } from "@/components/route-loading-fallback";
 import { CALIBRATE_PATH } from "@/lib/constants/calibration";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { usePiHost, usePiHostState } from "@/hooks/use-pi-host";
+import { usePiHostState } from "@/hooks/use-pi-host";
 import { useRole } from "@/hooks/use-role";
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
@@ -366,7 +366,6 @@ const IntakeReceiptPage = lazyRoute(
 
 function AppChunkPreloader() {
   const isMobile = useIsMobile();
-  const piHost = usePiHost();
   const isInApp = useLocation().pathname.startsWith("/app");
   useEffect(() => {
     const ignoreFailure = () => {};
@@ -380,7 +379,7 @@ function AppChunkPreloader() {
     const delayHandle = setTimeout(() => {
       cancelIdlePreload = runTasksOneByOneWhenIdle(
         [
-          ...(!isMobile || piHost ? [loadScannerPage] : []),
+          ...(!isMobile ? [loadScannerPage] : []),
           loadLibraryPage,
           loadCollectionViewPage,
           loadStatsPage,
@@ -394,7 +393,7 @@ function AppChunkPreloader() {
       clearTimeout(delayHandle);
       cancelIdlePreload();
     };
-  }, [isInApp, isMobile, piHost]);
+  }, [isInApp, isMobile]);
   return null;
 }
 

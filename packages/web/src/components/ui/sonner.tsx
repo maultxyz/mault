@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
-import { TOASTER_SELECTOR, TOAST_DURATION_MS } from "@/lib/constants/toast"
+import { TOASTER_MOBILE_OFFSET, TOASTER_SELECTOR, TOAST_DURATION_MS } from "@/lib/constants/toast"
 import { useEffect } from "react"
 import { IconCircleCheck, IconInfoCircle, IconAlertTriangle, IconAlertOctagon, IconLoader } from "@tabler/icons-react"
 import { useTranslation } from "react-i18next"
@@ -41,6 +41,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       closeButton
       containerAriaLabel={t("a11y.notifications")}
       duration={TOAST_DURATION_MS}
+      mobileOffset={TOASTER_MOBILE_OFFSET}
       icons={{
         success: (
           <IconCircleCheck className="size-4" />

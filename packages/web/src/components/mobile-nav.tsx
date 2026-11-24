@@ -31,8 +31,6 @@ import {
   IconScan,
 } from "@tabler/icons-react";
 import { useHasBusinessTools } from "@/features/business/api/use-has-business-tools";
-import { usePiHost } from "@/hooks/use-pi-host";
-import { usesHostHardware } from "@/lib/host";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
@@ -88,8 +86,6 @@ function MobileNavTab({
 export function MobileNav() {
   const { t } = useTranslation("common");
   const { pathname } = useLocation();
-  const piRemote = usePiHost() && usesHostHardware();
-  const scanPath = piRemote ? "/app" : MOBILE_SCAN_PATH;
   const { locks, currentUserId } = useCollectionLocks();
   const liveCounts = useLiveSessionCounts();
   const hasBusinessTools = useHasBusinessTools();
@@ -122,14 +118,12 @@ export function MobileNav() {
         badge={hasLiveSessions}
       />
       <MobileNavTab
-        to={scanPath}
+        to={MOBILE_SCAN_PATH}
         icon={<IconScan size={MOBILE_NAV_TAB_ICON_SIZE} />}
         label={t("mobileTabs.scan")}
         active={
           pathname.startsWith(MOBILE_SCAN_PATH) ||
-          pathname.startsWith(MOBILE_SORTER_PATH) ||
-          (piRemote &&
-            (pathname === "/app" || pathname.startsWith("/app/cards/")))
+          pathname.startsWith(MOBILE_SORTER_PATH)
         }
       />
       <MobileNavTab

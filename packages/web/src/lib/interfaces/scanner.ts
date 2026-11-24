@@ -847,6 +847,7 @@ export interface ScannerChromeContext {
   isResettingSorter: boolean;
   onEmergencyStop: () => void;
   onResetAfterEmergencyStop: () => void;
+  onStopSession: (() => void) | null;
   handScan: boolean;
   handScanActive: boolean;
   lastRoutedBin: LastRoutedBin | null;

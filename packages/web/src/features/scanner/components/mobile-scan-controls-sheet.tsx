@@ -16,6 +16,7 @@ import {
   IconCpu,
   IconLoader2,
   IconPlayerPlay,
+  IconPlayerStop,
   IconRefresh,
   IconScan,
 } from "@tabler/icons-react";
@@ -36,6 +37,7 @@ export function MobileScanControlsSheet({
     chrome.isResettingDevice ||
     isRetracting;
   const sorterDisabled = running || !chrome.isReady || busy;
+  const hostSessionHoldsSorter = chrome.onStopSession !== null;
   const close = () => onOpenChange(false);
   const spinner = <IconLoader2 className="animate-spin" />;
 
@@ -83,7 +85,7 @@ export function MobileScanControlsSheet({
               icon={chrome.isClearingDevice ? spinner : <IconArrowDown />}
               label={t("mobileScan.controls.drop")}
               description={t("mobileScan.controls.dropDescription")}
-              disabled={sorterDisabled}
+              disabled={sorterDisabled || hostSessionHoldsSorter}
               onClick={chrome.onClearDevice}
             />
             <MobileListRow
@@ -92,16 +94,31 @@ export function MobileScanControlsSheet({
               description={
                 retractLockedReason ?? t("mobileScan.controls.retractDescription")
               }
-              disabled={sorterDisabled || retractLockedReason !== null}
+              disabled={
+                sorterDisabled ||
+                hostSessionHoldsSorter ||
+                retractLockedReason !== null
+              }
               onClick={() => void retractCard()}
             />
             <MobileListRow
               icon={chrome.isResettingDevice ? spinner : <IconRefresh />}
               label={t("mobileScan.controls.neutral")}
               description={t("mobileScan.controls.neutralDescription")}
-              disabled={sorterDisabled}
+              disabled={sorterDisabled || hostSessionHoldsSorter}
               onClick={chrome.onResetDevice}
             />
+            {chrome.onStopSession && (
+              <MobileListRow
+                icon={<IconPlayerStop />}
+                label={t("mobileScan.controls.stopSession")}
+                description={t("mobileScan.controls.stopSessionDescription")}
+                onClick={() => {
+                  chrome.onStopSession?.();
+                  close();
+                }}
+              />
+            )}
           </div>
           <div className={MOBILE_LIST_CLASS}>
             <MobileListRow

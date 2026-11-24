@@ -120,14 +120,24 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         <MobileScanNotice
           tone="error"
           title={t("emergencyStop.stoppedTitle")}
-          description={t("emergencyStop.stoppedDescription")}
+          description={t(
+            chrome.onStopSession
+              ? "emergencyStop.stoppedSessionDescription"
+              : "emergencyStop.stoppedDescription",
+          )}
           action={
-            <Button
-              onClick={chrome.onResetAfterEmergencyStop}
-              disabled={chrome.isResettingSorter}
-            >
-              {t("emergencyStop.reset")}
-            </Button>
+            chrome.onStopSession ? (
+              <Button onClick={chrome.onStopSession}>
+                {t("mobileScan.controls.stopSession")}
+              </Button>
+            ) : (
+              <Button
+                onClick={chrome.onResetAfterEmergencyStop}
+                disabled={chrome.isResettingSorter}
+              >
+                {t("emergencyStop.reset")}
+              </Button>
+            )
           }
         />
       );
