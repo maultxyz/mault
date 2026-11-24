@@ -53,11 +53,11 @@
       "label": "Montage de l'ESP32",
       "breakout": {
         "title": "Sur une carte de breakout",
-        "description": "L'ESP32 se branche sur une carte de breakout. Utilise la plaque de carte breakout (plaque 8) et un support de base à panneaux avec le panel esp (plaques 10 et 11)."
+        "description": "L'ESP32 se branche sur une carte de breakout. Utilise la plaque 14 \"ESP 32 Breakout\" : l'ESP32 breakout mount plate et une base haute équipée du base panel esp."
       },
       "bare": {
         "title": "Carte nue",
-        "description": "Câblage directement sur les broches de l'ESP32. Utilise la plaque de carte ESP 32 de la plaque 7."
+        "description": "Câblage directement sur les broches de l'ESP32. Utilise l'ESP32 mount plate de la plaque 16."
       }
     },
     "modules": {
@@ -174,19 +174,19 @@
           },
           "hopperORing": {
             "part": "Joint torique 9,2mm DI 14mm DE section 2,4mm",
-            "notes": "Se monte sur le rouleau de la trémie"
+            "notes": "Se monte sur le rouleau presseur de la trémie (hopper idler roller)"
           },
           "servoControllerPlate": {
-            "part": "Plaque de contrôleur de servos imprimée en 3D (plaque 12)",
+            "part": "Plaque de contrôleur de servos imprimée en 3D (plaque 7)",
             "notes": "Imprimée une seule fois, quel que soit le nombre de modules"
           },
           "binsPlate": {
-            "part": "Bacs imprimés en 3D (plaque 16)",
-            "notes": "card_sleeve_lg, card_sleeve_md et card_sleeve_small. Recueillent les cartes que le poussoir éjecte de chaque côté"
+            "part": "Bacs imprimés en 3D (plaque 10)",
+            "notes": "card bin large, card bin medium et card bin small. Recueillent les cartes que le poussoir éjecte de chaque côté"
           },
           "endBinPlate": {
-            "part": "Bac de fin imprimé en 3D (plaque 17)",
-            "notes": "card_sleeve_end. Complète les bacs pour former l'ensemble"
+            "part": "Bac de fin imprimé en 3D (plaque 11)",
+            "notes": "end card tray. Complète les bacs pour former l'ensemble"
           }
         }
       },
@@ -203,15 +203,15 @@
           },
           "m10Washer": {
             "part": "Rondelle M10",
-            "notes": "Utilisée avec les vis M3×8 qui fixent le rouleau de la trémie"
+            "notes": "Utilisée avec les vis M3×8 qui fixent le rouleau presseur de la trémie"
           },
           "m3x8Screw": {
             "part": "Vis M3×8",
-            "notes": "Fixe le rouleau de la trémie"
+            "notes": "Fixe le rouleau presseur de la trémie"
           },
           "m3x25Screw": {
             "part": "Vis M3×25",
-            "notes": "Règle la tension du rouleau de la trémie avec le ressort"
+            "notes": "Règle la tension du rouleau presseur de la trémie avec le ressort"
           },
           "hopperSpring": {
             "part": "Ressort 7/32\" x 11/16\"",
@@ -272,7 +272,7 @@
           },
           "feederBearings": {
             "part": "Roulements à billes",
-            "notes": "Pour feeder base with bearings (plaque 5 \"Feeder With Bearings\"), pour que le rouleau tourne plus librement"
+            "notes": "Pour la base de chargeur à roulements (plaque 4 \"Alternative Feeder Base\"), pour que le rouleau tourne plus librement"
           },
           "neodymiumMagnets": {
             "part": "Aimants en néodyme (5×2 mm)",
@@ -384,51 +384,51 @@
         "title": "Imprimer les pièces structurelles",
         "steps": {
           "printSortingModule": {
-            "text": "Imprime la plaque 1 \"Sorting Module metric - Print to Need\" {{count}} fois, une par module de tri, depuis le <mesh>modèle MakerWorld</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>). Chaque impression donne un module complet : module_base, platform, bottom_paddle, left_paddle, right_paddle, bottom_paddle_arm, left_paddle_arm, right_paddle_arm, 2 pusher_arm, pusher left, pusher right, bottom_servo_arm, side paddle horn et pusher horn.",
-            "alternativesNote": "Variantes optionnelles : la plaque 2 \"Alternative Sorting Platform\" a une autre platform, pusher left et pusher right à utiliser à la place de ceux de la plaque 1. La plaque 3 \"Alternative Horns\" a des versions lâches et serrées des palonniers (bottom paddle horn loose, bottom paddle horn snug, side paddle horn, side paddle horn loose, pusher horn loose, pusher horn snug) pour les servos sur l'axe desquels les palonniers standards sont trop serrés ou trop lâches."
+            "text": "Imprime la plaque 1 \"Sorting Module - Print to Need\" {{count}} fois, une par module de tri, depuis le <mesh>modèle MakerWorld</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>). Chaque impression donne un module complet : sorting module base, card platform, bottom paddle, left paddle, right paddle, card pusher left, card pusher right, bottom paddle linkage, left paddle linkage, right paddle linkage, 2 pusher linkage, bottom paddle servo horn, side paddles servo horn (no spline) et pusher servo horn.",
+            "alternativesNote": "Variantes optionnelles : la plaque 2 \"Alternative Horns\" a des versions lâches (loose fit) et serrées (snug fit) de chaque palonnier (bottom paddle servo horn, side paddles servo horn, pusher servo horn et roller servo horn) pour les servos sur l'axe desquels les palonniers standards sont trop serrés ou trop lâches."
           },
           "printFeederModule": {
-            "text": "Imprime la plaque 4 \"Feeder Module\" une fois, quel que soit le nombre de modules : feeder_base, roller, roller horn mg90s, hopper, hopper roller, variable hopper wall et feeder riser. Le feeder riser est indispensable pour une alimentation fiable, alors imprime-le même si c'est une pièce séparée.",
-            "alternativesNote": "roller horn mg90s s'adapte au servo de chargeur MG90S de la liste des pièces. S'il est trop serré ou trop lâche sur ton servo, imprime plutôt roller horn, roller horn loose ou roller horn snug depuis la plaque 3 \"Alternative Horns\". Tu as acheté les roulements à billes ? Imprime feeder base with bearings depuis la plaque 5 \"Feeder With Bearings\" à la place de feeder_base."
+            "text": "Imprime la plaque 3 \"Feeder Module\" une fois, quel que soit le nombre de modules : feeder base (flat), roller, roller servo horn (MG90S), hopper, hopper idler roller (small), hopper adjustable wall (side-print version) et feeder ramp (steep). La feeder ramp est indispensable pour une alimentation fiable, alors imprime-la même si c'est une pièce séparée.",
+            "alternativesNote": "roller servo horn (MG90S) s'adapte au servo de chargeur MG90S de la liste des pièces. S'il est trop serré ou trop lâche sur ton servo, imprime plutôt roller servo horn, roller servo horn (loose fit) ou roller servo horn (snug fit) depuis la plaque 2 \"Alternative Horns\". Tu as acheté les roulements à billes ? Imprime la plaque 4 \"Alternative Feeder Base\" (feeder base (flat, bearing version) et feed roller (bearing version)) à la place de la base et du rouleau du chargeur."
           },
           "printSortingModuleShroud": {
-            "text": "Imprime la plaque 6 \"Sorting Module Shroud\" une fois : le capot (shroud) qui recouvre les modules empilés, plus le phone mount et le camera_mount. Tu n'as besoin que du support de la caméra que tu utilises."
+            "text": "Imprime la plaque 5 \"Sorting Module Shroud\" une fois : le capot (camera shroud) qui recouvre les modules empilés, plus le phone mount et deux camera mount. Tu n'as besoin que du support de la caméra que tu utilises."
           },
           "printPlateBase": {
-            "text": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces base hautes (3 unités de haut) et {{oneTall}} pièces base basses (1 unité de haut) depuis la plaque 9 \"Base Support - Print to Need\". Les deux s'appellent base dans le fichier. Les modules s'empilent en escalier, donc chaque niveau ajouté a besoin d'une unité de hauteur de plus que celui du dessus. Combine les deux hauteurs pour monter chaque niveau. Change le nombre de modules dans la configuration ci-dessus pour mettre à jour.",
-            "breakoutText": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces base hautes (3 unités de haut) et {{oneTall}} pièces base basses (1 unité de haut) depuis la plaque 9 \"Base Support - Print to Need\", plus la plaque 10 \"Alternative Base Support\" à la place d'une autre base haute. La plaque 10 est une base haute à panneaux : monte-la avec un base support panel de la plaque 10 et le panel esp de la plaque 11 \"Alternative Panels\", qui laisse de la place pour la carte de breakout. Les modules s'empilent en escalier, donc chaque niveau ajouté a besoin d'une unité de hauteur de plus que celui du dessus. Combine les deux hauteurs pour monter chaque niveau. Change le nombre de modules dans la configuration ci-dessus pour mettre à jour.",
-            "alternativeNote": "Optionnel : la plaque 10 \"Alternative Base Support\" est une version de la base haute avec 2 base support panel amovibles pour l'accès. La plaque 11 \"Alternative Panels\" a un panel finger hole et un panel esp à mettre à la place de l'un ou l'autre panneau."
+            "text": "Pour {{modules}} modules de tri, imprime {{threeTall}} bases hautes (3 unités de haut) et {{oneTall}} bases basses (1 unité de haut) depuis la plaque 6 \"Base Support - Print to Need\". La base haute est base frame module (tall, open) avec ses 2 base panel, la base basse est base frame module. Chaque impression contient une de chaque, alors n'imprime que les pièces qu'il te manque. Les modules s'empilent en escalier, donc chaque niveau ajouté a besoin d'une unité de hauteur de plus que celui du dessus. Combine les deux hauteurs pour monter chaque niveau. Change le nombre de modules dans la configuration ci-dessus pour mettre à jour.",
+            "breakoutText": "Pour {{modules}} modules de tri, imprime {{threeTall}} bases hautes (3 unités de haut) et {{oneTall}} bases basses (1 unité de haut) depuis la plaque 6 \"Base Support - Print to Need\". La base haute est base frame module (tall, open) avec ses 2 base panel, la base basse est base frame module. Chaque impression contient une de chaque, alors n'imprime que les pièces qu'il te manque. La plaque 14 \"ESP 32 Breakout\" compte comme une base haute de plus : son base frame module (tall, open) reçoit un base panel et le base panel esp, qui laisse de la place pour la carte de breakout. Les modules s'empilent en escalier, donc chaque niveau ajouté a besoin d'une unité de hauteur de plus que celui du dessus. Combine les deux hauteurs pour monter chaque niveau. Change le nombre de modules dans la configuration ci-dessus pour mettre à jour.",
+            "alternativeNote": "Optionnel : la plaque 18 \"Alternative Panel\" a un base panel finger hole à mettre à la place de l'un ou l'autre base panel."
           },
           "printPlateBaseBottom": {
-            "esp32OrArduino": "Imprime ta plaque de carte depuis la plaque 7 \"Circuit Boards\". Elle contient deux pièces, toutes deux nommées base arduino dans le fichier : celle gravée Arduino (avec entretoises) pour un Arduino Uno R4, et celle gravée ESP 32 (avec fentes) pour une carte ESP32 sans breakout. N'imprime que celle de ta carte.",
-            "esp32Breakout": "Imprime base esp32 breakout depuis la plaque 8 \"DIY Kit - ESP 32 Breakout\" à la place d'une plaque de carte de la plaque 7. Elle maintient l'ESP32 sur sa carte de breakout."
+            "esp32OrArduino": "Imprime ta plaque de carte depuis la plaque 16 \"Circuit Boards\" : Arduino mount plate (avec entretoises) pour un Arduino Uno R4, ou ESP32 mount plate (avec fentes) pour une carte ESP32 sans breakout. N'imprime que celle de ta carte.",
+            "esp32Breakout": "Imprime la plaque 14 \"ESP 32 Breakout\" une fois à la place d'une plaque de carte de la plaque 16. Son ESP32 breakout mount plate maintient l'ESP32 sur sa carte de breakout, et la même impression contient la base haute à panneaux et 10 module alignment pin."
           },
           "printServoControllerPlate": {
-            "text": "Imprime la plaque 12 \"Servo Controller Plates\" une fois : pwm servo controller plate, plus folding left bin holder, folding right bin holder, folding left hinge et folding right hinge."
+            "text": "Imprime la plaque 7 \"Servo Controller Plates\" une fois : servo controller mount plate, plus folding wing left et folding wing right."
           },
           "printEndBottom": {
-            "text": "Imprime la plaque 13 \"End Plate\" une fois : base_end, plus folding left bin holder, folding right bin holder et folding end bin holder avec folding left hinge, folding right hinge et folding end hinge."
+            "text": "Imprime la plaque 8 \"End Plate\" une fois : end mount plate, plus folding wing left, folding wing right et folding wing end."
           },
           "printGenericBase": {
-            "text": "Pour {{modules}} modules de tri, imprime la plaque 14 \"Generic Plate - Print to Need\" {{count}} fois. Chaque impression donne une generic base avec folding left bin holder, folding right bin holder, folding left hinge et folding right hinge. Change le nombre de modules dans la configuration ci-dessus pour mettre à jour.",
-            "alternativeNote": "Optionnel : la plaque 15 \"Alternative Bin Holders\" a des ailes fixes (generic base wing, generic base wing (1) et card_base_wing_end) à utiliser à la place des supports de bac pliants et charnières des plaques 12, 13 et 14."
+            "text": "Pour {{modules}} modules de tri, imprime la plaque 9 \"Generic Plate - Print to Need\" {{count}} fois. Chaque impression donne une blank mount plate avec folding wing left et folding wing right. Change le nombre de modules dans la configuration ci-dessus pour mettre à jour.",
+            "alternativeNote": "Optionnel : la plaque 13 \"Optional - Regular Bin Holders\" a des ailes fixes (bin wing left, bin wing right et bin wing end) à utiliser à la place des ailes pliantes des plaques 7, 8 et 9."
           },
           "printBinsPlate": {
-            "text": "Imprime la plaque 16 \"Bins\" deux fois. Chaque impression contient 3 bacs : card_sleeve_lg, card_sleeve_md et card_sleeve_small. La plaque 19 \"Extra Bins\" a un card_sleeve_lg de plus s'il te faut un autre bac.",
-            "risersNote": "Si tu utilises plus de 3 modules, il te faudra peut-être la plaque 18 \"Bin Riser\" (3 pièces riser) pour surélever assez les deux bacs du fond."
+            "text": "Imprime la plaque 10 \"Bins\" deux fois. Chaque impression contient 3 bacs : card bin large, card bin medium et card bin small. La plaque 20 \"Additional Bins\" a un card bin XL s'il te faut un bac plus grand.",
+            "risersNote": "Si tu utilises plus de 3 modules, il te faudra peut-être le module riser de la plaque 15 \"Bin Riser\" pour surélever assez les deux bacs du fond."
           },
           "printEndBinPlate": {
-            "text": "Imprime la plaque 17 \"End Bin\" une fois : card_sleeve_end."
+            "text": "Imprime la plaque 11 \"End Bin\" une fois : end card tray."
           },
           "printModulePins": {
-            "text": "Imprime {{count}} pièces module_pin pour {{modules}} modules de tri : {{top}} pour le dessus et {{front}} pour l'avant des pièces base. La plaque 9 \"Base Support - Print to Need\" en contient 16 par impression, donc imprime seulement les goupilles jusqu'à en avoir assez. Chaque pièce base prend 4 goupilles sur le dessus, et chaque unité de hauteur en prend 2 à l'avant, sauf l'unité du haut de chaque colonne. Les goupilles relient les pièces base entre elles et maintiennent les modules de tri sur la base. Change le nombre de modules dans la configuration ci-dessus pour mettre à jour.",
-            "glueAlert": "Colle les goupilles dans les supports. Assemble d'abord à blanc les pièces base et les modules de tri avec les goupilles, puis quand tout est aligné, colle chaque module_pin à la colle cyanoacrylate."
+            "text": "Imprime {{count}} module alignment pin pour {{modules}} modules de tri : {{top}} pour le dessus et {{front}} pour l'avant des pièces base. La plaque 6 \"Base Support - Print to Need\" en contient 16 par impression (la plaque 14 en a 10 de plus), donc imprime seulement les goupilles jusqu'à en avoir assez. Chaque pièce base prend 4 goupilles sur le dessus, et chaque unité de hauteur en prend 2 à l'avant, sauf l'unité du haut de chaque colonne. Les goupilles relient les pièces base entre elles et maintiennent les modules de tri sur la base. Change le nombre de modules dans la configuration ci-dessus pour mettre à jour.",
+            "glueAlert": "Colle les goupilles dans les supports. Assemble d'abord à blanc les pièces base et les modules de tri avec les goupilles, puis quand tout est aligné, colle chaque module alignment pin à la colle cyanoacrylate."
           },
           "dryFit": {
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
           },
           "printOptionalPlates": {
-            "text": "Optionnel : la plaque 20 \"Optional\" contient 3 back plate, une front plate, une hopper extension et deux plaques arrière pour l'alimentation (back plate power adapter et back plate power adapter alt). La seconde plaque 21 \"Optional\" contient les poids de la trémie (weight large washer, weight small washer) et un tight module pin pour les assemblages trop lâches."
+            "text": "Optionnel : la plaque 12 \"Optional Facades\" contient la frame front plate et trois plaques arrière (frame back plate, frame back plate (feeder) et frame back plate (Arduino)). La plaque 17 \"Hopper Weights\" contient card weight v2 et card weight (small) pour presser la pile vers le bas, et la plaque 19 \"Hopper Accessories\" contient la hopper extension pour une pile plus haute."
           }
         }
       },
@@ -477,7 +477,7 @@
         "title": "Assembler les modules",
         "steps": {
           "mountModuleServos": {
-            "text": "Installe les servos du fond, des volets et du poussoir, tous des SG90 positionnels 180°, dans chacun des 3 boîtiers de module (module_base de la plaque 1), soit 9 servos au total.",
+            "text": "Installe les servos du fond, des volets et du poussoir, tous des SG90 positionnels 180°, dans chacun des 3 boîtiers de module (sorting module base de la plaque 1), soit 9 servos au total.",
             "note": "N'installe pas encore les palonniers sur les axes des servos - fixe les trappes/le bras poussoir à leurs palonniers ci-dessous, mais laisse le palonnier lui-même hors du servo jusqu'à ce que chaque module soit calibré depuis l'application."
           },
           "centerServos": {
@@ -485,46 +485,46 @@
             "note": "Pas encore calibré ? Le centrage se fait alors avec des valeurs par défaut adaptées. Peut être relancé à tout moment en te reconnectant, pour recentrer un servo avant de fixer ou repositionner un palonnier."
           },
           "mountBottomFlapper": {
-            "text": "Assemble le volet du fond avec les pièces de la plaque 1 : visse bottom_paddle sur bottom_paddle_arm (la tringlerie), puis la tringlerie sur bottom_servo_arm (le palonnier). Visse le volet du fond assemblé dans le boîtier du module avec 2 vis M2×6. N'installe pas encore le palonnier sur le servo.",
+            "text": "Assemble le volet du fond avec les pièces de la plaque 1 : visse bottom paddle sur bottom paddle linkage (la tringlerie), puis la tringlerie sur bottom paddle servo horn (le palonnier). Visse le volet du fond assemblé dans le boîtier du module avec 2 vis M2×6. N'installe pas encore le palonnier sur le servo.",
             "note": "Les repères HAUT/BAS de la liaison indiquent son sens de montage, pas l'orientation du module : la plateforme étant montée à l'envers, HAUT est à l'opposé de la plateforme. C'est la trappe par laquelle une carte tombe pour atteindre le module suivant, ou le module actuel en cas de correspondance. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
           },
           "mountSideFlappers": {
-            "text": "Assemble les volets latéraux avec les pièces de la plaque 1 : visse left_paddle sur left_paddle_arm et right_paddle sur right_paddle_arm, puis les deux bras sur side paddle horn (un jeu par module). Visse les volets latéraux assemblés dans le boîtier du module avec 4 vis M2×6. N'installe pas encore le palonnier sur le servo.",
+            "text": "Assemble les volets latéraux avec les pièces de la plaque 1 : visse left paddle sur left paddle linkage et right paddle sur right paddle linkage, puis les deux tringleries sur side paddles servo horn (un jeu par module). Visse les volets latéraux assemblés dans le boîtier du module avec 4 vis M2×6. N'installe pas encore le palonnier sur le servo.",
             "note": "Les repères HAUT/BAS de la liaison indiquent son sens de montage, pas l'orientation du module : la plateforme étant montée à l'envers, HAUT est à l'opposé de la plateforme. Un seul servo de palette entraîne les deux trappes ensemble - elles s'ouvrent et se ferment en paire, pas indépendamment. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
           },
           "mountPusherArm": {
-            "text": "Assemble le poussoir avec les pièces de la plaque 1 : visse pusher left et pusher right sur les deux tringleries pusher_arm, puis les deux tringleries sur pusher horn. Visse le poussoir assemblé dans le boîtier du module avec deux vis M2×8. N'installe pas encore le palonnier sur le servo.",
+            "text": "Assemble le poussoir avec les pièces de la plaque 1 : visse card pusher left et card pusher right sur les deux pusher linkage, puis les deux tringleries sur pusher servo horn. Visse le poussoir assemblé dans le boîtier du module avec deux vis M2×8. N'installe pas encore le palonnier sur le servo.",
             "note": "Les repères HAUT/BAS de la liaison indiquent son sens de montage, pas l'orientation du module : la plateforme étant montée à l'envers, HAUT est à l'opposé de la plateforme. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
           },
           "fitFeederOrings": {
-            "text": "Monte 6 joints toriques G20 sur le roller de la plaque 4.",
+            "text": "Monte 6 joints toriques G20 sur le roller de la plaque 3.",
             "note": "Ils donnent au rouleau de l'adhérence sur la carte - espace-les uniformément sur la longueur du rouleau."
           },
           "mountFeederRoller": {
-            "text": "Fixe le roller sur feeder_base (tous deux de la plaque 4)."
+            "text": "Fixe le roller sur feeder base (flat) (tous deux de la plaque 3)."
           },
           "mountRollerHorn": {
-            "text": "Enfonce roller horn mg90s (plaque 4) sur l'axe du servo de chargeur à rotation continue.",
-            "note": "Le rouleau du chargeur s'imprime en deux pièces : roller et roller horn mg90s. Aucune des deux ne porte l'inscription \"servo\". Le palonnier du rouleau est la petite pièce qui s'emboîte sur l'axe du servo."
+            "text": "Enfonce roller servo horn (MG90S) (plaque 3) sur l'axe du servo de chargeur à rotation continue.",
+            "note": "Le rouleau du chargeur s'imprime en deux pièces : roller et roller servo horn (MG90S). Aucune des deux ne porte l'inscription \"servo\". Le palonnier du rouleau est la petite pièce qui s'emboîte sur l'axe du servo."
           },
           "mountFeederServo": {
             "text": "Insère le servo de chargeur, avec le palonnier de rouleau sur son axe, dans l'extrémité du rouleau à la base de la trémie. Le palonnier se loge dans le rouleau pour que le servo le fasse tourner.",
-            "note": "Tu as le rouleau en deux parties ? Visse d'abord roller horn mg90s sur l'axe du servo, passe le palonnier dans le trou de feeder_base, puis glisse le roller sur le palonnier."
+            "note": "Tu as le rouleau en deux parties ? Visse d'abord roller servo horn (MG90S) sur l'axe du servo, passe le palonnier dans le trou de feeder base (flat), puis glisse le roller sur le palonnier."
           },
           "fitHopperRollerOrings": {
-            "text": "Monte des joints toriques sur le hopper roller (plaque 4).",
+            "text": "Monte des joints toriques sur le hopper idler roller (small) (plaque 3).",
             "note": "Comme pour le rouleau du chargeur, ils lui donnent de l'adhérence sur la carte."
           },
           "mountHopperRoller": {
-            "text": "Installe le hopper roller sur le hopper (tous deux de la plaque 4) avec 2 vis M3×8 et 2 rondelles M10.",
+            "text": "Installe le hopper idler roller (small) sur le hopper (tous deux de la plaque 3) avec 2 vis M3×8 et 2 rondelles M10.",
             "note": "Le rouleau doit être rigide une fois monté, il ne doit pas tourner librement."
           },
           "calibrateHopperRoller": {
             "text": "Monte le ressort et la vis M3×25, puis serre la vis jusqu'à ce qu'elle dépasse par le bas du point de montage. Desserre-la ensuite lentement jusqu'à ce que la trémie ne laisse passer qu'une seule carte à la fois."
           },
           "mountHopperRiser": {
-            "text": "Installe le feeder riser (plaque 4) à l'arrière du hopper.",
-            "requiredAlert": "Obligatoire : ne saute pas le feeder riser. Sans lui, le chargeur n'introduit pas les cartes de façon fiable."
+            "text": "Installe la feeder ramp (steep) (plaque 3) à l'arrière du hopper.",
+            "requiredAlert": "Obligatoire : ne saute pas la feeder ramp. Sans elle, le chargeur n'introduit pas les cartes de façon fiable."
           },
           "mountModuleIr": {
             "text": "Fixe un capteur IR à la porte de chaque module (1 à {{modules}}) avec 1 vis M2×6 chacun, pointé à travers le trajet de la carte."
@@ -627,21 +627,21 @@
       "shroud": "Sorting Module Shroud et support de caméra",
       "baseSupportTall": "Base haute (3 de haut)",
       "baseSupportShort": "Base basse (1 de haut)",
-      "baseSupportBreakout": "Alternative Base Support avec panel esp",
+      "baseSupportBreakout": "Base haute avec base panel esp",
       "circuitBoardPlate": "Plaque Circuit Board (ESP32 / Arduino)",
-      "circuitBoardPlateBreakout": "Plaque Circuit Board (ESP32 + carte de breakout)",
+      "circuitBoardPlateBreakout": "ESP32 breakout mount plate",
       "servoControllerPlate": "Plaque Servo Controller",
       "genericPlate": "Plaque Generic",
       "endPlate": "Plaque End et support End Bin",
       "binsPlate": "Bins",
       "endBinPlate": "End Bin",
-      "optionalPlate": "Plaques Back et Front (optionnelles)"
+      "optionalPlate": "Façades avant et arrière (optionnelles)"
     },
     "xray": "Rayons X"
   },
   "imageAlt": {
     "printPart": "Rendu du modèle 3D : {{part}}",
-    "breakoutBaseSupport": "Alternative Base Support",
+    "breakoutBaseSupport": "base haute avec base panel esp",
     "stepPhoto": "Photo de cette étape de montage",
     "photos": {
       "baseModule": "Un cadre de module de tri violet imprimé en 3D : une boîte ouverte avec quatre tenons sur le dessus et des pattes sur les côtés pour assembler les modules.",

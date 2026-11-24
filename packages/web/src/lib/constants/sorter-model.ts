@@ -187,6 +187,7 @@ export const SORTER_HOTSPOT_POINTS: Record<ServoName, Vec3> = {
 export const SORTER_FEEDER_HOTSPOT_POINT: Vec3 = [-17, 36, 270];
 export const SORTER_FEEDER_HOTSPOT_KEY = "feeder";
 export const SORTER_FEEDER_ROLLER_NODE = "feederRoller";
+export const SORTER_FEEDER_SERVO_NODE = "feederServo";
 
 export const SORTER_DRAWER_DELAY_FIELDS: Record<ServoName, ModuleDelayField[]> =
   {
