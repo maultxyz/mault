@@ -1,4 +1,4 @@
-import { SpiderWeb } from "@/components/halloween-decor";
+import { SeasonalCornerDecor } from "@/components/seasonal-decor";
 import { LandingCta } from "@/features/landing/components/cta";
 import { LandingFeatures } from "@/features/landing/components/features";
 import { LandingFooter } from "@/features/landing/components/footer";
@@ -27,7 +27,7 @@ export default function LandingPage() {
   return (
     <div className="relative isolate flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">
       <PublicBackdrop />
-      <SpiderWeb corner="top-right" withSpider className="size-28 max-md:size-16" />
+      <SeasonalCornerDecor corner="top-right" withHangingAccent className="size-28 max-md:size-16" />
       <PublicAnnouncementBanner />
       <PublicNav />
       <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">

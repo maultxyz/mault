@@ -110,5 +110,17 @@
     "empty": "Aucune clé API pour l'instant",
     "expires": "expire le {{date}}",
     "noExpiry": "sans expiration"
+  },
+  "seasonalDecor": {
+    "heading": "Décorations saisonnières",
+    "description": "Des touches festives dans l’app, comme des toiles d’araignée en octobre, des feuilles d’automne en novembre et des boules de Noël en décembre. Enregistré sur cet appareil.",
+    "label": "Décorations saisonnières",
+    "options": {
+      "auto": "Automatique (selon la date)",
+      "off": "Désactivées",
+      "halloween": "Halloween",
+      "thanksgiving": "Thanksgiving",
+      "christmas": "Noël"
+    }
   }
 }

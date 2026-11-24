@@ -81,6 +81,7 @@ import IconFilter from "@tabler/icons-react-native/IconFilter";
 import IconSearch from "@tabler/icons-react-native/IconSearch";
 import IconShieldCheck from "@tabler/icons-react-native/IconShieldCheck";
 import IconSparkles from "@tabler/icons-react-native/IconSparkles";
+import IconGift from "@tabler/icons-react-native/IconGift";
 import IconTestPipe from "@tabler/icons-react-native/IconTestPipe";
 import IconTransfer from "@tabler/icons-react-native/IconTransfer";
 import IconTrash from "@tabler/icons-react-native/IconTrash";
@@ -159,6 +160,7 @@ export const ICONS = {
   filter: IconFilter,
   condition: IconShieldCheck,
   sparkles: IconSparkles,
+  gift: IconGift,
   stamp: IconStar,
   selfTest: IconChecks,
   sorter: IconCpu,

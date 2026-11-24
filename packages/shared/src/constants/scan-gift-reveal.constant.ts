@@ -1,0 +1,7 @@
+export const SCAN_GIFT_REVEAL_MIN_PRICE = 50;
+export const SCAN_GIFT_REVEAL_EVENT = "scan_gift_reveal";
+export const SCAN_GIFT_REVEAL_WRAPPED_MAX = 5;
+export const SCAN_GIFT_REVEAL_WRAPPED_MAX_AGE_MS = 60_000;
+export const SCAN_GIFT_REVEAL_WIGGLE_MS = 900;
+export const SCAN_GIFT_REVEAL_UNWRAP_MS = 700;
+export const SCAN_GIFT_REVEAL_HIGHLIGHT_MS = 5000;

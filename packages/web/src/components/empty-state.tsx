@@ -1,5 +1,5 @@
 import { IconBadge } from "@/components/icon-badge";
-import { SeasonalPumpkin } from "@/components/halloween-decor";
+import { SeasonalAccent } from "@/components/seasonal-decor";
 import type { EmptyStateProps } from "@/lib/interfaces/empty-state";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +24,7 @@ export function EmptyState({
       {Icon && (
         <IconBadge size={compact ? "lg" : "2xl"} className="relative">
           <Icon className={compact ? "size-5" : "size-7"} />
-          <SeasonalPumpkin
+          <SeasonalAccent
             className={cn(
               "absolute -right-1 -bottom-1",
               compact ? "size-3.5" : "size-4",

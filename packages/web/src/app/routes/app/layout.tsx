@@ -5,7 +5,7 @@ import { AppNav } from "@/components/app-nav";
 import { AppTopBar } from "@/components/app-top-bar";
 import { AlertStack } from "@/components/alert-stack";
 import { EnvBanner } from "@/components/env-banner";
-import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
+import { SeasonalAccent, SeasonalCornerDecor } from "@/components/seasonal-decor";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { PlanPreviewBanner } from "@/components/plan-preview-banner";
 import { IntakeBanner } from "@/features/business/components/intake-banner";
@@ -72,7 +72,7 @@ export default function AppLayout() {
         >
           {isFramed && <div aria-hidden className={SHELL_GRADIENT_CLASS} />}
           <div aria-hidden className={GRADIENT_BURST_CLASS} />
-          <SpiderWeb
+          <SeasonalCornerDecor
             corner="top-left"
             className="top-[env(safe-area-inset-top)] size-14"
           />
@@ -102,7 +102,7 @@ export default function AppLayout() {
         <div className="h-dvh w-dvw overflow-hidden pb-6 flex flex-col bg-sidebar relative isolate text-foreground/70">
           <div aria-hidden className={SHELL_GRADIENT_CLASS} />
           <div aria-hidden className={GRADIENT_BURST_CLASS} />
-          <SpiderWeb corner="top-left" withSpider className="z-0" />
+          <SeasonalCornerDecor corner="top-left" withHangingAccent />
           <AppTopBar />
           <div className="relative flex flex-row flex-1 min-h-0 overflow-hidden pr-1.5">
             <AppNav />
@@ -153,7 +153,7 @@ export default function AppLayout() {
               </Tooltip>
               <FooterDivider />
               <div className="flex items-center gap-2">
-                <SeasonalPumpkin className="size-3.5" />
+                <SeasonalAccent className="size-3.5" />
                 <span className="text-foreground/70">v{__APP_VERSION__}</span>
                 <EnvBanner />
               </div>

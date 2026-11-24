@@ -3618,6 +3618,15 @@
         "revokeLabel": "Revoke {{name}}",
         "share": "Share key"
       }
+    },
+    "debug": {
+      "title": "Debug",
+      "simulateGiftReveal": {
+        "title": "Simulate gift reveal",
+        "subtitle": "Gift-wrap your last scan as if it were worth 50 or more",
+        "wrapped": "Wrapped your last scan. Open the Scan tab to unwrap it.",
+        "scanFirst": "Scan a new card on the Scan tab first."
+      }
     }
   },
   "tradeOffers": {
@@ -4951,5 +4960,8 @@
     "guest": "Guest",
     "signedInDescription": "Signed in with an account",
     "guestDescription": "Guest without an account"
+  },
+  "scanGiftReveal": {
+    "announcement": "Big pull! {{name}}, worth {{price}}"
   }
 }

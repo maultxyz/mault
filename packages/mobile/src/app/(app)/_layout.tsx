@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppTopBar } from "@/components/app-top-bar";
 import { GradientBurst } from "@/components/ui/gradient-burst";
 import { MemberSeatLocked } from "@/features/org/components/member-seat-locked";
+import { ScanGiftRevealAnnouncer } from "@/features/scanner/components/scan-gift-reveal-announcer";
 import { useConnectivityAnnouncements } from "@/hooks/use-connectivity-announcements";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useShellPanelStyle } from "@/hooks/use-shell-panel-style";
@@ -124,6 +125,7 @@ export default function AppLayout() {
           />
         </Stack>
       </View>
+      <ScanGiftRevealAnnouncer />
     </View>
   );
 }

@@ -223,9 +223,9 @@ code {
   --text-control: 0.75rem;
   --text-control--line-height: 1rem;
   --z-index-lock-screen: 60;
-  --z-index-decor: 999;
-  --z-index-skip-link: 1000;
   --z-index-loading-gate: 9999;
+  --z-index-decor: 10000;
+  --z-index-skip-link: 10001;
 }
 
 :root {
@@ -425,6 +425,16 @@ code {
   }
 }
 
+@keyframes seasonal-sway {
+  0%,
+  100% {
+    rotate: -5deg;
+  }
+  50% {
+    rotate: 5deg;
+  }
+}
+
 @keyframes hero-scan-sweep {
   0% {
     top: 0;
@@ -480,6 +490,97 @@ code {
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes gift-shake {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  20% {
+    rotate: -6deg;
+  }
+  40% {
+    rotate: 6deg;
+  }
+  60% {
+    rotate: -4deg;
+  }
+  80% {
+    rotate: 4deg;
+  }
+}
+
+@keyframes gift-paper-left {
+  0% {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-75%) rotate(-14deg);
+  }
+}
+
+@keyframes gift-paper-right {
+  0% {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(75%) rotate(14deg);
+  }
+}
+
+@keyframes gift-bow-pop {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-20%) scale(1.25);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-110%) scale(0.6) rotate(25deg);
+  }
+}
+
+@keyframes gift-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes gift-tag-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.6);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gift-sparkle {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--sparkle-x), var(--sparkle-y)) scale(1);
   }
 }
 

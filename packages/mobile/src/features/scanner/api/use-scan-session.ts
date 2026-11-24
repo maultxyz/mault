@@ -49,6 +49,9 @@ import {
   type ScanRoutingContext,
   readsPrintedLanguageEveryScan,
   scanOcrMode,
+  DEFAULT_ORG_PRICING,
+  scanGiftRevealOf,
+  toConditionMultipliers,
 } from "@magic-vault/shared";
 import {
   binHeightsQueryOptions,
@@ -62,6 +65,7 @@ import {
 } from "@/features/devices/api/devices";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
+import { showScanGiftReveal } from "@/features/scanner/lib/scan-gift-reveal-store";
 import {
   fetchBinContents,
   fetchBinCounts,
@@ -791,8 +795,22 @@ export function useScanSession({
                   storageLocationGuid: ctx.storageLocationGuid,
                   record: plan.persistence.record,
                 });
+          const keepsCard = plan.persistence.kind === "cards";
           void saving
             .then((result) => {
+              if (result.success && keepsCard) {
+                const giftReveal = scanGiftRevealOf(
+                  record,
+                  {
+                    source: ctx.orgSettings?.priceSource ?? DEFAULT_ORG_PRICING.source,
+                    conditionMultipliers: toConditionMultipliers(
+                      ctx.orgSettings?.conditionMultipliers,
+                    ),
+                  },
+                  collectionGuid,
+                );
+                if (giftReveal) showScanGiftReveal(giftReveal);
+              }
               if (!result.success)
                 queryClient.setQueryData(
                   billingQueryOptions(ctx.orgId).queryKey,

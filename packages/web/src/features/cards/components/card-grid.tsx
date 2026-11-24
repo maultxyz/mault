@@ -1048,6 +1048,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
         condition={entry.condition}
         isDownloaded={entry.isDownloaded}
         quantity={entry.quantity}
+        scanIds={entry.scanIds}
       />
     );
     if (readOnly) return item;

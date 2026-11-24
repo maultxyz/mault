@@ -16,6 +16,7 @@ import { ChangeEmailForm } from "@/features/account/components/change-email-form
 import { DiscordAccountLink } from "@/features/account/components/discord-account-link";
 import { ChangePasswordForm } from "@/features/account/components/change-password-form";
 import { SignInMethodsList } from "@/features/account/components/sign-in-methods-list";
+import { SeasonalDecorSetting } from "@/features/account/components/seasonal-decor-setting";
 import { SessionsList } from "@/features/account/components/sessions-list";
 import { UpdateNameForm } from "@/features/account/components/update-name-form";
 import { useOnboarding } from "@/features/onboarding/api/use-onboarding";
@@ -104,6 +105,12 @@ export default function AccountPage() {
             >
               <DiscordAccountLink />
             </SettingsSection>
+
+            <SettingsSection
+              heading={t("seasonalDecor.heading")}
+              description={t("seasonalDecor.description")}
+              action={<SeasonalDecorSetting />}
+            />
 
             {!isMobile && (
               <SettingsSection

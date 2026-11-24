@@ -365,7 +365,13 @@
     "showUnmatchedRateToast": "Show Unmatched Warning",
     "forceCpu": "Force CPU (skip WebGPU)",
     "forceError": "Force Error",
-    "ignoreIrSensors": "Ignore IR sensors (no routing)"
+    "ignoreIrSensors": "Ignore IR sensors (no routing)",
+    "simulateGiftReveal": "Simulate Gift Reveal ($50+ card)",
+    "giftRevealNeedsCard": "Scan a card first, then simulate the gift reveal on it."
+  },
+  "scanGiftReveal": {
+    "heading": "Big pull!",
+    "announcement": "Big pull! {{name}}, worth {{price}}"
   },
   "scannerMenu": {
     "refreshCameraList": "Refresh list",

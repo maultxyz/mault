@@ -8,6 +8,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ScanGiftWrap } from "@/features/scanner/components/scan-gift-wrap";
+import { useWrappedScanGiftReveal } from "@/features/scanner/lib/scan-gift-reveal-store";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
 import { reviewStatusLabel } from "@/features/cards/lib/review-tooltip";
@@ -45,8 +47,10 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   quantity = 1,
   showBinLocation = true,
   storageLocation,
+  scanIds,
 }: ScannedCardItemProps) {
   const { t } = useTranslation("cards");
+  const giftReveal = useWrappedScanGiftReveal(scanIds);
   const [isNew] = useState(
     () =>
       scannedAt != null &&
@@ -173,6 +177,9 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             alt={card.name}
             className="bg-transparent"
           />
+          {giftReveal && (
+            <ScanGiftWrap key={giftReveal.scanId} reveal={giftReveal} variant="tile" />
+          )}
         </div>
       </button>
       {onToggleSelect && (
