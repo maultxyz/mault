@@ -296,7 +296,9 @@
     "lastSearchImageAlt": "Letztes Suchbild",
     "pausedTabHidden": {
       "title": "Scannen pausiert",
-      "description": "Der Scanner-Tab wurde ausgeblendet, daher wurden Scannen und automatisches Zuführen pausiert. Die Kameravorschau friert ein, solange der Tab nicht sichtbar ist. Drücke Fortsetzen, um weiterzumachen."
+      "description": "Der Scanner-Tab wurde ausgeblendet, daher wurden Scannen und automatisches Zuführen pausiert. Die Kameravorschau friert ein, solange der Tab nicht sichtbar ist. Drücke Fortsetzen, um weiterzumachen.",
+      "desktopAppHint": "Die MAULT Desktop-App scannt weiter, während ihr Fenster im Hintergrund ist.",
+      "desktopAppLink": "Desktop-App herunterladen"
     }
   },
   "documentTitle": {
