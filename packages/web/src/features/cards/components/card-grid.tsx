@@ -253,7 +253,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
   const reviewParam = searchParams.get(CARD_REVIEW_SEARCH_PARAM);
   const isReviewing = reviewParam === "1";
   const isGridReviewing =
-    !readOnly && !openScanId && reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
+    !openScanId && reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
   const [reviewLayout, setReviewLayout] = useReviewLayout();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -376,7 +376,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
   const [reviewTotal, setReviewTotal] = useState<number | null>(null);
   const { data: reviewCount } = useQuery({
     ...collectionCardsCountQueryOptions(collectionGuid, reviewQuery),
-    enabled: !readOnly && !!collectionGuid,
+    enabled: !!collectionGuid,
   });
   const reviewSession = useReviewSession(openScanId, isReviewing);
   const reviewQueueSession = useReviewQueueSession();
@@ -411,7 +411,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
   }, [cardsQuery, collectionGuid, setPage]);
 
   const isOneByOneReviewing =
-    !readOnly && isReviewing && !!openScanId && !!collectionGuid;
+    isReviewing && !!openScanId && !!collectionGuid;
   useEffect(() => {
     if (!isOneByOneReviewing) {
       reviewQueueStore.stop();
@@ -601,6 +601,11 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
       const first = firstPage.items[0];
       if (!first) {
         toast.info(t("review.nothingLeft"));
+        if (isReviewing) {
+          navigate(cardGridPathKeepingSearchParams(basePath, searchParams, null), {
+            replace: true,
+          });
+        }
         return;
       }
       setReviewTotal(firstPage.totalCards);
@@ -609,12 +614,30 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
       console.error("Failed to start card review:", err);
       toast.error(t("review.startFailed"));
     }
-  }, [collectionGuid, queryClient, reviewQuery, setOpenScanId, t]);
+  }, [
+    collectionGuid,
+    queryClient,
+    reviewQuery,
+    setOpenScanId,
+    t,
+    isReviewing,
+    navigate,
+    basePath,
+    searchParams,
+  ]);
 
   const startReview = useCallback(() => {
     if (reviewLayout === "grid") openReviewGrid();
     else void startOneByOneReview();
   }, [reviewLayout, openReviewGrid, startOneByOneReview]);
+
+  const hasStartedLinkedReviewRef = useRef(false);
+  useEffect(() => {
+    if (openScanId || !isReviewing || !collectionGuid) return;
+    if (hasStartedLinkedReviewRef.current) return;
+    hasStartedLinkedReviewRef.current = true;
+    startReview();
+  }, [openScanId, isReviewing, collectionGuid, startReview]);
 
   const finishReview = useCallback(
     (count: number) => {
@@ -627,7 +650,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
 
   useHotkeys({
     reviewStart:
-      !readOnly && !openScanId && !isGridReviewing && totalCards > 0
+      !openScanId && !isGridReviewing && totalCards > 0
         ? startReview
         : undefined,
     clearSelection:
@@ -929,7 +952,9 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
         }}
         onClose={() => setOpenScanId(null)}
         onCorrect={(card, correctedCard) =>
-          correctCard(card.scanId, correctedCard)
+          readOnly
+            ? viewedCardActions.correctCard(card.scanId, correctedCard)
+            : correctCard(card.scanId, correctedCard)
         }
       />
     );
@@ -1125,7 +1150,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
           onSortChange={setSortKey}
           sortableFields={sortableFields}
           onExport={() => setSummaryOpen(true)}
-          onStartReview={readOnly ? undefined : startReview}
+          onStartReview={startReview}
           needsReviewCount={reviewCount?.totalCount ?? 0}
           onShowUnmatched={() => inlineUnmatched.open(null)}
           unmatchedCount={unmatchedCount}
