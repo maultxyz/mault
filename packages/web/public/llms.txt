@@ -2,7 +2,7 @@
 
 > Mault is an open-source automated trading card sorter and scanner made by Mault LLC. A 3D printed machine feeds cards past a camera, the Mault app identifies each card from its image (with text recognition as a backup), and servos drop it into the bin your rules choose. The app then tracks where every card is stored and what the collection is worth.
 
-Mault supports Magic: The Gathering, Pokémon (English and Japanese), Yu-Gi-Oh!, Disney Lorcana, One Piece Card Game, Flesh and Blood, Star Wars: Unlimited, Digimon Card Game, Gundam Card Game, Grand Archive, Sorcery: Contested Realm, Riftbound and Elestrals.
+Mault supports Magic: The Gathering, Pokémon (English and Japanese), Yu-Gi-Oh!, Disney Lorcana, One Piece Card Game, Flesh and Blood, Star Wars: Unlimited, Digimon Card Game, Gundam Card Game, Grand Archive, Sorcery: Contested Realm, Riftbound, Elestrals and Union Arena.
 
 Key facts:
 

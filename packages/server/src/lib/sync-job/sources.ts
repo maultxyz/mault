@@ -12,6 +12,7 @@ import { riftboundSyncSource } from "../adapters/riftbound/sync";
 import { scryfallSyncSource } from "../adapters/scryfall/sync";
 import { sorcerySyncSource } from "../adapters/sorcery/sync";
 import { swuSyncSource } from "../adapters/swu/sync";
+import { unionArenaSyncSource } from "../adapters/union-arena/sync";
 import { yugiohSyncSource } from "../adapters/yugioh/sync";
 import type { SyncSource } from "../interfaces/card-search";
 import { withTcgtrackingSync } from "../tcgtracking/sync-source";
@@ -23,6 +24,7 @@ const BASE_SYNC_SOURCES: Record<string, SyncSource> = {
   pokemonjp: pokemonJapanSyncSource,
   digimon: digimonSyncSource,
   elestrals: elestralsSyncSource,
+  unionarena: unionArenaSyncSource,
   lorcana: lorcanaSyncSource,
   onepiece: onePieceSyncSource,
   fab: fabSyncSource,

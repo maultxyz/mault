@@ -135,6 +135,38 @@ export const ELESTRALS_RARITY_NAMES: Record<string, string> = {
 };
 export const ELESTRALS_SUBCLASS_SEPARATOR_PATTERN = /\s*;\s*/g;
 
+export const UNION_ARENA_TCGPLAYER_CATEGORY_ID = 81;
+export const UNION_ARENA_LANGUAGES = ["en"];
+export const UNION_ARENA_EXT_KEYS = {
+  cardType: ["CardType", "cardType", "Card Type"],
+  seriesName: ["SeriesName", "seriesName", "Series Name"],
+  affinities: ["Affinities", "affinities"],
+  activationEnergy: ["ActivationEnergy", "activationEnergy", "Activation Energy"],
+  requiredEnergy: ["RequiredEnergy", "requiredEnergy", "Required Energy"],
+  battlePoints: ["BattlePointBP", "battlePointBp", "Battle Point (BP)"],
+  description: ["Description", "description"],
+  trigger: ["Trigger", "trigger"],
+} as const;
+const UNION_ARENA_EVENT_TAG_ALTERNATIVES =
+  "Box Topper[^)]*|[^)]*Winner|Judge(?: Pack)?|Serial(?:ized| Numbered)|Gold(?: Foil)?|Silver(?: Foil)?|Regionals[^)]*|Release Event[^)]*|Super Pre-Release[^)]*|[^)]*Finals|Second Place|Third Place|[^)]*Promotion Pack[^)]*|[^)]*Promo|Anime Expo[^)]*|Anime NYC[^)]*|[^)]*Comic Con[^)]*|BANDAI Card Games Fest[^)]*|Round1[^)]*";
+export const UNION_ARENA_RARE_PRINTING_NAME_PATTERN = String.raw`\((?:${UNION_ARENA_EVENT_TAG_ALTERNATIVES})\)`;
+export const UNION_ARENA_PRODUCT_VARIANT_TAG_PATTERN = new RegExp(
+  String.raw`\s*(?:\((?:\d+|AP\d+\*?|(?:Pc)?(?:C|U|R|SR|UR)\*{0,3}|P-\d+|\d+-\d+|Tentative Name|${UNION_ARENA_EVENT_TAG_ALTERNATIVES})\)|\[[^\]]*\])`,
+  "g",
+);
+export const UNION_ARENA_COLLECTOR_NUMBER_SET_PATTERN = /^([A-Z0-9]+)\//;
+export const UNION_ARENA_RARITY_ABBREVIATION_PATTERN = /^(Pc)?(C|U|R|SR|AP)(\*{0,3})$/;
+export const UNION_ARENA_RARITY_NAMES: Record<string, string> = {
+  C: "Common",
+  U: "Uncommon",
+  R: "Rare",
+  SR: "Super Rare",
+  AP: "Action Point",
+};
+export const UNION_ARENA_PRECIOUS_RARITY_PREFIX = "Precious ";
+export const UNION_ARENA_RARITY_NONE = "None";
+export const UNION_ARENA_LIST_SEPARATOR_PATTERN = /\s*;\s*/g;
+
 export const FAB_STANDARD_FOILING = "S";
 export const FAB_TCGPLAYER_FOIL_NAMES: Record<string, string> = {
   S: "Normal",

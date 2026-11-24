@@ -40,4 +40,5 @@ export const SUPPORTED_GAME_NAMES = [
   "Sorcery: Contested Realm",
   "Riftbound",
   "Elestrals",
+  "Union Arena",
 ];

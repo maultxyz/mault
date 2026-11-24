@@ -39,6 +39,7 @@ export const POKEMON_DEFAULT_URL = "https://api.tcgdex.net/v2/en/cards";
 export const POKEMON_JAPAN_DEFAULT_URL = `${TCGTRACKING_API_ROOT}/85`;
 export const DIGIMON_DEFAULT_URL = `${TCGTRACKING_API_ROOT}/63`;
 export const ELESTRALS_DEFAULT_URL = `${TCGTRACKING_API_ROOT}/83`;
+export const UNION_ARENA_DEFAULT_URL = `${TCGTRACKING_API_ROOT}/81`;
 export const RIFTBOUND_DEFAULT_URL = "https://api.riftcodex.com/cards";
 export const SORCERY_DEFAULT_URL = "https://api.sorcerytcg.com/api/cards";
 export const SCRYFALL_DEFAULT_URL = "https://api.scryfall.com/cards";
