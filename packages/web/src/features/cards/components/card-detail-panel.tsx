@@ -1161,7 +1161,7 @@ export function CardDetailPanel({
                   </div>
                 </div>
               ) : (
-                similarMatches
+                !isMobile && similarMatches
               )}
 
               <div
@@ -1173,6 +1173,8 @@ export function CardDetailPanel({
                 {!reviewMode && (
                   <div className={CARD_DETAIL_IMAGES_CLASS}>{cardImages}</div>
                 )}
+
+                {!reviewMode && isMobile && similarMatches}
 
                 {selectedCard && (
                   <div className={CARD_DETAIL_SECTIONS_CLASS}>
