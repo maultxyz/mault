@@ -365,7 +365,13 @@
     "showUnmatchedRateToast": "Warnung zu nicht erkannten Karten zeigen",
     "forceCpu": "CPU erzwingen (ohne WebGPU)",
     "forceError": "Fehler erzwingen",
-    "ignoreIrSensors": "IR-Sensoren ignorieren (ohne Sortieren)"
+    "ignoreIrSensors": "IR-Sensoren ignorieren (ohne Sortieren)",
+    "simulateGiftReveal": "Geschenk-Enthüllung simulieren (Karte ab 50 $)",
+    "giftRevealNeedsCard": "Scanne zuerst eine Karte und simuliere dann die Geschenkenthüllung darauf."
+  },
+  "scanGiftReveal": {
+    "heading": "Großer Fang!",
+    "announcement": "Großer Fang! {{name}}, Wert {{price}}"
   },
   "scannerMenu": {
     "refreshCameraList": "Liste aktualisieren",

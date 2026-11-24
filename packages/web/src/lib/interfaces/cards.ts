@@ -330,6 +330,7 @@ export interface ScannedCardItemProps {
   quantity?: number;
   showBinLocation?: boolean;
   storageLocation?: CardStorageLocation;
+  scanIds?: readonly string[];
 }
 
 export interface ScannedCardTableRow {

@@ -3617,6 +3617,15 @@
         "revokeLabel": "{{name}} widerrufen",
         "share": "Schlüssel teilen"
       }
+    },
+    "debug": {
+      "title": "Debug",
+      "simulateGiftReveal": {
+        "title": "Geschenk-Enthüllung simulieren",
+        "subtitle": "Verpackt deinen letzten Scan, als wäre er 50 oder mehr wert",
+        "wrapped": "Dein letzter Scan ist verpackt. Öffne den Tab „Scannen“, um ihn auszupacken.",
+        "scanFirst": "Scanne zuerst eine neue Karte im Tab „Scannen“."
+      }
     }
   },
   "tradeOffers": {
@@ -4302,7 +4311,7 @@
       "cardsLabel": "Karten",
       "cardsPlaceholder": "4 Lightning Bolt\n1 Sol Ring",
       "emptyTitle": "Noch keine Picks",
-      "emptyDescription": "Erstelle hier einen Pick oder importiere Bestellungen im Web und scanne den QR-Code des Picks im Scan-Tab.",
+      "emptyDescription": "Erstelle hier einen Pick oder importiere Bestellungen im Web und scanne den QR-Code des Picks im Tab „Scannen“.",
       "openSection": "Offen",
       "closedSection": "Abgeschlossen",
       "openHint": "Öffnet den Pick",
@@ -4950,5 +4959,8 @@
     "guest": "Gast",
     "signedInDescription": "Mit einem Konto angemeldet",
     "guestDescription": "Gast ohne Konto"
+  },
+  "scanGiftReveal": {
+    "announcement": "Großer Fang! {{name}}, Wert {{price}}"
   }
 }

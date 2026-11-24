@@ -46,6 +46,7 @@ import {
   withCardTags,
   withRawCardDataForRules,
   type CardTag,
+  scanGiftRevealOf,
 } from "@magic-vault/shared";
 
 import { billingQueryOptions } from "@/features/billing/api/billing";
@@ -141,6 +142,8 @@ import {
 import { useTranslation } from "react-i18next";
 import { useCollectionLocks } from "@/lib/app-stream";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
+import { showScanGiftReveal } from "@/features/scanner/lib/scan-gift-reveal-store";
+import { usePriceSource } from "@/hooks/use-price-source";
 import { useHandScanBins } from "@/features/scanner/lib/hand-scan";
 
 const ScannedCardsContext = createContext<ScannedCardsContextValue | null>(
@@ -225,6 +228,9 @@ export function ScannedCardsProvider({
   const { station: currentStation } = useStation();
   const sorterLimitReasonRef = useRef(sorterLimitReason);
   sorterLimitReasonRef.current = sorterLimitReason;
+  const { source: priceSource, conditionMultipliers } = usePriceSource();
+  const orgPricingRef = useRef({ source: priceSource, conditionMultipliers });
+  orgPricingRef.current = { source: priceSource, conditionMultipliers };
   const queryClient = useQueryClient();
   const { data: orgSettings } = useQuery(
     orgSettingsQueryOptions(activeOrg?.id),
@@ -909,7 +915,15 @@ export function ScannedCardsProvider({
           record: decision.persistence.record,
         })
           .then((result) => {
-            if (result.success) return;
+            if (result.success) {
+              const giftReveal = scanGiftRevealOf(
+                record,
+                orgPricingRef.current,
+                collection.guid,
+              );
+              if (giftReveal) showScanGiftReveal(giftReveal);
+              return;
+            }
             binContentsRef.current = binContentsRef.current.filter(
               (c) => c.scanId !== record.scanId,
             );

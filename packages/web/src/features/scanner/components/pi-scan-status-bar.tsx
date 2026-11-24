@@ -1,6 +1,11 @@
 import { useOrg } from "@/features/companies/api/use-organization";
 import { createPiScanPendingSaveObserver } from "@/features/scanner/lib/pi-scan-pending-save";
-import type { PiScanPendingSave } from "@magic-vault/shared";
+import {
+  SCAN_GIFT_REVEAL_EVENT,
+  type PiScanPendingSave,
+  type ScanGiftReveal,
+} from "@magic-vault/shared";
+import { showScanGiftReveal } from "@/features/scanner/lib/scan-gift-reveal-store";
 import { usePiHost } from "@/hooks/use-pi-host";
 import { usePiScanSound } from "@/features/sounds/api/use-pi-scan-sound";
 import { Button } from "@/components/ui/button";
@@ -81,6 +86,19 @@ export function PiScanStatusBar() {
     appStream.addEventListener("pi_scan_pending_save", receive);
     return () => appStream.removeEventListener("pi_scan_pending_save", receive);
   }, [pendingSaveObserver, piHost, appStream]);
+  const hostSessionLive = piScanHoldsPort(state);
+  useEffect(() => {
+    if (!piHost || !appStream || !hostSessionLive) return;
+    const receive = (event: Event) => {
+      try {
+        showScanGiftReveal(
+          JSON.parse((event as MessageEvent).data) as ScanGiftReveal,
+        );
+      } catch {}
+    };
+    appStream.addEventListener(SCAN_GIFT_REVEAL_EVENT, receive);
+    return () => appStream.removeEventListener(SCAN_GIFT_REVEAL_EVENT, receive);
+  }, [piHost, appStream, hostSessionLive]);
   const { collections } = useCollections();
   const { stations, claimStationCollection } = useStations();
   const hostStationId = stations[0]?.id;

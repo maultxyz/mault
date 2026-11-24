@@ -12,10 +12,14 @@ import {
   SEASONAL_CORNER_CLASS,
   SEASONAL_SWAY_ANIMATION_CLASS,
   SPIDER_WEB_DEW_DROPS,
-  THANKSGIVING_ACORN,
   THANKSGIVING_COLORS,
   THANKSGIVING_LEAF_GRADIENTS,
   THANKSGIVING_LEAVES,
+  THANKSGIVING_TURKEY,
+  TURKEY_FEATHER_ANGLES,
+  TURKEY_FEATHER_BAND_SCALES,
+  TURKEY_FEATHER_PALETTES,
+  TURKEY_FEATHER_PATH,
 } from "@/lib/constants/seasonal";
 import type {
   SeasonalAccentProps,
@@ -125,9 +129,92 @@ function HalloweenArt({ withHangingAccent }: SeasonalCornerArtProps) {
   );
 }
 
+function TurkeyArt() {
+  const gradientIdPrefix = useId();
+  const bodyGradientId = `${gradientIdPrefix}-turkey-body`;
+  const { x, y, scale, fanMs, headBobMs } = THANKSGIVING_TURKEY;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`}>
+      <defs>
+        <radialGradient id={bodyGradientId} cx="40%" cy="30%" r="75%">
+          <stop offset="0%" stopColor={THANKSGIVING_COLORS.bodyLight} />
+          <stop offset="100%" stopColor={THANKSGIVING_COLORS.bodyDark} />
+        </radialGradient>
+      </defs>
+      <g
+        className={SEASONAL_SWAY_ANIMATION_CLASS}
+        style={{ transformOrigin: "0px 0px", animationDuration: `${fanMs}ms` }}
+      >
+        {TURKEY_FEATHER_ANGLES.map((angle, featherIndex) => {
+          const palette = TURKEY_FEATHER_PALETTES[featherIndex % TURKEY_FEATHER_PALETTES.length];
+          return (
+            <g key={angle} transform={`rotate(${angle})`}>
+              {TURKEY_FEATHER_BAND_SCALES.map((bandScale, bandIndex) => (
+                <path
+                  key={bandScale}
+                  d={TURKEY_FEATHER_PATH}
+                  transform={`scale(${bandScale})`}
+                  fill={palette[bandIndex]}
+                  stroke={bandIndex === 0 ? "currentColor" : "none"}
+                  strokeOpacity={0.25}
+                  strokeWidth={0.4}
+                />
+              ))}
+            </g>
+          );
+        })}
+      </g>
+      <path
+        d="M-2 9L-2.5 15M-2.5 15L-4.5 16.5M-2.5 15L-1 16.8M3 9L3.5 15M3.5 15L1.8 16.8M3.5 15L5.5 16.5"
+        fill="none"
+        stroke={THANKSGIVING_COLORS.legs}
+        strokeWidth={0.9}
+        strokeLinecap="round"
+      />
+      <ellipse
+        cx={0}
+        cy={2}
+        rx={8.5}
+        ry={9.5}
+        fill={`url(#${bodyGradientId})`}
+        stroke="currentColor"
+        strokeOpacity={0.25}
+        strokeWidth={0.4}
+      />
+      <path d="M-6 0C-4 -3 2 -2 4 3C2 8 -4 9 -6.5 5C-7.2 3.5 -7 1.5 -6 0Z" fill={THANKSGIVING_COLORS.wing} />
+      <path
+        d="M-5 2.5Q-1 1.5 2.5 4M-5.2 5Q-2 4.5 1 6.5"
+        fill="none"
+        stroke={THANKSGIVING_COLORS.wingStripe}
+        strokeOpacity={0.7}
+        strokeWidth={0.5}
+        strokeLinecap="round"
+      />
+      <g
+        className={SEASONAL_SWAY_ANIMATION_CLASS}
+        style={{ transformOrigin: "3px -4px", animationDuration: `${headBobMs}ms` }}
+      >
+        <path d="M2.5 -5.5Q4 -9 6.5 -11" stroke={THANKSGIVING_COLORS.head} strokeWidth={3.2} strokeLinecap="round" fill="none" />
+        <circle
+          cx={7.2}
+          cy={-11.5}
+          r={3.6}
+          fill={THANKSGIVING_COLORS.head}
+          stroke="currentColor"
+          strokeOpacity={0.25}
+          strokeWidth={0.4}
+        />
+        <path d="M10.4 -12.6L13.4 -11.4L10.4 -10.4Z" fill={THANKSGIVING_COLORS.beak} />
+        <path d="M10.2 -10.6Q11.8 -7 10 -5.2Q8.6 -7.4 9.4 -10.2Z" fill={THANKSGIVING_COLORS.wattle} />
+        <circle cx={8.3} cy={-12.6} r={1.1} fill={THANKSGIVING_COLORS.eye} />
+        <circle cx={8.6} cy={-12.6} r={0.55} fill={THANKSGIVING_COLORS.pupil} />
+      </g>
+    </g>
+  );
+}
+
 function ThanksgivingArt({ withHangingAccent }: SeasonalCornerArtProps) {
   const gradientIdPrefix = useId();
-  const acornGradientId = `${gradientIdPrefix}-acorn`;
   return (
     <svg viewBox="0 0 100 100" className="size-full overflow-visible">
       <defs>
@@ -144,10 +231,6 @@ function ThanksgivingArt({ withHangingAccent }: SeasonalCornerArtProps) {
             <stop offset="100%" stopColor={gradient.to} />
           </linearGradient>
         ))}
-        <radialGradient id={acornGradientId} cx="35%" cy="35%" r="70%">
-          <stop offset="0%" stopColor={THANKSGIVING_COLORS.acornNutLight} />
-          <stop offset="100%" stopColor={THANKSGIVING_COLORS.acornNutDark} />
-        </radialGradient>
       </defs>
       {THANKSGIVING_LEAVES.map((leaf) => (
         <g
@@ -181,31 +264,7 @@ function ThanksgivingArt({ withHangingAccent }: SeasonalCornerArtProps) {
           </g>
         </g>
       ))}
-      {withHangingAccent && (
-        <g
-          transform={`translate(${THANKSGIVING_ACORN.x} ${THANKSGIVING_ACORN.y}) rotate(${THANKSGIVING_ACORN.rotate})`}
-        >
-          <ellipse cx={0} cy={2.5} rx={4} ry={5} fill={`url(#${acornGradientId})`} />
-          <path
-            d="M-5 -0.5C-5 -4.5 5 -4.5 5 -0.5C3 0.8 -3 0.8 -5 -0.5Z"
-            fill={THANKSGIVING_COLORS.acornCap}
-          />
-          <path
-            d="M-3.5 -2L-1.5 0M-1 -3L1 -0.5M1.5 -3L3.5 -0.8"
-            stroke={THANKSGIVING_COLORS.acornCapTexture}
-            strokeWidth={0.4}
-            strokeLinecap="round"
-          />
-          <path
-            d="M0 -3.4Q0.4 -5.6 1.8 -6.2"
-            fill="none"
-            stroke={THANKSGIVING_COLORS.acornCap}
-            strokeWidth={0.9}
-            strokeLinecap="round"
-          />
-          <ellipse cx={-1.4} cy={1.6} rx={0.9} ry={1.6} fill={THANKSGIVING_COLORS.acornShine} fillOpacity={0.3} />
-        </g>
-      )}
+      {withHangingAccent && <TurkeyArt />}
     </svg>
   );
 }

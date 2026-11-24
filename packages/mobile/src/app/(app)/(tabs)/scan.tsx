@@ -645,6 +645,8 @@ export default function ScanScreen() {
               {session.sessionCount > 0 ? (
                 <ScanSessionThumbnail
                   {...sessionThumbnailArt}
+                  scanId={lastMatchedFeedEntry?.scanId ?? session.feed[0]?.scanId ?? null}
+                  isVisible={focused}
                   count={session.sessionCount}
                   accessibilityLabel={t("scan.sessionChip", { count: session.sessionCount })}
                   onPress={() => setSessionOpen(true)}

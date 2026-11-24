@@ -30,6 +30,7 @@ import type {
   UnmatchedScanDetails,
 } from "@magic-vault/shared";
 import type { Image } from "react-native-nitro-image";
+import type { SharedValue } from "react-native-reanimated";
 import type { IconName } from "@/lib/interfaces/ui";
 
 export interface CapturedFrame {
@@ -576,4 +577,16 @@ export interface UnmatchedScanSelectionState {
   toggle: (scanId: string) => void;
   selectMany: (scanIds: string[]) => void;
   clear: () => void;
+}
+
+export interface ScanGiftWrapProps {
+  scanId: string | null;
+  isVisible: boolean;
+  children: ReactNode;
+}
+
+export interface ScanGiftWrapSparkleProps {
+  progress: SharedValue<number>;
+  offsetX: number;
+  offsetY: number;
 }

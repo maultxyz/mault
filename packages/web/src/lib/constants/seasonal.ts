@@ -61,23 +61,39 @@ export const THANKSGIVING_LEAF_GRADIENTS = [
 ] as const;
 
 export const THANKSGIVING_LEAVES = [
-  { x: 20, y: 18, scale: 1.55, rotate: -22, gradient: 0, swayMs: 5200 },
-  { x: 48, y: 11, scale: 1.05, rotate: 38, gradient: 1, swayMs: 6100 },
-  { x: 13, y: 50, scale: 1.15, rotate: 72, gradient: 2, swayMs: 5700 },
-  { x: 42, y: 40, scale: 0.85, rotate: -48, gradient: 1, swayMs: 6600 },
-  { x: 70, y: 24, scale: 0.7, rotate: 16, gradient: 0, swayMs: 4900 },
+  { x: 22, y: 14, scale: 1.35, rotate: -22, gradient: 0, swayMs: 5200 },
+  { x: 50, y: 9, scale: 1, rotate: 38, gradient: 1, swayMs: 6100 },
+  { x: 74, y: 22, scale: 0.75, rotate: 16, gradient: 2, swayMs: 4900 },
+  { x: 62, y: 46, scale: 0.6, rotate: -48, gradient: 1, swayMs: 6600 },
 ] as const;
 
-export const THANKSGIVING_ACORN = { x: 30, y: 70, rotate: 18 } as const;
+export const THANKSGIVING_TURKEY = { x: 15, y: 66, scale: 1.05, fanMs: 4800, headBobMs: 3200 } as const;
+
+export const TURKEY_FEATHER_ANGLES = [-168, -146, -124, -102, -80, -58, -36, -14] as const;
+
+export const TURKEY_FEATHER_PATH = "M0 0C6 -4.6 17 -5.6 23 0C17 5.6 6 4.6 0 0Z";
+
+export const TURKEY_FEATHER_BAND_SCALES = [1, 0.8, 0.58] as const;
+
+export const TURKEY_FEATHER_PALETTES = [
+  ["#5b2a0e", "#c2410c", "#fbbf24"],
+  ["#7c2d12", "#dc2626", "#fb923c"],
+  ["#6b3410", "#d97706", "#fde68a"],
+] as const;
 
 export const THANKSGIVING_COLORS = {
   vein: "#7c2d12",
   stem: "#78350f",
-  acornNutLight: "#e0a050",
-  acornNutDark: "#92400e",
-  acornCap: "#5c3a1a",
-  acornCapTexture: "#3f2710",
-  acornShine: "#ffffff",
+  bodyLight: "#a8682a",
+  bodyDark: "#4a230b",
+  wing: "#3b1d09",
+  wingStripe: "#c08040",
+  head: "#9a6a3a",
+  beak: "#f59e0b",
+  wattle: "#dc2626",
+  eye: "#ffffff",
+  pupil: "#111111",
+  legs: "#e08a1e",
 } as const;
 
 export const CHRISTMAS_GARLAND_CURVE = {

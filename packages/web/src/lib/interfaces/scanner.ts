@@ -4,6 +4,7 @@ import type { CardViewMode, ReviewSession } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
+  ScanGiftReveal,
   RecentSorter,
   CardCondition,
   DesktopDocumentScanArchiveRequest,
@@ -1866,4 +1867,18 @@ export interface MobileRecentSortersProps {
   disabled: boolean;
   connectingId: string | null;
   onConnect: (sorter: RecentBluetoothSorter) => void;
+}
+
+export type ScanGiftWrapVariant = "tile" | "thumbnail";
+
+export type ScanGiftWrapPhase = "wrapped" | "unwrapping" | "highlight";
+
+export interface ScanGiftWrapProps {
+  reveal: ScanGiftReveal;
+  variant: ScanGiftWrapVariant;
+}
+
+export interface ScanGiftWrapPaperProps {
+  variant: ScanGiftWrapVariant;
+  phase: ScanGiftWrapPhase;
 }

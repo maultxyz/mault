@@ -3617,6 +3617,15 @@
         "revokeLabel": "Révoquer {{name}}",
         "share": "Partager la clé"
       }
+    },
+    "debug": {
+      "title": "Débogage",
+      "simulateGiftReveal": {
+        "title": "Simuler la révélation cadeau",
+        "subtitle": "Emballe votre dernier scan comme s'il valait 50 ou plus",
+        "wrapped": "Votre dernier scan est emballé. Ouvrez l'onglet Scanner pour le déballer.",
+        "scanFirst": "Scannez d'abord une nouvelle carte dans l'onglet Scanner."
+      }
     }
   },
   "tradeOffers": {
@@ -4950,5 +4959,8 @@
     "guest": "Invité",
     "signedInDescription": "Connecté avec un compte",
     "guestDescription": "Invité sans compte"
+  },
+  "scanGiftReveal": {
+    "announcement": "Belle prise ! {{name}}, d'une valeur de {{price}}"
   }
 }

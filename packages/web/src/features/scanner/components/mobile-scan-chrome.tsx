@@ -3,6 +3,8 @@ import { CompactCount } from "@/components/compact-value";
 import { MobileScanBuyRow } from "@/features/business/components/mobile-scan-buy-row";
 import { Button } from "@/components/ui/button";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
+import { ScanGiftWrap } from "@/features/scanner/components/scan-gift-wrap";
+import { useWrappedScanGiftReveal } from "@/features/scanner/lib/scan-gift-reveal-store";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
@@ -61,7 +63,9 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
     ...collectionCardsPageQueryOptions(activeCollection?.guid, ALL_CARDS_QUERY, 0),
     enabled: !!activeCollection && sessionScanCount > 0,
   });
-  const lastScannedCardImage = latestCardsPage?.items[0]?.card.image?.small;
+  const lastScannedCard = latestCardsPage?.items[0];
+  const lastScannedCardImage = lastScannedCard?.card.image?.small;
+  const lastScannedGiftReveal = useWrappedScanGiftReveal(lastScannedCard?.scanId);
 
   const running = SESSION_TIMER_RUNNING_STATUSES.includes(chrome.status);
   const sorterDriven = chrome.isReady || chrome.handScanActive;
@@ -332,6 +336,13 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
                       src={lastScannedCardImage}
                       alt=""
                       className="absolute inset-0"
+                    />
+                  )}
+                  {lastScannedGiftReveal && (
+                    <ScanGiftWrap
+                      key={lastScannedGiftReveal.scanId}
+                      reveal={lastScannedGiftReveal}
+                      variant="thumbnail"
                     />
                   )}
                   <span

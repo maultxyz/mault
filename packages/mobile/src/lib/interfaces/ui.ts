@@ -318,6 +318,8 @@ export interface CameraTextRowProps {
 }
 
 export interface ScanSessionThumbnailProps {
+  scanId: string | null;
+  isVisible: boolean;
   imageUrl: string | null;
   placeholderUrl: string | null;
   count: number;

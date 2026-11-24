@@ -168,6 +168,7 @@ import {
   PiScanActionError,
 } from "./existing-routes";
 import { SorterLink } from "./sorter-link";
+import { emitPiScanGiftReveal } from "./gift-reveal";
 
 const sessions = new Map<string, PiScanLive>();
 
@@ -1203,7 +1204,12 @@ async function processMatched(
           saveOptions(session),
         );
         if (!saved.success) throw new Error(saved.message);
-        if (publishesPendingSave) publishPendingSave("saved");
+        if (publishesPendingSave) {
+          publishPendingSave("saved");
+          emitPiScanGiftReveal(session.orgId, collectionGuid, decision.record).catch(
+            (error) => console.error("[pi-scan] gift reveal failed", error),
+          );
+        }
       } catch (error) {
         if (publishesPendingSave) publishPendingSave("failed");
         throw error;
