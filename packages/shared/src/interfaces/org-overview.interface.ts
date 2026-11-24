@@ -8,6 +8,7 @@ export interface OrgOverviewCard {
   isFoil: boolean;
   price: number | null;
   priceChangeSinceScan: number | null;
+  priceChangeInLatestUpdate?: number | null;
   scannedAt: string;
 }
 

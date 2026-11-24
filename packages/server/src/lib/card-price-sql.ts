@@ -21,6 +21,7 @@ import {
 import type {
   CardPriceDetails,
   CardPriceKey,
+  CardPriceMoveColumns,
   ScannedCardSqlColumns,
 } from "./interfaces/card-prices";
 import type { CatalogJoinScope } from "./interfaces/saved-cards";
@@ -193,4 +194,60 @@ export function collectionCardPriceRiseSql(pricing: OrgPricing): SQL<number | nu
   );
   const priceAtScan = scannedPriceFrom(pricing, COLLECTION_CARD_SQL_COLUMNS, noPrice, noPrice, noPrice);
   return sql<number | null>`(${currentPrice} - ${priceAtScan})`;
+}
+
+function cardPriceHistoryValueSql(
+  card: CardPriceMoveColumns,
+  key: CardPriceKey,
+  dayCondition: SQL,
+): SQL<number | null> {
+  return sql<number | null>`(
+    SELECT ${sql.raw(`h.${CARD_PRICE_COLUMNS[key]}_cents`)}::float8 / 100
+    FROM card_price_history h
+    WHERE h.game_key = ${card.gameKey}
+      AND h.lang = ${card.lang}
+      AND h.card_id = ${card.cardId}
+      AND ${dayCondition}
+    ORDER BY h.day DESC
+    LIMIT 1
+  )`;
+}
+
+export function collectionCardPriceMoveColumns(pricing: OrgPricing): CardPriceMoveColumns {
+  const currentFoilPrice = sql.raw(`card_prices.${CARD_PRICE_COLUMNS[PRICE_SOURCE_FIELDS[pricing.source].priceFoil]}`);
+  return {
+    gameKey: sql`card_prices.game_key`,
+    lang: sql`card_prices.lang`,
+    cardId: sql`card_prices.card_id`,
+    isFoil: sql`${collectionCards.isFoil}`,
+    condition: sql`${collectionCards.condition}`,
+    hasCurrentFoilPrice: sql`(${currentFoilPrice} IS NOT NULL)`,
+  };
+}
+
+export function cardLastPriceDaySql(card: CardPriceMoveColumns, today: string): SQL<string | null> {
+  return sql<string | null>`(
+    SELECT max(h.day)
+    FROM card_price_history h
+    WHERE h.game_key = ${card.gameKey}
+      AND h.lang = ${card.lang}
+      AND h.card_id = ${card.cardId}
+      AND h.day <= ${today}::date
+  )`;
+}
+
+export function cardPriceMoveOnDaySql(
+  pricing: OrgPricing,
+  card: CardPriceMoveColumns,
+  day: SQL,
+): SQL<number | null> {
+  const fields = PRICE_SOURCE_FIELDS[pricing.source];
+  const moveOf = (key: CardPriceKey) =>
+    sql`(${cardPriceHistoryValueSql(card, key, sql`h.day = ${day}`)} - ${cardPriceHistoryValueSql(card, key, sql`h.day < ${day}`)})`;
+  return sql<number | null>`(
+    CASE WHEN ${card.isFoil} AND ${card.hasCurrentFoilPrice}
+      THEN ${moveOf(fields.priceFoil)}
+      ELSE ${moveOf(fields.price)}
+    END * ${conditionFactorSql(card.condition, pricing.conditionMultipliers)}
+  )`;
 }

@@ -9,7 +9,9 @@ import { sql } from "drizzle-orm";
 import { authQuery, type Transaction } from "../db";
 import { cardPrices, collectionCards, collections, games } from "../db/schema";
 import {
-  collectionCardPriceRiseSql,
+  cardLastPriceDaySql,
+  cardPriceMoveOnDaySql,
+  collectionCardPriceMoveColumns,
   collectionCardPriceSql,
   collectionCardPricesJoinOn,
 } from "./card-price-sql";
@@ -34,7 +36,19 @@ async function loadOrgCardValueSummaryRow(
   day: string,
 ): Promise<OrgCardValueSummaryRow> {
   const cardPrice = collectionCardPriceSql(pricing);
-  const priceChange = collectionCardPriceRiseSql(pricing);
+  const priceMoveColumns = collectionCardPriceMoveColumns(pricing);
+  const priceMoveOnLatestUpdate = cardPriceMoveOnDaySql(
+    pricing,
+    {
+      gameKey: sql`inventory_cards.price_game_key`,
+      lang: sql`inventory_cards.price_lang`,
+      cardId: sql`inventory_cards.price_card_id`,
+      isFoil: sql`inventory_cards.is_foil`,
+      condition: sql`inventory_cards.condition`,
+      hasCurrentFoilPrice: sql`inventory_cards.has_current_foil_price`,
+    },
+    sql`latest_price_update.day`,
+  );
   const isTopCard = sql`(ranked.price IS NOT NULL AND ranked.top_rank <= ${WIDGET_SUMMARY_TOP_CARDS_PER_COLLECTION})`;
   const isBiggestPriceRise = sql`COALESCE(ranked.rise_rank = 1 AND ranked.price_change > 0, false)`;
   const isBiggestPriceDrop = sql`COALESCE(ranked.drop_rank = 1 AND ranked.price_change < 0, false)`;
@@ -46,7 +60,13 @@ async function loadOrgCardValueSummaryRow(
         ${collectionCards.collectionId} AS collection_id,
         ${collectionCards.scannedAt} AS scanned_at,
         (${cardPrice})::float8 AS price,
-        (${priceChange})::float8 AS price_change,
+        ${cardLastPriceDaySql(priceMoveColumns, day)} AS last_price_day,
+        ${priceMoveColumns.gameKey} AS price_game_key,
+        ${priceMoveColumns.lang} AS price_lang,
+        ${priceMoveColumns.cardId} AS price_card_id,
+        ${priceMoveColumns.isFoil} AS is_foil,
+        ${priceMoveColumns.condition} AS condition,
+        ${priceMoveColumns.hasCurrentFoilPrice} AS has_current_foil_price,
         md5(${collectionCards.guid}::text || ${day}) AS daily_shuffle,
         (
           (${collectionCards.lowConfidenceMatch} OR ${collectionCards.hasAlternativeMatches})
@@ -62,8 +82,19 @@ async function loadOrgCardValueSummaryRow(
         AND ${collections.orgId} = ${orgId}
         AND ${collections.isDeleted} = false
     ),
-    inventory AS MATERIALIZED (
+    inventory_cards AS MATERIALIZED (
       SELECT * FROM base WHERE is_inventory
+    ),
+    latest_price_update AS (
+      SELECT max(last_price_day) AS day FROM inventory_cards
+    ),
+    inventory AS MATERIALIZED (
+      SELECT inventory_cards.*,
+        CASE WHEN inventory_cards.last_price_day = latest_price_update.day
+          THEN (${priceMoveOnLatestUpdate})::float8
+        END AS price_change
+      FROM inventory_cards
+      CROSS JOIN latest_price_update
     ),
     ranked AS (
       SELECT scan_id, collection_id, price, price_change,
@@ -134,6 +165,7 @@ async function loadOrgCardValueSummaryRow(
           LIMIT ${WIDGET_SUMMARY_CARDS_OF_THE_DAY}
         ) shuffled
       ) AS org_daily_shuffle_scan_ids,
+      (SELECT to_char(day, 'YYYY-MM-DD') FROM latest_price_update) AS latest_price_update_day,
       (SELECT count(*)::int FROM base WHERE needs_review) AS needs_review_count,
       (
         SELECT COALESCE(json_agg(review.scan_id ORDER BY review.scanned_at DESC), '[]'::json)

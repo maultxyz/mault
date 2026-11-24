@@ -4,4 +4,5 @@ export interface OrgOverviewCardsQuery {
   where?: SQL;
   orderBy: SQL;
   limit: number;
+  latestPriceUpdateDay?: string | null;
 }

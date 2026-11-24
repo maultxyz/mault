@@ -85,12 +85,14 @@ async function loadCardsByScanId(
   orgId: string,
   pricing: OrgPricing,
   scanIds: string[],
+  latestPriceUpdateDay: string | null,
 ): Promise<OrgOverviewCard[]> {
   if (scanIds.length === 0) return [];
   return loadOrgOverviewCards(tx, orgId, pricing, {
     where: inArray(collectionCards.guid, scanIds),
     orderBy: desc(collectionCardPriceSql(pricing)),
     limit: scanIds.length,
+    latestPriceUpdateDay,
   });
 }
 
@@ -221,7 +223,7 @@ export async function loadWidgetSummary(
   ].filter((scanId): scanId is string => scanId !== null);
   const cards = await loadCardsByScanId(tx, orgId, pricing, [
     ...new Set([...topScanIds, ...collectionCardOfTheDayOrder, ...orgPickScanIds, ...picks.review_scan_ids]),
-  ]);
+  ], picks.latest_price_update_day ?? null);
   const cardsByScanId = new Map(cards.map((card) => [card.scanId, card]));
   const cardOf = (scanId: string | null) => (scanId ? cardsByScanId.get(scanId) : undefined);
   const topCards = cards.filter((card) => topScanIds.has(card.scanId));

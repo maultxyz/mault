@@ -16,15 +16,14 @@ import { ValueHero } from "@/features/stats/components/value-hero";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useCollectionLocks } from "@/lib/app-stream";
-import { CARD_REVIEW_SEARCH_PARAM } from "@/lib/constants/cards";
 import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
 import { HOME_CARD_OF_THE_DAY_TILE_CLASS } from "@/lib/constants/home";
 import { MOBILE_SCAN_PATH } from "@/lib/constants/nav";
-import { SCANNER_PATH, monitorCollectionReviewPath } from "@/lib/constants/scanner";
+import { SCANNER_PATH, collectionReviewPath } from "@/lib/constants/scanner";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { TRADES_PATH, tradeOfferPath } from "@/lib/constants/trade-offers";
 import { ONE_DAY_MS } from "@/lib/constants/timing";
-import { cardPriceChangeSinceScanOf, valueChangeOf, type OrgOverviewCard } from "@magic-vault/shared";
+import { cardPriceChangeInLatestUpdateOf, valueChangeOf, type OrgOverviewCard } from "@magic-vault/shared";
 import {
   IconAlbum,
   IconAlertTriangle,
@@ -69,7 +68,7 @@ export function HomeDashboard() {
   const reviewCount = summaryData?.review.needsReviewCount ?? 0;
   const firstReviewCard = summaryData?.review.cards[0];
   const liveCollections = Object.entries(locks);
-  const cardOfTheDayPriceChange = (card: OrgOverviewCard) => cardPriceChangeSinceScanOf(card, format, locale);
+  const cardOfTheDayPriceChange = (card: OrgOverviewCard) => cardPriceChangeInLatestUpdateOf(card, format, locale);
   const cardOfTheDayCaption = (card: OrgOverviewCard) => {
     const price = card.price != null ? format(card.price) : null;
     return cardOfTheDayPriceChange(card)
@@ -153,11 +152,7 @@ export function HomeDashboard() {
                   tone="warning"
                   title={t("review.title", { count: reviewCount })}
                   description={t("review.description")}
-                  to={
-                    isMobile
-                      ? monitorCollectionReviewPath(firstReviewCard.collectionGuid)
-                      : `${collectionViewPath(firstReviewCard.collectionGuid)}?${CARD_REVIEW_SEARCH_PARAM}=1`
-                  }
+                  to={collectionReviewPath(firstReviewCard.collectionGuid, isMobile)}
                 />
               )}
               {pendingTradeOffers.length > 0 && (

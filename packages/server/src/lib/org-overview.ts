@@ -20,6 +20,8 @@ import {
 import { authQuery, type Transaction } from "../db";
 import { cardPrices, collectionCards, collections, games } from "../db/schema";
 import {
+  cardPriceMoveOnDaySql,
+  collectionCardPriceMoveColumns,
   collectionCardPriceRiseSql,
   collectionCardPriceSql,
   collectionCardPricesJoinOn,
@@ -56,7 +58,7 @@ export async function loadOrgOverviewCards(
   tx: Transaction,
   orgId: string,
   pricing: OrgPricing,
-  { where, orderBy, limit }: OrgOverviewCardsQuery,
+  { where, orderBy, limit, latestPriceUpdateDay }: OrgOverviewCardsQuery,
 ): Promise<OrgOverviewCard[]> {
   const cardPrice = collectionCardPriceSql(pricing);
   const rows = await tx
@@ -69,6 +71,9 @@ export async function loadOrgOverviewCards(
       scannedAt: collectionCards.scannedAt,
       price: cardPrice,
       priceChangeSinceScan: collectionCardPriceRiseSql(pricing),
+      priceChangeInLatestUpdate: latestPriceUpdateDay
+        ? cardPriceMoveOnDaySql(pricing, collectionCardPriceMoveColumns(pricing), sql`${latestPriceUpdateDay}::date`)
+        : sql<number | null>`NULL::float8`,
       collectionLang: collections.lang,
       gameKey: games.key,
     })
@@ -98,6 +103,8 @@ export async function loadOrgOverviewCards(
     isFoil: row.isFoil,
     price: row.price == null ? null : Number(row.price),
     priceChangeSinceScan: row.priceChangeSinceScan == null ? null : Number(row.priceChangeSinceScan),
+    priceChangeInLatestUpdate:
+      row.priceChangeInLatestUpdate == null ? null : Number(row.priceChangeInLatestUpdate),
     scannedAt: row.scannedAt.toISOString(),
   }));
 }
