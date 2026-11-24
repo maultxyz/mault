@@ -111,6 +111,30 @@ export const DIGIMON_RARE_PRINTING_NAME_PATTERN =
 export const DIGIMON_RARITY_NONE = "None";
 export const DIGIMON_SET_ABBREVIATION_PATTERN = /^([A-Z]+)-0*(\d+)(_[A-Z]+)?$/;
 
+export const ELESTRALS_TCGPLAYER_CATEGORY_ID = 83;
+export const ELESTRALS_LANGUAGES = ["en"];
+export const ELESTRALS_EXT_KEYS = {
+  cardType: ["CardType", "cardType", "Card Type"],
+  elementType: ["ElementType", "elementType", "Element Type"],
+  subclass: ["Subclass", "subclass"],
+  runeType: ["RuneType", "runeType"],
+  attack: ["Attack", "attack"],
+  defense: ["Defense", "defense"],
+  description: ["Description", "description"],
+  artist: ["Artist", "artist"],
+} as const;
+export const ELESTRALS_PRODUCT_VARIANT_TAG_PATTERN = /\s*(?:\([^)]*\)|\[[^\]]*\])/g;
+export const ELESTRALS_COLLECTOR_NUMBER_SET_PATTERN = /^([A-Z]+\d*)-[A-Z]*\d+/;
+export const ELESTRALS_RARE_PRINTING_NAME_PATTERN =
+  "\\((?:Serialized|Seralized|Box Topper|Holo|Reverse Holo|Metal Card|[^)]*Stamp(?:ed)?|TOP \\d+|1ST|2ND|3RD|\\d+(?:st|nd|rd|th) Place|Champion)\\)";
+export const ELESTRALS_RARITY_NAMES: Record<string, string> = {
+  C: "Common",
+  UC: "Uncommon",
+  R: "Rare",
+  SR: "Stellar Rare",
+};
+export const ELESTRALS_SUBCLASS_SEPARATOR_PATTERN = /\s*;\s*/g;
+
 export const FAB_STANDARD_FOILING = "S";
 export const FAB_TCGPLAYER_FOIL_NAMES: Record<string, string> = {
   S: "Normal",
