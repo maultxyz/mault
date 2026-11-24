@@ -1,10 +1,11 @@
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { Callout } from "@/components/callout";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { usePlanSettingsDraft } from "@/features/admin/api/use-plan-settings-draft";
@@ -13,6 +14,7 @@ import {
   PLAN_GRID_CLASS,
   PLAN_LIMIT_FALLBACK,
 } from "@/lib/constants/admin-plans";
+import { PLAN_SETTINGS_SKELETON_ROWS } from "@/lib/constants/skeletons";
 import { cn } from "@/lib/utils";
 import {
   PLAN_FEATURE_KEYS,
@@ -42,8 +44,33 @@ export function PlanSettingsManager() {
 
   if (isLoading || !data) {
     return (
-      <SettingsSection heading={t("plans.featuresHeading")}>
-        <ListSkeleton />
+      <SettingsSection
+        heading={t("plans.featuresHeading")}
+        description={t("plans.featuresDescription")}
+      >
+        <SkeletonStatus>
+          <div className="divide-y divide-border">
+            <div className={cn(PLAN_GRID_CLASS, "px-3 py-2")}>
+              <span />
+              {PLAN_KEYS.map((plan) => (
+                <div key={plan} className="flex h-4 items-center">
+                  <Skeleton className="h-3 w-12" />
+                </div>
+              ))}
+            </div>
+            {Array.from({ length: PLAN_SETTINGS_SKELETON_ROWS }).map((_, index) => (
+              <div key={index} className={cn(PLAN_GRID_CLASS, "items-center px-3 py-2.5")}>
+                <div className="flex min-w-0 flex-col gap-1">
+                  <Skeleton className="h-3.5 w-2/5" />
+                  <Skeleton className="h-3 w-3/5" />
+                </div>
+                {PLAN_KEYS.map((plan) => (
+                  <Skeleton key={plan} className="h-6 w-10 rounded-full md:h-4 md:w-7" />
+                ))}
+              </div>
+            ))}
+          </div>
+        </SkeletonStatus>
       </SettingsSection>
     );
   }

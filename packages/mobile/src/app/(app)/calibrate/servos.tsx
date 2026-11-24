@@ -8,10 +8,10 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Pill } from "@/components/ui/pill";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useCalibration } from "@/features/calibration/api/use-calibration";
 import { FeederPanel } from "@/features/calibration/components/feeder-panel";
 import { ModuleCard } from "@/features/calibration/components/module-card";
+import { ModuleCardSkeleton } from "@/features/calibration/components/module-card-skeleton";
 import { useRetractCard } from "@/features/sorter/api/use-retract-card";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useTheme } from "@/hooks/use-theme";
@@ -127,10 +127,10 @@ export default function CalibrateScreen() {
           }
         />
         {state.isLoading && sorter.isConnected ? (
-          <View style={{ gap: SPACING.md }}>
-            <Skeleton height={320} />
-            <Skeleton height={320} />
-          </View>
+          <>
+            <ModuleCardSkeleton />
+            <ModuleCardSkeleton />
+          </>
         ) : (
           state.modules.map((module) => (
             <ModuleCard key={module} module={module} state={state} firmwareVersion={sorter.firmwareVersion} />

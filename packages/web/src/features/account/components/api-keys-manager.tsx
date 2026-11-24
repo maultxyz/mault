@@ -1,10 +1,10 @@
 import { EmptyState } from "@/components/empty-state";
 import { DeleteDialog } from "@/components/delete-dialog";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet } from "@/lib/api/client";
 import { localDelete, localPost } from "@/lib/auth/local-api";
 import type { ApiKey } from "@/lib/interfaces/account";
@@ -119,11 +119,7 @@ export function ApiKeysManager() {
         </Button>
       </div>
 
-      {isLoading && (
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-12 w-full" />
-        </div>
-      )}
+      {isLoading && <DividedRowsSkeleton rows={2} />}
 
       {!isLoading && activeKeys.length === 0 && (
         <EmptyState size="compact" icon={IconKey} title={t("apiKeys.empty")} />

@@ -61,7 +61,7 @@ export function SubjectShareLinks({ kind, subjectGuid, onSelect, onNew, showsCre
       {revokeAll.isError ? <Callout tone="destructive" title={t("shareLink.revokeFailed")} /> : null}
       {revokeAll.isSuccess && !hasLinks ? <Callout tone="success" title={t("shareLink.revoked")} /> : null}
       {links.isLoading ? (
-        <ListSkeleton rows={2} />
+        <ListSkeleton rows={2} hasSubtitle hasTrailing={false} />
       ) : hasLinks ? (
         <View style={{ marginHorizontal: -SCREEN_GUTTER, paddingHorizontal: SCREEN_GUTTER }}>
           <ShareLinkList

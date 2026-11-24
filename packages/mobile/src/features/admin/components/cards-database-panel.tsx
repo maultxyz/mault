@@ -78,7 +78,7 @@ export function CardsDatabasePanel() {
         {catalog.isError ? <Callout tone="destructive" title={t("admin.cards.database.loadFailed")} /> : null}
         {revectorizeResult ? <Callout tone={revectorizeResult.tone} title={revectorizeResult.message} /> : null}
         {catalog.isLoading ? (
-          <ListSkeleton rows={6} withIcon={false} />
+          <ListSkeleton rows={6} leading="none" hasSubtitle />
         ) : data && data.cards.length === 0 ? (
           <EmptyState icon="database" title={t("admin.cards.database.empty")} />
         ) : (

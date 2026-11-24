@@ -2,6 +2,7 @@ import { CompactPrice } from "@/components/compact-value";
 import { getInitials } from "@magic-vault/shared";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
+import { MobileListSkeleton } from "@/components/mobile-list-skeleton";
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobileSearchInput } from "@/components/mobile-search-input";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { CollectionChangeTrend } from "@/features/library/components/collection-
 import { LibraryValueModeTabs } from "@/features/library/components/library-value-mode-tabs";
 import type { LibraryValueMode } from "@/lib/interfaces/library";
 import { MOBILE_HOME_SEARCH_MIN_COLLECTIONS, monitorCollectionPath } from "@/lib/constants/collections";
+import { LIBRARY_COLLECTION_SKELETON_ROWS } from "@/lib/constants/library";
 import { MOBILE_LIST_CLASS, MOBILE_LIST_ROW_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { IconAlbum, IconPlus, IconScan } from "@tabler/icons-react";
@@ -57,10 +59,16 @@ export function LibraryCollectionList() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-2">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-16 rounded-card" />
-        ))}
+      <div className="flex flex-col gap-3 md:gap-2">
+        <div className="flex h-11 items-center gap-6 md:h-7 md:gap-4">
+          <Skeleton className="h-3.5 w-12" />
+          <Skeleton className="h-3.5 w-14" />
+        </div>
+        <MobileListSkeleton
+          rows={LIBRARY_COLLECTION_SKELETON_ROWS}
+          hasTrailing
+          rowClassName="min-h-16"
+        />
       </div>
     );
   }

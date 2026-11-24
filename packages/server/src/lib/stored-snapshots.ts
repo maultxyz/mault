@@ -6,7 +6,9 @@ import {
   STORED_SNAPSHOT_MINIMUM_MS_BETWEEN_REFRESHES,
   STORED_SNAPSHOT_REFRESH_SPACING_DURATION_FACTOR,
   STORED_SNAPSHOT_REFRESH_STATE_MAX_ENTRIES,
+  STORED_SNAPSHOT_PENDING_VERSION_PREFIX,
   STORED_SNAPSHOT_STALE_WAIT_MS,
+  STORED_SNAPSHOT_STATE_KEY_SEPARATOR,
 } from "./constants/stored-snapshots";
 import type {
   ComputedSnapshot,
@@ -102,6 +104,10 @@ async function computeAndStore<Payload>(
   }
 }
 
+function refreshStateKeyOf<Payload>(source: StoredSnapshotSource<Payload>): string {
+  return [source.stateKey, source.pricingKey, source.staleKey].join(STORED_SNAPSHOT_STATE_KEY_SEPARATOR);
+}
+
 function refreshStateOf(stateKey: string): StoredSnapshotRefreshState {
   const existing = refreshStateByKey.get(stateKey);
   if (existing) return existing;
@@ -147,13 +153,27 @@ export async function readStoredSnapshot<Payload>(
     };
   }
 
-  const state = refreshStateOf(
-    `${source.stateKey}\u0000${source.pricingKey}\u0000${source.staleKey}`,
-  );
+  const state = refreshStateOf(refreshStateKeyOf(source));
   const inFlight = state.inFlight as Promise<ComputedSnapshot<Payload>> | null;
   if (!stored || stored.pricingKey !== source.pricingKey) {
-    const computed = await (inFlight ?? startRefresh(source, state));
-    return { ...computed, isRefreshing: false };
+    const refresh = inFlight ?? startRefresh(source, state);
+    if (!source.pendingPayload) {
+      const computed = await refresh;
+      return { ...computed, isRefreshing: false };
+    }
+    const computed = await Promise.race([
+      refresh.catch((error: unknown) => {
+        console.error("Stored stats refresh failed:", error);
+        return null;
+      }),
+      waitMs(STORED_SNAPSHOT_STALE_WAIT_MS),
+    ]);
+    if (computed) return { ...computed, isRefreshing: false };
+    return {
+      payload: await source.pendingPayload(stored?.payload ?? null),
+      version: `${STORED_SNAPSHOT_PENDING_VERSION_PREFIX}${state.lastStartedAtMs}`,
+      isRefreshing: true,
+    };
   }
 
   const staleRead: StoredSnapshotRead<Payload> = {
@@ -170,6 +190,12 @@ export async function readStoredSnapshot<Payload>(
       ? startRefresh(source, state)
       : null);
   if (!refresh) return staleRead;
+  if (source.servesStaleWithoutWaiting) {
+    refresh.catch((error: unknown) => {
+      console.error("Stored stats refresh failed:", error);
+    });
+    return staleRead;
+  }
 
   const refreshed = await Promise.race([
     refresh.catch((error: unknown) => {
@@ -179,4 +205,12 @@ export async function readStoredSnapshot<Payload>(
     waitMs(STORED_SNAPSHOT_STALE_WAIT_MS),
   ]);
   return refreshed ? { ...refreshed, isRefreshing: false } : staleRead;
+}
+
+export async function refreshStoredSnapshot<Payload>(
+  source: StoredSnapshotSource<Payload>,
+): Promise<ComputedSnapshot<Payload>> {
+  const state = refreshStateOf(refreshStateKeyOf(source));
+  const inFlight = state.inFlight as Promise<ComputedSnapshot<Payload>> | null;
+  return inFlight ?? startRefresh(source, state);
 }

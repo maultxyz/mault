@@ -81,7 +81,12 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
   const filtered = query ? sorted.filter((collection) => collection.name.toLowerCase().includes(query)) : sorted;
   const overviewData = overview.data;
   const summary = overviewData
-    ? [pricing.formatCompact(overviewData.totalValue), t("collection.cardsCount", { count: overviewData.cardCount })].join(" · ")
+    ? [
+        overviewData.isValuePending ? null : pricing.formatCompact(overviewData.totalValue),
+        t("collection.cardsCount", { count: overviewData.cardCount }),
+      ]
+        .filter((part): part is string => part !== null)
+        .join(" · ")
     : null;
   const openNewCollection = () => router.push("/collection-new");
 
@@ -137,7 +142,7 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
       ) : null}
 
       {collectionsQuery.isPending ? (
-        <ListSkeleton rows={3} />
+        <ListSkeleton rows={5} hasSubtitle />
       ) : sorted.length === 0 ? (
         <EmptyState
           icon="collections"

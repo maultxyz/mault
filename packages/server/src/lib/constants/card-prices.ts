@@ -76,3 +76,39 @@ export const CC_ALIAS_SQL_COLUMNS: ScannedCardSqlColumns = {
 };
 
 export const STORED_SCANNED_PRICE_ALIAS = "stored_scanned_price";
+
+export const INVENTORY_GROUP_ALIAS = "ig";
+
+export const INVENTORY_GROUP_SQL_COLUMNS: ScannedCardSqlColumns = {
+  savedPrices: {
+    price: sql`ig.card_saved_price`,
+    priceFoil: sql`ig.card_saved_price_foil`,
+    priceEur: sql`ig.card_saved_price_eur`,
+    priceEurFoil: sql`ig.card_saved_price_eur_foil`,
+    priceCardKingdom: sql`ig.card_saved_price_card_kingdom`,
+    priceCardKingdomFoil: sql`ig.card_saved_price_card_kingdom_foil`,
+  },
+  cardLang: sql`ig.card_lang`,
+  isFoil: sql`ig.is_foil`,
+  foilType: sql`ig.foil_type`,
+  stamp: sql`ig.stamp`,
+  condition: sql`ig.condition`,
+  cardId: sql`ig.card_id`,
+  collectionId: sql`ig.collection_id`,
+};
+
+export const INVENTORY_GROUP_KEY_COLUMNS = [
+  "collection_id",
+  "card_id",
+  "card_lang",
+  "is_foil",
+  "foil_type",
+  "stamp",
+  "condition",
+  "card_saved_price",
+  "card_saved_price_foil",
+  "card_saved_price_eur",
+  "card_saved_price_eur_foil",
+  "card_saved_price_card_kingdom",
+  "card_saved_price_card_kingdom_foil",
+] as const;

@@ -1,6 +1,6 @@
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -112,7 +112,7 @@ export function DeletedItemsManager() {
       </div>
 
       {itemsQuery.isLoading ? (
-        <ListSkeleton rows={6} />
+        <DividedRowsSkeleton rows={6} leading="none" hasTitleBadge rowClassName="px-4 py-2.5" />
       ) : items.length === 0 ? (
         <EmptyState
           size="compact"

@@ -593,6 +593,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
 
   const {
     status: phonePairingStatus,
+    phoneCapturesWhenCardSettles,
     start: startPhonePairingInternal,
     stop: stopPhonePairingInternal,
     requestCapture: requestPhoneCapture,
@@ -733,6 +734,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         phonePairingUrl,
         startPhonePairing,
         stopPhonePairing,
+        phoneCapturesWhenCardSettles,
         requestPhoneCapture,
         sendPhoneScanRegion,
         documentScannerOptions,

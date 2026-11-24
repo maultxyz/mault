@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CardSearchPicker } from "@/features/cards/components/card-search-picker";
+import { CardSearchResultSkeletonGrid } from "@/features/cards/components/card-search-result-skeleton-grid";
 import { unmatchedCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { invalidateUnmatchedCards } from "@/features/collections/lib/card-page-cache";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
@@ -152,14 +153,26 @@ export function UnmatchedCardDetail({
             className="flex-1"
           />
         ) : !entry ? (
-          <div className="flex flex-col gap-6 md:gap-2 @2xl:flex-row">
-            <Skeleton className="aspect-[2.5/3.5] w-48 rounded-lg @2xl:w-56" />
-            <div className="flex flex-1 flex-col gap-2">
-              <Skeleton className="h-5 w-48 rounded-md" />
-              <Skeleton className="h-9 w-full rounded-md" />
-              <Skeleton className="h-40 w-full rounded-md" />
+          <>
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <Skeleton className="h-4 w-48 rounded-sm" />
+              <Skeleton className="h-3.5 w-40 rounded-sm" />
             </div>
-          </div>
+            <div className="flex flex-col gap-6 md:gap-2 @2xl:flex-row">
+              <div className="flex w-full flex-none flex-col gap-3 @2xl:w-64">
+                <Skeleton className="aspect-[2.5/3.5] w-48 rounded-lg @2xl:w-full" />
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <Skeleton className="h-3.5 w-3/4 rounded-sm" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-7 flex-1 rounded-lg max-md:h-11" />
+                  <Skeleton className="h-7 w-24 shrink-0 rounded-lg max-md:h-11" />
+                  <Skeleton className="h-7 w-24 shrink-0 rounded-lg max-md:h-11" />
+                </div>
+                <CardSearchResultSkeletonGrid count={6} />
+              </div>
+            </div>
+          </>
         ) : (
           <>
             <div className="min-w-0">

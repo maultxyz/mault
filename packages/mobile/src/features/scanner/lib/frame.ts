@@ -64,11 +64,11 @@ async function cropToCoveredAspectRatio(image: Image, visibleAspectRatio: number
   return image.cropAsync(0, startY, image.width, startY + croppedHeight);
 }
 
-export async function captureFrame(
+export async function capturePhotoImage(
   output: CameraPhotoOutput,
   workingLongSide: number = WORKING_LONG_SIDE,
   coverPreviewAspectRatio?: number,
-): Promise<CapturedFrame> {
+): Promise<Omit<CapturedFrame, "pixels">> {
   const photo = await output.capturePhoto({ flashMode: "off", enableShutterSound: false }, {});
   let full: Image;
   try {
@@ -80,6 +80,15 @@ export async function captureFrame(
   const scale = longSide > workingLongSide ? workingLongSide / longSide : 1;
   const resized = await full.resizeAsync(Math.round(full.width * scale), Math.round(full.height * scale));
   const image = coverPreviewAspectRatio ? await cropToCoveredAspectRatio(resized, coverPreviewAspectRatio) : resized;
+  return { image, scale };
+}
+
+export async function captureFrame(
+  output: CameraPhotoOutput,
+  workingLongSide: number = WORKING_LONG_SIDE,
+  coverPreviewAspectRatio?: number,
+): Promise<CapturedFrame> {
+  const { image, scale } = await capturePhotoImage(output, workingLongSide, coverPreviewAspectRatio);
   return { image, pixels: await imageToRgba(image), scale };
 }
 
@@ -120,11 +129,6 @@ export async function encodeJpegDataUrl(pixels: RgbaImage, quality: number): Pro
 
 export async function writeJpegTempFile(pixels: RgbaImage, quality: number): Promise<string> {
   return imageToJpegTempFile(await rgbaToImage(pixels), quality);
-}
-
-export async function imageToJpegDataUrl(image: Image, quality: number): Promise<string> {
-  const encoded = await image.toEncodedImageDataAsync("jpg", quality);
-  return `data:image/jpeg;base64,${bytesToBase64(new Uint8Array(encoded.buffer))}`;
 }
 
 export async function imageToJpegTempFile(image: Image, quality: number): Promise<string> {

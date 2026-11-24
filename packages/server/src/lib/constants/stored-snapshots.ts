@@ -9,3 +9,6 @@ export const ORG_CARD_STATS_ADVISORY_LOCK_NAME = "org_card_stats";
 export const COLLECTION_CARD_STATS_STALE_KEY = "";
 export const ORG_CARD_VALUE_SUMMARY_VARIANT = "value-summary";
 export const STATS_REPORT_VARIANT_PREFIX = "stats-report";
+export const ORG_WIDGET_PICKS_VARIANT = "widget-picks";
+export const STORED_SNAPSHOT_PENDING_VERSION_PREFIX = "pending:";
+export const STORED_SNAPSHOT_STATE_KEY_SEPARATOR = "\u0000";

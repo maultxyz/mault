@@ -1,7 +1,8 @@
+import { File } from "expo-file-system";
 import { useEffect, useRef, useState } from "react";
 import EventSource from "react-native-sse";
 import type { PhoneCameraMessage, ScanRegion } from "@magic-vault/shared";
-import { postPhoneCameraSignal } from "@/features/scanner/api/phone-camera";
+import { postPhoneCameraSignal, uploadPhoneCameraCapture } from "@/features/scanner/api/phone-camera";
 import { getRequestAuth } from "@/lib/api/client";
 import { API_BASE } from "@/lib/constants/config";
 import { STREAM_RECONNECT_DELAY_MS } from "@/lib/constants/monitor";
@@ -25,6 +26,7 @@ export function usePhoneCameraResponder({
     let source: EventSource<string> | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     let cancelled = false;
+    let latestRequestId: string | null = null;
     const send = (message: PhoneCameraMessage) => void postPhoneCameraSignal(collectionGuid, message).catch(() => {});
 
     const handle = async (message: PhoneCameraMessage) => {
@@ -37,10 +39,19 @@ export function usePhoneCameraResponder({
         return;
       }
       if (message.kind !== "capture_requested" || !message.requestId) return;
-      const imageDataUrl = await captureRef.current().catch(() => null);
-      if (!imageDataUrl || cancelled) return;
-      send({ kind: "capture_response", requestId: message.requestId, imageDataUrl });
+      const requestId = message.requestId;
+      latestRequestId = requestId;
+      const isSuperseded = () => cancelled || latestRequestId !== requestId;
+      const imageUri = await captureRef
+        .current({ maxCardSettleWaitMs: message.maxCardSettleWaitMs ?? 0, isSuperseded })
+        .catch(() => null);
+      if (!imageUri || isSuperseded()) return;
       setCapturedCount((count) => count + 1);
+      await uploadPhoneCameraCapture(collectionGuid, requestId, imageUri).catch(() => {});
+      try {
+        const file = new File(imageUri);
+        if (file.exists) file.delete();
+      } catch {}
     };
 
     const connect = async () => {
@@ -67,8 +78,9 @@ export function usePhoneCameraResponder({
     };
 
     void connect();
-    send({ kind: "camera_ready" });
-    const heartbeat = setInterval(() => send({ kind: "camera_ready" }), PHONE_CAMERA_HEARTBEAT_MS);
+    const announceReady = () => send({ kind: "camera_ready", capturesWhenCardSettles: true });
+    announceReady();
+    const heartbeat = setInterval(announceReady, PHONE_CAMERA_HEARTBEAT_MS);
     return () => {
       cancelled = true;
       clearInterval(heartbeat);

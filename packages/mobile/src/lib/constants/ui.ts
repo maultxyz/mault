@@ -63,6 +63,9 @@ export const CAMERA_TEXT_SHADOW = {
 } as const;
 export const MULTILINE_INPUT_MIN_HEIGHT = 200;
 export const LIST_SKELETON_TITLE_WIDTHS = ["55%", "45%", "35%"] as const;
+export const LIST_SKELETON_SUBTITLE_WIDTHS = ["35%", "25%", "30%"] as const;
+export const SECTION_SKELETON_HEADER_MIN_HEIGHT = 28;
+export const SWITCH_ROW_SKELETON_SWITCH_SIZE = { width: 51, height: 31 } as const;
 export const PILL_MIN_HEIGHT = 20;
 export const SHEET_MAX_HEIGHT_RATIO = 0.85;
 export const IOS_SHEET_TOP_PADDING = 24;

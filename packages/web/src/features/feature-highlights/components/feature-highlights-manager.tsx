@@ -1,10 +1,10 @@
 import { DeleteDialog } from "@/components/delete-dialog";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   adminFeatureHighlightsQueryOptions,
   createAdminFeatureHighlight,
@@ -14,6 +14,7 @@ import {
 import { FeatureHighlightFormDialog } from "@/features/feature-highlights/components/feature-highlight-form-dialog";
 import { adminFeatureHighlightInputOf } from "@/features/feature-highlights/lib/feature-highlight-slides";
 import { FEATURE_HIGHLIGHTS_QUERY_KEY } from "@/lib/constants/feature-highlights";
+import { TWO_ICON_BUTTONS_SKELETON_TRAILING } from "@/lib/constants/skeletons";
 import { toast } from "@/lib/toast";
 import type { FeatureHighlightFormValues } from "@/schemas/feature-highlights.schema";
 import type { AdminFeatureHighlight } from "@magic-vault/shared";
@@ -113,7 +114,12 @@ export function FeatureHighlightsManager() {
       }
     >
       {highlightsQuery.isLoading ? (
-        <Skeleton className="h-24 rounded-lg" />
+        <DividedRowsSkeleton
+          leading="none"
+          hasTitleBadge
+          trailing={TWO_ICON_BUTTONS_SKELETON_TRAILING}
+          rowClassName="px-4 py-2.5 md:px-2.5 md:py-2"
+        />
       ) : highlightsQuery.isError && !highlightsQuery.data ? (
         <LoadErrorCallout
           message={t("featureHighlights.loadFailed")}

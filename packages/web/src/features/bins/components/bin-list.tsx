@@ -1,9 +1,8 @@
 import { LoadErrorCallout } from "@/components/load-error-callout";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
 import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { BinCard } from "@/features/bins/components/bin-card";
+import { BinListSkeleton } from "@/features/bins/components/bin-list-skeleton";
 import { useOrg } from "@/features/companies/api/use-organization";
 import type { BinListProps } from "@/lib/interfaces/bins";
 import {
@@ -80,18 +79,7 @@ export function BinList({ onOpenBin }: BinListProps) {
   ];
 
   if (isLoading) {
-    return (
-      <ScrollArea>
-        <div className="flex flex-col overflow-hidden rounded-card bg-card">
-          {Array.from({ length: configs.length || 7 }).map((_, i) => (
-            <Skeleton
-              key={i}
-              className="h-13 rounded-none border-b last:border-b-0"
-            />
-          ))}
-        </div>
-      </ScrollArea>
-    );
+    return <BinListSkeleton />;
   }
 
   if (isError && configs.length === 0) {

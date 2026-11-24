@@ -1,3 +1,4 @@
+import type { TableSkeletonColumn } from "@/lib/interfaces/skeletons";
 import type {
   BusinessBadgeVariant,
   BusinessStatus,
@@ -204,3 +205,56 @@ export const BUY_START_DEFAULT_VALUES: BuyStartFormValues = {
   collectionGuid: "",
   storageLocationGuid: "",
 };
+
+export const ACCURACY_CHECKS_SKELETON_COLUMNS: readonly TableSkeletonColumn[] = [
+  { barClassName: "w-24" },
+  { barClassName: "w-20" },
+  { barClassName: "w-10", alignsEnd: true },
+  { barClassName: "w-10", alignsEnd: true },
+  { barClassName: "w-20" },
+  { barClassName: "w-14" },
+];
+
+export const STAFF_THROUGHPUT_SKELETON_COLUMNS: readonly TableSkeletonColumn[] = [
+  { barClassName: "w-24" },
+  { barClassName: "w-10", alignsEnd: true },
+  { barClassName: "w-10", alignsEnd: true },
+  { barClassName: "w-10", alignsEnd: true },
+  { barClassName: "w-10", alignsEnd: true },
+  { barClassName: "w-24" },
+];
+
+export const STAFF_ACTIVITY_SKELETON_COLUMNS: readonly TableSkeletonColumn[] = [
+  { barClassName: "w-24" },
+  { barClassName: "w-20" },
+  { barClassName: "w-3/4", className: "flex-[3]" },
+];
+
+export const SALES_SKELETON_COLUMNS: readonly TableSkeletonColumn[] = [
+  { barClassName: "w-20" },
+  { barClassName: "w-32", className: "flex-[2]" },
+  { barClassName: "w-12", alignsEnd: true },
+  { barClassName: "w-12", alignsEnd: true },
+  { barClassName: "w-12", alignsEnd: true },
+  { barClassName: "w-16" },
+  { barClassName: "w-20" },
+];
+
+export const INTAKE_CARDS_SKELETON_COLUMNS: readonly TableSkeletonColumn[] = [
+  { barClassName: "w-32", className: "flex-[2]" },
+  { barClassName: "w-24" },
+  { barClassName: "w-10" },
+  { barClassName: "w-12", alignsEnd: true },
+  { barClassName: "w-12", alignsEnd: true },
+];
+
+export const BUSINESS_TABLE_SKELETON_ROWS = 6;
+export const BUSINESS_DETAIL_SKELETON_ROWS = 8;
+export const BUSINESS_OVERVIEW_SECTION_SKELETON_COUNT = 4;
+export const PICK_SKELETON_ROWS = 4;
+export const FLEET_DEVICE_SKELETON_COUNT = 3;
+export const FLEET_ALERT_SKELETON_ROWS = 3;
+export const BUSINESS_OVERVIEW_HIGHLIGHT_SKELETON_COUNT = 2;
+export const BUSINESS_OVERVIEW_CHART_SKELETON_COUNT = 2;
+export const SCANNER_BUY_RECENT_CARDS_SKELETON_ROWS = 3;
+export const SHOP_CATALOG_SKELETON_ROWS = 2;

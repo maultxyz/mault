@@ -38,7 +38,9 @@
     "upgradeYourPlan": "Changez d'offre",
     "upgradeShort": "Changer",
     "home": "Accueil",
-    "library": "Bibliothèque"
+    "library": "Bibliothèque",
+    "tradeOfferFrom": "Échange de {{name}}",
+    "reservationFrom": "Réservation de {{name}}"
   },
   "alerts": {
     "dismiss": "Ignorer",

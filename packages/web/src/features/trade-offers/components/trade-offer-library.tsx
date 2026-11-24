@@ -1,7 +1,7 @@
 import { CompactValue } from "@/components/compact-value";
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { TradeOfferListSkeleton } from "@/features/trade-offers/components/trade-offer-list-skeleton";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import { StatusMessagesSwitch } from "@/features/status-messages/components/stat
 import { GuestKindBadge } from "@/components/guest-kind-badge";
 import {
   TRADE_OFFER_STATUS_BADGE_VARIANTS,
-  TRADE_OFFERS_SKELETON_ROWS,
   TRADES_BOX_PARAM,
   TRADES_BOXES,
   tradeOfferPath,
@@ -126,7 +125,7 @@ function ReceivedTradeOfferList() {
   const answeredOffers = newestFirst.filter((offer) => !isOpen(offer));
 
   if (offers.isPending) {
-    return <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />;
+    return <TradeOfferListSkeleton hasHeading />;
   }
 
   if (offers.isError) {

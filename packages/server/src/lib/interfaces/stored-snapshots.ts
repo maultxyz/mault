@@ -21,6 +21,8 @@ export interface StoredSnapshotSource<Payload> {
     computeStartedAt: string,
     computeDurationMs: number,
   ) => Promise<void>;
+  pendingPayload?: (previousPayload: Payload | null) => Promise<Payload>;
+  servesStaleWithoutWaiting?: boolean;
 }
 
 export interface ComputedSnapshot<Payload> {
@@ -54,4 +56,6 @@ export interface StoredOrgCardStatsInput<Payload> {
   pricingKey: string;
   day: string;
   compute: () => Promise<Payload>;
+  pendingPayload?: (previousPayload: Payload | null) => Promise<Payload>;
+  servesStaleWithoutWaiting?: boolean;
 }

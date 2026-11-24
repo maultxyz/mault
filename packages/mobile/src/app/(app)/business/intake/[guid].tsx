@@ -11,13 +11,14 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
 import {
@@ -28,6 +29,7 @@ import {
   intakeLotQueryOptions,
 } from "@/features/business/api/business";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
+import { BusinessDetailSkeleton } from "@/features/business/components/business-detail-skeleton";
 import { BusinessTipsButton } from "@/features/business/components/business-tips-button";
 import { BusinessTipsSheet } from "@/features/business/components/business-tips-sheet";
 import { useBusinessTips } from "@/features/business/lib/use-business-tips";
@@ -163,7 +165,12 @@ export default function IntakeLotScreen() {
       }
     >
       {lotQuery.isPending ? (
-        <PageSkeleton />
+        <BusinessDetailSkeleton pillCount={2} statTileCount={2} hasStatHeading>
+          <ListSkeleton rows={2} hasSubtitle hasTrailing={false} />
+          <SectionSkeleton>
+            <ListSkeleton rows={3} leading="thumbnail" hasSubtitle />
+          </SectionSkeleton>
+        </BusinessDetailSkeleton>
       ) : !lot && !(lotQuery.error instanceof ApiResultError) ? (
         <QueryErrorState onRetry={() => void lotQuery.refetch()} isRetrying={lotQuery.isFetching} />
       ) : !lot ? (
@@ -268,7 +275,9 @@ export default function IntakeLotScreen() {
                 onRetry={() => void cards.refetch()}
                 isRetrying={cards.isFetching}
               />
-            ) : cards.isPending ? null : cardItems.length === 0 ? (
+            ) : cards.isPending ? (
+              <ListSkeleton rows={3} leading="thumbnail" hasSubtitle />
+            ) : cardItems.length === 0 ? (
               <AppText size="sm" tone="secondary">
                 {isOpen ? t("business.intake.noCardsOpen") : t("business.intake.noCardsClosed")}
               </AppText>

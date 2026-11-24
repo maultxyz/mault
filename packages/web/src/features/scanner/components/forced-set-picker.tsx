@@ -126,7 +126,14 @@ export function ForcedSetPicker({ open, onOpenChange }: ForcedSetPickerProps) {
             active={forceSetCodes.length === 0}
             onSelect={chooseAnySet}
           />
-          {isLoading && <ListSkeleton className="py-1" />}
+          {isLoading && (
+            <ListSkeleton
+              rows={6}
+              hasTrailing
+              className="gap-0.5"
+              rowClassName="px-2 py-1.5"
+            />
+          )}
           {!isLoading && filtered.length === 0 && (
             <p className="px-2 py-3 text-center text-xs text-foreground/70">
               {t("scannerControls.noSets")}

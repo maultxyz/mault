@@ -93,6 +93,7 @@ export class PiControllerHub {
   private sequence = 0;
   private emergencyStops = new Map<number, PiControllerCommand>();
   private status: Record<string, unknown> | null = null;
+  private suspendedForUpdate = false;
 
   constructor(
     private createPort: PiControllerPortFactory,
@@ -103,7 +104,26 @@ export class PiControllerHub {
     return this.exclusiveOwner ?? (this.clients.size ? "bridge" : null);
   }
 
+  suspendForUpdate(): () => void {
+    if (
+      this.suspendedForUpdate ||
+      this.opening ||
+      this.exclusiveOwner ||
+      (this.active && !this.active.readOnly) ||
+      this.queue.some((command) => !command.readOnly) ||
+      this.emergencyStops.size
+    ) {
+      throw new Error("busy");
+    }
+    this.suspendedForUpdate = true;
+    this.shutdown();
+    return () => {
+      this.suspendedForUpdate = false;
+    };
+  }
+
   async open(owner: SorterPortOwner): Promise<PiControllerClient> {
+    if (this.suspendedForUpdate) throw new Error("busy");
     if (owner !== "bridge") {
       if (this.exclusiveOwner || (this.active && !this.active.readOnly)) {
         throw new Error("busy");

@@ -115,7 +115,7 @@ function DeletedItemsScreen() {
         ListEmptyComponent={
           deletedItems.isPending ? (
             <View style={{ paddingHorizontal: SCREEN_GUTTER }}>
-              <ListSkeleton rows={6} />
+              <ListSkeleton rows={6} leading="none" hasSubtitle />
             </View>
           ) : deletedItems.isError ? (
             <View style={{ paddingHorizontal: SCREEN_GUTTER }}>

@@ -27,3 +27,4 @@ export const MATCH_VALIDATION_GUIDE_ITEMS: readonly MatchValidationGuideItem[] =
   { key: "badScan", icon: "trash" },
   { key: "skip", icon: "arrowRight" },
 ];
+export const MATCH_VALIDATION_SCAN_SKELETON_ROWS = 4;

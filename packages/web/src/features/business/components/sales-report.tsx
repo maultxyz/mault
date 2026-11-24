@@ -4,7 +4,10 @@ import { BUSINESS_SALES_TOUR } from "@/features/business/lib/business-tours";
 import { CompactPrice } from "@/components/compact-value";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { MobileListSkeleton } from "@/components/mobile-list-skeleton";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { StatGroupSkeleton } from "@/components/stat-group-skeleton";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MissingPrice } from "@/components/missing-price";
 import { MobilePageHeader } from "@/components/mobile-page-header";
@@ -35,6 +38,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { downloadBlob } from "@/lib/download";
 import {
   intakeLotPath,
+  SALES_SKELETON_COLUMNS,
   SALES_TABLE_SKELETON_ROWS,
 } from "@/lib/constants/business";
 import {
@@ -208,7 +212,29 @@ function SalesReportBody({ filters }: SalesReportBodyProps) {
   const showsCosts = access?.canViewCosts ?? false;
   const report = useQuery(salesReportQueryOptions(orgId, filters, page, !!access));
 
-  if (report.isPending) return <ListSkeleton rows={SALES_TABLE_SKELETON_ROWS} />;
+  if (report.isPending) {
+    return (
+      <>
+        <StatGroupSkeleton
+          tiles={showsCosts ? 5 : 2}
+          gridClassName={cn("grid-cols-2", showsCosts ? "sm:grid-cols-3 lg:grid-cols-5" : "sm:grid-cols-2")}
+          hasIcons
+        />
+        {isMobile ? (
+          <MobileListSkeleton
+            rows={SALES_TABLE_SKELETON_ROWS}
+            leading="none"
+            hasTrailing
+            rowClassName="py-3"
+          />
+        ) : (
+          <SkeletonStatus>
+            <TableSkeleton columns={SALES_SKELETON_COLUMNS} rows={SALES_TABLE_SKELETON_ROWS} />
+          </SkeletonStatus>
+        )}
+      </>
+    );
+  }
   if (report.isError || !report.data) {
     return (
       <LoadErrorCallout message={t("errors.loadFailed")} onRetry={() => void report.refetch()} />

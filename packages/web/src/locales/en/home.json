@@ -6,7 +6,8 @@
     "collections": "Collections",
     "scanned": "Scanned all time",
     "sinceYesterday": "since yesterday",
-    "sinceDate": "since {{date}}"
+    "sinceDate": "since {{date}}",
+    "valueCalculating": "Calculating…"
   },
   "review": {
     "title_one": "{{count}} scan needs review",

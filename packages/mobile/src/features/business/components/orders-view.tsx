@@ -16,6 +16,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SectionHeaderSkeleton } from "@/components/ui/section-header-skeleton";
 import { BusinessListSearch } from "@/features/business/components/business-list-search";
 import { BusinessStatusFilter } from "@/features/business/components/business-status-filter";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -84,7 +85,10 @@ export function OrdersView({ canAct }: BusinessListViewProps) {
     return (
       <View style={{ gap: SPACING.lg }}>
         {searchInput}
-        <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />
+        <View style={{ gap: SPACING.sm }}>
+          <SectionHeaderSkeleton />
+          <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} hasSubtitle subtitleLines={2} />
+        </View>
       </View>
     );
   }

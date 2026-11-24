@@ -2,7 +2,6 @@ import { EmptyState } from "@/components/empty-state";
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
 import {
@@ -15,6 +14,7 @@ import {
   matchValidationQueueQueryOptions,
   saveMatchValidation,
 } from "@/features/match-validations/api/match-validations";
+import { MatchValidationQueueSkeleton } from "@/features/match-validations/components/match-validation-skeletons";
 import { ReviewProgress } from "@/features/match-validations/components/review-progress";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import type { MatchValidationGameFilterProps } from "@/lib/interfaces/match-validations";
@@ -107,10 +107,7 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
       </div>
 
       {queueQuery.isPending || isLoadingMore ? (
-        <div className="grid w-full grid-cols-2 gap-3 md:max-w-xl">
-          <Skeleton className="aspect-[2.5/3.5] w-full rounded-lg" />
-          <Skeleton className="aspect-[2.5/3.5] w-full rounded-lg" />
-        </div>
+        <MatchValidationQueueSkeleton />
       ) : !current ? (
         <EmptyState
           icon={IconCircleCheck}

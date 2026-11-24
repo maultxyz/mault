@@ -38,7 +38,9 @@
     "upgradeYourPlan": "Tarif upgraden",
     "upgradeShort": "Upgrade",
     "home": "Start",
-    "library": "Bibliothek"
+    "library": "Bibliothek",
+    "tradeOfferFrom": "Tausch von {{name}}",
+    "reservationFrom": "Reservierung von {{name}}"
   },
   "alerts": {
     "dismiss": "Verwerfen",

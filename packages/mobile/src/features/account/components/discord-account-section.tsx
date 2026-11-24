@@ -88,7 +88,7 @@ export function DiscordAccountSection({ onMessage }: DiscordAccountSectionProps)
     <SettingsSection title={t("account.profile.discord.heading")} description={t("account.profile.discord.description")}>
       {link.isError && !link.data ? <Callout tone="destructive" title={t("account.profile.discord.loadFailed")} /> : null}
       {link.isPending ? (
-        <ListSkeleton rows={1} />
+        <ListSkeleton rows={1} hasTrailing={false} />
       ) : link.data ? (
         <ListGroup>
           <ListRow

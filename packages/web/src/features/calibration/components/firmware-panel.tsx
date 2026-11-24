@@ -7,6 +7,7 @@ import { useSerial } from "@/features/scanner/api/use-serial";
 import { Esp32FlashDialog } from "@/features/scanner/components/esp32-flash-dialog";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
 import { useLatestFirmwareVersion } from "@/hooks/use-latest-firmware-version";
+import { usePiHostState } from "@/hooks/use-pi-host";
 import { FIRMWARE_RELEASES_URL } from "@/lib/constants/links";
 import { isFirmwareVersionOutdated } from "@magic-vault/shared";
 import { IconDownload, IconExternalLink } from "@tabler/icons-react";
@@ -25,6 +26,7 @@ export function FirmwarePanel() {
   } = useSerial();
   const { isSupported: webSerialSupported } = useNewBoardFlash();
   const latestFirmwareVersion = useLatestFirmwareVersion();
+  const { piSorter } = usePiHostState();
   const [connectedFlashOpen, setConnectedFlashOpen] = useState(false);
   const [newBoardFlashOpen, setNewBoardFlashOpen] = useState(false);
 
@@ -46,7 +48,7 @@ export function FirmwarePanel() {
     ? (firmwareVersion ?? t("firmware.unknownVersion"))
     : t("firmware.notConnected");
 
-  const action = isEsp32OverUsb ? (
+  const action = piSorter ? null : isEsp32OverUsb ? (
     <Button onClick={() => setConnectedFlashOpen(true)}>
       <IconDownload />
       {t("firmware.flashConnected")}
@@ -74,7 +76,7 @@ export function FirmwarePanel() {
   return (
     <SettingsSection
       heading={t("firmware.title")}
-      description={t("firmware.description")}
+      description={t(piSorter ? "firmware.piDescription" : "firmware.description")}
       action={action}
     >
       <div className="grid grid-cols-2 gap-2">
@@ -91,7 +93,7 @@ export function FirmwarePanel() {
         </div>
         <div className="flex flex-col gap-1 rounded-lg bg-foreground/6 px-3 py-2">
           <span className="text-xs text-foreground/70">
-            {t("firmware.latest")}
+            {t(piSorter ? "firmware.bundled" : "firmware.latest")}
           </span>
           <span className="text-sm font-medium">
             {latestFirmwareVersion ?? t("firmware.unknownVersion")}
@@ -105,15 +107,19 @@ export function FirmwarePanel() {
         <Callout variant="info">{t("firmware.cloudNote")}</Callout>
       )}
       {isUno && <Callout variant="info">{t("firmware.unoNote")}</Callout>}
-      <Esp32FlashDialog
-        open={connectedFlashOpen}
-        onOpenChange={setConnectedFlashOpen}
-      />
-      <NewBoardFlashDialog
-        open={newBoardFlashOpen}
-        onOpenChange={setNewBoardFlashOpen}
-        onConnect={() => void connect()}
-      />
+      {!piSorter && (
+        <>
+          <Esp32FlashDialog
+            open={connectedFlashOpen}
+            onOpenChange={setConnectedFlashOpen}
+          />
+          <NewBoardFlashDialog
+            open={newBoardFlashOpen}
+            onOpenChange={setNewBoardFlashOpen}
+            onConnect={() => void connect()}
+          />
+        </>
+      )}
     </SettingsSection>
   );
 }

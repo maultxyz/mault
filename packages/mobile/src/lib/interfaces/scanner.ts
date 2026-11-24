@@ -408,7 +408,12 @@ export interface CameraChoice {
 export interface PhoneCameraResponderOptions {
   collectionGuid: string;
   enabled: boolean;
-  capture: () => Promise<string | null>;
+  capture: (request: PhoneCameraCaptureRequest) => Promise<string | null>;
+}
+
+export interface PhoneCameraCaptureRequest {
+  maxCardSettleWaitMs: number;
+  isSuperseded: () => boolean;
 }
 
 export interface PhoneCameraResponder {

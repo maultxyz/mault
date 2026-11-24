@@ -192,7 +192,7 @@ export function ShopCatalogsSettings() {
       </SettingsSection>
 
       <SettingsSection title={t("settings.shopCatalogs.heading")} description={t("settings.shopCatalogs.description")}>
-        {list.isLoading ? <ListSkeleton rows={2} /> : null}
+        {list.isLoading ? <ListSkeleton rows={2} hasSubtitle hasTrailing={false} /> : null}
         {list.data && catalogs.length === 0 ? <EmptyState icon="store" title={t("settings.shopCatalogs.empty")} /> : null}
         {!list.isLoading && (catalogs.length > 0 || !locked) ? (
           <ListGroup>

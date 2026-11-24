@@ -9,7 +9,7 @@ import { PRINT_FILES_URL, SHOP_URL } from "@/lib/constants/links";
 import { STORAGE_PATH } from "@/lib/constants/storage";
 import type { PlanGatedPath, PublicNavEntry } from "@/lib/interfaces/nav";
 
-export const NAV_SUBITEMS_LIMIT = 5;
+export const LIBRARY_NAV_ITEMS_PER_GROUP = 2;
 
 export const SIDEBAR_IDLE_ITEM_CLASS =
   "text-sidebar-foreground hover:bg-sidebar-accent dark:hover:bg-sidebar-accent aria-expanded:bg-sidebar-accent";

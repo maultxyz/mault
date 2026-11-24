@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { CardThumbnail } from "@/components/card-thumbnail";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { PickRowsSkeleton } from "@/features/business/components/pick-rows-skeleton";
 import {
   storageLocationCardPageQueryOptions,
 } from "@/features/storage/api/storage-locations";
@@ -160,7 +161,9 @@ export function PickContainerView({
           })}
         </div>
       ) : cardsQuery.isLoading ? (
-        <ListSkeleton rows={6} />
+        <SkeletonStatus>
+          <PickRowsSkeleton rows={6} />
+        </SkeletonStatus>
       ) : cardsQuery.data ? (
         <>
           <p className="text-xs tabular-nums text-foreground/70" role="status">

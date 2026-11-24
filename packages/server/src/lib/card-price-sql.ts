@@ -183,17 +183,25 @@ export function cardWithStoredPricesSql(
   return sql`(${card} || ${cardPricesAtScanJsonSql(card)} || COALESCE(${prices}, '{}'::jsonb))`;
 }
 
-export function collectionCardPriceRiseSql(pricing: OrgPricing): SQL<number | null> {
+export function joinedScannedCardPriceRiseSql(
+  pricing: OrgPricing,
+  cols: ScannedCardSqlColumns,
+  cardPricesAlias: string,
+): SQL<number | null> {
   const noPrice = () => sql`NULL::float8`;
   const currentPrice = scannedPriceFrom(
     pricing,
-    COLLECTION_CARD_SQL_COLUMNS,
-    (key) => sql.raw(`card_prices.${CARD_PRICE_COLUMNS[key]}`),
+    cols,
+    (key) => sql.raw(`${cardPricesAlias}.${CARD_PRICE_COLUMNS[key]}`),
     noPrice,
     noPrice,
   );
-  const priceAtScan = scannedPriceFrom(pricing, COLLECTION_CARD_SQL_COLUMNS, noPrice, noPrice, noPrice);
+  const priceAtScan = scannedPriceFrom(pricing, cols, noPrice, noPrice, noPrice);
   return sql<number | null>`(${currentPrice} - ${priceAtScan})`;
+}
+
+export function collectionCardPriceRiseSql(pricing: OrgPricing): SQL<number | null> {
+  return joinedScannedCardPriceRiseSql(pricing, COLLECTION_CARD_SQL_COLUMNS, "card_prices");
 }
 
 function cardPriceHistoryValueSql(
@@ -213,15 +221,19 @@ function cardPriceHistoryValueSql(
   )`;
 }
 
+export function hasCurrentFoilPriceSql(pricing: OrgPricing, cardPricesAlias: string): SQL<boolean> {
+  const currentFoilPrice = sql.raw(`${cardPricesAlias}.${CARD_PRICE_COLUMNS[PRICE_SOURCE_FIELDS[pricing.source].priceFoil]}`);
+  return sql<boolean>`(${currentFoilPrice} IS NOT NULL)`;
+}
+
 export function collectionCardPriceMoveColumns(pricing: OrgPricing): CardPriceMoveColumns {
-  const currentFoilPrice = sql.raw(`card_prices.${CARD_PRICE_COLUMNS[PRICE_SOURCE_FIELDS[pricing.source].priceFoil]}`);
   return {
     gameKey: sql`card_prices.game_key`,
     lang: sql`card_prices.lang`,
     cardId: sql`card_prices.card_id`,
     isFoil: sql`${collectionCards.isFoil}`,
     condition: sql`${collectionCards.condition}`,
-    hasCurrentFoilPrice: sql`(${currentFoilPrice} IS NOT NULL)`,
+    hasCurrentFoilPrice: hasCurrentFoilPriceSql(pricing, "card_prices"),
   };
 }
 

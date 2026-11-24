@@ -2,7 +2,9 @@ import { CompactPrice } from "@/components/compact-value";
 import { Callout } from "@/components/callout";
 import { CardThumbnail } from "@/components/card-thumbnail";
 import { DeleteDialog } from "@/components/delete-dialog";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BusinessDetailSkeleton } from "@/features/business/components/business-detail-skeleton";
+import { PickWalkSkeleton } from "@/features/business/components/pick-walk-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
@@ -124,7 +126,12 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             onRetry={() => void refetch()}
           />
         ) : (
-          <ListSkeleton rows={8} />
+          <BusinessDetailSkeleton statTiles={5} statGridClassName="grid-cols-2 sm:grid-cols-5">
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-3.5 w-20" />
+              <PickWalkSkeleton />
+            </div>
+          </BusinessDetailSkeleton>
         )}
       </>
     );

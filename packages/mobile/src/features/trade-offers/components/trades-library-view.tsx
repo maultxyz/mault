@@ -22,6 +22,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SectionHeaderSkeleton } from "@/components/ui/section-header-skeleton";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { outgoingTradeOffersQueryOptions } from "@/features/trade-offers/api/outgoing-trade-offers";
 import { tradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
@@ -113,7 +114,10 @@ function ReceivedTradeOffers() {
   const answeredOffers = newestFirst.filter((offer) => !isOpen(offer));
 
   return offers.isPending ? (
-    <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />
+    <View style={{ gap: SPACING.sm }}>
+      <SectionHeaderSkeleton />
+      <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} hasSubtitle subtitleLines={2} />
+    </View>
   ) : offers.isError ? (
     <Callout
       tone="destructive"
@@ -144,7 +148,7 @@ function SentTradeOffers() {
   const offers = useQuery(outgoingTradeOffersQueryOptions(userId));
 
   return offers.isPending ? (
-    <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />
+    <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} hasSubtitle subtitleLines={2} />
   ) : offers.isError ? (
     <Callout
       tone="destructive"

@@ -33,7 +33,7 @@ export function UserSearchPanel() {
       {!isSearchReady ? (
         <EmptyState icon="search" title={t("admin.users.startTyping")} />
       ) : usersQuery.isPending ? (
-        <ListSkeleton />
+        <ListSkeleton rows={5} leading="none" hasSubtitle hasTrailing={false} />
       ) : usersQuery.isError ? (
         <Callout tone="destructive" title={t("admin.users.searchFailed")} />
       ) : users.length === 0 ? (

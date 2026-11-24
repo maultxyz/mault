@@ -1,9 +1,11 @@
 import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BaseProviders } from "@/app/providers";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -23,6 +25,7 @@ import { useTranslation } from "react-i18next";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { RECEIPT_PRINT_PARAM } from "@/lib/constants/business";
+import { RECEIPT_SKELETON_COLUMNS, RECEIPT_SKELETON_ROWS } from "@/lib/constants/skeletons";
 
 function IntakeReceipt() {
   const { t } = useTranslation("business");
@@ -55,7 +58,41 @@ function IntakeReceipt() {
             onRetry={() => void refetch()}
           />
         ) : (
-          <ListSkeleton rows={10} />
+          <SkeletonStatus className="flex flex-col gap-6 md:gap-2">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col">
+                <div className="flex h-7 items-center">
+                  <Skeleton className="h-4 w-40" />
+                </div>
+                <div className="flex h-5 items-center">
+                  <Skeleton className="h-3.5 w-28" />
+                </div>
+              </div>
+              <Skeleton className="h-10 w-20 rounded-lg md:h-7" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-3.5 w-32" />
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <Skeleton className="h-3 w-12" />
+                <Skeleton className="h-3.5 w-36" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+            <TableSkeleton columns={RECEIPT_SKELETON_COLUMNS} rows={RECEIPT_SKELETON_ROWS} />
+            <div className="ml-auto flex w-full max-w-xs flex-col gap-2">
+              <div className="flex justify-between">
+                <Skeleton className="h-3.5 w-12" />
+                <Skeleton className="h-3.5 w-8" />
+              </div>
+              <div className="flex justify-between">
+                <Skeleton className="h-3.5 w-24" />
+                <Skeleton className="h-3.5 w-14" />
+              </div>
+            </div>
+          </SkeletonStatus>
         )}
       </div>
     );

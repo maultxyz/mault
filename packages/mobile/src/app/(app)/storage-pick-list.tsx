@@ -117,7 +117,7 @@ export default function StoragePickListScreen() {
         ListEmptyComponent={
           pickList.isLoading ? (
             <View style={{ paddingHorizontal: SPACING.sm }}>
-              <ListSkeleton rows={3} />
+              <ListSkeleton rows={5} leading="thumbnail" hasSubtitle hasTrailing={false} />
             </View>
           ) : (
             <EmptyState

@@ -24,7 +24,7 @@ export function GamesListPanel() {
       <Button icon="plus" label={t("admin.cards.games.addGame")} onPress={() => router.push("/admin/games/new")} />
       {games.isError ? <Callout tone="destructive" title={t("admin.cards.games.loadFailed")} /> : null}
       {games.isLoading ? (
-        <ListSkeleton rows={4} withIcon={false} />
+        <ListSkeleton rows={4} leading="none" hasSubtitle />
       ) : games.data && games.data.length === 0 ? (
         <EmptyState icon="game" title={t("admin.cards.games.empty")} />
       ) : (

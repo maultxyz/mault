@@ -16,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
@@ -29,6 +30,7 @@ import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
+import { ScannedCardGridSkeleton } from "@/features/cards/components/scanned-card-grid-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
 import { CollectionCsvImportDialog } from "@/features/cards/components/collection-csv-import-dialog";
 import { PendingScanCardItem } from "@/features/cards/components/pending-scan-card-item";
@@ -93,7 +95,6 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useElementHeight } from "@/hooks/use-element-height";
 import { BULK_TAG_ACTIONS } from "@/lib/constants/card-tags";
 import {
-  CARD_GRID_CLASS,
   CARD_GRID_DENSITY_CLASS,
   SELECTION_ACTION_BAR_BUTTON_CLASS,
   SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS,
@@ -797,30 +798,23 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
     return (
       <>
         <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
-          <div className="flex flex-row gap-1.5 items-center w-full">
-            <Skeleton className="h-11 flex-1 rounded-lg md:h-7" />
-            <Skeleton className="h-11 w-full sm:w-64 rounded-lg shrink-0 md:h-7" />
-            <Skeleton className="size-10 rounded-lg shrink-0 md:size-7" />
-            <Skeleton className="size-10 rounded-lg shrink-0 md:size-7" />
-            <Skeleton className="size-10 rounded-lg shrink-0 md:size-7" />
+          <div className="flex min-w-0 flex-row items-center gap-1.5">
+            {toolbarLeading}
+            <Skeleton className="h-7 min-w-0 flex-1 rounded-lg max-md:h-11" />
+            <Skeleton className="size-7 shrink-0 rounded-lg max-md:size-10" />
+            <Skeleton className="size-7 shrink-0 rounded-lg max-md:size-10" />
+            <Skeleton className="size-7 shrink-0 rounded-lg max-md:size-10" />
+            <Skeleton className="h-7 w-24 shrink-0 rounded-lg max-md:h-10" />
           </div>
         </div>
         <div className="p-2 flex-1">
-          <div className={CARD_GRID_CLASS}>
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="rounded-card bg-card p-1.5">
-                <Skeleton className="aspect-[2.5/3.5] rounded-lg" />
-                <div className="flex flex-row justify-between items-center px-1 pb-1">
-                  <div className="flex flex-row items-center gap-2">
-                    <Skeleton className="size-3 rounded-full shrink-0" />
-                    <Skeleton className="h-3 w-8 rounded-sm" />
-                    <Skeleton className="h-3 w-6 rounded-sm" />
-                  </div>
-                  <Skeleton className="h-3 w-8 rounded-sm" />
-                </div>
-              </div>
-            ))}
-          </div>
+          {viewMode === "list" ? (
+            <div className="overflow-hidden rounded-card bg-card px-2 py-1">
+              <ListSkeleton rows={10} leading="thumbnail" hasSubtitle hasTrailing />
+            </div>
+          ) : (
+            <ScannedCardGridSkeleton className={CARD_GRID_DENSITY_CLASS[density]} />
+          )}
         </div>
       </>
     );

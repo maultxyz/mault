@@ -1,4 +1,5 @@
 import { DeleteDialog } from "@/components/delete-dialog";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
@@ -8,10 +9,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSyncApiKeys } from "@/features/admin/api/use-sync-api-keys";
 import { syncApiUrl } from "@/features/admin/lib/sync-api-url";
 import { copyWithToast } from "@/lib/clipboard";
+import { SYNC_API_KEY_SKELETON_LINES } from "@/lib/constants/skeletons";
 import { formatShortDate } from "@/lib/format";
 import {
   PUBLIC_API_KEY_HEADER,
@@ -72,7 +73,7 @@ export function SyncApiKeysManager() {
         />
       )}
 
-      {isLoading && <Skeleton className="h-14 w-full" />}
+      {isLoading && <DividedRowsSkeleton rows={2} lines={SYNC_API_KEY_SKELETON_LINES} />}
 
       {!isLoading && !isError && keys.length === 0 && (
         <EmptyState size="compact" icon={IconKey} title={t("syncApiKeys.empty")} />

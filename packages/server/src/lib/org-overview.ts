@@ -179,6 +179,7 @@ export async function loadOrgOverview(
     ),
     topCards,
     recentCards,
+    ...(valueSummary.is_value_pending ? { isValuePending: true } : {}),
   };
 }
 

@@ -9,6 +9,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteDevices } from "@/features/calibration/api/use-delete-device";
 import { useSorterSelection } from "@/features/scanner/api/use-sorter-selection";
@@ -86,17 +87,20 @@ export function StationOverviewGrid({
 
   if (isLoading) {
     return (
-      <div className={SORTERS_GRID_CLASS}>
+      <SkeletonStatus className={SORTERS_GRID_CLASS}>
         {Array.from({ length: COLLECTIONS_SKELETON_COUNT }).map((_, i) => (
-          <div key={i} className="overflow-hidden rounded-card border border-border bg-card">
+          <div key={i} className="flex flex-col overflow-hidden rounded-card border border-border bg-card">
             <Skeleton className="aspect-[3/4] rounded-none" />
-            <div className="space-y-1.5 p-3">
-              <Skeleton className="h-3 w-32" />
-              <Skeleton className="h-2.5 w-20" />
+            <div className="flex items-center gap-3 border-t p-3">
+              <Skeleton className="aspect-[2.5/3.5] w-8 shrink-0 rounded-sm" />
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <Skeleton className="h-3.5 w-32 max-w-full rounded-sm" />
+                <Skeleton className="h-3 w-20 rounded-sm" />
+              </div>
             </div>
           </div>
         ))}
-      </div>
+      </SkeletonStatus>
     );
   }
 

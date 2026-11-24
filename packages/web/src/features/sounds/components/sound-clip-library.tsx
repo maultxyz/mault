@@ -1,5 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { SoundClipListSkeleton } from "@/features/sounds/components/sound-skeletons";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { PlanNotice } from "@/components/plan-notice";
 import { SettingsSection } from "@/components/settings-section";
@@ -68,7 +68,7 @@ export function SoundClipLibrary() {
           onRetry={() => void refetch()}
         />
       ) : isLoading ? (
-        <ListSkeleton rows={3} />
+        <SoundClipListSkeleton />
       ) : clips.length === 0 ? (
         <EmptyState
           size="compact"

@@ -18,13 +18,15 @@ import {
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SwitchRow } from "@/components/ui/switch-row";
+import { SwitchRowSkeleton } from "@/components/ui/switch-row-skeleton";
 import { TextField } from "@/components/ui/text-field";
 import { createShopCatalog, shopCatalogsQueryOptions, updateShopCatalog } from "@/features/business/api/shop-catalogs";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
@@ -147,7 +149,16 @@ export default function ShopCatalogEditScreen() {
             isRetrying={access.isFetching || list.isFetching || collections.isFetching || storageLocations.isFetching}
           />
         ) : isLoadingForm ? (
-          <PageSkeleton />
+          <>
+            <FormSkeleton fields={1} />
+            {Array.from({ length: 3 }).map((_, index) => (
+              <SwitchRowSkeleton key={index} hasDescription />
+            ))}
+            <SectionSkeleton>
+              <SwitchRowSkeleton />
+              <SwitchRowSkeleton />
+            </SectionSkeleton>
+          </>
         ) : (
           <>
             <Controller

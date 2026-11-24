@@ -1,5 +1,5 @@
 import { CardImage } from "@/components/card-image";
-import { Skeleton } from "@/components/ui/skeleton";
+import { HomeCardRailSkeletonTiles } from "@/features/home/components/home-card-rail-skeleton";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { collectionViewPath } from "@/lib/constants/collections";
 import { HOME_CARD_RAIL_LOADING_TILE_COUNT, HOME_CARD_RAIL_TILE_CLASS } from "@/lib/constants/home";
@@ -38,16 +38,9 @@ export function HomeCardRail({
         aria-busy={isLoading}
         className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 md:-mx-1 md:px-1"
       >
-        {isLoading &&
-          Array.from({ length: loadingTileCount }).map((_, index) => (
-            <li key={index} className={tileClassName} aria-hidden="true">
-              <span className="flex flex-col gap-1.5">
-                <Skeleton className="aspect-[2.5/3.5] w-full rounded-lg" />
-                <Skeleton className="h-3.5 w-4/5" />
-                <Skeleton className="h-3 w-1/2" />
-              </span>
-            </li>
-          ))}
+        {isLoading && (
+          <HomeCardRailSkeletonTiles tileClassName={tileClassName} tileCount={loadingTileCount} />
+        )}
         {!isLoading && cards.map((card) => {
           const priceChange = priceChangeOf?.(card) ?? null;
           return (

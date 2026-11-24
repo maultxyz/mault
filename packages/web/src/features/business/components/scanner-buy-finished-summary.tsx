@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Skeleton } from "@/components/ui/skeleton";
 import { intakeLotQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
@@ -26,7 +27,24 @@ export function ScannerBuyFinishedSummary({
   const { data: lot } = useQuery(intakeLotQueryOptions(guid));
   const canStartBuy = !!access && !access.isLocked;
 
-  if (!lot) return <Skeleton className="h-16 rounded-lg" />;
+  if (!lot) {
+    return (
+      <SkeletonStatus className="flex flex-col gap-3 md:gap-2">
+        <div className="flex items-start gap-2">
+          <Skeleton className="mt-0.5 size-4 shrink-0 rounded-full" />
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <Skeleton className="h-4 w-48 md:h-3.5" />
+            <Skeleton className="h-3 w-32" />
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Skeleton className="h-7 w-32 rounded-lg max-md:h-10" />
+          <Skeleton className="h-7 w-20 rounded-lg max-md:h-10" />
+          <Skeleton className="h-7 w-20 rounded-lg max-md:h-10" />
+        </div>
+      </SkeletonStatus>
+    );
+  }
 
   const showsPaid = (access?.canViewCosts ?? false) && lot.paidTotal != null;
   const canMoveCards =

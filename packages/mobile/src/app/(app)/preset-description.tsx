@@ -8,7 +8,7 @@ import { presetDescriptionFormSchema, type BinSet, type PresetDescriptionFormVal
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { MultilineFieldSkeleton } from "@/components/ui/multiline-field-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { TextField } from "@/components/ui/text-field";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
@@ -70,7 +70,7 @@ export default function PresetDescriptionScreen() {
       >
         {save.isError ? <Callout tone="destructive" title={t("rules.description.saveFailed")} /> : null}
         {isLoadingSets ? (
-          <PageSkeleton sections={1} />
+          <MultilineFieldSkeleton />
         ) : (
           <Controller
             control={form.control}

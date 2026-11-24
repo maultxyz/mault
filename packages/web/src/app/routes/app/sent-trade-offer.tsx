@@ -1,13 +1,13 @@
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
 import { useOutgoingTradeOffers } from "@/features/trade-offers/api/use-outgoing-trade-offers";
 import { OutgoingTradeOfferDetail } from "@/features/trade-offers/components/outgoing-trade-offer-detail";
+import { TradeOfferDetailSkeleton } from "@/features/trade-offers/components/trade-offer-detail-skeleton";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_PAGE_BODY_CLASS } from "@/lib/constants/nav";
-import { SENT_TRADES_PATH, TRADE_OFFERS_SKELETON_ROWS } from "@/lib/constants/trade-offers";
+import { SENT_TRADES_PATH } from "@/lib/constants/trade-offers";
 import { IconSend } from "@tabler/icons-react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -22,7 +22,7 @@ export default function SentTradeOfferRoutePage() {
   if (offer) return <OutgoingTradeOfferDetail key={offer.guid} offer={offer} />;
 
   const content = offers.isPending ? (
-    <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />
+    <TradeOfferDetailSkeleton hasValueSummary={false} />
   ) : offers.isError ? (
     <LoadErrorCallout message={t("tradeOffers.sent.loadFailed")} onRetry={() => void offers.refetch()} />
   ) : (

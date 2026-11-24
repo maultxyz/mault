@@ -108,8 +108,8 @@ export function CollectionCsvImportDialog({
                 {preview.isPending && (
                   <>
                     <span className="sr-only">{t("importCsv.checking")}</span>
-                    <Skeleton className="h-5 w-48" />
-                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-3.5 w-40 rounded-sm" />
+                    <Skeleton className="h-16 w-full rounded-lg" />
                   </>
                 )}
                 {preview.isError && (

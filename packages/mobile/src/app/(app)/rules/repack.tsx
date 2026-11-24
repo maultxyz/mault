@@ -18,14 +18,17 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Surface } from "@/components/ui/surface";
 import { SwitchRow } from "@/components/ui/switch-row";
+import { SwitchRowSkeleton } from "@/components/ui/switch-row-skeleton";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
 import { setRepackConfig } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
@@ -35,7 +38,7 @@ import { emptyRules } from "@/features/rules/lib/rules";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { REPACK_ALLOW_DUPLICATES_VALUE } from "@/lib/constants/rules";
-import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { FONT_SIZE, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 import type { RepackFormInput, RepackFormValues } from "@/lib/interfaces/forms";
 
@@ -130,7 +133,15 @@ export default function RepackEditorScreen() {
             isRetrying={isRefetchingRulesData}
           />
         ) : isRulesDataPending ? (
-          <PageSkeleton />
+          <>
+            <Skeleton width="90%" height={FONT_SIZE.sm} />
+            <ListSkeleton rows={1} leading="none" hasSubtitle />
+            <SwitchRowSkeleton hasDescription />
+            <SwitchRowSkeleton hasDescription />
+            <SectionSkeleton>
+              <ListSkeleton rows={1} hasTrailing={false} />
+            </SectionSkeleton>
+          </>
         ) : (
           <>
             <AppText size="sm" tone="secondary">

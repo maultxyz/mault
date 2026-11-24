@@ -222,7 +222,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
                     }
                   />
                 ) : results.isPending ? (
-                  <ListSkeleton rows={3} />
+                  <ListSkeleton rows={3} leading="thumbnail" hasSubtitle hasTrailing={false} />
                 ) : results.data.length === 0 ? (
                   <EmptyState icon="search" title={t("storage.noResultsTitle")} description={t("storage.noResultsDescription", { query })} />
                 ) : (
@@ -244,7 +244,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         }
         ListEmptyComponent={
           query ? undefined : locations.isPending ? (
-            <ListSkeleton rows={3} />
+            <ListSkeleton rows={5} hasSubtitle />
           ) : (
             <EmptyState icon="storage" title={t("storage.emptyTitle")} description={t("storage.emptyDescription")} />
           )

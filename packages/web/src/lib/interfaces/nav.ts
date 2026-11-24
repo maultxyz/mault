@@ -7,6 +7,8 @@ export interface NavSubItemDef {
   key: string;
   to: string;
   label: string;
+  icon?: ReactNode;
+  groupLabel?: string;
   badge?: boolean;
   onClick?: () => void;
 }

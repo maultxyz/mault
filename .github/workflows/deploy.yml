@@ -313,6 +313,7 @@ jobs:
                 CURRENT_PATCH=$(echo "$CURRENT" | grep -oP '\d+$')
                 LAST=$(git tag -l "v${MAJOR_MINOR}.*" | grep -E "^v${MAJOR_MINOR}\.[0-9]+$" | sed -E "s/^v${MAJOR_MINOR}\.//" | sort -n | tail -1)
                 LAST="${LAST:-$CURRENT_PATCH}"
+                if [ "$CURRENT_PATCH" -gt "$LAST" ]; then LAST="$CURRENT_PATCH"; fi
                 VERSION="${MAJOR_MINOR}.$((LAST + 1))"
                 ;;
             esac
@@ -504,8 +505,7 @@ jobs:
           else
             git commit -m "chore(release): v${{ needs.plan.outputs.version }} [skip ci]"
             git tag "v${{ needs.plan.outputs.version }}"
-            git push
-            git push origin "v${{ needs.plan.outputs.version }}"
+            git push --atomic origin HEAD "refs/tags/v${{ needs.plan.outputs.version }}"
           fi
 
   deploy-apps:

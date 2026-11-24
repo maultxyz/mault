@@ -20,3 +20,8 @@ export interface MyCardReservationAlertsProps {
   alerts: MyCardReservation[];
   onOpenReservations: () => void;
 }
+
+export interface CardReservationGroupsSkeletonProps {
+  groupCount: number;
+  cardsPerGroup: number;
+}

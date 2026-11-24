@@ -512,11 +512,24 @@ export interface CollapsibleSectionProps {
 
 export interface ListSkeletonProps {
   rows?: number;
-  withIcon?: boolean;
+  leading?: "icon" | "thumbnail" | "none";
+  hasSubtitle?: boolean;
+  subtitleLines?: number;
+  hasTrailing?: boolean;
 }
 
-export interface PageSkeletonProps {
-  sections?: number;
+export interface FormSkeletonProps {
+  fields?: number;
+}
+
+export interface SectionSkeletonProps {
+  hasDescription?: boolean;
+  titleWidth?: number | `${number}%`;
+  children?: ReactNode;
+}
+
+export interface SwitchRowSkeletonProps {
+  hasDescription?: boolean;
 }
 
 export interface QrCodeProps {
@@ -581,4 +594,19 @@ export interface ToastProviderProps {
 
 export interface PullToRefreshControlProps extends Omit<RefreshControlProps, "refreshing" | "onRefresh"> {
   onRefresh: () => unknown;
+}
+
+export interface TextLineSkeletonProps {
+  size?: FontSize;
+  heading?: boolean;
+  width: number | `${number}%`;
+}
+
+export interface SectionHeaderSkeletonProps {
+  width?: number | `${number}%`;
+}
+
+export interface StatTileSkeletonProps {
+  hasIcon?: boolean;
+  hasHint?: boolean;
 }

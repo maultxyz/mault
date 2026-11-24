@@ -28,4 +28,5 @@ export interface OrgOverview {
   topCards: OrgOverviewCard[];
   recentCards: OrgOverviewCard[];
   isRefreshing?: boolean;
+  isValuePending?: boolean;
 }

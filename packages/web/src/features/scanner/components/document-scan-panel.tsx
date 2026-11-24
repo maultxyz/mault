@@ -73,7 +73,10 @@ export function DocumentScanPanel({
                 {t("importScans.documentScan.scannerLabel")}
               </span>
               {documentScan.isLoadingScanners ? (
-                <Skeleton className="h-6 w-full" />
+                <div className="flex items-center gap-1.5">
+                  <Skeleton className="h-7 min-w-0 flex-1 rounded-lg max-md:h-11" />
+                  <Skeleton className="size-7 shrink-0 rounded-lg max-md:size-10" />
+                </div>
               ) : scanners.length > 0 && selectedScanner ? (
                 <div className="flex items-center gap-1.5">
                   <Select

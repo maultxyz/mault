@@ -65,7 +65,18 @@ export function PresetMenu() {
   } = useMenuSearch();
 
   if (isLoading) {
-    return <Skeleton className="h-6 w-36 rounded-md" />;
+    return (
+      <div
+        role="status"
+        aria-busy="true"
+        className="flex h-7 shrink-0 items-center gap-1.5 px-1 max-md:h-10"
+      >
+        <span className="sr-only">{t("a11y.loading", { ns: "common" })}</span>
+        <Skeleton className="size-4.5 shrink-0 rounded-sm" />
+        <Skeleton className="h-3.5 w-28" />
+        <Skeleton className="size-3.5 shrink-0 rounded-sm" />
+      </div>
+    );
   }
 
   const matchingItems = picker.items.filter((item) => matchesSearch(item.name));

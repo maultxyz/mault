@@ -12,7 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
+import {
+  ICON_BUTTON_SKELETON_TRAILING,
+  WEBHOOK_SKELETON_LINES,
+} from "@/lib/constants/skeletons";
 import { useWebhooks } from "@/features/integrations/api/use-webhooks";
 import { WebhookDialog } from "@/features/integrations/components/webhook-dialog";
 import type { WebhookEndpoint } from "@magic-vault/shared";
@@ -107,7 +111,13 @@ export function WebhooksSection() {
           onRetry={() => void refetch()}
         />
       )}
-      {isLoading && <Skeleton className="h-14 w-full" />}
+      {isLoading && (
+        <DividedRowsSkeleton
+          rows={2}
+          lines={WEBHOOK_SKELETON_LINES}
+          trailing={ICON_BUTTON_SKELETON_TRAILING}
+        />
+      )}
 
       {!isLoading && !isError && endpoints.length === 0 && (
         <EmptyState

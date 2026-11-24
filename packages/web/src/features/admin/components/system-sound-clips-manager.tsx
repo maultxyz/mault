@@ -2,7 +2,6 @@ import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   deleteSystemSoundClip,
   renameSystemSoundClip,
@@ -11,6 +10,7 @@ import {
 } from "@/features/admin/api/system-sound-clips";
 import { useSoundClipUpload } from "@/features/sounds/api/use-sound-clip-upload";
 import { SoundClipRow } from "@/features/sounds/components/sound-clip-row";
+import { SoundClipListSkeleton } from "@/features/sounds/components/sound-skeletons";
 import { SOUND_CLIP_ACCEPT } from "@/lib/constants/sounds";
 import { IconMusic, IconUpload } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -63,7 +63,7 @@ export function SystemSoundClipsManager() {
       }
     >
       {isLoading ? (
-        <Skeleton className="h-24 rounded-lg" />
+        <SoundClipListSkeleton />
       ) : isError && clips.length === 0 ? (
         <LoadErrorCallout
           message={t("systemSoundClips.loadFailed")}

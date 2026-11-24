@@ -35,7 +35,7 @@ export function SharedCardLinks({ collectionGuid }: SharedCardLinksProps) {
       {copy.isError ? <Callout tone="destructive" title={t("shareLinks.cardLinkCopyFailed")} /> : null}
       {revoke.isError ? <Callout tone="destructive" title={t("shareLinks.revokeFailed")} /> : null}
       {links.isLoading ? (
-        <ListSkeleton rows={2} />
+        <ListSkeleton rows={2} hasSubtitle hasTrailing={false} />
       ) : links.isError ? (
         <Callout tone="destructive" title={t("shareLinks.loadFailed")} />
       ) : links.data?.length ? (

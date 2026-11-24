@@ -156,18 +156,37 @@ export function ReviewGrid({
             <Callout variant="error">{t("reviewGrid.loadFailed")}</Callout>
           )
         ) : isLoading || (visibleCards.length === 0 && remaining > 0) ? (
-          <div className={REVIEW_GRID_CLASS}>
+          <div role="status" aria-busy="true" className={REVIEW_GRID_CLASS}>
+            <span className="sr-only">{t("a11y.loading", { ns: "common" })}</span>
             {Array.from({ length: 8 }).map((_, index) => (
               <div
                 key={index}
-                className="flex flex-col gap-2 rounded-card bg-card p-2"
+                className="flex min-w-0 flex-col gap-2 rounded-card bg-card p-2"
               >
                 <div className="grid grid-cols-2 gap-2">
-                  <Skeleton className="aspect-[2.5/3.5] rounded-md" />
-                  <Skeleton className="aspect-[2.5/3.5] rounded-md" />
+                  {Array.from({ length: 2 }).map((_, image) => (
+                    <div key={image} className="flex min-w-0 flex-col gap-1">
+                      <Skeleton className="h-2.5 w-14 rounded-sm" />
+                      <Skeleton className="aspect-[2.5/3.5] rounded-lg" />
+                    </div>
+                  ))}
                 </div>
-                <Skeleton className="h-4 w-2/3 rounded-sm" />
-                <Skeleton className="h-7 rounded-md" />
+                <div className="flex min-w-0 flex-col gap-1 px-0.5">
+                  <Skeleton className="h-3.5 w-2/3 rounded-sm" />
+                  <Skeleton className="h-3 w-1/3 rounded-sm" />
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {Array.from({ length: 3 }).map((_, field) => (
+                    <div key={field} className="flex min-w-0 flex-col gap-1">
+                      <Skeleton className="h-2.5 w-12 rounded-sm" />
+                      <Skeleton className="h-7 w-full rounded-lg max-md:h-11" />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-1.5">
+                  <Skeleton className="h-7 flex-1 rounded-lg max-md:h-10" />
+                  <Skeleton className="h-7 flex-1 rounded-lg max-md:h-10" />
+                </div>
               </div>
             ))}
           </div>

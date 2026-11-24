@@ -1,7 +1,7 @@
 import { Progress } from "@/components/ui/progress";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { FleetHealthSkeleton } from "@/features/business/components/fleet-health-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { PlanNotice } from "@/components/plan-notice";
 import { Badge } from "@/components/ui/badge";
@@ -61,7 +61,7 @@ export function FleetHealthPanel() {
         onRetry={() => void refetch()}
       />
     ) : (
-      <ListSkeleton rows={4} />
+      <FleetHealthSkeleton />
     );
   }
 

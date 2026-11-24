@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useOrgApiKeys } from "@/features/integrations/api/use-org-api-keys";
 import { StatsSyncConnectionSection } from "@/features/integrations/components/stats-sync-connection-section";
@@ -158,7 +158,7 @@ export function ApiKeysIntegration() {
             />
           )}
 
-          {isLoading && <Skeleton className="h-14 w-full" />}
+          {isLoading && <DividedRowsSkeleton rows={2} hasTitleBadge />}
 
           {!isLoading && !isError && keys.length === 0 && (
             <EmptyState

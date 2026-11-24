@@ -9,13 +9,14 @@ import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { Pill } from "@/components/ui/pill";
 import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
+import { SwitchRowSkeleton } from "@/components/ui/switch-row-skeleton";
 import { TextField } from "@/components/ui/text-field";
 import { checkCollectionName, collectionsQueryOptions, updateCollection } from "@/features/collections/api/collections";
 import { gameLanguagesQueryOptions } from "@/features/games/api/games";
@@ -85,7 +86,10 @@ export default function EditCollectionScreen() {
         <PageHeader title={t("collections.editTitle")} subtitle={t("collections.editDescription")} />
         <View style={{ padding: SCREEN_GUTTER }}>
           {collectionsPending ? (
-            <PageSkeleton sections={1} />
+            <View style={{ gap: SPACING.lg }}>
+              <FormSkeleton fields={2} />
+              <SwitchRowSkeleton hasDescription />
+            </View>
           ) : (
             <EmptyState
               icon="collections"

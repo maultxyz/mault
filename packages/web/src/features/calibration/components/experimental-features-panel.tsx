@@ -33,7 +33,7 @@ export function ExperimentalFeaturesPanel({
               onCheckedChange={(checked) => onChange("pipelinedFeed", checked)}
             />
           ) : (
-            <Skeleton className="h-4 w-7 rounded-full" />
+            <Skeleton className="h-4 w-7 shrink-0 rounded-full max-md:h-6 max-md:w-10" />
           )}
         </label>
         <p className="text-xs text-foreground/70">

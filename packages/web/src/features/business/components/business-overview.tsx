@@ -5,7 +5,7 @@ import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { BusinessOverviewSkeleton } from "@/features/business/components/business-overview-skeleton";
 import { ViewTabs } from "@/components/view-tabs";
 import {
   businessOverviewQueryOptions,
@@ -436,11 +436,7 @@ export function BusinessOverviewDashboard() {
         onCheckChange={(guid) => setParam(BUSINESS_OVERVIEW_CHECK_PARAM, guid)}
       />
     ) : overview.isPending ? (
-      <div className="flex flex-col gap-4 md:gap-2">
-        <Skeleton className="h-24 rounded-card" />
-        <Skeleton className="h-56 rounded-card" />
-        <Skeleton className="h-48 rounded-card" />
-      </div>
+      <BusinessOverviewSkeleton />
     ) : overview.isError || !overview.data ? (
       <LoadErrorCallout
         message={t("errors.loadFailed")}

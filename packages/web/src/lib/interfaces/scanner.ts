@@ -140,7 +140,8 @@ export interface CameraContextValue {
   phonePairingUrl: string | null;
   startPhonePairing: () => void;
   stopPhonePairing: () => void;
-  requestPhoneCapture: () => Promise<string | null>;
+  phoneCapturesWhenCardSettles: boolean;
+  requestPhoneCapture: (options?: PhoneCameraCaptureOptions) => Promise<string | null>;
   sendPhoneScanRegion: (region: ScanRegion) => void;
   documentScannerOptions: DocumentScannerOption[];
   documentScannerMode: DocumentScannerMode | null;
@@ -1258,6 +1259,10 @@ export interface AutoFeedSerial {
   sendNeutral: () => Promise<boolean>;
   supportsEmergencyStop: boolean;
   ignoreIrSensors: boolean;
+}
+
+export interface PhoneCameraCaptureOptions {
+  maxCardSettleWaitMs?: number;
 }
 
 export interface PendingCapture {

@@ -24,17 +24,17 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { TabStrip } from "@/components/ui/tab-strip";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   acceptReviewCards,
   collectionReviewGridQueryOptions,
   storageReviewGridQueryOptions,
 } from "@/features/cards/api/review-grid";
 import { ReviewGridTile } from "@/features/cards/components/review-grid-tile";
+import { ReviewGridTileSkeleton } from "@/features/cards/components/review-grid-tile-skeleton";
 import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
-import { REVIEW_GRID_SKELETON_HEIGHT_RATIO, REVIEW_GRID_WIDE_MIN_WIDTH } from "@/lib/constants/cards";
-import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { REVIEW_GRID_SKELETON_SINGLE_COLUMN_TILE_COUNT, REVIEW_GRID_WIDE_MIN_WIDTH } from "@/lib/constants/cards";
+import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { ReviewGridAttributePicker, ReviewLayout } from "@/lib/interfaces/cards";
 import { saveReviewLayout } from "@/lib/review-layout";
 
@@ -198,9 +198,11 @@ export default function ReviewGridScreen() {
         }
         ListEmptyComponent={
           review.isPending || isWaitingForMore ? (
-            <View style={{ gap: SPACING.md }}>
-              {Array.from({ length: 2 }).map((_, index) => (
-                <Skeleton key={index} width={tileWidth} height={tileWidth * REVIEW_GRID_SKELETON_HEIGHT_RATIO} radius={CARD_ART_RADIUS} />
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.md }}>
+              {Array.from({ length: columns > 1 ? columns : REVIEW_GRID_SKELETON_SINGLE_COLUMN_TILE_COUNT }).map((_, index) => (
+                <View key={index} style={{ width: tileWidth }}>
+                  <ReviewGridTileSkeleton />
+                </View>
               ))}
             </View>
           ) : review.isError ? undefined : (

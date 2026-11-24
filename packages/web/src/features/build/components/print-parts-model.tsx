@@ -28,7 +28,22 @@ export function PrintPartsModel() {
         {t("printModel.description", { count: moduleCount })}
       </p>
       <Suspense
-        fallback={<Skeleton className="h-80 rounded-lg sm:h-[28rem]" />}
+        fallback={
+          <div role="status" aria-busy="true" className="flex flex-col gap-3">
+            <span className="sr-only">{t("a11y.loading", { ns: "common" })}</span>
+            <Skeleton className="h-80 rounded-lg sm:h-[28rem]" />
+            <Skeleton className="my-0.75 h-3.5 w-2/3" />
+            <div className="grid gap-x-4 gap-y-0.5 sm:grid-cols-2">
+              {entries.map(({ part }) => (
+                <div key={part} className="flex h-8 items-center gap-2.5 px-2">
+                  <Skeleton className="h-3.5 w-5 shrink-0" />
+                  <Skeleton className="size-4 shrink-0 rounded-sm" />
+                  <Skeleton className="h-3.5 w-1/2" />
+                </div>
+              ))}
+            </div>
+          </div>
+        }
       >
         <PrintPartsViewer
           moduleCount={moduleCount}

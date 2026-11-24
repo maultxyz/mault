@@ -21,6 +21,10 @@ import { firstOutput, runModel, warmModel } from "./onnx";
 
 const DETECTOR_OPTIONS = { graphOptimizationLevel: "disabled" as const };
 
+export function warmCornerDetector(): Promise<void> {
+  return warmModel(DETECTOR_SESSION_KEY, CORNER_DETECTOR_MODEL, DETECTOR_OPTIONS);
+}
+
 export function warmScanModels(onDownloadProgress?: ScanModelsDownloadListener): Promise<void> {
   const downloads = new Map<string, { bytesWritten: number; totalBytes: number }>();
   const reportDownload = (sessionKey: string) => (bytesWritten: number, totalBytes: number) => {

@@ -138,9 +138,12 @@ export function useCardScanner({
     phonePairingUrl,
     startPhonePairing,
     stopPhonePairing,
+    phoneCapturesWhenCardSettles,
     requestPhoneCapture,
     takeDocumentScannerPages,
   } = useCameraContext();
+  const phoneCapturesWhenCardSettlesRef = useRef(phoneCapturesWhenCardSettles);
+  phoneCapturesWhenCardSettlesRef.current = phoneCapturesWhenCardSettles;
   const { activeCollection } = useCollections();
   const { forceSetCodes: preferredSetCodes } = useScannedCards();
   const { selectedSet: activePreset } = useBinConfigs();
@@ -930,18 +933,19 @@ export function useCardScanner({
   );
 
   const capturePhonePhotoThenSearch = useCallback(
-    (checkDuplicate: boolean) => {
-      requestPhoneCapture().then(async (dataUrl) => {
+    (checkDuplicate: boolean, maxCardSettleWaitMs = 0) => {
+      requestPhoneCapture({ maxCardSettleWaitMs }).then(async (dataUrl) => {
         if (!dataUrl) {
           isCapturingRef.current = false;
           handleErrorRef.current(t("scanEngine.phoneCaptureFailed"));
           return;
         }
+        if (statusRef.current === "settling") updateStatus("searching");
         const contour = await drawImageToCanvas(dataUrl);
         performCapture(checkDuplicate, contour, false);
       });
     },
-    [requestPhoneCapture, drawImageToCanvas, performCapture, t],
+    [requestPhoneCapture, drawImageToCanvas, performCapture, updateStatus, t],
   );
 
   const handleForceScan = useCallback(() => {
@@ -1060,11 +1064,18 @@ export function useCardScanner({
     updateStatus("settling");
 
     if (cameraSource === "phone") {
-      settleTimeoutRef.current = setTimeout(() => {
-        settleTimeoutRef.current = null;
-        updateStatus("searching");
-        capturePhonePhotoThenSearch(true);
-      }, captureSettleDelayMsRef.current);
+      const phoneWaitsForCardToSettle = phoneCapturesWhenCardSettlesRef.current;
+      settleTimeoutRef.current = setTimeout(
+        () => {
+          settleTimeoutRef.current = null;
+          if (!phoneWaitsForCardToSettle) updateStatus("searching");
+          capturePhonePhotoThenSearch(
+            true,
+            phoneWaitsForCardToSettle ? captureSettleDelayMsRef.current : 0,
+          );
+        },
+        phoneWaitsForCardToSettle ? 0 : captureSettleDelayMsRef.current,
+      );
       return;
     }
 

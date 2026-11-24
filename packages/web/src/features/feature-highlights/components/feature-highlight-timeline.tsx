@@ -33,11 +33,20 @@ import { useSearchParams } from "react-router-dom";
 
 function TimelineEntrySkeleton() {
   return (
-    <div className="flex flex-col gap-2 rounded-card bg-card p-4 md:p-2.5">
-      <Skeleton className="h-3 w-24" />
-      <Skeleton className="aspect-video w-full rounded-lg" />
-      <Skeleton className="h-5 w-2/3" />
-      <Skeleton className="h-4 w-full" />
+    <div className="flex flex-col gap-4 rounded-card bg-card p-4 md:gap-3 md:p-2.5">
+      <div className="flex h-5 items-center">
+        <Skeleton className="h-3 w-24" />
+      </div>
+      <div className="flex flex-col gap-3 md:gap-2">
+        <Skeleton className="aspect-video w-full rounded-lg" />
+        <div className="flex h-6 items-center">
+          <Skeleton className="h-4 w-2/3" />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Skeleton className="h-3.5 w-full" />
+          <Skeleton className="h-3.5 w-4/5" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -223,11 +232,16 @@ export function FeatureHighlightTimeline({
         onRetry={() => void timelineQuery.refetch()}
       />
     ) : (
-      <div className="flex flex-col gap-3 md:gap-2" aria-busy="true">
+      <div className="flex flex-col gap-3 md:gap-2" role="status" aria-busy="true">
         <span className="sr-only">{t("a11y.loading")}</span>
-        <Skeleton className="h-5 w-32" />
-        <TimelineEntrySkeleton />
-        <TimelineEntrySkeleton />
+        <Skeleton className="h-11 w-full rounded-lg md:h-7" />
+        <div className="flex h-5 items-center">
+          <Skeleton className="h-3.5 w-28" />
+        </div>
+        <div className="flex flex-col gap-3 md:ml-1.5 md:gap-2 md:border-l md:border-border md:pl-4">
+          <TimelineEntrySkeleton />
+          <TimelineEntrySkeleton />
+        </div>
       </div>
     );
   } else if (groups.length === 0) {

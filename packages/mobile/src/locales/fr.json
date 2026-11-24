@@ -1053,6 +1053,7 @@
       "scanned": "Scannées au total",
       "sinceYesterday": "depuis hier",
       "sinceDate": "depuis le {{date}}",
+      "valueCalculating": "Calcul en cours…",
       "openStats": "Ouvre vos statistiques"
     },
     "review": {

@@ -1,8 +1,11 @@
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { StatGroup } from "@/components/stat-group";
+import { StatGroupSkeleton } from "@/components/stat-group-skeleton";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -25,6 +28,10 @@ import { StartCheckDialog } from "@/features/business/components/start-check-dia
 import { StatusBadge } from "@/features/business/components/status-badge";
 import { formatDateTime, formatPercent } from "@/features/business/lib/format";
 import { useCollections } from "@/features/collections/api/use-collections";
+import {
+  ACCURACY_CHECKS_SKELETON_COLUMNS,
+  BUSINESS_TABLE_SKELETON_ROWS,
+} from "@/lib/constants/business";
 import type { AccuracyReportViewProps } from "@/lib/interfaces/business";
 import { IconListCheck, IconTargetArrow } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -95,7 +102,19 @@ export function AccuracyReportView({
           onRetry={() => void refetch()}
         />
       ) : isLoading || !report || !stats ? (
-        <ListSkeleton rows={6} />
+        <SkeletonStatus className="flex flex-col gap-4 md:gap-2">
+          <StatGroupSkeleton
+            tiles={6}
+            gridClassName="grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
+            hasDetails
+          />
+          <Skeleton className="h-3 w-2/3" />
+          <Skeleton className="h-3.5 w-24" />
+          <TableSkeleton
+            columns={ACCURACY_CHECKS_SKELETON_COLUMNS}
+            rows={BUSINESS_TABLE_SKELETON_ROWS}
+          />
+        </SkeletonStatus>
       ) : (
         <>
           <StatGroup

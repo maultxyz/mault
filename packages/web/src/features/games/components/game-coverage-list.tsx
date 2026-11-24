@@ -1,5 +1,6 @@
 import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { EmptyState } from "@/components/empty-state";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { gameCoverageQueryOptions } from "@/features/games/api/games";
@@ -13,16 +14,30 @@ export function GameCoverageList() {
 
   return (
     <div className="divide-y divide-border">
-      {isLoading &&
-        Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 px-4 py-2.5">
-            <div className="flex-1 space-y-1.5">
-              <Skeleton className="h-3.5 w-32" />
-              <Skeleton className="h-3 w-48" />
+      {isLoading && (
+        <SkeletonStatus className="divide-y divide-border">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-2.5">
+              <div className="flex flex-1 flex-col">
+                <div className="flex h-5 items-center">
+                  <Skeleton className="h-3.5 w-32" />
+                </div>
+                <div className="flex h-4 items-center">
+                  <Skeleton className="h-3 w-48" />
+                </div>
+              </div>
+              <div className="flex shrink-0 flex-col items-end">
+                <div className="flex h-5 items-center">
+                  <Skeleton className="h-3.5 w-16" />
+                </div>
+                <div className="flex h-4 items-center">
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </div>
             </div>
-            <Skeleton className="h-3.5 w-16" />
-          </div>
-        ))}
+          ))}
+        </SkeletonStatus>
+      )}
 
       {!isLoading && coverage.length === 0 && (
         <EmptyState

@@ -163,7 +163,7 @@ export default function ProfileScreen() {
           <SettingsSection title={t("account.profile.sessions.heading")} description={t("account.profile.sessions.description")}>
             {sessions.isError ? <Callout tone="destructive" title={t("account.profile.sessions.loadFailed")} /> : null}
             {sessions.isPending ? (
-              <ListSkeleton rows={2} />
+              <ListSkeleton rows={2} hasSubtitle />
             ) : sessions.data && sessions.data.length === 0 ? (
               <EmptyState icon="account" title={t("account.profile.sessions.empty")} />
             ) : (

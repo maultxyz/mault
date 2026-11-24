@@ -154,7 +154,7 @@ export default function GlobalSearchScreen() {
             <View style={{ gap: SPACING.sm }}>
               <SectionHeader title={t("search.sections.cards")} />
               {isSearchingCards || isWaitingForDebounce ? (
-                <ListSkeleton rows={3} />
+                <ListSkeleton rows={3} leading="thumbnail" hasSubtitle hasTrailing={false} />
               ) : (
                 <ListGroup>
                   {cardResults.map((result) => {
@@ -208,7 +208,7 @@ export default function GlobalSearchScreen() {
             <View style={{ gap: SPACING.sm }}>
               <SectionHeader title={t("search.sections.catalog")} />
               {isSearchingCatalog || isWaitingForDebounce ? (
-                <ListSkeleton rows={3} />
+                <ListSkeleton rows={3} leading="thumbnail" hasSubtitle hasTrailing={false} />
               ) : (
                 <ListGroup>
                   {catalogResults.map(({ game, card, printingCount }) => {
@@ -247,7 +247,9 @@ export default function GlobalSearchScreen() {
                   ) : null}
                 </ListGroup>
               )}
-              {isLoadingOtherCatalogGames && !isWaitingForDebounce ? <ListSkeleton rows={1} /> : null}
+              {isLoadingOtherCatalogGames && !isWaitingForDebounce ? (
+                <ListSkeleton rows={1} leading="thumbnail" hasSubtitle hasTrailing={false} />
+              ) : null}
             </View>
           ) : null}
 

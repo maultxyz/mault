@@ -1,8 +1,10 @@
 import { EmptyState } from "@/components/empty-state";
-import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
+import { ListSkeleton } from "@/components/list-skeleton";
 import { ListPagination } from "@/components/list-pagination";
+import { ScannedCardGridSkeleton } from "@/features/cards/components/scanned-card-grid-skeleton";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
+import { MONITOR_CARD_GRID_CLASS } from "@/lib/constants/scanner";
 import type { MonitorCardGridProps } from "@/lib/interfaces/scanner";
 import {
   IconCards,
@@ -46,9 +48,17 @@ export function MonitorCardGrid({
         pageSize={preferredPageSize}
         onPageSizeChange={onPageSizeChange}
       />
-      {isLoading && entries.length === 0 && (
-        <CardTileSkeletonGrid count={12} />
-      )}
+      {isLoading &&
+        entries.length === 0 &&
+        (viewMode === "list" ? (
+          <div className="p-4 md:px-3 md:py-2">
+            <div className="overflow-hidden rounded-card bg-card px-2 py-1">
+              <ListSkeleton rows={10} leading="thumbnail" hasSubtitle hasTrailing />
+            </div>
+          </div>
+        ) : (
+          <ScannedCardGridSkeleton className={MONITOR_CARD_GRID_CLASS} />
+        ))}
       {status === "error" && (
         <div
           role="alert"
@@ -90,7 +100,7 @@ export function MonitorCardGrid({
           </div>
         </div>
       ) : (
-        <div className="grid gap-2 p-4 md:gap-1.5 md:px-3 md:py-2 grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 @5xl:grid-cols-8">
+        <div className={MONITOR_CARD_GRID_CLASS}>
           {entries.map((entry) => (
             <ScannedCardItem
               key={entry.scanId}

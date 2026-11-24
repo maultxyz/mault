@@ -6,7 +6,7 @@ import { FlatList, View } from "react-native";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { AppText } from "@/components/ui/app-text";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { MatchValidationScanListSkeleton } from "@/features/match-validations/components/match-validation-scan-list-skeleton";
 import { Pill } from "@/components/ui/pill";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
@@ -109,7 +109,7 @@ export function MatchValidationScanList({ gameKey }: MatchValidationGameFilterPr
         scans.isError ? (
           <QueryErrorState onRetry={() => void scans.refetch()} isRetrying={scans.isFetching} />
         ) : scans.isPending ? (
-          <ListSkeleton rows={5} />
+          <MatchValidationScanListSkeleton />
         ) : (
           <EmptyState
             icon="collections"

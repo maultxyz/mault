@@ -6,7 +6,8 @@
     "collections": "Sammlungen",
     "scanned": "Insgesamt gescannt",
     "sinceYesterday": "seit gestern",
-    "sinceDate": "seit {{date}}"
+    "sinceDate": "seit {{date}}",
+    "valueCalculating": "Wird berechnet…"
   },
   "review": {
     "title_one": "{{count}} Scan muss geprüft werden",

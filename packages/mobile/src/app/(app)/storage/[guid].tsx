@@ -309,7 +309,7 @@ export default function StorageLocationScreen() {
           ListEmptyComponent={
             cards.isPending ? (
               <View style={{ paddingHorizontal: SPACING.sm }}>
-                {isGrid ? <CollectionGridSkeleton tileWidth={tileWidth} /> : <ListSkeleton rows={3} />}
+                {isGrid ? <CollectionGridSkeleton tileWidth={tileWidth} /> : <ListSkeleton rows={5} leading="thumbnail" hasSubtitle />}
               </View>
             ) : (
               <EmptyState

@@ -1,3 +1,4 @@
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,6 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Skeleton } from "@/components/ui/skeleton";
 import { listImpersonationAudit } from "@/lib/api/admin";
 import {
   IconClockHour3,
@@ -56,14 +56,7 @@ export function ImpersonationAuditDrawer({
 
         <div className="flex-1 overflow-y-auto">
           {auditQuery.isLoading ? (
-            <div className="flex flex-col divide-y">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex flex-col gap-2 p-3">
-                  <Skeleton className="h-3 w-32" />
-                  <Skeleton className="h-3 w-full" />
-                </div>
-              ))}
-            </div>
+            <DividedRowsSkeleton rows={4} leading="none" trailing={[]} rowClassName="p-3" />
           ) : auditQuery.isError && !auditQuery.data ? (
             <div className="p-3">
               <LoadErrorCallout

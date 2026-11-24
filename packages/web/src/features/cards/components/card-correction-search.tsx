@@ -122,6 +122,7 @@ export function CardCorrectionSearch({
         >
           {loading && (
             <CardSearchResultSkeletonGrid
+              isReviewLayout={inline}
               className={cn(resultGridClassName, "gap-1.5")}
             />
           )}

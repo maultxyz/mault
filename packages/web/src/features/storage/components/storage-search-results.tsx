@@ -1,5 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { StorageSearchResultsSkeleton } from "@/features/storage/components/storage-search-results-skeleton";
 import { storageSearchQueryOptions } from "@/features/storage/api/storage-locations";
 import { StorageCardList } from "@/features/storage/components/storage-card-list";
 import type { StorageSearchResultsProps } from "@/lib/interfaces/storage";
@@ -18,7 +18,7 @@ export function StorageSearchResults({
     storageSearchQueryOptions(query),
   );
 
-  if (isPending) return <ListSkeleton />;
+  if (isPending) return <StorageSearchResultsSkeleton />;
 
   if (results.length === 0) {
     return (

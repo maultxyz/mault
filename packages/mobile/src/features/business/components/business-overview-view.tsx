@@ -12,13 +12,13 @@ import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
-import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
 import { businessOverviewQueryOptions, inventoryMarginQueryOptions } from "@/features/business/api/business";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
+import { BusinessOverviewSkeleton } from "@/features/business/components/business-overview-skeleton";
 import { AreaChart } from "@/features/stats/components/area-chart";
 import { StatsHighlights } from "@/features/stats/components/stats-highlights";
 import { StatsSection } from "@/features/stats/components/stats-section";
@@ -28,7 +28,6 @@ import { usePricing } from "@/hooks/use-pricing";
 import {
   BUSINESS_ATTENTION_ICONS,
   BUSINESS_INTAKE_VIEW,
-  BUSINESS_LIST_SKELETON_ROWS,
   BUSINESS_PICKS_VIEW,
   BUSINESS_RESERVATIONS_VIEW,
   BUSINESS_SALES_VIEW,
@@ -59,7 +58,7 @@ export function BusinessOverviewView({ onOpenView }: BusinessOverviewViewProps) 
   const percent = (value: number) =>
     `${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value)}%`;
 
-  if (overview.isPending) return <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />;
+  if (overview.isPending) return <BusinessOverviewSkeleton />;
   if (overview.isError || !data) {
     return (
       <QueryErrorState

@@ -9,7 +9,10 @@ import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useStorageLocationSelection } from "@/features/storage/api/use-storage-location-selection";
@@ -57,6 +60,10 @@ import {
   storageLabelsPath,
 } from "@/lib/constants/storage";
 import { writeStorageSelectionSearchParams } from "@/features/storage/lib/storage-search-params";
+import {
+  STORAGE_CARDS_SKELETON_COLUMNS,
+  STORAGE_CARDS_SKELETON_ROWS,
+} from "@/lib/constants/skeletons";
 import type { StorageSelectionSearchParams } from "@/lib/interfaces/storage";
 import { useElementHeight } from "@/hooks/use-element-height";
 import { ORDER_PARAM, picksPath } from "@/lib/constants/business";
@@ -491,7 +498,27 @@ function DesktopStoragePage() {
             )}
 
             {isLoading ? (
-              <ListSkeleton />
+              <SkeletonStatus className="flex flex-col gap-4 md:gap-2">
+                <div className="-mx-4 -mt-4 flex items-center gap-1.5 border-b p-2 pl-4 md:-mx-3 md:-mt-2 md:pl-3">
+                  <div className="mr-auto flex min-w-0 flex-col">
+                    <div className="flex h-7 items-center">
+                      <Skeleton className="h-4 w-40" />
+                    </div>
+                    <div className="flex h-4 items-center">
+                      <Skeleton className="h-3 w-48" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-10 w-24 shrink-0 rounded-lg md:h-7" />
+                  <Skeleton className="h-10 w-24 shrink-0 rounded-lg md:h-7" />
+                  <Skeleton className="size-10 shrink-0 rounded-lg md:size-7" />
+                  <Skeleton className="size-10 shrink-0 rounded-lg md:size-7" />
+                </div>
+                <div className="flex h-11 items-center gap-4 border-b md:h-7">
+                  <Skeleton className="h-3 w-12" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+                <TableSkeleton columns={STORAGE_CARDS_SKELETON_COLUMNS} rows={STORAGE_CARDS_SKELETON_ROWS} />
+              </SkeletonStatus>
             ) : showsLoadError ? (
               <LoadErrorCallout
                 message={t("page.loadFailed")}
@@ -513,7 +540,10 @@ function DesktopStoragePage() {
                   }
                 />
               ) : (
-                <ListSkeleton />
+                <SkeletonStatus className="flex flex-col gap-3">
+                  <Skeleton className="h-3 w-24" />
+                  <TableSkeleton columns={STORAGE_CARDS_SKELETON_COLUMNS} rows={STORAGE_CARDS_SKELETON_ROWS} />
+                </SkeletonStatus>
               )
             ) : (
               selected && (

@@ -11,6 +11,17 @@ export interface OrgCardValueSummaryCollection {
 export interface OrgCardValueSummaryRow {
   collection_values: OrgCardValueSummaryCollection[];
   top_card_scan_ids: string[];
+}
+
+export interface OrgCardSnapshotPricing {
+  pricing: OrgPricing;
+  day: string;
+  is_value_pending?: boolean;
+}
+
+export interface OrgCardValueSummary extends OrgCardValueSummaryRow, OrgCardSnapshotPricing {}
+
+export interface OrgWidgetPicksRow {
   collection_picks: WidgetCollectionCardPick[];
   org_biggest_price_rise_scan_id: string | null;
   org_biggest_price_drop_scan_id: string | null;
@@ -20,7 +31,4 @@ export interface OrgCardValueSummaryRow {
   review_scan_ids: string[];
 }
 
-export interface OrgCardValueSummary extends OrgCardValueSummaryRow {
-  pricing: OrgPricing;
-  day: string;
-}
+export interface OrgWidgetPicks extends OrgWidgetPicksRow, OrgCardSnapshotPricing {}

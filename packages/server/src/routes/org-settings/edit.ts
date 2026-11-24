@@ -9,10 +9,12 @@ import {
   toConditionMultipliers,
   toCorrectionAutoCloseSeconds,
   toPriceSource,
+  type OrgPricing,
 } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { forgetLeaderboardOptIns } from "../../lib/leaderboard";
+import { refreshOrgCardSnapshotsForPricing } from "../../lib/org-card-value-summary";
 import { forgetShopCatalogReadsForOrg } from "../../lib/shop-catalogs";
 import { orgSettings } from "../../db/schema";
 import { eq } from "drizzle-orm";
@@ -70,6 +72,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
         400,
       );
     }
+    const pricingChange: { savedPricing: OrgPricing | null } = { savedPricing: null };
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const existing = await tx.query.orgSettings.findFirst({
         where: eq(orgSettings.orgId, orgId),
@@ -162,6 +165,18 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
         };
       }
 
+      const savedPricing: OrgPricing = {
+        source: merged.priceSource,
+        conditionMultipliers: merged.conditionMultipliers,
+      };
+      const currentPricing: OrgPricing = {
+        source: current.priceSource,
+        conditionMultipliers: current.conditionMultipliers,
+      };
+      if (JSON.stringify(savedPricing) !== JSON.stringify(currentPricing)) {
+        pricingChange.savedPricing = savedPricing;
+      }
+
       await tx
         .insert(orgSettings)
         .values({ orgId, ...merged })
@@ -199,6 +214,11 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
     });
     if ("leaderboardOptIn" in body) forgetLeaderboardOptIns();
     forgetShopCatalogReadsForOrg(orgId);
+    if (result.success && pricingChange.savedPricing) {
+      void refreshOrgCardSnapshotsForPricing(c.get("jwtClaims"), orgId, pricingChange.savedPricing).catch(
+        (error: unknown) => console.error("[org-settings] card snapshot refresh after pricing change:", error),
+      );
+    }
     return c.json(result);
   },
 );

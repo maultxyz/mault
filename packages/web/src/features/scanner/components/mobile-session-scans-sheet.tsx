@@ -1,7 +1,7 @@
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { CardImage } from "@/components/card-image";
 import { EmptyState } from "@/components/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { MobileListSkeleton } from "@/components/mobile-list-skeleton";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
@@ -49,11 +49,11 @@ export function MobileSessionScansSheet({
               title={t("mobileScan.session.empty")}
             />
           ) : isPending ? (
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 rounded-lg" />
-              ))}
-            </div>
+            <MobileListSkeleton
+              rows={Math.min(count, 5)}
+              leading="thumbnail"
+              hasTrailing
+            />
           ) : (
             <div className={MOBILE_LIST_CLASS}>
               {items.map((entry) => {

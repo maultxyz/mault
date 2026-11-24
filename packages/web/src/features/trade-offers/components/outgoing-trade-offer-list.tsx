@@ -1,12 +1,11 @@
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { TradeOfferListSkeleton } from "@/features/trade-offers/components/trade-offer-list-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useOutgoingTradeOffers } from "@/features/trade-offers/api/use-outgoing-trade-offers";
 import {
   TRADE_OFFER_STATUS_BADGE_VARIANTS,
-  TRADE_OFFERS_SKELETON_ROWS,
   sentTradeOfferPath,
 } from "@/lib/constants/trade-offers";
 import type { OutgoingTradeOfferRowProps } from "@/lib/interfaces/trade-offers";
@@ -55,7 +54,7 @@ export function OutgoingTradeOfferList() {
   const offers = useOutgoingTradeOffers();
 
   if (offers.isPending) {
-    return <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />;
+    return <TradeOfferListSkeleton />;
   }
 
   if (offers.isError) {

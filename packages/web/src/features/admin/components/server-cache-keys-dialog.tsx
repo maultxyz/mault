@@ -1,7 +1,8 @@
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
@@ -11,9 +12,14 @@ import {
 } from "@/features/admin/api/server-caches";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { SERVER_CACHE_KEY_PART_DISPLAY_SEPARATOR, SERVER_CACHES_QUERY_KEY } from "@/lib/constants/admin";
+import {
+  LIST_SKELETON_TITLE_WIDTH_CLASSES,
+  SERVER_CACHE_KEYS_SKELETON_ROWS,
+} from "@/lib/constants/skeletons";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import type { ServerCacheKeysDialogProps } from "@/lib/interfaces/admin";
 import { toast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 import {
   ADMIN_CACHE_KEY_PART_SEPARATOR,
   ADMIN_CACHE_KEY_SEARCH_MAX_LENGTH,
@@ -111,7 +117,24 @@ export function ServerCacheKeysDialog({
             onRetry={() => void keysQuery.refetch()}
           />
         ) : !page ? (
-          <ListSkeleton />
+          <SkeletonStatus className="flex flex-col gap-4 md:gap-2">
+            <Skeleton className="h-3 w-32" />
+            <div className="flex flex-col divide-y divide-border rounded-lg border">
+              {Array.from({ length: SERVER_CACHE_KEYS_SKELETON_ROWS }).map((_, index) => (
+                <div key={index} className="flex items-center gap-1.5 px-2 py-1">
+                  <div className="min-w-0 flex-1">
+                    <Skeleton
+                      className={cn(
+                        "h-3",
+                        LIST_SKELETON_TITLE_WIDTH_CLASSES[index % LIST_SKELETON_TITLE_WIDTH_CLASSES.length],
+                      )}
+                    />
+                  </div>
+                  <Skeleton className="size-10 shrink-0 rounded-lg md:size-7" />
+                </div>
+              ))}
+            </div>
+          </SkeletonStatus>
         ) : page.keys.length === 0 ? (
           <EmptyState size="compact" icon={IconKey} title={t("serverCaches.keys.empty")} />
         ) : (

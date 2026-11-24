@@ -3,6 +3,8 @@ import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { PageHeader } from "@/components/page-header";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { StatGroupSkeleton } from "@/components/stat-group-skeleton";
 import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
 import { LibraryValueModeTabs } from "@/features/library/components/library-value-mode-tabs";
 import { useCollectionChanges } from "@/features/library/api/use-collection-changes";
@@ -254,6 +256,15 @@ export default function CollectionsPage() {
             <LibraryValueModeTabs value={valueMode} onChange={setValueMode} />
           </div>
         )}
+        {isLoading && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Skeleton className="h-11 min-w-48 flex-1 rounded-lg md:h-7" />
+            <div className="flex h-11 items-center gap-6 md:h-7 md:gap-4">
+              <Skeleton className="h-3 w-12" />
+              <Skeleton className="h-3 w-12" />
+            </div>
+          </div>
+        )}
       </PageHeader>
 
       <div
@@ -272,20 +283,26 @@ export default function CollectionsPage() {
         )}
 
         {isLoading && (
-          <div className={COLLECTIONS_GRID_CLASS}>
+          <StatGroupSkeleton tiles={4} gridClassName="grid-cols-2 sm:grid-cols-4" />
+        )}
+
+        {isLoading && (
+          <SkeletonStatus className={COLLECTIONS_GRID_CLASS}>
             {Array.from({ length: COLLECTIONS_SKELETON_COUNT }).map((_, i) => (
               <div key={i} className="overflow-hidden rounded-card border border-border bg-card">
                 <Skeleton className="h-32 rounded-none" />
-                <div className="flex flex-col gap-1.5 border-t px-3 py-2">
-                  <Skeleton className="h-3.5 w-32" />
-                  <div className="flex justify-between">
+                <div className="flex flex-col gap-0.5 border-t px-3 py-2">
+                  <div className="flex h-5 items-center">
+                    <Skeleton className="h-3.5 w-32" />
+                  </div>
+                  <div className="flex h-5 items-center justify-between">
                     <Skeleton className="h-3 w-24" />
                     <Skeleton className="h-3.5 w-14" />
                   </div>
                 </div>
               </div>
             ))}
-          </div>
+          </SkeletonStatus>
         )}
 
         {showsLoadError && (

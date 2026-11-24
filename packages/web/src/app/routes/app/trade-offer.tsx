@@ -1,13 +1,13 @@
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
 import { useTradeOffers } from "@/features/trade-offers/api/trade-offers";
 import { TradeOfferDetail } from "@/features/trade-offers/components/trade-offer-detail";
+import { TradeOfferDetailSkeleton } from "@/features/trade-offers/components/trade-offer-detail-skeleton";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_PAGE_BODY_CLASS } from "@/lib/constants/nav";
-import { TRADE_OFFERS_SKELETON_ROWS, TRADES_PATH } from "@/lib/constants/trade-offers";
+import { TRADES_PATH } from "@/lib/constants/trade-offers";
 import { IconArrowsExchange } from "@tabler/icons-react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -22,7 +22,7 @@ export default function TradeOfferRoutePage() {
   if (offer) return <TradeOfferDetail key={offer.guid} offer={offer} />;
 
   const content = offers.isPending ? (
-    <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />
+    <TradeOfferDetailSkeleton />
   ) : offers.isError ? (
     <LoadErrorCallout message={t("tradeOffers.library.loadFailed")} onRetry={() => void offers.refetch()} />
   ) : (

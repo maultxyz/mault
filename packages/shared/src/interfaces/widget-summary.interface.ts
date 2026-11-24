@@ -49,4 +49,5 @@ export interface WidgetSummary {
   latestDeviceAlert: WidgetDeviceAlert | null;
   scansAllTime: number;
   isRefreshing?: boolean;
+  isValuePending?: boolean;
 }

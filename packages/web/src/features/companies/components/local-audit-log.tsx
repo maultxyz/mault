@@ -1,6 +1,8 @@
 import { EmptyState } from "@/components/empty-state";
 import { IconHistory } from "@tabler/icons-react";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AUDIT_LOG_SKELETON_ROWS } from "@/lib/constants/skeletons";
 import { useOrgLocal } from "@/features/companies/api/use-organization.local";
 import { apiGet } from "@/lib/api/client";
 import { useEffect, useState } from "react";
@@ -55,10 +57,17 @@ export function LocalAuditLog() {
       </p>
 
       {isLoading && (
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
+        <SkeletonStatus className="flex flex-col divide-y divide-border">
+          {Array.from({ length: AUDIT_LOG_SKELETON_ROWS }).map((_, index) => (
+            <div key={index} className="flex h-8 items-center gap-3 px-3">
+              <div className="min-w-0 flex-1">
+                <Skeleton className="h-3 w-2/5" />
+              </div>
+              <Skeleton className="h-3 w-20 shrink-0" />
+              <Skeleton className="h-3 w-24 shrink-0" />
+            </div>
+          ))}
+        </SkeletonStatus>
       )}
 
       {!isLoading && events?.length === 0 && (

@@ -100,8 +100,12 @@ export function CardScanTimeline({
         </p>
         {isLoadingMoreCards && (
           <div className="flex w-full flex-col gap-2" aria-hidden>
-            <Skeleton className="h-5 w-48 rounded-sm" />
-            <Skeleton className="h-32 w-full rounded-lg" />
+            <div className="flex items-center gap-3 py-1.5">
+              <div className="h-px flex-1 bg-border" />
+              <Skeleton className="h-6 w-40 rounded-full" />
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            <Skeleton className="h-32 w-full rounded-card" />
           </div>
         )}
         {hasMoreCards && (

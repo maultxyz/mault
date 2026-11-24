@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { SelectionActionBar } from "@/components/selection-action-bar";
 import { Button } from "@/components/ui/button";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Skeleton } from "@/components/ui/skeleton";
 import { unmatchedCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { invalidateUnmatchedCards } from "@/features/collections/lib/card-page-cache";
@@ -225,11 +226,20 @@ export function UnmatchedCardsBrowser({
       )}
 
       {isPending ? (
-        <div className={cn(CARD_GRID_CLASS, "p-2")}>
+        <SkeletonStatus className={cn(CARD_GRID_CLASS, "p-2")}>
           {Array.from({ length: 12 }, (_, i) => (
-            <Skeleton key={i} className="aspect-[2.5/3.5] rounded-lg" />
+            <div key={i} className="flex flex-col gap-1 rounded-card bg-card p-1.5">
+              <Skeleton className="aspect-[2.5/3.5] w-full rounded-lg" />
+              <div className="flex h-4 items-center justify-between gap-2 px-1">
+                <Skeleton className="h-3 w-1/2 rounded-sm" />
+                <Skeleton className="h-3 w-8 shrink-0 rounded-sm" />
+              </div>
+              <div className="flex h-4 items-center px-1 pb-1">
+                <Skeleton className="h-2.5 w-2/3 rounded-sm" />
+              </div>
+            </div>
           ))}
-        </div>
+        </SkeletonStatus>
       ) : total === 0 ? (
         <EmptyState
           icon={IconChecks}

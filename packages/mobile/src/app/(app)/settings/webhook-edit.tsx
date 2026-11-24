@@ -9,11 +9,13 @@ import { WEBHOOK_EVENTS, webhookFormSchema, type WebhookFormValues } from "@magi
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { QueryErrorState } from "@/components/ui/query-error-state";
+import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { SwitchRow } from "@/components/ui/switch-row";
+import { SwitchRowSkeleton } from "@/components/ui/switch-row-skeleton";
 import { TextField } from "@/components/ui/text-field";
 import { Surface } from "@/components/ui/surface";
 import { createWebhook, updateWebhook, webhooksQueryOptions } from "@/features/integrations/api/webhooks";
@@ -105,7 +107,14 @@ export default function WebhookEditScreen() {
         {isLoadError ? (
           <QueryErrorState onRetry={() => void list.refetch()} isRetrying={list.isFetching} />
         ) : isLoadingEndpoint ? (
-          <PageSkeleton />
+          <>
+            <FormSkeleton fields={2} />
+            <SectionSkeleton>
+              {Array.from({ length: 3 }).map((_, index) => (
+                <SwitchRowSkeleton key={index} hasDescription />
+              ))}
+            </SectionSkeleton>
+          </>
         ) : (
           <>
             <Controller

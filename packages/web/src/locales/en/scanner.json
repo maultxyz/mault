@@ -185,7 +185,8 @@
       "offline": "That sorter isn't online right now. Check that it's powered on and connected to Wi-Fi.",
       "inUse": "Someone else is already controlling that sorter over Wi-Fi.",
       "failed": "Couldn't reach the sorter through the server. Try again in a moment."
-    }
+    },
+    "firmwareOutdatedBannerPi": "The built-in controller is running {{version}}; this Mault installation includes {{latest}}. Restart Mault on the Pi to load its bundled controller software."
   },
   "sessionMonitor": {
     "connectionLost": "Connection to session lost."

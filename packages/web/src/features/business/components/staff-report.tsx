@@ -1,7 +1,8 @@
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { SkeletonStatus } from "@/components/skeleton-status";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import {
@@ -25,7 +26,12 @@ import {
 } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { formatDateTime, formatPercent } from "@/features/business/lib/format";
-import { ACTIVITY_ALL_FILTER } from "@/lib/constants/business";
+import {
+  ACTIVITY_ALL_FILTER,
+  BUSINESS_TABLE_SKELETON_ROWS,
+  STAFF_ACTIVITY_SKELETON_COLUMNS,
+  STAFF_THROUGHPUT_SKELETON_COLUMNS,
+} from "@/lib/constants/business";
 import type { StaffReportViewProps } from "@/lib/interfaces/business";
 import {
   ACTIVITY_ACTION_KEYS,
@@ -98,7 +104,9 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
           onRetry={() => void refetch()}
         />
       ) : isLoading || !staff ? (
-        <ListSkeleton rows={4} />
+        <SkeletonStatus>
+          <TableSkeleton columns={STAFF_THROUGHPUT_SKELETON_COLUMNS} rows={4} />
+        </SkeletonStatus>
       ) : staff.rows.length === 0 ? (
         <EmptyState
           size="compact"
@@ -212,7 +220,12 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
           onRetry={() => void refetchActivity()}
         />
       ) : !activity ? (
-        <ListSkeleton rows={6} />
+        <SkeletonStatus>
+          <TableSkeleton
+            columns={STAFF_ACTIVITY_SKELETON_COLUMNS}
+            rows={BUSINESS_TABLE_SKELETON_ROWS}
+          />
+        </SkeletonStatus>
       ) : activity.entries.length === 0 ? (
         <EmptyState
           size="compact"

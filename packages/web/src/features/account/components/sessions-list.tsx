@@ -1,9 +1,9 @@
 import { EmptyState } from "@/components/empty-state";
 import { DeleteDialog } from "@/components/delete-dialog";
+import { DividedRowsSkeleton } from "@/components/divided-rows-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { sessionsQueryKey, sessionsQueryOptions } from "@/features/account/api/sessions";
 import { neon } from "@/lib/auth/client";
 import type { SessionRow } from "@/lib/interfaces/account";
@@ -126,12 +126,7 @@ export function SessionsList() {
         )}
       </div>
 
-      {isLoading && (
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </div>
-      )}
+      {isLoading && <DividedRowsSkeleton rows={2} />}
 
       {!isLoading && loadFailed && !sessions && (
         <LoadErrorCallout

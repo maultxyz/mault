@@ -5,11 +5,11 @@ import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { outgoingTradeOffersQueryOptions } from "@/features/trade-offers/api/outgoing-trade-offers";
 import { OutgoingTradeOfferReview } from "@/features/trade-offers/components/outgoing-trade-offer-review";
+import { TradeOfferReviewSkeleton } from "@/features/trade-offers/components/trade-offer-review-skeleton";
 import { useTheme } from "@/hooks/use-theme";
 import { useSession } from "@/lib/auth/session";
 
@@ -37,7 +37,7 @@ export default function SentTradeOfferScreen() {
       ) : (
         <PinnedActionsLayout>
           {offers.isLoading ? (
-            <ListSkeleton />
+            <TradeOfferReviewSkeleton hasValueSummary={false} />
           ) : offers.isError ? (
             <Callout
               tone="destructive"

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -18,6 +17,7 @@ import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
+import { RuleFormSkeleton } from "@/features/rules/components/rule-form-skeleton";
 import { createGroup } from "@/features/rules/lib/rules";
 import {
   addSoundRule,
@@ -146,7 +146,7 @@ export default function SoundRuleScreen() {
         {isLoadError ? (
           <QueryErrorState onRetry={retryLoad} isRetrying={rules.isFetching || clips.isFetching} />
         ) : isLoading ? (
-          <PageSkeleton />
+          <RuleFormSkeleton fields={2} />
         ) : (
           <>
             <Controller

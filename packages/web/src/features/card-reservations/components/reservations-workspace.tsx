@@ -2,7 +2,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { BusinessTour } from "@/features/business/components/business-tour";
 import { BUSINESS_RESERVATIONS_TOUR } from "@/features/business/lib/business-tours";
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { SidebarListSkeleton } from "@/components/sidebar-list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
@@ -21,6 +21,7 @@ import {
 } from "@/features/business/components/business-status-filter";
 import { CardReservationRequestCard } from "@/features/card-reservations/components/card-reservation-request-card";
 import { CardReservationRequestList } from "@/features/card-reservations/components/card-reservation-request-list";
+import { CardReservationRequestSkeleton } from "@/features/card-reservations/components/card-reservation-request-skeleton";
 import { cardReservationBusyKey } from "@/features/card-reservations/lib/card-reservation-busy-key";
 import { useCardReservationConfirmText } from "@/features/card-reservations/lib/use-card-reservation-confirm-text";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -203,7 +204,7 @@ export function ReservationsWorkspace({ backToOverview }: ReservationsWorkspaceP
   );
 
   const content = list.isPending ? (
-    <ListSkeleton rows={CARD_RESERVATION_LIST_SKELETON_COUNT} />
+    <CardReservationRequestSkeleton />
   ) : list.isError ? (
     <LoadErrorCallout message={t("errors.loadFailed")} onRetry={() => void list.refetch()} />
   ) : groups.length === 0 ? (
@@ -284,7 +285,7 @@ export function ReservationsWorkspace({ backToOverview }: ReservationsWorkspaceP
   }
 
   const sidebarList = list.isPending ? (
-    <ListSkeleton rows={CARD_RESERVATION_LIST_SKELETON_COUNT} />
+    <SidebarListSkeleton rows={CARD_RESERVATION_LIST_SKELETON_COUNT} />
   ) : list.isError ? null : groups.length === 0 ? (
     <EmptyState size="compact" icon={IconBookmark} title={emptyTitle} description={emptyDescription} />
   ) : (

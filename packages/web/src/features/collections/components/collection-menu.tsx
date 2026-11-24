@@ -1,4 +1,5 @@
 import { MenuSearchField } from "@/components/menu-search-field";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -84,7 +85,13 @@ export function CollectionMenu() {
   } = useMenuSearch();
 
   if (isLoading) {
-    return <Skeleton className="h-6 w-40 rounded-md" />;
+    return (
+      <SkeletonStatus className="flex h-10 w-40 items-center gap-1.5 px-1 md:h-7">
+        <Skeleton className="size-4.5 shrink-0 rounded-sm" />
+        <Skeleton className="h-3.5 flex-1" />
+        <Skeleton className="size-3.5 shrink-0 rounded-sm" />
+      </SkeletonStatus>
+    );
   }
 
   const activeIsLockedByOther =

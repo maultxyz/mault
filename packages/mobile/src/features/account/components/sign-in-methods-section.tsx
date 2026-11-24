@@ -78,7 +78,7 @@ export function SignInMethodsSection({ onMessage }: SignInMethodsSectionProps) {
         <Callout tone="destructive" title={t("account.profile.signInMethods.loadFailed")} />
       ) : null}
       {accounts.isPending ? (
-        <ListSkeleton rows={2} />
+        <ListSkeleton rows={2} hasSubtitle hasTrailing={false} />
       ) : accounts.data ? (
         <ListGroup>
             {linkedAccounts.map((account) => {

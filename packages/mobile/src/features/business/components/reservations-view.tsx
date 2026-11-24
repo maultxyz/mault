@@ -26,7 +26,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconBadge } from "@/components/ui/icon-badge";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
-import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { CardReservationGroupsSkeleton } from "@/features/card-reservations/components/card-reservation-groups-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { Pill } from "@/components/ui/pill";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -45,7 +45,6 @@ import { tradeOfferPlacementLines } from "@/features/trade-offers/lib/placement-
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
   BUSINESS_LIST_SEARCH_DEBOUNCE_MS,
-  BUSINESS_LIST_SKELETON_ROWS,
   CARD_RESERVATION_ACTION_COLLECT,
   CARD_RESERVATION_ACTION_OPEN_PICK,
   CARD_RESERVATION_ACTION_PICK,
@@ -54,6 +53,10 @@ import {
   CARD_RESERVATION_REQUEST_OPTION_TARGET,
   CARD_RESERVATION_STAGE_TONES,
 } from "@/lib/constants/business";
+import {
+  CARD_RESERVATION_SKELETON_CARDS_PER_GROUP,
+  CARD_RESERVATION_SKELETON_GROUP_COUNT,
+} from "@/lib/constants/card-reservations";
 import { LIST_ROW_ICON_SIZE } from "@/lib/constants/ui";
 import { SPACING } from "@/lib/constants/theme";
 import type {
@@ -363,7 +366,10 @@ export function ReservationsView({ canAct }: BusinessListViewProps) {
   };
 
   const content = reservations.isPending ? (
-    <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />
+    <CardReservationGroupsSkeleton
+      groupCount={CARD_RESERVATION_SKELETON_GROUP_COUNT}
+      cardsPerGroup={CARD_RESERVATION_SKELETON_CARDS_PER_GROUP}
+    />
   ) : reservations.isError ? (
     <Callout
       tone="destructive"

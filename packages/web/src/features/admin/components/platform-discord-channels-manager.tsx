@@ -1,10 +1,11 @@
 import { DONATE_URL, PLATFORM_STATS_SCRIPT_COMMAND, PRICE_SYNC_SCRIPT_COMMAND } from "@magic-vault/shared";
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { Callout } from "@/components/callout";
-import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
+import { SettingsSectionsSkeleton } from "@/components/settings-section-skeleton";
+import { PLATFORM_DISCORD_SKELETON_SECTIONS } from "@/lib/constants/skeletons";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { usePlatformDiscordChannelsDraft } from "@/features/admin/api/use-platform-discord-channels-draft";
@@ -55,11 +56,7 @@ export function PlatformDiscordChannelsManager() {
     !stats.data ||
     linkedRole.isLoading
   ) {
-    return (
-      <SettingsSection heading={t("discordChannels.channels.stats.heading")}>
-        <ListSkeleton />
-      </SettingsSection>
-    );
+    return <SettingsSectionsSkeleton sections={PLATFORM_DISCORD_SKELETON_SECTIONS} />;
   }
 
   const canPost =

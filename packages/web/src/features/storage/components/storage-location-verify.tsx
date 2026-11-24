@@ -1,7 +1,8 @@
 import { Callout } from "@/components/callout";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { EmptyState } from "@/components/empty-state";
-import { ListSkeleton } from "@/components/list-skeleton";
+import { StorageCheckListSkeleton } from "@/features/storage/components/storage-check-list-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useStorageVerify } from "@/features/storage/api/use-storage-verify";
 import { ScanCardsPanel } from "@/features/storage/components/scan-cards-panel";
@@ -35,7 +36,18 @@ export function StorageLocationVerify({
     verify.verifiedCount > 0 || verify.notInLocation.length > 0;
   const allVerified = verify.verifiedCount >= verify.cards.length;
 
-  if (verify.isLoading) return <ListSkeleton />;
+  if (verify.isLoading) {
+    return (
+      <div className="flex flex-col gap-4 md:gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Skeleton className="mr-auto h-3 w-64 max-w-full" />
+          <Skeleton className="h-7 w-28 rounded-lg max-md:h-10" />
+          <Skeleton className="h-7 w-24 rounded-lg max-md:h-10" />
+        </div>
+        <StorageCheckListSkeleton showLocation={false} />
+      </div>
+    );
+  }
   if (verify.isError) {
     return (
       <LoadErrorCallout message={t("verify.loadFailed")} onRetry={verify.retry} />

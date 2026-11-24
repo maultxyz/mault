@@ -211,12 +211,13 @@ export function useHomeWidgetSync(): void {
           now,
         }
       : null;
+    const valueWidgetPropsOptions = widgetSummary?.isValuePending ? null : summaryPropsOptions;
 
     updateHomeWidgets({
-      collectionValue: summaryPropsOptions ? buildCollectionValueWidgetProps(summaryPropsOptions) : undefined,
+      collectionValue: valueWidgetPropsOptions ? buildCollectionValueWidgetProps(valueWidgetPropsOptions) : undefined,
       totalCards: summaryPropsOptions ? buildTotalCardsWidgetProps(summaryPropsOptions) : undefined,
-      topCards: summaryPropsOptions ? buildTopCardsWidgetProps(summaryPropsOptions) : undefined,
-      cardOfTheDay: summaryPropsOptions ? buildCardOfTheDayWidgetProps(summaryPropsOptions) : undefined,
+      topCards: valueWidgetPropsOptions ? buildTopCardsWidgetProps(valueWidgetPropsOptions) : undefined,
+      cardOfTheDay: valueWidgetPropsOptions ? buildCardOfTheDayWidgetProps(valueWidgetPropsOptions) : undefined,
       notifications: {
         status: "ready",
         url: NOTIFICATIONS_WIDGET_URL,

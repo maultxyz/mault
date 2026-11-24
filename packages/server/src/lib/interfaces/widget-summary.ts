@@ -34,4 +34,5 @@ export interface LoadedWidgetSummary {
   summary: WidgetSummary;
   currency: string;
   collectionValues: CollectionValueRow[];
+  isValuePending: boolean;
 }

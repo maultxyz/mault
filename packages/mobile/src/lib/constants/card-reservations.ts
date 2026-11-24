@@ -19,3 +19,5 @@ export const MY_CARD_RESERVATION_STATUS_TONES: Record<
   expired: "neutral",
   unavailable: "destructive",
 };
+export const CARD_RESERVATION_SKELETON_GROUP_COUNT = 2;
+export const CARD_RESERVATION_SKELETON_CARDS_PER_GROUP = 2;

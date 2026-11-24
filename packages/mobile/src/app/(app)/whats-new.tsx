@@ -11,7 +11,6 @@ import { AccessibilityInfo, SectionList, View, type ListViewToken } from "react-
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
-import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { QueryErrorState } from "@/components/ui/query-error-state";
@@ -23,6 +22,7 @@ import {
   useMarkFeatureHighlightsSeen,
 } from "@/features/feature-highlights/api/feature-highlights";
 import { FeatureHighlightTimelineEntry } from "@/features/feature-highlights/components/feature-highlight-timeline-entry";
+import { FeatureHighlightTimelineSkeleton } from "@/features/feature-highlights/components/feature-highlight-timeline-skeleton";
 import {
   featureHighlightTimelineSections,
   resolveFeatureHighlightText,
@@ -33,7 +33,6 @@ import { LIST_END_THRESHOLD, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collecti
 import {
   FEATURE_HIGHLIGHT_TIMELINE_MIN_VIEW_TIME_MS,
   FEATURE_HIGHLIGHT_TIMELINE_SEEN_DEBOUNCE_MS,
-  FEATURE_HIGHLIGHT_TIMELINE_SKELETON_ROWS,
   FEATURE_HIGHLIGHT_TIMELINE_VISIBLE_PERCENT,
 } from "@/lib/constants/feature-highlights";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
@@ -191,7 +190,7 @@ export default function WhatsNewScreen() {
         )}
         ListEmptyComponent={
           timeline.isPending ? (
-            <ListSkeleton rows={FEATURE_HIGHLIGHT_TIMELINE_SKELETON_ROWS} withIcon={false} />
+            <FeatureHighlightTimelineSkeleton />
           ) : timeline.isError && !timeline.data ? (
             <QueryErrorState
               title={t("featureHighlights.loadFailed")}

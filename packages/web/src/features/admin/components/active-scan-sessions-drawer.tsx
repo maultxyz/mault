@@ -1,5 +1,6 @@
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
+import { SkeletonStatus } from "@/components/skeleton-status";
 import { Badge } from "@/components/ui/badge";
 import {
   Drawer,
@@ -86,17 +87,28 @@ export function ActiveScanSessionsDrawer({
 
         <div className="flex-1 overflow-y-auto">
           {sessionsQuery.isLoading ? (
-            <div className="flex flex-col gap-3 md:gap-2 p-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex flex-col gap-2 rounded-lg bg-foreground/6 p-3"
-                >
-                  <Skeleton className="h-3 w-32" />
-                  <Skeleton className="h-3 w-full" />
+            <SkeletonStatus className="flex flex-col gap-3 md:gap-2 p-3">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="overflow-hidden rounded-lg bg-foreground/6">
+                  <div className="flex items-center justify-between gap-2 border-b px-3 py-2">
+                    <Skeleton className="h-3.5 w-32" />
+                    <Skeleton className="h-4 w-16 shrink-0 rounded-sm" />
+                  </div>
+                  <div className="flex flex-col divide-y">
+                    {Array.from({ length: 2 }).map((_, j) => (
+                      <div key={j} className="flex flex-col gap-1.5 px-3 py-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <Skeleton className="h-3.5 w-28" />
+                          <Skeleton className="h-3 w-12 shrink-0" />
+                        </div>
+                        <Skeleton className="h-3 w-40" />
+                        <Skeleton className="h-2.5 w-24" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
-            </div>
+            </SkeletonStatus>
           ) : sessionsQuery.isError && !sessionsQuery.data ? (
             <div className="p-3">
               <LoadErrorCallout

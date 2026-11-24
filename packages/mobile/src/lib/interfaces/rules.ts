@@ -145,3 +145,11 @@ export interface StoragePlanDraft {
   isOpen: boolean;
   locationGuids: string[];
 }
+
+export interface RuleGroupSkeletonProps {
+  rows: number;
+}
+
+export interface RuleFormSkeletonProps {
+  fields: number;
+}
