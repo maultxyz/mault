@@ -5,13 +5,6 @@ import { HotkeyHint } from "@/components/hotkey-hint";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -28,8 +21,8 @@ import {
   FlatbedScanButton,
   FlatbedScanControls,
 } from "@/features/scanner/components/flatbed-scan-controls";
-import { ForcedSetPicker } from "@/features/scanner/components/forced-set-picker";
 import { ScanModeSwitch } from "@/features/scanner/components/scan-mode-switch";
+import { ScanOptionsMenu } from "@/features/scanner/components/scan-options-menu";
 import { ScanRemovalBinSelect } from "@/features/scanner/components/scan-removal-bin-select";
 import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
 import { useHotkeys } from "@/hooks/use-hotkeys";
@@ -49,19 +42,12 @@ import {
   IconPlayerPause,
   IconPlayerPlay,
   IconRefresh,
-  IconRosette,
   IconRotateClockwise2,
-  IconSparkles,
   IconStackPop,
 } from "@tabler/icons-react";
 import { formatElapsed } from "@/lib/format";
-import { FLATBED_IDLE_STEPS, FOIL_NONE_VALUE } from "@/lib/constants/scanner";
+import { FLATBED_IDLE_STEPS } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
-import {
-  CARD_CONDITIONS,
-  DEFAULT_CARD_CONDITION,
-  isCardCondition,
-} from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 function ScannerControlButton({
@@ -122,14 +108,11 @@ export function ScannerControls({
   onSetUpFeederCard,
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
-  const { t: tCards } = useTranslation("cards");
   const {
     autoFeed,
     setAutoFeed,
     forceFoilType,
     setForceFoilType,
-    scanCondition,
-    setScanCondition,
     sessionScanCount,
   } = useScannedCards();
   const elapsedMs = useScanElapsedMs();
@@ -141,12 +124,6 @@ export function ScannerControls({
     status === "no-match" || status === "scanning" || status === "captured";
   const isFirstFeed = totalCount === 0;
   const isPaused = status === "paused";
-  const foilTooltip = t("scannerControls.foilTooltip", {
-    type: forceFoilType ?? tCards("foilNone"),
-  });
-  const conditionTooltip = t("scannerControls.conditionTooltip", {
-    condition: tCards(`condition.names.${scanCondition}`),
-  });
   const { isActive } = useStation();
   const { panelsDocked } = useStations();
   const isMobile = useIsMobile();
@@ -168,7 +145,13 @@ export function ScannerControls({
     !!onEmergencyStop && (isConnected || sessionLive) && !emergencyStopped;
   const isVertical = orientation === "vertical";
 
-  const [setPickerOpen, setSetPickerOpen] = useState(false);
+  const [scanOptionsOpen, setScanOptionsOpen] = useState(false);
+  const [setSubmenuOpen, setSetSubmenuOpen] = useState(false);
+
+  const openSetSubmenu = () => {
+    setScanOptionsOpen(true);
+    setSetSubmenuOpen(true);
+  };
 
   const cycleFoilType = () => {
     const options = [null, ...foilOptions];
@@ -201,7 +184,7 @@ export function ScannerControls({
           ? toggleAutoFeed
           : undefined,
       scanCycleFoil: cycleFoilType,
-      scanPickSet: () => setSetPickerOpen(true),
+      scanPickSet: openSetSubmenu,
       scanClearDevice: sessionLive
         ? onStop
         : canClearDevice
@@ -419,85 +402,12 @@ export function ScannerControls({
       <div
         className={cn("flex gap-1.5", isVertical ? "flex-col" : "flex-wrap")}
       >
-        <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant={forceFoilType ? "outline-selected" : "outline"}
-                      aria-label={foilTooltip}
-                    >
-                      <IconSparkles />
-                      {forceFoilType ?? tCards("foilNone")}
-                    </Button>
-                  }
-                />
-              }
-            />
-            <TooltipContent>
-              {foilTooltip}
-              <HotkeyHint id="scanCycleFoil" />
-            </TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent align="start">
-            <DropdownMenuRadioGroup
-              value={forceFoilType ?? FOIL_NONE_VALUE}
-              onValueChange={(value: string) =>
-                setForceFoilType(value === FOIL_NONE_VALUE ? null : value)
-              }
-            >
-              <DropdownMenuRadioItem value={FOIL_NONE_VALUE}>
-                {tCards("foilNone")}
-              </DropdownMenuRadioItem>
-              {foilOptions.map((type) => (
-                <DropdownMenuRadioItem key={type} value={type}>
-                  {type}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant={
-                        scanCondition === DEFAULT_CARD_CONDITION
-                          ? "outline"
-                          : "outline-selected"
-                      }
-                      aria-label={conditionTooltip}
-                    >
-                      <IconRosette />
-                      {scanCondition}
-                    </Button>
-                  }
-                />
-              }
-            />
-            <TooltipContent>{conditionTooltip}</TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent align="start">
-            <DropdownMenuRadioGroup
-              value={scanCondition}
-              onValueChange={(value: string) => {
-                if (isCardCondition(value)) setScanCondition(value);
-              }}
-            >
-              {CARD_CONDITIONS.map((condition) => (
-                <DropdownMenuRadioItem key={condition} value={condition}>
-                  {tCards(`condition.names.${condition}`)}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <ForcedSetPicker open={setPickerOpen} onOpenChange={setSetPickerOpen} />
+        <ScanOptionsMenu
+          open={scanOptionsOpen}
+          onOpenChange={setScanOptionsOpen}
+          setSubmenuOpen={setSubmenuOpen}
+          onSetSubmenuOpenChange={setSetSubmenuOpen}
+        />
       </div>
       {(sessionScanCount > 0 || elapsedMs > 0) && (
         <p className="text-xs tabular-nums text-foreground/70">
