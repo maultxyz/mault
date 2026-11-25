@@ -5,11 +5,15 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import type {
   BinFillLevel,
   ComputedBinFillLevels,
+  SessionStorageBatchStart,
 } from "@/lib/interfaces/scanner";
+import { NO_SESSION_STORAGE_BATCH_STARTS } from "@/lib/constants/scanner";
 import { scanBinCapacity } from "@magic-vault/shared";
 import { useMemo } from "react";
 
-export function useComputedBinFillLevels(): ComputedBinFillLevels {
+export function useComputedBinFillLevels(
+  sessionStorageBatchStarts: SessionStorageBatchStart[] = NO_SESSION_STORAGE_BATCH_STARTS,
+): ComputedBinFillLevels {
   const { configs, selectedSet } = useBinConfigs();
   const { savedHeights } = useBinHeights();
   const binWindows = useMemo(
@@ -20,8 +24,11 @@ export function useComputedBinFillLevels(): ComputedBinFillLevels {
       })),
     [configs],
   );
-  const { counts: matchedCounts, updatedAt: countsUpdatedAt } =
-    useBinCardCounts(binWindows);
+  const {
+    counts: matchedCounts,
+    storageBatchStarts,
+    updatedAt: countsUpdatedAt,
+  } = useBinCardCounts(binWindows);
   const { activeCollection } = useCollections();
   const cardThickness = activeCollection?.game?.cardThickness ?? null;
 
@@ -32,7 +39,22 @@ export function useComputedBinFillLevels(): ComputedBinFillLevels {
           const height = savedHeights.find(
             (h) => h.binNumber === bin.binNumber,
           )?.height;
-          const capacity = scanBinCapacity(height, cardThickness, selectedSet, bin);
+          const capacity = scanBinCapacity(
+            height,
+            cardThickness,
+            selectedSet,
+            bin,
+            [
+              ...(storageBatchStarts.get(bin.binNumber) ?? []),
+              ...sessionStorageBatchStarts
+                .filter(
+                  (start) =>
+                    start.binNumber === bin.binNumber &&
+                    start.lastEmptiedAt === (bin.lastEmptiedAt ?? null),
+                )
+                .map((start) => start.cardIndex),
+            ],
+          );
           const count = matchedCounts.get(bin.binNumber) ?? 0;
           const percent = capacity
             ? Math.min(100, Math.round((count / capacity) * 100))
@@ -44,6 +66,8 @@ export function useComputedBinFillLevels(): ComputedBinFillLevels {
       configs,
       savedHeights,
       matchedCounts,
+      storageBatchStarts,
+      sessionStorageBatchStarts,
       cardThickness,
       selectedSet,
     ],

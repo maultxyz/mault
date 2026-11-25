@@ -31,6 +31,10 @@ export interface StorageSlotParts {
   cardInBatch: number;
 }
 
+export interface BinStackItem {
+  startsStorageBatch: boolean;
+}
+
 export interface FillLocationCandidate {
   id: number;
   capacity: number | null;

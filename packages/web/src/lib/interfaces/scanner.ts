@@ -257,6 +257,7 @@ export interface ScannedCardsContextValue {
   ) => Promise<boolean>;
   promptAddedCardBin: (collectionGuid: string, added: ScannedCard) => boolean;
   sendCatchAllBin: () => void;
+  endStorageBatch: (binNumber: number) => void;
   sendCardToBin: (binNumber: number, cardName: string) => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
@@ -560,7 +561,14 @@ export interface BinFillLevel {
 
 export interface BinCardCounts {
   counts: Map<number, number>;
+  storageBatchStarts: Map<number, number[]>;
   updatedAt: number;
+}
+
+export interface SessionStorageBatchStart {
+  binNumber: number;
+  cardIndex: number;
+  lastEmptiedAt: number | null;
 }
 
 export interface ComputedBinFillLevels {

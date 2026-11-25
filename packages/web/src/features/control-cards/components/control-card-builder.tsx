@@ -311,6 +311,22 @@ export function ControlCardBuilder({ onAdd }: ControlCardBuilderProps) {
                 </Field>
               )}
             />
+            <Controller
+              name="endBatch"
+              control={form.control}
+              render={({ field }) => (
+                <Field orientation="horizontal" className="self-end">
+                  <Switch
+                    id="control-card-endBatch"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  <FieldLabel htmlFor="control-card-endBatch">
+                    {t("controlCards.form.endBatch")}
+                  </FieldLabel>
+                </Field>
+              )}
+            />
           </div>
           {form.formState.errors.root && (
             <FieldError errors={[form.formState.errors.root]} />

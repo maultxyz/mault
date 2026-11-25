@@ -27,6 +27,7 @@ import {
   selectScanSound,
   createScanRemovalEntry,
   scanRemovalCandidateCardIds,
+  resolveControlCardBinNumber,
   resolveRemovalBinNumber,
   findScannerControlCommandProblem,
   parseFoilNudgeFirmwareLimits,
@@ -54,6 +55,8 @@ import {
   getDefaultCardDewarpContour,
   rotateRgba180,
   scanBinCapacity,
+  binStorageBatchStarts,
+  claimStorageBatchStart,
   CHANNEL_OFFSET,
   DEFAULT_CHANNEL_LAYOUT,
   applyAutoAssignTarget,
@@ -311,20 +314,23 @@ function withoutEmbedding(
 
 async function loadFillCounts(
   jwtClaims: string,
-  collectionId: number,
-  configs: BinConfig[],
+  context: PiScanRunContext,
   transaction?: Transaction,
-): Promise<Map<number, number>> {
-  const windows = configs.map((bin) => ({
+): Promise<void> {
+  const windows = context.configs.map((bin) => ({
     binNumber: bin.binNumber,
     lastEmptiedAt: bin.lastEmptiedAt ?? null,
   }));
-  if (windows.length === 0) return new Map();
-  const load = (tx: Transaction) => loadBinCounts(tx, collectionId, windows);
-  const rows = await (transaction
-    ? load(transaction)
-    : authQuery(jwtClaims, load));
-  return new Map(rows.map((row) => [row.binNumber, row.count]));
+  const load = (tx: Transaction) =>
+    loadBinCounts(tx, context.collectionId, windows);
+  const rows =
+    windows.length === 0
+      ? []
+      : await (transaction ? load(transaction) : authQuery(jwtClaims, load));
+  context.counts = new Map(rows.map((row) => [row.binNumber, row.count]));
+  context.storageBatchStarts = new Map(
+    rows.map((row) => [row.binNumber, row.storageBatchStarts ?? []]),
+  );
 }
 
 async function prepareContext(
@@ -558,6 +564,7 @@ async function prepareContext(
       routes,
       heights,
       counts: new Map(),
+      storageBatchStarts: new Map(),
       contents,
     };
   };
@@ -975,11 +982,7 @@ async function waitForResume(session: PiScanLive): Promise<boolean> {
   return waitForPiScanResume(session, async (context) => {
     const fresh = await prepareContext(session, context.hardwareId);
     session.configurationVersion += 1;
-    fresh.counts = await loadFillCounts(
-      session.jwtClaims,
-      fresh.collectionId,
-      fresh.configs,
-    );
+    await loadFillCounts(session.jwtClaims, fresh);
     return fresh;
   });
 }
@@ -999,7 +1002,10 @@ function holdCard(session: PiScanLive, message: string) {
   session.message = message;
 }
 
-function routingContext(context: PiScanRunContext): ScanRoutingContext {
+function routingContext(
+  context: PiScanRunContext,
+  storageBatchStartBins: ReadonlySet<number> = new Set(),
+): ScanRoutingContext {
   const capacity = (binNumber: number) =>
     scanBinCapacity(
       context.heights.get(binNumber),
@@ -1008,6 +1014,11 @@ function routingContext(context: PiScanRunContext): ScanRoutingContext {
       context.configs.find((bin) => bin.binNumber === binNumber) ?? {
         isCatchAll: false,
       },
+      binStorageBatchStarts(
+        context.storageBatchStarts.get(binNumber),
+        context.counts.get(binNumber) ?? 0,
+        storageBatchStartBins.has(binNumber),
+      ),
     );
   return {
     binSet: context.set,
@@ -1022,6 +1033,7 @@ function routingContext(context: PiScanRunContext): ScanRoutingContext {
         ? Number.POSITIVE_INFINITY
         : capacity(bin)! - (context.counts.get(bin) ?? 0),
     createRuleId: randomUUID,
+    startsStorageBatch: (bin) => storageBatchStartBins.has(bin),
   };
 }
 
@@ -1091,7 +1103,7 @@ function routePiCardEarly(
     return null;
   const scanId = randomUUID();
   const scannedAt = Date.now();
-  const routing = routingContext(context);
+  const routing = routingContext(context, session.storageBatchStartBins);
   const bin = earlyRouteBinOf(
     [card, ...provisional.matched.resolved.alternativeMatches].map(
       (candidate) =>
@@ -1139,7 +1151,7 @@ async function processMatched(
           scannedAt,
           card,
         }),
-        routingContext(context),
+        routingContext(context, session.storageBatchStartBins),
         earlyRoute?.bin,
       ),
     hold: async (decision) => {
@@ -1160,6 +1172,13 @@ async function processMatched(
     route: async (decision) => {
       if (!decision.bin) throw new Error("No bin matched this card.");
       showCard(session, card.name, decision.bin.binNumber, true);
+      session.lastScannedCardBinNumber = decision.bin.binNumber;
+      claimStorageBatchStart(
+        session.storageBatchStartBins,
+        context.storageBatchStarts,
+        decision.bin.binNumber,
+        context.counts.get(decision.bin.binNumber) ?? 0,
+      );
       if (earlyRoute) {
         await earlyRoute.routing;
         return;
@@ -1297,7 +1316,7 @@ async function processUnmatched(
             attempts: identified.attempts,
           },
         },
-        routingContext(context),
+        routingContext(context, session.storageBatchStartBins),
       );
       if (!plan.bin)
         throw new Error(
@@ -1313,6 +1332,13 @@ async function processUnmatched(
     pick: () => {},
     route: async (decision) => {
       showCard(session, null, decision.bin!.binNumber, false);
+      session.lastScannedCardBinNumber = decision.bin!.binNumber;
+      claimStorageBatchStart(
+        session.storageBatchStartBins,
+        context.storageBatchStarts,
+        decision.bin!.binNumber,
+        context.counts.get(decision.bin!.binNumber) ?? 0,
+      );
       await routeScannedPiCard(
         session,
         link,
@@ -1459,10 +1485,18 @@ async function applyControlCardWhenIdle(
   const problem = command
     ? findScannerControlCommandProblem(command, targets)
     : "unreadable";
-  await routeUnsavedCard(session, context, link, () =>
-    resolveRemovalBinNumber(context.configs, null),
-  );
+  const routedControlCard = { binNumber: null as number | null };
+  await routeUnsavedCard(session, context, link, () => {
+    routedControlCard.binNumber = resolveControlCardBinNumber(
+      context.configs,
+      problem ? null : command,
+      session.lastScannedCardBinNumber,
+    );
+    return routedControlCard.binNumber;
+  });
   if (session.stopRequested) return;
+  if (command?.endBatch && !problem && routedControlCard.binNumber != null)
+    session.storageBatchStartBins.add(routedControlCard.binNumber);
   if (!command || problem) {
     holdCard(session, `Control card rejected: ${problem ?? "unreadable"}.`);
     return;
@@ -1506,12 +1540,7 @@ async function applyControlCardWhenIdle(
         tx,
         nextCollection,
       );
-      loaded.counts = await loadFillCounts(
-        session.jwtClaims,
-        loaded.collectionId,
-        loaded.configs,
-        tx,
-      );
+      await loadFillCounts(session.jwtClaims, loaded, tx);
       return loaded;
     });
     retainPiScanUnsavedCards(context, fresh);
@@ -1893,11 +1922,7 @@ async function arm(session: PiScanLive) {
       throw new PiScanStartError("The sorter did not report an id.", "invalid");
     }
     session.context = await prepareContext(session, hardwareId);
-    session.context.counts = await loadFillCounts(
-      session.jwtClaims,
-      session.context.collectionId,
-      session.context.configs,
-    );
+    await loadFillCounts(session.jwtClaims, session.context);
     await configurePiScanSorter(
       (command, timeout) => link.command(command, timeout),
       session.context,
@@ -1947,6 +1972,8 @@ function createSession(
     lastMatchedOrientation: null,
     allowDuplicates: body.allowDuplicates !== false,
     lastCardId: null,
+    lastScannedCardBinNumber: null,
+    storageBatchStartBins: new Set(),
     removalEnabled: body.removalEnabled === true,
     removalBinNumber: Number.isInteger(body.removalBinNumber)
       ? body.removalBinNumber!

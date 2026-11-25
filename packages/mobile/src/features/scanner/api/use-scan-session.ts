@@ -15,7 +15,10 @@ import {
   DEFAULT_FEEDER_CALIBRATION,
   feedNextCardAfterRoutedCard,
   feedWithRetries,
+  binStorageBatchStarts,
+  claimStorageBatchStart,
   findScannerControlCommandProblem,
+  resolveControlCardBinNumber,
   runScanWorkflow,
   runScanDisposition,
   parseShareLinkUrl,
@@ -219,6 +222,9 @@ export function useScanSession({
   const binContentsLoadedRef = useRef(false);
   const [binDataReloadAttempt, setBinDataReloadAttempt] = useState(0);
   const lastCardIdRef = useRef<string | null>(null);
+  const lastScannedCardBinRef = useRef<number | null>(null);
+  const storageBatchStartBinsRef = useRef(new Set<number>());
+  const binStorageBatchStartsRef = useRef(new Map<number, number[]>());
   const sorterCardOrientationRef = useRef<Orientation | null>(null);
   const pendingDuplicateRef = useRef<IdentifyOutcome | null>(null);
   const binContentsRef = useRef<BinContentCard[]>([]);
@@ -394,6 +400,9 @@ export function useScanSession({
         binCountsRef.current = new Map(
           counts.map((c) => [c.binNumber, c.count]),
         );
+        binStorageBatchStartsRef.current = new Map(
+          counts.map((c) => [c.binNumber, c.storageBatchStarts ?? []]),
+        );
         binCountsLoadRef.current += 1;
         binCountsLoadedRef.current = true;
       })
@@ -476,6 +485,11 @@ export function useScanSession({
       activeCollection?.game?.cardThickness,
       binSet,
       bin,
+      binStorageBatchStarts(
+        binStorageBatchStartsRef.current.get(binNumber),
+        binCountsRef.current.get(binNumber) ?? 0,
+        storageBatchStartBinsRef.current.has(binNumber),
+      ),
     );
   }, []);
 
@@ -686,6 +700,8 @@ export function useScanSession({
         isBinFull,
         binRoom,
         createRuleId: () => Crypto.randomUUID(),
+        startsStorageBatch: (binNumber) =>
+          storageBatchStartBinsRef.current.has(binNumber),
       };
       const plan = prepareMatchedScanPlan(
         {
@@ -727,6 +743,12 @@ export function useScanSession({
           if (plan.autoAssignTarget)
             applyAutoAssign(configs, plan.autoAssignTarget);
           if (record.binNumber != null) {
+            claimStorageBatchStart(
+              storageBatchStartBinsRef.current,
+              binStorageBatchStartsRef.current,
+              record.binNumber,
+              countInBin(record.binNumber),
+            );
             binCountsRef.current.set(
               record.binNumber,
               countInBin(record.binNumber) + 1,
@@ -776,6 +798,8 @@ export function useScanSession({
           );
 
           if (filledPack) pause("repack-complete");
+          if (record.binNumber != null)
+            lastScannedCardBinRef.current = record.binNumber;
           if (record.binNumber != null && ctx.sorter.isReady)
             sendToBin(record.binNumber, card.name);
           else if (!filledPack) continueAfterCard();
@@ -886,6 +910,8 @@ export function useScanSession({
               isBinFull,
               binRoom,
               createRuleId: () => Crypto.randomUUID(),
+              startsStorageBatch: (binNumber) =>
+                storageBatchStartBinsRef.current.has(binNumber),
             },
           ),
         hold: async (plan) => {
@@ -894,8 +920,14 @@ export function useScanSession({
         },
         assign: (plan) => {
           const binNumber = plan.record.binNumber;
-          if (binNumber != null)
-            binCountsRef.current.set(binNumber, countInBin(binNumber) + 1);
+          if (binNumber == null) return;
+          claimStorageBatchStart(
+            storageBatchStartBinsRef.current,
+            binStorageBatchStartsRef.current,
+            binNumber,
+            countInBin(binNumber),
+          );
+          binCountsRef.current.set(binNumber, countInBin(binNumber) + 1);
         },
         pick: () => {},
         route: (plan) => {
@@ -904,6 +936,8 @@ export function useScanSession({
             Haptics.NotificationFeedbackType.Error,
           ).catch(() => {});
           lastCardIdRef.current = null;
+          if (plan.record.binNumber != null)
+            lastScannedCardBinRef.current = plan.record.binNumber;
           if (plan.record.binNumber != null && ctx.sorter.isReady)
             sendToBin(plan.record.binNumber);
           else continueAfterCard();
@@ -943,13 +977,22 @@ export function useScanSession({
     ],
   );
 
-  const routeControlCard = useCallback(() => {
-    const ctx = latestRef.current;
-    lastCardIdRef.current = null;
-    const catchAll = getCatchAllBin(ctx.configs);
-    if (catchAll && ctx.sorter.isReady) sendToBin(catchAll.binNumber);
-    else continueAfterCard();
-  }, [continueAfterCard, sendToBin]);
+  const routeControlCard = useCallback(
+    (command: ScannerControlCommand | null) => {
+      const ctx = latestRef.current;
+      lastCardIdRef.current = null;
+      const binNumber = resolveControlCardBinNumber(
+        ctx.configs,
+        command,
+        lastScannedCardBinRef.current,
+      );
+      if (command?.endBatch && binNumber != null)
+        storageBatchStartBinsRef.current.add(binNumber);
+      if (binNumber != null && ctx.sorter.isReady) sendToBin(binNumber);
+      else continueAfterCard();
+    },
+    [continueAfterCard, sendToBin],
+  );
 
   const applyControlCode = useCallback(
     async (command: ScannerControlCommand | null) => {
@@ -963,7 +1006,7 @@ export function useScanSession({
         : "unreadable";
       if (!command || problem) {
         pause(`control-card-${problem ?? "unreadable"}` as const);
-        routeControlCard();
+        routeControlCard(null);
         return;
       }
 
@@ -1011,14 +1054,14 @@ export function useScanSession({
       } catch {
         queueForcedValuesAfterCollectionSwitch(null);
         pause("control-card-switch-failed");
-        routeControlCard();
+        routeControlCard(null);
         return;
       }
       setControlCardNotice({ noticeId: Crypto.randomUUID(), command });
       void Haptics.notificationAsync(
         Haptics.NotificationFeedbackType.Success,
       ).catch(() => {});
-      routeControlCard();
+      routeControlCard(command);
     },
     [
       pause,
@@ -1317,8 +1360,10 @@ export function useScanSession({
     } catch {
       return false;
     }
-    for (const binNumber of fullBinNumbers)
+    for (const binNumber of fullBinNumbers) {
       binCountsRef.current.set(binNumber, 0);
+      binStorageBatchStartsRef.current.delete(binNumber);
+    }
     binCountsLoadRef.current += 1;
     setFullBinNumbers([]);
     await queryClient.invalidateQueries({

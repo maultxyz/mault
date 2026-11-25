@@ -17,6 +17,15 @@ import type {
   UnmatchedScanPlanInput,
 } from "./interfaces/scan-plan.interface";
 
+function storageBatchFields(
+  binNumber: number | undefined,
+  context: ScanPlanContext,
+): { startsStorageBatch?: true } {
+  return binNumber != null && context.startsStorageBatch?.(binNumber)
+    ? { startsStorageBatch: true }
+    : {};
+}
+
 function decisionForRoutedBin(
   planned: ScanRoutingDecision,
   routedBin: BinConfig,
@@ -108,6 +117,7 @@ export function prepareMatchedScanPlan(
           kind: "cards",
           record: {
             ...record,
+            ...storageBatchFields(record.binNumber, context),
             ...(match
               ? {
                   pickListUpdate: {
@@ -163,7 +173,15 @@ export function prepareUnmatchedScanPlan(
     ...decision,
     kind: "unmatched",
     record,
-    persistence: skipSaving ? { kind: "none" } : { kind: "unmatched", record },
+    persistence: skipSaving
+      ? { kind: "none" }
+      : {
+          kind: "unmatched",
+          record: {
+            ...record,
+            ...storageBatchFields(record.binNumber, context),
+          },
+        },
     binContent:
       !skipSaving || record.binNumber == null
         ? null

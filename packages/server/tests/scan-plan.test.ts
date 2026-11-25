@@ -281,3 +281,26 @@ test("shared plans preserve detected stamps, printed foil and both document imag
   );
   assert.equal(unmatched.record.capturedBackImageUrl, "back");
 });
+
+test("the first card into a bin after a batch separator is saved as starting a storage batch", () => {
+  const afterSeparator = context({}, { startsStorageBatch: (binNumber) => binNumber === 1 });
+  const matched = prepareMatchedScanPlan(input, afterSeparator);
+  assert.equal(matched.persistence.kind, "cards");
+  assert.equal(
+    matched.persistence.kind === "cards" && matched.persistence.record.startsStorageBatch,
+    true,
+  );
+  const unmatched = prepareUnmatchedScanPlan(
+    { scanId: "miss", scannedAt: 456 },
+    afterSeparator,
+  );
+  assert.equal(
+    unmatched.persistence.kind === "unmatched" && unmatched.persistence.record.startsStorageBatch,
+    true,
+  );
+  const plain = prepareMatchedScanPlan(input, context());
+  assert.equal(
+    plain.persistence.kind === "cards" && plain.persistence.record.startsStorageBatch,
+    undefined,
+  );
+});

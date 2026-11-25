@@ -77,6 +77,7 @@ export interface PiScanRunContext extends PiScanSorterConfiguration {
   routes: BinRoute[];
   heights: Map<number, number>;
   counts: Map<number, number>;
+  storageBatchStarts: Map<number, number[]>;
   contents: PiScanBinCard[];
 }
 
@@ -89,6 +90,8 @@ export interface PiScanLive {
   configurationVersion: number;
   allowDuplicates: boolean;
   lastCardId: string | null;
+  lastScannedCardBinNumber: number | null;
+  storageBatchStartBins: Set<number>;
   lastMatchedOrientation: "upright" | "rotated" | null;
   removalEnabled: boolean;
   removalBinNumber: number | null;

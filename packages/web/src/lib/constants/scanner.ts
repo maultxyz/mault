@@ -24,6 +24,7 @@ import type {
   FlatbedPlacement,
   FlatbedScanStep,
   OnnxExecutionProviderPreference,
+  SessionStorageBatchStart,
 } from "@/lib/interfaces/scanner";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
@@ -413,3 +414,5 @@ export const FOIL_NONE_VALUE = "none";
 export const PAUSED_TAB_HIDDEN_TOAST_ID = "scanner-paused-tab-hidden";
 export const MONITOR_CARD_GRID_CLASS =
   "grid gap-2 p-4 md:gap-1.5 md:px-3 md:py-2 grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 @5xl:grid-cols-8";
+
+export const NO_SESSION_STORAGE_BATCH_STARTS: SessionStorageBatchStart[] = [];

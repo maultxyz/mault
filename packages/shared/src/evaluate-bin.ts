@@ -27,6 +27,7 @@ import {
 } from "./constants/sort-bins.constant";
 import { SCAN_RULE_MATCH_PERCENT_FIELD } from "./constants/scan-rule-fields.constant";
 import { cardMatchPercent } from "./scan-rule-fields";
+import { storageLocationBinRoom } from "./storage-slot";
 import { ruleBooleanValue, ruleDateValue } from "./game-field-definitions";
 
 export function getByPath(card: SourceCard, path: string): unknown {
@@ -446,10 +447,13 @@ export function scanBinCapacity(
   cardThickness: number | null | undefined,
   set: Pick<BinSet, "isChaosMode" | "chaosBinSize"> | null | undefined,
   bin: Pick<BinConfig, "isCatchAll" | "maxCards" | "claimedStorageLocation">,
+  storageBatchStarts: readonly number[] = [],
 ): number | null {
   const physicalCapacity = computeBinCapacity(height, cardThickness);
   const chaosBinSize = set?.isChaosMode && !bin.isCatchAll ? set.chaosBinSize : null;
-  const storageRoom = bin.claimedStorageLocation?.remainingSlots ?? null;
+  const storageRoom = bin.claimedStorageLocation
+    ? storageLocationBinRoom(bin.claimedStorageLocation, storageBatchStarts)
+    : null;
   const limits = [physicalCapacity, chaosBinSize, bin.maxCards ?? null, storageRoom].filter(
     (limit): limit is number => limit != null,
   );

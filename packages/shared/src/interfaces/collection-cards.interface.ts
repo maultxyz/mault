@@ -116,6 +116,7 @@ export interface BinWindow {
 export interface BinCardCount {
   binNumber: number;
   count: number;
+  storageBatchStarts?: number[];
 }
 
 export interface BinContentCard {

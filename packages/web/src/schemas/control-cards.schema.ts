@@ -25,6 +25,7 @@ export const controlCardSchema = z.object({
   autoFeed: z.enum(CONTROL_CARD_TOGGLE_VALUES),
   allowDuplicates: z.enum(CONTROL_CARD_TOGGLE_VALUES),
   pauseScanner: z.boolean(),
+  endBatch: z.boolean(),
 });
 
 export type ControlCardFormValues = z.infer<typeof controlCardSchema>;

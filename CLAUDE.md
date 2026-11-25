@@ -201,7 +201,7 @@ Neon scales to zero after ~5 idle minutes, so nothing may poll the DB on a timer
 
 - With both orientations on, search the last winning one first and skip the other only for a close match (`isConfidentOrientationMatch`).
 - Early route (`runScanWorkflow` `routeEarly`, web and Pi host, not Expo): an unsure image match may route before its text read when every close candidate plans the same bin. Never with removal, duplicate checks, foil nudge, consensus or a prefetched host match. An early-routed scan is committed and flags `lowConfidenceMatch` if the final card belonged elsewhere.
-- Control cards: `scanner-control-code.ts` owns the versioned `mault-control:` payload (unknown keys reject, so bump the version for new fields). Never saved; the control card wins over early routes.
+- Control cards: `scanner-control-code.ts` owns the versioned `mault-control:` payload (unknown keys reject, so a new field bumps `SCANNER_CONTROL_CODE_VERSION` and goes in `SCANNER_CONTROL_CODE_PARAM_MIN_VERSIONS`; cards encode the lowest version they need). Never saved; the control card wins over early routes. Every adapter picks the card's bin through `resolveControlCardBinNumber` (batch separators follow the last scanned card's bin, everything else goes to the catch-all).
 - The settle delay is an upper bound: web captures once `createCardSettleTracker` sees a still card; the Pi host uses `grabSettledCameraFrame`.
 - Phone-as-camera images never ride the stream: they're uploaded to `POST .../phone-camera/captures/:requestId` (held 30 s) and fetched once.
 
@@ -224,6 +224,7 @@ Neon scales to zero after ~5 idle minutes, so nothing may poll the DB on a timer
 - Bin capacity is the smallest of physical size, `chaosBinSize`, `maxCards` and the claimed location's free slots (`scanBinCapacity`).
 - Fill lists: each bin has a stored claim (`bins.claimed_storage_location_id`), reassigned only by `reclaimFillLocations`, never recomputed by bin order. Slots are never reused; `location_position` is 1-based: never add 1.
 - Cards moved to a location get slots in scan order, never client order.
+- A batch separator control card is never stored itself: the adapter marks its bin, and the next card routed there saves `starts_storage_batch` (shared `ScanRoutingContext.startsStorageBatch`). `assignBinToLocation` numbers the stack through shared `planBinStackSlots`, skipping to a new storage batch at that card. Bin capacity counts those skipped slots: bin counts return `storageBatchStarts` (stack indices from the oldest card) and every adapter passes saved plus pending starts to `scanBinCapacity`.
 - A card is in its bin while `bin_emptied_at` is null; `markBinsEmptied` stamps cards, so presets hold no fill state.
 - Never put a collection's full card list in a stream payload.
 - Every connected sorter is a station (tab) plus one idle standby. Background stations stay laid out (never `display: none`) so they keep sorting.

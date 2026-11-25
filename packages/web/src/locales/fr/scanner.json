@@ -1126,6 +1126,7 @@
   "controlCards": {
     "openPage": "Imprimer des cartes de contrôle",
     "applied": "Carte de contrôle appliquée",
+    "batchSeparatorName": "Séparateur de lot",
     "rejected": {
       "title": "Carte de contrôle non appliquée"
     },
@@ -1148,6 +1149,7 @@
       "autoFeedOff": "Alimentation auto désactivée",
       "duplicatesOn": "Autoriser les doublons",
       "duplicatesOff": "Ignorer les doublons",
+      "endBatch": "Fin du lot",
       "pause": "Mettre le scan en pause"
     },
     "form": {
@@ -1168,6 +1170,7 @@
       "autoFeed": "Alimentation auto",
       "allowDuplicates": "Autoriser les doublons",
       "pauseScanner": "Mettre le scan en pause après cette carte",
+      "endBatch": "Séparateur de lot : va dans le bac de la dernière carte",
       "add": "Ajouter à la planche",
       "unchanged": "Aucun changement",
       "toggle": {
@@ -1189,7 +1192,7 @@
     "page": {
       "back": "Retour au scanner",
       "title": "Cartes de contrôle",
-      "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection.",
+      "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection. Un séparateur de lot va plutôt dans le même bac que la dernière carte triée, pour voir où chaque lot se termine.",
       "print": "Imprimer",
       "printTip": "Imprime sur du papier cartonné au format Letter à l'échelle 100 % (Taille réelle) avec les marges sur Aucune. Chaque page contient 9 cartes. Découpe le long des repères de coupe et garde le QR code bien à plat et sans reflets."
     },
@@ -1213,6 +1216,7 @@
         "autoFeedOff": "Bloqueur d'alimentation",
         "duplicatesOn": "Doublons angéliques",
         "duplicatesOff": "Bloqueur de doublons",
+        "endBatch": "Trait dans le sable",
         "pause": "Répit du trieur"
       },
       "rules": {
@@ -1227,6 +1231,7 @@
         "autoFeedOff": "Désactive l'alimentation auto de l'instance Mault ciblée.",
         "duplicatesOn": "L'instance Mault ciblée autorise les doublons.",
         "duplicatesOff": "L'instance Mault ciblée perd la capacité de scanner les doublons.",
+        "endBatch": "Marque la fin d'un lot. Cette carte suit la dernière carte triée dans son bac.",
         "pause": "Engage l'instance Mault ciblée. Elle ne se dégage pas tant que tu ne reprends pas le scan."
       }
     }

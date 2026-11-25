@@ -49,6 +49,8 @@ export function toClaimedStorageLocation(
     name: location.name,
     capacity: location.capacity,
     remainingSlots: storageLocationRemainingSlots(location),
+    batchSize: location.batchSize,
+    usedSlots: location.usedSlots,
   };
 }
 
