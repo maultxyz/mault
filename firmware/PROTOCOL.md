@@ -363,6 +363,9 @@ reported one.
 `0` = standard layout, `4` = legacy layout. Also resets every servo to
 neutral. → `{"status":"ok"}`
 
+Firmware 2.14.1+ refuses an offset outside `0` to `12` with
+`{"error":"channel offset must be 0 to 12"}` and changes nothing.
+
 ### `test`
 ```json
 {"test": true}
@@ -630,6 +633,12 @@ Immediately cuts PWM on the feeder channel. → `{"status":"ok"}`
 ```
 All fields optional/partial, same merge behavior as `setConfig`. Stops
 the feeder as a side effect. → `{"status":"ok"}`
+
+Firmware 2.14.1+ clamps `duration` to `0–30000` ms and the other durations
+to `0–5000` ms, and `setConfig` clamps its three timings to `0–5000` ms
+(before, only `paddleOpenDelay` was). In pulsed mode it also checks the
+sensor during `pauseDuration`, so a feed returns as soon as the card
+arrives instead of waiting the pause out.
 
 | Field | Meaning |
 |---|---|
