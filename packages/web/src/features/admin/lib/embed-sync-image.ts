@@ -8,7 +8,8 @@ function drawPortrait(
 ): void {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, MILO_INPUT_SIZE, MILO_INPUT_SIZE);
+  const { width, height } = ctx.canvas;
+  ctx.fillRect(0, 0, width, height);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "low";
   if (bitmap.width > bitmap.height) {
@@ -20,15 +21,17 @@ function drawPortrait(
     uprightCtx.translate(upright.width, 0);
     uprightCtx.rotate(Math.PI / 2);
     uprightCtx.drawImage(bitmap, 0, 0);
-    ctx.drawImage(upright, 0, 0, MILO_INPUT_SIZE, MILO_INPUT_SIZE);
+    ctx.drawImage(upright, 0, 0, width, height);
+    upright.width = upright.height = 0;
     return;
   }
-  ctx.drawImage(bitmap, 0, 0, MILO_INPUT_SIZE, MILO_INPUT_SIZE);
+  ctx.drawImage(bitmap, 0, 0, width, height);
 }
 
 export async function loadSyncCanvas(
   imageUrl: string,
   signal: AbortSignal,
+  preserveSize = false,
 ): Promise<HTMLCanvasElement> {
   const response = await fetch(syncImageUrl(imageUrl, API_BASE), { signal });
   if (!response.ok) {
@@ -39,8 +42,8 @@ export async function loadSyncCanvas(
   });
   try {
     const canvas = document.createElement("canvas");
-    canvas.width = MILO_INPUT_SIZE;
-    canvas.height = MILO_INPUT_SIZE;
+    canvas.width = preserveSize ? Math.min(bitmap.width, bitmap.height) : MILO_INPUT_SIZE;
+    canvas.height = preserveSize ? Math.max(bitmap.width, bitmap.height) : MILO_INPUT_SIZE;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) throw new Error("Could not get canvas context");
     drawPortrait(bitmap, ctx);

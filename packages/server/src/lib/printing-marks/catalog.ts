@@ -19,6 +19,17 @@ export function gameUsesPrintingMarks(gameKey: string): boolean {
   return printingRegionsOf(gameKey).length > 0;
 }
 
+export function catalogPrintingMarkGroups(
+  gameKey: string,
+  lang: string,
+  cardId: string,
+  data: unknown,
+): PrintingMarkGroups | null {
+  const adapter = resolveCardSearchForGame(gameKey, lang)?.adapter;
+  const card = adapter?.normalizeStored(data, cardId, lang);
+  return (card && adapter?.printingMarkGroups?.(card)) || null;
+}
+
 export async function readCatalogPrintingMarks(
   gameKey: string,
   lang: string,
@@ -27,9 +38,7 @@ export async function readCatalogPrintingMarks(
   imageBuffer: Buffer,
 ): Promise<CatalogPrintingMarks | null> {
   if (!gameUsesPrintingMarks(gameKey)) return null;
-  const adapter = resolveCardSearchForGame(gameKey, lang)?.adapter;
-  const card = adapter?.normalizeStored(data, cardId, lang);
-  const groups = card && adapter?.printingMarkGroups?.(card);
+  const groups = catalogPrintingMarkGroups(gameKey, lang, cardId, data);
   if (!groups || Object.keys(groups).length === 0) {
     return { groups: null, gridsByRegion: new Map() };
   }

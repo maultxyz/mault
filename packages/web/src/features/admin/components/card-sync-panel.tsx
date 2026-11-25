@@ -181,8 +181,8 @@ export function CardSyncPanel() {
         </div>
 
         {isRunning && syncState.vectorizeOn === "browser" && (
-          <p className="text-sm text-foreground/70">
-            {t("cardImageVectors.browserWorking", {
+          <p className="text-sm text-foreground/70" role="status">
+            {t(syncState.printingMarksTotal ? "cardImageVectors.browserReadingPrintingMarks" : "cardImageVectors.browserWorking", {
               count: browserSyncParallel(syncState.concurrency),
             })}
           </p>
@@ -260,7 +260,7 @@ export function CardSyncPanel() {
                   })}
                 </span>
               )}
-              {cardsPerMinute !== null && (
+              {cardsPerMinute !== null && !syncState.printingMarksTotal && (
                 <span>
                   {t("cardImageVectors.ratePerMinute", {
                     count: cardsPerMinute,

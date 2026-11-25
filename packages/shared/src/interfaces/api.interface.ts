@@ -1,6 +1,6 @@
 import type { PlayingCard } from "./card.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
-import type { PrintingMarkMatch } from "./printing-regions.interface";
+import type { PrintingMarkKey, PrintingMarkMatch } from "./printing-regions.interface";
 import type { Result } from "./result.interface";
 
 export interface SearchCardMatch {
@@ -80,19 +80,33 @@ export interface SyncState {
 }
 
 export interface BrowserSyncWorkCard {
+  kind?: "vectors" | "printingMarks";
   cardId: string;
   name: string;
   imageUrl: string;
   backImageUrl?: string;
+  gameKey?: string;
+  printingMarkVersion?: number;
 }
 
-export interface BrowserSyncWorkResult {
+export interface BrowserSyncVectorResult {
+  kind?: "vectors";
   cardId: string;
   embedding: number[];
   backEmbedding?: number[];
 }
 
+export interface BrowserSyncPrintingMarkResult {
+  kind: "printingMarks";
+  cardId: string;
+  version: number;
+  grids: { key: PrintingMarkKey; values: number[] }[];
+}
+
+export type BrowserSyncWorkResult = BrowserSyncVectorResult | BrowserSyncPrintingMarkResult;
+
 export interface BrowserSyncWorkFailure {
+  kind?: "vectors" | "printingMarks";
   cardId: string;
   message: string;
 }

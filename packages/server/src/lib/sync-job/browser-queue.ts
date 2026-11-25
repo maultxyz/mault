@@ -1,4 +1,4 @@
-import { CARD_EMBEDDING_DIMENSIONS, SYNC_VECTORIZE_CONCURRENCY_MAX } from "@magic-vault/shared";
+import { CARD_EMBEDDING_DIMENSIONS, PRINTING_MARK_VERSION, SYNC_VECTORIZE_CONCURRENCY_MAX } from "@magic-vault/shared";
 import type {
   BrowserSyncWorkCard,
   BrowserSyncWorkFailure,
@@ -13,6 +13,10 @@ import {
   CARD_EMBEDDING_VERSION,
 } from "../constants/sync";
 import { buildCatalogCardRow, sourceDataHashOf } from "./catalog-row";
+import { PRINTING_MARK_BACKFILL_UPDATE_BATCH_SIZE, PRINTING_MARK_PROGRESS_LOG_EVERY_CARDS } from "../constants/printing-marks";
+import { addToPrintingMarkBatch } from "../printing-marks/catalog";
+import { oneMarkWriteAtATime, printingMarksFromBrowser, storePrintingMarks } from "./printing-marks";
+import type { PrintingMarkBatch } from "../interfaces/printing-marks";
 import type { AcceptedBrowserWork, BrowserQueueHost, QueueState, QueuedCard } from "../interfaces/sync-job";
 
 let queue: QueueState | null = null;
@@ -34,6 +38,9 @@ function report(currentCard?: string): void {
     queued,
     currentCard: currentCard ?? s.currentCard,
     acceptingWork: true,
+    printingMarksTotal: s.printingMarksTotal,
+    printingMarksDone: s.printingMarksDone,
+    printingMarksFailed: s.printingMarksFailed,
   });
 }
 
@@ -71,16 +78,23 @@ function take(cardId: string): QueuedCard | null {
 
 function failItem(item: QueuedCard, message: string): void {
   if (!queue) return;
-  const { fallbackImageUrl, imageUrl } = item.card;
+  const { fallbackImageUrl } = item.card;
+  const imageUrl = queue.host.kind === "printingMarks"
+    ? (item.card.printingMarkImageUrl ?? item.card.imageUrl)
+    : item.card.imageUrl;
   if (fallbackImageUrl && fallbackImageUrl !== imageUrl) {
-    item.card = { ...item.card, imageUrl: fallbackImageUrl };
+    item.card = { ...item.card, imageUrl: fallbackImageUrl, printingMarkImageUrl: fallbackImageUrl };
     item.attempts = 0;
     queue.pending.push(item);
     return;
   }
   item.attempts += 1;
   if (item.attempts >= BROWSER_SYNC_MAX_ATTEMPTS) {
-    queue.host.incrementCounters({ errors: 1 });
+    if (queue.host.kind === "printingMarks") {
+      queue.host.patchState({ printingMarksFailed: (queue.host.getState().printingMarksFailed ?? 0) + 1 });
+    } else {
+      queue.host.incrementCounters({ errors: 1 });
+    }
     queue.host.addLog(`Error: ${item.card.name}: ${message}`);
     return;
   }
@@ -88,6 +102,7 @@ function failItem(item: QueuedCard, message: string): void {
 }
 
 function isEmbedding(value: number[]): boolean {
+  if (!Array.isArray(value)) return false;
   if (value.length !== CARD_EMBEDDING_DIMENSIONS) return false;
   for (const n of value) {
     if (!Number.isFinite(n)) return false;
@@ -105,22 +120,29 @@ export function claimBrowserWork(limit: number): BrowserSyncWorkCard[] {
   const count = Math.max(0, Math.min(limit, SYNC_VECTORIZE_CONCURRENCY_MAX));
   const cards: BrowserSyncWorkCard[] = [];
   while (cards.length < count && queue.pending.length > 0) {
-    const item = queue.pending.shift();
+    const item = queue.pending.pop();
     if (!item || !item.card.imageUrl) continue;
     queue.leased.set(item.card.id, {
       item,
       expiresAt: Date.now() + BROWSER_SYNC_LEASE_MS,
     });
     cards.push({
+      kind: queue.host.kind,
       cardId: item.card.id,
       name: item.card.name,
-      imageUrl: item.card.imageUrl,
-      backImageUrl: item.card.backImageUrl ?? undefined,
+      imageUrl: queue.host.kind === "printingMarks"
+        ? (item.card.printingMarkImageUrl ?? item.card.imageUrl)
+        : item.card.imageUrl,
+      backImageUrl: queue.host.kind === "printingMarks" ? undefined : item.card.backImageUrl,
+      gameKey: queue.host.source.gameKey,
+      printingMarkVersion: queue.host.kind === "printingMarks" ? PRINTING_MARK_VERSION : undefined,
     });
   }
   if (cards.length > 0 && !queue.announced) {
     queue.announced = true;
-    queue.host.addLog("A browser is vectorizing card images.");
+    queue.host.addLog(queue.host.kind === "printingMarks"
+      ? "A browser is reading printing marks."
+      : "A browser is vectorizing card images.");
   }
   if (cards[0]) report(cards[0].name);
   return cards;
@@ -135,8 +157,18 @@ export async function submitBrowserWork(
   try {
     const accepted: AcceptedBrowserWork[] = [];
     for (const result of results.slice(0, SYNC_VECTORIZE_CONCURRENCY_MAX)) {
+      if ((result.kind ?? "vectors") !== (queue.host.kind ?? "vectors")) continue;
       const item = take(result.cardId);
       if (!item) continue;
+      if (result.kind === "printingMarks") {
+        try {
+          const marks = printingMarksFromBrowser(queue.host.source, queue.host.lang, item.card, result);
+          queue.printingMarks.push({ item, marks });
+        } catch (err) {
+          failItem(item, err instanceof Error ? err.message : String(err));
+        }
+        continue;
+      }
       if (!isEmbedding(result.embedding)) {
         failItem(item, "Embedding was not a 128-number vector.");
         continue;
@@ -148,11 +180,14 @@ export async function submitBrowserWork(
       accepted.push({ item, embedding: result.embedding, backEmbedding: result.backEmbedding });
     }
     for (const failure of failures.slice(0, SYNC_VECTORIZE_CONCURRENCY_MAX)) {
+      if ((failure.kind ?? "vectors") !== (queue.host.kind ?? "vectors")) continue;
       const item = take(failure.cardId);
       if (!item) continue;
       const message = failure.message.trim().slice(0, 200) || "Image failed.";
       failItem(item, message);
     }
+
+    if (queue.host.kind === "printingMarks") await flushPrintingMarks();
 
     if (accepted.length > 0 && queue) {
       const source = queue.host.source;
@@ -241,10 +276,36 @@ export function finishBrowserQueue(outcome: "done" | "cancelled"): void {
   settle(outcome);
 }
 
+async function flushPrintingMarks(): Promise<void> {
+  if (!queue || queue.printingMarks.length === 0) return;
+  if (queue.printingMarks.length < PRINTING_MARK_BACKFILL_UPDATE_BATCH_SIZE && outstanding() > 0) return;
+  const current = queue;
+  const ready = current.printingMarks.splice(0);
+  const batch: PrintingMarkBatch = new Map();
+  for (const { marks } of ready) addToPrintingMarkBatch(batch, marks);
+  try {
+    await oneMarkWriteAtATime(() => storePrintingMarks(
+      current.host.source,
+      current.host.lang,
+      ready.map(({ item, marks }) => ({ cardId: item.card.id, marks })),
+      batch,
+    ));
+    const previous = current.host.getState().printingMarksDone ?? 0;
+    const done = previous + ready.length;
+    current.host.patchState({ printingMarksDone: done });
+    if (Math.floor(done / PRINTING_MARK_PROGRESS_LOG_EVERY_CARDS) > Math.floor(previous / PRINTING_MARK_PROGRESS_LOG_EVERY_CARDS)) {
+      current.host.addLog(`Printing marks read for ${done} of ${current.host.cards.length} cards.`);
+    }
+  } catch (err) {
+    for (const { item } of ready) failItem(item, err instanceof Error ? err.message : String(err));
+  }
+}
+
 export async function serveBrowserQueue(
   host: BrowserQueueHost,
 ): Promise<"done" | "cancelled"> {
-  host.incrementCounters({ skipped: host.skipped });
+  const printingMarks = host.kind === "printingMarks";
+  if (!printingMarks) host.incrementCounters({ skipped: host.skipped });
   if (host.cards.length === 0) {
     host.addLog("Every card from this source already has an image vector.");
     host.patchState({ acceptingWork: false, queued: 0 });
@@ -252,12 +313,14 @@ export async function serveBrowserQueue(
     return host.isCancelled() ? "cancelled" : "done";
   }
 
-  host.addLog(
-    "Leaving stored card text unchanged. Only cards missing an image vector will be processed.",
-  );
-  host.addLog(
-    `Waiting for a browser to vectorize ${host.cards.length} cards missing image vectors. Keep the admin page open.`,
-  );
+  host.addLog(printingMarks
+    ? `Waiting for a browser to read printing marks for ${host.cards.length} cards. Keep the admin page open.`
+    : `Waiting for a browser to vectorize ${host.cards.length} cards missing image vectors. Keep the admin page open.`);
+  if (printingMarks) host.patchState({
+    printingMarksTotal: host.cards.length,
+    printingMarksDone: 0,
+    printingMarksFailed: 0,
+  });
   host.patchState({ acceptingWork: true, queued: host.cards.length });
   host.emitEvent("status", host.getState());
 
@@ -273,12 +336,13 @@ export async function serveBrowserQueue(
     }, 5_000);
     queue = {
       host,
-      pending: host.cards.map((card) => ({ card, attempts: 0 })),
+      pending: host.cards.map((card) => ({ card, attempts: 0 })).reverse(),
       leased: new Map(),
       timer,
       announced: false,
       settled: false,
       submitsInFlight: 0,
+      printingMarks: [],
       resolve,
     };
   });

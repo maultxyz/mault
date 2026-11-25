@@ -1,5 +1,7 @@
 import type { PrintingRegion } from "../interfaces/printing-regions.interface";
 
+export const PRINTING_MARK_VERSION = 4;
+
 export const PRINTING_REGIONS_BY_GAME_KEY: Record<string, PrintingRegion[]> = {
   mtg: [
     {
