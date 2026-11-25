@@ -30,7 +30,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.14.0"
+#define FIRMWARE_VERSION "2.14.1"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -336,6 +336,20 @@ int irPin(int module) {
   return IR_PINS[module - 1];
 }
 
+// Servo inrush can put a spike on a sensor line, so one read never decides:
+// two reads IR_CONFIRM_GAP_US apart must agree, and a third breaks a tie.
+#define IR_CONFIRM_GAP_US 200
+
+bool cardPresent(int module) {
+  int pin = irPin(module);
+  bool first = digitalRead(pin) == LOW;
+  delayMicroseconds(IR_CONFIRM_GAP_US);
+  bool second = digitalRead(pin) == LOW;
+  if (first == second) return first;
+  delayMicroseconds(IR_CONFIRM_GAP_US);
+  return digitalRead(pin) == LOW;
+}
+
 bool hopperHasCards() {
   return digitalRead(IR_PIN_HOPPER) == LOW;
 }
@@ -462,7 +476,11 @@ void waitMs(unsigned long ms) {
   while (millis() - start < ms && !emergencyStopped) {
     feedWatchdog();
     if (commandInProgress) pumpInput();
-    unsigned long left = ms - (millis() - start);
+    // pumpInput() can outlast a short wait; without this check the
+    // subtraction below wraps and a 2 ms wait sleeps the full 50 ms.
+    unsigned long elapsed = millis() - start;
+    if (elapsed >= ms) break;
+    unsigned long left = ms - elapsed;
     delay(left < 50 ? left : 50);
   }
   feedWatchdog();
@@ -470,7 +488,7 @@ void waitMs(unsigned long ms) {
 
 bool waitForCard(int module, int timeoutMs = IR_TIMEOUT_MS) {
   unsigned long start = millis();
-  while (digitalRead(irPin(module)) == HIGH) {
+  while (!cardPresent(module)) {
     if (emergencyStopped || millis() - start > (unsigned long)timeoutMs) return false;
     waitMs(5);
   }
@@ -479,7 +497,7 @@ bool waitForCard(int module, int timeoutMs = IR_TIMEOUT_MS) {
 
 bool waitForClear(int module, int timeoutMs = IR_TIMEOUT_MS) {
   unsigned long start = millis();
-  while (digitalRead(irPin(module)) == LOW) {
+  while (cardPresent(module)) {
     if (emergencyStopped || millis() - start > (unsigned long)timeoutMs) return false;
     waitMs(5);
   }
@@ -494,7 +512,7 @@ bool waitForClear(int module, int timeoutMs = IR_TIMEOUT_MS) {
 // cards waiting in the hopper are a normal, expected state, not a jam.
 int findBlockedModule() {
   for (int m = 1; m <= maxModuleForOffset(); m++) {
-    if (digitalRead(irPin(m)) == LOW) return m;
+    if (cardPresent(m)) return m;
   }
   return 0;
 }
@@ -550,6 +568,37 @@ static_assert(sizeof(ModuleConfig) == MODULE_FIELD_COUNT * sizeof(int),
               "MODULE_FIELDS must list every ModuleConfig field");
 static_assert(sizeof(FeederConfig) == FEEDER_FIELD_COUNT * sizeof(int),
               "FEEDER_FIELDS must list every FeederConfig field");
+
+// Offsets past this leave no room for one module plus the feeder channel,
+// and a negative one indexes outside the module arrays and the PCA9685's
+// channel registers.
+#define MAX_CHANNEL_OFFSET 12
+#define MAX_CONFIG_DELAY_MS 5000
+#define MAX_FEED_DURATION_MS 30000
+
+// Manual prototypes (see FeedResult above): both take sketch-defined structs.
+void sanitizeModuleConfig(ModuleConfig& c);
+void sanitizeFeederConfig(FeederConfig& c);
+
+bool channelOffsetValid(int offset) {
+  return offset >= 0 && offset <= MAX_CHANNEL_OFFSET;
+}
+
+// Every duration ends up in waitMs() as an unsigned wait, so a negative one
+// would block for weeks with the watchdog still being fed.
+void sanitizeModuleConfig(ModuleConfig& c) {
+  c.pusherHoldDuration = constrain(c.pusherHoldDuration, 0, MAX_CONFIG_DELAY_MS);
+  c.paddleCloseDelay = constrain(c.paddleCloseDelay, 0, MAX_CONFIG_DELAY_MS);
+  c.paddleOpenDelay = constrain(c.paddleOpenDelay, 0, MAX_CONFIG_DELAY_MS);
+}
+
+void sanitizeFeederConfig(FeederConfig& c) {
+  c.duration = constrain(c.duration, 0, MAX_FEED_DURATION_MS);
+  c.pulseDuration = constrain(c.pulseDuration, 0, MAX_CONFIG_DELAY_MS);
+  c.pauseDuration = constrain(c.pauseDuration, 0, MAX_CONFIG_DELAY_MS);
+  c.settleDuration = constrain(c.settleDuration, 0, MAX_CONFIG_DELAY_MS);
+  c.reverseDuration = constrain(c.reverseDuration, 0, MAX_CONFIG_DELAY_MS);
+}
 
 void printIntFields(const char* const* names, const int* values, size_t count,
                     bool first, Print& reply) {
@@ -643,6 +692,9 @@ void loadStoredConfig() {
   } else {
     return;
   }
+  if (!channelOffsetValid(storedConfig.channelOffset)) return;
+  for (int m = 0; m < MAX_MODULES; m++) sanitizeModuleConfig(storedConfig.modules[m]);
+  sanitizeFeederConfig(storedConfig.feeder);
   hasStoredConfig = true;
   moduleChannelOffset = storedConfig.channelOffset;
   memcpy(moduleConfig, storedConfig.modules, sizeof(moduleConfig));
@@ -855,9 +907,10 @@ void configureI2c() {
   // Renesas' Wire ignores setWireTimeout's reset flag, so a timed-out
   // transaction leaves the peripheral wedged; recoverServoDriver() restarts
   // it instead. arduino-esp32's TwoWire has no setWireTimeout at all, only
-  // a millisecond setTimeout, and recovers its own bus.
+  // a millisecond setTimeOut, and recovers its own bus. (Its setTimeout is
+  // Stream's read timeout and leaves I2C transactions at the 50 ms default.)
 #if defined(ARDUINO_ARCH_ESP32)
-  Wire.setTimeout(25);
+  Wire.setTimeOut(25);
 #else
   Wire.setWireTimeout(25000, true);
 #endif
@@ -979,6 +1032,12 @@ void cutServoSignal(int channel) {
   writeServoChannel(channel, 4096);
 }
 
+// Every PCA9685 channel: the feeder, every module servo and any raw channel
+// under test.
+void cutAllServoSignals() {
+  for (int channel = 0; channel <= 15; channel++) cutServoSignal(channel);
+}
+
 void releaseAllServos() {
   for (int m = 1; m <= maxModuleForOffset(); m++) {
     for (int s = 0; s < 3; s++) cutServoSignal(getChannel(m, s));
@@ -1049,6 +1108,17 @@ void settleAndStopFeeder() {
   stopFeeder();
 }
 
+// Polls module 1's sensor for up to ms. Checks at least once, so a 0 ms
+// wait still sees a card that's already there.
+bool cardArrivesWithin(unsigned long ms) {
+  unsigned long start = millis();
+  for (;;) {
+    if (cardPresent(1)) return true;
+    if (emergencyStopped || millis() - start >= ms) return false;
+    waitMs(2);
+  }
+}
+
 // Pulses the feeder, polling module 1's IR between pulses (continuous if
 // pulseDuration is 0). Returns FEED_EMPTY only if the hopper was already
 // empty AND no card is waiting at module 1 - once feeding starts, the
@@ -1059,20 +1129,20 @@ void settleAndStopFeeder() {
 FeedResult runFeeder() {
   unsigned long start = millis();
 
-  if (digitalRead(irPin(1)) == LOW) return FEED_DETECTED;
+  if (cardPresent(1)) return FEED_DETECTED;
 
   if (!hopperHasCards()) {
     setServoPosition(getFeederChannel(), feederConfig.speed);
     waitMs(feederConfig.pulseDuration > 0 ? feederConfig.pulseDuration : 200);
     stopFeeder();
-    if (digitalRead(irPin(1)) == LOW) return FEED_DETECTED;
+    if (cardPresent(1)) return FEED_DETECTED;
     if (!hopperHasCards()) return FEED_EMPTY;
   }
 
   if (feederConfig.pulseDuration <= 0) {
     setServoPosition(getFeederChannel(), feederConfig.speed);
     while (millis() - start < (unsigned long)feederConfig.duration && !emergencyStopped) {
-      if (digitalRead(irPin(1)) == LOW) {
+      if (cardPresent(1)) {
         settleAndStopFeeder();
         return FEED_DETECTED;
       }
@@ -1082,26 +1152,16 @@ FeedResult runFeeder() {
     return FEED_TIMEOUT;
   }
 
+  // The pause is polled too: a card that coasts onto the sensor after the
+  // pulse ends is settled like any other and doesn't wait the pause out.
   while (millis() - start < (unsigned long)feederConfig.duration && !emergencyStopped) {
-    if (digitalRead(irPin(1)) == LOW) return FEED_DETECTED;
-
     setServoPosition(getFeederChannel(), feederConfig.speed);
-
-    unsigned long pulseStart = millis();
-    while (millis() - pulseStart < (unsigned long)feederConfig.pulseDuration && !emergencyStopped) {
-      if (digitalRead(irPin(1)) == LOW) {
-        settleAndStopFeeder();
-        return FEED_DETECTED;
-      }
-      waitMs(2);
-    }
-
+    bool detected = cardArrivesWithin(feederConfig.pulseDuration);
     stopFeeder();
-    if (digitalRead(irPin(1)) == LOW) {
+    if (detected || cardArrivesWithin(feederConfig.pauseDuration)) {
       settleAndStopFeeder();
       return FEED_DETECTED;
     }
-    waitMs(feederConfig.pauseDuration);
   }
   return FEED_TIMEOUT;
 }
@@ -1132,8 +1192,8 @@ void wiggleModulePaddle(int module, int arrivalModule = 0) {
     waitMs(150);
 
     // Stop as soon as the card clears this module (or reaches arrivalModule).
-    if (arrivalModule == 0 && digitalRead(irPin(module)) == HIGH) return;
-    if (arrivalModule != 0 && digitalRead(irPin(arrivalModule)) == LOW) return;
+    if (arrivalModule == 0 && !cardPresent(module)) return;
+    if (arrivalModule != 0 && cardPresent(arrivalModule)) return;
   }
 
   // routeCard() calls this recovery after the bottom has already been opened,
@@ -1152,7 +1212,7 @@ void wiggleModulePaddle(int module, int arrivalModule = 0) {
 void checkModuleJams() {
   for (int m = 1; m <= maxModuleForOffset(); m++) {
     int i = m - 1;
-    bool present = digitalRead(irPin(m)) == LOW;
+    bool present = cardPresent(m);
     if (!present) {
       modulePresentSince[i] = 0;
       moduleJamAlertedFor[i] = 0;
@@ -1184,10 +1244,16 @@ void updateStatusLed() {
   static unsigned long lastStep = 0;
   static uint8_t wheelPos = 0;
 
+  static bool showingDisconnected = false;
+
   if (!Serial) {
-    rgbLedWrite(RGB_BUILTIN, 0, 0, RGB_BRIGHTNESS);
+    if (!showingDisconnected) {
+      rgbLedWrite(RGB_BUILTIN, 0, 0, RGB_BRIGHTNESS);
+      showingDisconnected = true;
+    }
     return;
   }
+  showingDisconnected = false;
 
   if (millis() - lastStep < 20) return;
   lastStep = millis();
@@ -1219,6 +1285,15 @@ void setAllNeutral() {
 void finishDrop() {
   waitMs(DELAY_PUSH);
   setAllNeutral();
+}
+
+// A bottom route only ever opens trapdoors, so closing those is the whole
+// reset: no need to stagger through every paddle and pusher as well.
+void closeBottomsThrough(int lastModule) {
+  for (int m = 1; m <= lastModule; m++) {
+    if (m > 1) waitMs(SERVO_STAGGER_MS);
+    setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomClosed);
+  }
   waitMs(200);
 }
 
@@ -1388,7 +1463,8 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
 
   if (dropBottom) {
     setServoPosition(getChannel(targetModule, 0), moduleConfig[targetModule - 1].bottomOpen);
-    finishDrop();
+    waitMs(DELAY_PUSH);
+    closeBottomsThrough(targetModule);
   } else {
     ModuleConfig& c = moduleConfig[targetModule - 1];
     pushCard(targetModule, pushLeft, c.paddleOpenDelay, c.pusherHoldDuration,
@@ -1421,7 +1497,7 @@ int dropCardThroughToModule(int targetModule) {
       flappedForUnseenCard = true;
       for (int m = 1; m < targetModule; m++) {
         wiggleModulePaddle(m, targetModule);
-        if (digitalRead(irPin(targetModule)) == LOW) return 0;
+        if (cardPresent(targetModule)) return 0;
       }
       if (waitForCard(targetModule, UNSEEN_CARD_ARRIVAL_WAIT_MS)) return 0;
       continue;
@@ -1437,7 +1513,7 @@ int dropCardThroughToModule(int targetModule) {
 // The last module before targetModule whose sensor sees a card, or 0.
 int findCardBeforeModule(int targetModule) {
   for (int m = targetModule - 1; m >= 1; m--) {
-    if (digitalRead(irPin(m)) == LOW) return m;
+    if (cardPresent(m)) return m;
   }
   return 0;
 }
@@ -1450,14 +1526,23 @@ int findCardBeforeModule(int targetModule) {
 void pushCard(int module, bool pushLeft, int paddleOpenDelayMs, int holdMs,
               int paddleCloseDelayMs, bool resetPrecedingModules) {
   ModuleConfig& c = moduleConfig[module - 1];
+  // setServoPosition() holds a pusher back until the paddle has had the
+  // module's paddleOpenDelay, so a pushTest trying a shorter delay swaps it
+  // in for the push.
+  int configuredOpenDelay = c.paddleOpenDelay;
+  c.paddleOpenDelay = paddleOpenDelayMs;
   setServoPosition(getChannel(module, 1), c.paddleOpen);
   waitMs(paddleOpenDelayMs);
   setServoPosition(getChannel(module, 2), pushLeft ? c.pusherLeft : c.pusherRight);
+  c.paddleOpenDelay = configuredOpenDelay;
   unsigned long pusherFiredAt = millis();
   waitMs(holdMs);
   setServoPosition(getChannel(module, 2), c.pusherNeutral);
   if (resetPrecedingModules) {
-    for (int m = 1; m < module; m++) setModuleNeutral(m, 0);
+    for (int m = 1; m < module; m++) {
+      if (m > 1) waitMs(SERVO_STAGGER_MS);
+      setModuleNeutral(m, 0);
+    }
   }
 
   long paddleWait = (long)paddleCloseDelayMs - (long)(millis() - pusherFiredAt);
@@ -1614,7 +1699,7 @@ void runCommand(JsonDocument& doc, Print& reply);
 // any raw channel under test), so nothing keeps moving or holding.
 void emergencyStop() {
   emergencyStopped = true;
-  for (int channel = 0; channel <= 15; channel++) cutServoSignal(channel);
+  cutAllServoSignals();
   for (int m = 1; m <= maxModuleForOffset(); m++) paddleOpenedAt[m - 1] = 0;
   servosReleased = true;
 }
@@ -1771,7 +1856,12 @@ void runCommand(JsonDocument& doc, Print& reply) {
 
   // {"setChannelOffset": N} — see channel layout comment near the top.
   if (doc["setChannelOffset"].is<int>()) {
-    moduleChannelOffset = doc["setChannelOffset"].as<int>();
+    int offset = doc["setChannelOffset"].as<int>();
+    if (!channelOffsetValid(offset)) {
+      reply.println(F("{\"error\":\"channel offset must be 0 to 12\"}"));
+      return;
+    }
+    moduleChannelOffset = offset;
     setAllNeutral();
     reply.println(F("{\"status\":\"ok\"}"));
     return;
@@ -1914,7 +2004,7 @@ void runCommand(JsonDocument& doc, Print& reply) {
     if (!moduleInRange(module, maxModuleForOffset(), reply)) return;
     ModuleConfig& c = moduleConfig[module - 1];
     readIntFields(cfg, MODULE_FIELDS, (int*)&c, MODULE_FIELD_COUNT);
-    c.paddleOpenDelay = constrain(c.paddleOpenDelay, 0, 5000);
+    sanitizeModuleConfig(c);
 
     printModuleStatus(F("ok"), module, nullptr, reply);
     reply.println(F("}"));
@@ -1926,7 +2016,7 @@ void runCommand(JsonDocument& doc, Print& reply) {
   // holds a card. A plain feed succeeds at once in that case, so after a
   // routed card that never left module 1 the app would scan it again.
   if (isTrue(doc["feeder"])) {
-    if (isTrue(doc["requireEmptyModuleOne"]) && digitalRead(irPin(1)) == LOW) {
+    if (isTrue(doc["requireEmptyModuleOne"]) && cardPresent(1)) {
       reply.println(F("{\"error\":\"module 1 still holds a card\",\"moduleOneLoaded\":true}"));
       return;
     }
@@ -1957,6 +2047,7 @@ void runCommand(JsonDocument& doc, Print& reply) {
   if (!doc["setFeederConfig"].isNull()) {
     readIntFields(doc["setFeederConfig"], FEEDER_FIELDS, (int*)&feederConfig,
                   FEEDER_FIELD_COUNT);
+    sanitizeFeederConfig(feederConfig);
     stopFeeder();
     reply.println(F("{\"status\":\"ok\"}"));
     return;
@@ -2009,7 +2100,7 @@ void runCommand(JsonDocument& doc, Print& reply) {
     reply.print(F("{\"status\":\"ok\",\"ir\":["));
     for (int m = 1; m <= maxModuleForOffset(); m++) {
       if (m > 1) reply.print(',');
-      printBool(digitalRead(irPin(m)) == LOW, reply);  // true = card present
+      printBool(cardPresent(m), reply);  // true = card present
     }
     reply.print(F("],\"hopper\":"));
     printBool(hopperHasCards(), reply);  // true = cards remain in feeder stack
@@ -2058,7 +2149,7 @@ void runCommand(JsonDocument& doc, Print& reply) {
     // "requireLoaded": true (2.13.4+): a scan route is for the card the app
     // just scanned. routeCard() would run the feeder when module 1 is empty
     // and sort an unscanned card, so refuse before anything moves.
-    if (isTrue(route["requireLoaded"]) && digitalRead(irPin(1)) == HIGH) {
+    if (isTrue(route["requireLoaded"]) && !cardPresent(1)) {
       reply.println(F("{\"error\":\"no card loaded at module 1\",\"noLoadedCard\":true}"));
       return;
     }
@@ -2103,6 +2194,14 @@ void setup() {
   rgbLedWrite(RGB_BUILTIN, 0, 0, RGB_BRIGHTNESS);  // blue - powered, not yet connected
 #endif
 
+  // The PCA9685 keeps its outputs through an MCU reset, so a brownout or
+  // watchdog reset mid-feed leaves the feeder spinning. Cut every channel
+  // before anything slow (the Serial wait below) can let it push cards in.
+  // A missing driver is skipped so the boot doesn't sit through a driver
+  // recovery per channel.
+  initServoDriver();
+  if (servoDriverPresent()) cutAllServoSignals();
+
 #if defined(ARDUINO_ARCH_ESP32) && ARDUINO_USB_MODE && ARDUINO_USB_CDC_ON_BOOT
   Serial.setRxBufferSize(SERIAL_BUFFER_SIZE);
   Serial.setTxBufferSize(SERIAL_BUFFER_SIZE);
@@ -2127,7 +2226,6 @@ void setup() {
   pinMode(IR_PIN_HOPPER, INPUT_PULLUP);
   ledsInit();
 
-  initServoDriver();
   // The PCA9685 can keep driving a stalled servo through an MCU reset, so a
   // brownout loop cuts every signal rather than just skipping the move. The
   // next command that moves a servo powers it again.
@@ -2184,4 +2282,6 @@ void loop() {
 #if defined(RGB_BUILTIN)
   updateStatusLed();
 #endif
+  // Lets the core idle between passes instead of spinning flat out.
+  delay(1);
 }

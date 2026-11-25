@@ -87,6 +87,10 @@ export const checkoutBillingRoute = new Hono<AppEnv>().post(
         metadata: { orgId },
         subscription_data: { metadata: { orgId } },
         line_items: [{ price: priceId, quantity: 1 }],
+        allow_promotion_codes: true,
+        tax_id_collection: { enabled: true },
+        automatic_tax: { enabled: true },
+        customer_update: { name: "auto", address: "auto" },
         success_url: `${webUrl()}/app/settings/billing?billing=success`,
         cancel_url: `${webUrl()}/app/settings/billing?billing=cancelled`,
       });

@@ -33,6 +33,7 @@ export function useMoveCardsToCollection({ sourceCollectionGuid, onMoved }: Move
     invalidateCollectionCards(queryClient, fromCollectionGuid);
     invalidateCollectionCards(queryClient, toCollectionGuid);
     void queryClient.invalidateQueries({ queryKey: ["collections"] });
+    void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
   };
 
   const moveBack = useMutation({

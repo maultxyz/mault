@@ -4,7 +4,9 @@ import {
   setCollectionCardsCondition,
   setCollectionCardsFoilType,
 } from "@/features/collections/api/collections";
+import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
+import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import {
   moveCardsToStorageLocation,
   removeCardsFromStorageLocations,
@@ -32,6 +34,7 @@ function scanIdsByCollection(references: StorageLocationCardReference[]) {
 export function useStoredCardBulkActions() {
   const { t } = useTranslation("storage");
   const queryClient = useQueryClient();
+  const { moveCardsToCollection } = useScannedCards();
   const [isUpdating, setIsUpdating] = useState(false);
 
   const refresh = (collectionGuids: Iterable<string>) => {
@@ -120,6 +123,46 @@ export function useStoredCardBulkActions() {
       } finally {
         setIsUpdating(false);
         refresh(scanIdsByCollection(references).keys());
+      }
+    },
+    moveToCollection: async (
+      references: StorageLocationCardReference[],
+      targetCollectionGuid: string,
+    ) => {
+      const grouped = [...scanIdsByCollection(references)].filter(
+        ([collectionGuid]) => collectionGuid !== targetCollectionGuid,
+      );
+      const targetName =
+        queryClient
+          .getQueryData(collectionsQueryOptions.queryKey)
+          ?.find((collection) => collection.guid === targetCollectionGuid)
+          ?.name ?? "";
+      setIsUpdating(true);
+      try {
+        const movedCounts = await Promise.all(
+          grouped.map(([sourceCollectionGuid, scanIds]) =>
+            moveCardsToCollection({
+              sourceCollectionGuid,
+              targetCollectionGuid,
+              scanIds,
+            }),
+          ),
+        );
+        if (movedCounts.some((moved) => moved == null)) {
+          toast.error(t("toasts.moveToCollectionFailed"));
+          return false;
+        }
+        const moved = movedCounts.reduce<number>(
+          (total, count) => total + (count ?? 0),
+          0,
+        );
+        toast.success(
+          t("toasts.cardsMovedToCollection", { count: moved, name: targetName }),
+        );
+        return true;
+      } finally {
+        setIsUpdating(false);
+        refresh([]);
       }
     },
     removeFromLocation: async (references: StorageLocationCardReference[]) => {

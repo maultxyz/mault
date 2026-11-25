@@ -147,6 +147,10 @@ export async function getBillingPortalConfigurationId(): Promise<
   await stripe.billingPortal.configurations.update(config.id, {
     features: {
       subscription_cancel: { enabled: true, mode: "at_period_end" },
+      customer_update: {
+        enabled: true,
+        allowed_updates: ["name", "address", "tax_id"],
+      },
       ...(priceCount > 1 && {
         subscription_update: {
           enabled: true,

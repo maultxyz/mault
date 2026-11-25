@@ -24,6 +24,7 @@ extern const uint8_t x509_crt_bundle_end[] asm("_binary_x509_crt_bundle_end");
 #define CLOUD_TASK_STACK 12288
 #define CLOUD_RX_RING_SIZE 1024
 #define CLOUD_TX_QUEUE_DEPTH 16
+#define CLOUD_SERVICE_INTERVAL_MS 5
 
 #define CLOUD_START_DELAY_MS 2000
 #define CLOUD_WIFI_TX_POWER WIFI_POWER_15dBm
@@ -144,12 +145,15 @@ uint8_t cloudConnect(const CloudSettings& s) {
 void cloudPushRx(const uint8_t* data, size_t len) { cloudRx.push(data, len); }
 
 // Reads every complete frame waiting on the socket and sends queued replies.
-// Returns false once the link is gone.
+// Returns false once the link is gone. The wait for the first reply is the
+// task's pause between passes, so a reply goes out the moment it's queued.
 bool cloudServiceSocket() {
   if (!wsReadFrames(*cloudClient, cloudLastRxAt, cloudPushRx)) return false;
 
   CloudTxLine out;
-  while (xQueueReceive(cloudTxQueue, &out, 0) == pdTRUE) {
+  TickType_t wait = pdMS_TO_TICKS(CLOUD_SERVICE_INTERVAL_MS);
+  while (xQueueReceive(cloudTxQueue, &out, wait) == pdTRUE) {
+    wait = 0;
     if (!wsSendFrame(*cloudClient, WS_OP_TEXT, (const uint8_t*)out.data, out.len)) {
       return false;
     }
@@ -290,7 +294,6 @@ void cloudTask(void*) {
       nextAttemptAt = millis() + CLOUD_RETRY_MIN_MS;
       continue;
     }
-    vTaskDelay(pdMS_TO_TICKS(5));
   }
 }
 
