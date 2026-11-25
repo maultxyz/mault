@@ -1,9 +1,10 @@
 import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, FlatList, View } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import {
   CARD_CONDITIONS,
@@ -75,6 +76,15 @@ export default function ReviewGridScreen() {
     (scanIds) => updateSet(setHiddenScanIds, scanIds, true),
     () => void review.refetch(),
   );
+
+  const listRef = useRef<FlatList<ReviewGridCard>>(null);
+  const reduceMotion = useReducedMotion();
+  const firstCheckingIndex = visibleCards.findIndex((card) => autoCheck.checkingScanIds.has(card.scanId));
+  const firstCheckingRow = firstCheckingIndex === -1 ? -1 : Math.floor(firstCheckingIndex / columns);
+  useEffect(() => {
+    if (firstCheckingRow === -1) return;
+    listRef.current?.scrollToIndex({ index: firstCheckingRow, viewPosition: 0.5, animated: !reduceMotion });
+  }, [firstCheckingRow, reduceMotion]);
 
   const accept = async (cardsToAccept: ReviewGridCard[]) => {
     if (cardsToAccept.length === 0) return;
@@ -164,11 +174,15 @@ export default function ReviewGridScreen() {
       <PageHeader
         title={t("reviewGrid.title")}
         subtitle={
-          autoCheck.progress
+          autoCheck.status === "running" && autoCheck.progress
             ? t("reviewGrid.autoChecking", autoCheck.progress)
-            : review.data
-              ? t("reviewGrid.remaining", { count: remaining })
-              : null
+            : autoCheck.status === "pausing"
+              ? t("reviewGrid.autoCheckPausing")
+              : autoCheck.status === "paused" && autoCheck.progress
+                ? t("reviewGrid.autoCheckPaused", autoCheck.progress)
+                : review.data
+                  ? t("reviewGrid.remaining", { count: remaining })
+                  : null
         }
         onBack={() => router.back()}
         tabs={
@@ -183,7 +197,11 @@ export default function ReviewGridScreen() {
         }
       />
       <FlatList
+        ref={listRef}
         key={columns}
+        onScrollToIndexFailed={({ averageItemLength, index }) =>
+          listRef.current?.scrollToOffset({ offset: averageItemLength * index, animated: !reduceMotion })
+        }
         data={visibleCards}
         keyExtractor={(card) => card.scanId}
         numColumns={columns}
@@ -196,14 +214,22 @@ export default function ReviewGridScreen() {
         }
         ListHeaderComponent={
           <View style={{ gap: SPACING.md }}>
-            {autoCheck.isAvailable && visibleCards.length > 0 ? (
+            {autoCheck.isAvailable && (autoCheck.status === "running" || autoCheck.status === "pausing") ? (
               <Button
                 variant="secondary"
-                icon="sparkles"
-                label={autoCheck.progress ? t("reviewGrid.autoChecking", autoCheck.progress) : t("reviewGrid.autoCheck")}
+                icon="pause"
+                label={t("reviewGrid.autoCheckPause")}
+                loading={autoCheck.status === "pausing"}
+                disabled={autoCheck.status === "pausing"}
+                onPress={autoCheck.pause}
+              />
+            ) : autoCheck.isAvailable && visibleCards.length > 0 ? (
+              <Button
+                variant="secondary"
+                icon={autoCheck.status === "paused" ? "play" : "sparkles"}
+                label={autoCheck.status === "paused" ? t("reviewGrid.autoCheckResume") : t("reviewGrid.autoCheck")}
                 accessibilityHint={t("reviewGrid.autoCheckHint")}
-                loading={!!autoCheck.progress}
-                disabled={!!autoCheck.progress || autoCheck.uncheckedCount === 0}
+                disabled={autoCheck.uncheckedCount === 0}
                 onPress={() => void autoCheck.run()}
               />
             ) : null}
@@ -249,6 +275,7 @@ export default function ReviewGridScreen() {
                 router.push({ pathname: "/card/[scanId]", params: { scanId: item.scanId, guid: item.collectionGuid } })
               }
               autoCheckOutcome={autoCheck.outcomes.get(item.scanId)}
+              isAutoChecking={autoCheck.checkingScanIds.has(item.scanId)}
             />
           </View>
         )}

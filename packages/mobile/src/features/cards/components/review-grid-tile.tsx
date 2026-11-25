@@ -21,7 +21,7 @@ import { cardArtSources } from "@/lib/card-art";
 import { absoluteUrl } from "@/lib/url";
 import { cardStampOptionsFor } from "@magic-vault/shared";
 
-export function ReviewGridTile({ card, attributes, onAccept, onCorrect, onPickAttribute, autoCheckOutcome }: ReviewGridTileProps) {
+export function ReviewGridTile({ card, attributes, onAccept, onCorrect, onPickAttribute, autoCheckOutcome, isAutoChecking = false }: ReviewGridTileProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const image = useQuery(scanImageQueryOptions(card.collectionGuid, card.scanId));
@@ -37,7 +37,18 @@ export function ReviewGridTile({ card, attributes, onAccept, onCorrect, onPickAt
   };
 
   return (
-    <Surface padded={false} style={{ padding: SPACING.md, gap: SPACING.md }}>
+    <Surface
+      padded={false}
+      style={[{ padding: SPACING.md, gap: SPACING.md }, isAutoChecking ? { borderWidth: 2, borderColor: colors.primary } : null]}
+    >
+      {isAutoChecking ? (
+        <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }} accessibilityLiveRegion="polite">
+          <Icon name="scan" size={16} color={colors.primaryText} />
+          <AppText size="xs" weight="medium" tone="primary">
+            {t("reviewGrid.autoCheckCheckingCard")}
+          </AppText>
+        </View>
+      ) : null}
       <View style={{ flexDirection: "row", gap: SPACING.sm }}>
         <View style={{ flex: 1, gap: SPACING.xs }}>
           <AppText size="2xs" tone="secondary">

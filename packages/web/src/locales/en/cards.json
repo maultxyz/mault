@@ -464,7 +464,12 @@
     "autoCheckComplete_other": "Auto-check done: {{count}} cards accepted, {{needsLook}} left to review.",
     "autoCheckFailed": "Auto-check stopped before it finished. Try again.",
     "autoCheckDifferent": "Auto-check thinks this is {{name}}",
-    "autoCheckUnsure": "Auto-check couldn't confirm this card"
+    "autoCheckUnsure": "Auto-check couldn't confirm this card",
+    "autoCheckPause": "Pause",
+    "autoCheckResume": "Resume auto-check",
+    "autoCheckPausing": "Pausing after the cards being checked",
+    "autoCheckPaused": "Auto-check paused at {{checked}} of {{total}}",
+    "autoCheckCheckingCard": "Checking this card"
   },
   "removeDialog": {
     "title": "Remove {{name}}?",

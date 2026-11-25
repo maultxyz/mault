@@ -1296,7 +1296,12 @@
     "autoCheckComplete_other": "Vérification terminée : {{count}} cartes validées, {{needsLook}} à revoir.",
     "autoCheckFailed": "La vérification automatique s'est arrêtée avant la fin. Réessayez.",
     "autoCheckDifferent": "La vérification automatique y voit {{name}}",
-    "autoCheckUnsure": "La vérification automatique n'a pas pu confirmer cette carte"
+    "autoCheckUnsure": "La vérification automatique n'a pas pu confirmer cette carte",
+    "autoCheckPause": "Pause",
+    "autoCheckResume": "Reprendre la vérification",
+    "autoCheckPausing": "Pause après les cartes en cours de vérification",
+    "autoCheckPaused": "Vérification auto en pause à {{checked}} sur {{total}}",
+    "autoCheckCheckingCard": "Vérification de cette carte"
   },
   "rules": {
     "title": "Règles de tri",

@@ -32,11 +32,7 @@ export interface ReviewGridTileProps {
   onCorrect: () => void;
   onPickAttribute: (field: ReviewGridAttributeField) => void;
   autoCheckOutcome?: ReviewAutoCheckOutcome;
-}
-
-export interface ReviewAutoCheckProgress {
-  checked: number;
-  total: number;
+  isAutoChecking?: boolean;
 }
 
 export type ReviewGridAttributeField = keyof ReviewGridAttributes;

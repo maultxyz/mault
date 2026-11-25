@@ -2,6 +2,13 @@ import type { SearchCardMatch } from "./api.interface";
 
 export type ReviewAutoCheckVerdict = "confirmed" | "different" | "unsure";
 
+export type ReviewAutoCheckStatus = "idle" | "running" | "pausing" | "paused";
+
+export interface ReviewAutoCheckProgress {
+  checked: number;
+  total: number;
+}
+
 export interface ReviewAutoCheckSavedCard {
   cardId: string;
   lang: string | null;
@@ -34,6 +41,7 @@ export interface ReviewAutoCheckRunOptions {
     collectionGuid: string,
     scanIds: string[],
   ) => Promise<ReviewAutoCheckResult>;
+  onBatchStart?: (scanIds: string[]) => void;
   onOutcomes: (outcomes: ReviewAutoCheckOutcome[]) => void;
   isCancelled?: () => boolean;
 }

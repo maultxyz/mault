@@ -24,6 +24,8 @@ import {
   IconLayoutGrid,
   IconListCheck,
   IconLoader2,
+  IconPlayerPause,
+  IconPlayerPlay,
   IconSparkles,
   IconSquareCheck,
   IconX,
@@ -74,6 +76,10 @@ export function ReviewGrid({
     setHidden(scanIds, true),
   );
 
+  const firstAutoCheckingScanId = visibleCards.find((card) =>
+    autoCheck.checkingScanIds.has(card.scanId),
+  )?.scanId;
+
   const accept = async (cardsToAccept: ReviewGridCard[]) => {
     if (cardsToAccept.length === 0) return;
     setHidden(
@@ -122,9 +128,13 @@ export function ReviewGrid({
           <p role="status" className="text-xs tabular-nums text-foreground/70">
             {isLoading
               ? " "
-              : autoCheck.progress
+              : autoCheck.status === "running" && autoCheck.progress
                 ? t("reviewGrid.autoChecking", autoCheck.progress)
-                : t("reviewGrid.remaining", { count: remaining })}
+                : autoCheck.status === "pausing"
+                  ? t("reviewGrid.autoCheckPausing")
+                  : autoCheck.status === "paused" && autoCheck.progress
+                    ? t("reviewGrid.autoCheckPaused", autoCheck.progress)
+                    : t("reviewGrid.remaining", { count: remaining })}
           </p>
         </div>
         <ButtonGroup>
@@ -142,21 +152,33 @@ export function ReviewGrid({
             {t("reviewGrid.layoutOneByOne")}
           </Button>
         </ButtonGroup>
-        {autoCheck.isAvailable && (
-          <Button
-            variant="outline"
-            disabled={!!autoCheck.progress || autoCheck.uncheckedCount === 0}
-            onClick={() => void autoCheck.run()}
-            title={t("reviewGrid.autoCheckHint")}
-          >
-            {autoCheck.progress ? (
-              <IconLoader2 className="animate-spin motion-reduce:animate-none" />
-            ) : (
-              <IconSparkles />
-            )}
-            {t("reviewGrid.autoCheck")}
-          </Button>
-        )}
+        {autoCheck.isAvailable &&
+          (autoCheck.status === "running" || autoCheck.status === "pausing" ? (
+            <Button
+              variant="outline"
+              disabled={autoCheck.status === "pausing"}
+              onClick={autoCheck.pause}
+            >
+              {autoCheck.status === "pausing" ? (
+                <IconLoader2 className="animate-spin motion-reduce:animate-none" />
+              ) : (
+                <IconPlayerPause />
+              )}
+              {t("reviewGrid.autoCheckPause")}
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              disabled={autoCheck.uncheckedCount === 0}
+              onClick={() => void autoCheck.run()}
+              title={t("reviewGrid.autoCheckHint")}
+            >
+              {autoCheck.status === "paused" ? <IconPlayerPlay /> : <IconSparkles />}
+              {autoCheck.status === "paused"
+                ? t("reviewGrid.autoCheckResume")
+                : t("reviewGrid.autoCheck")}
+            </Button>
+          ))}
         <Button
           disabled={visibleCards.length === 0}
           onClick={() => void accept(visibleCards)}
@@ -243,6 +265,8 @@ export function ReviewGrid({
                 onAccept={() => void accept([card])}
                 onCorrect={() => setCorrectingCard(card)}
                 autoCheckOutcome={autoCheck.outcomes.get(card.scanId)}
+                isAutoChecking={autoCheck.checkingScanIds.has(card.scanId)}
+                followsAutoCheck={card.scanId === firstAutoCheckingScanId}
               />
             ))}
           </div>

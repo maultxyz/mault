@@ -54,6 +54,7 @@ export function countReviewAutoCheckVerdicts(
 export async function runReviewAutoCheck({
   cards,
   checkCollectionCards,
+  onBatchStart,
   onOutcomes,
   isCancelled = () => false,
 }: ReviewAutoCheckRunOptions): Promise<void> {
@@ -70,12 +71,9 @@ export async function runReviewAutoCheck({
       start += REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS
     ) {
       if (isCancelled()) return;
-      const result = await checkCollectionCards(
-        collectionGuid,
-        scanIds.slice(start, start + REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS),
-      );
-      if (isCancelled()) return;
-      onOutcomes(result.outcomes);
+      const batch = scanIds.slice(start, start + REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS);
+      onBatchStart?.(batch);
+      onOutcomes((await checkCollectionCards(collectionGuid, batch)).outcomes);
     }
   }
 }

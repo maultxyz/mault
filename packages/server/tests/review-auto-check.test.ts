@@ -113,6 +113,37 @@ test("auto-check runs per collection in request-sized chunks", async () => {
   assert.equal(verdicts.length, cards.length);
 });
 
+test("auto-check announces each batch and pauses between batches", async () => {
+  const cards = Array.from({ length: REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS * 2 }, (_, index) => ({
+    scanId: `a${index}`,
+    collectionGuid: "a",
+  }));
+  const startedBatches: string[][] = [];
+  let isPaused = false;
+  let appliedCount = 0;
+  await runReviewAutoCheck({
+    cards,
+    onBatchStart: (scanIds) => startedBatches.push(scanIds),
+    checkCollectionCards: async (_collectionGuid, scanIds) => {
+      isPaused = true;
+      return {
+        outcomes: scanIds.map((scanId) => ({
+          scanId,
+          verdict: "unsure" as const,
+          suggestedCardName: null,
+        })),
+      };
+    },
+    onOutcomes: (outcomes) => {
+      appliedCount += outcomes.length;
+    },
+    isCancelled: () => isPaused,
+  });
+  assert.equal(startedBatches.length, 1);
+  assert.equal(startedBatches[0].length, REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS);
+  assert.equal(appliedCount, REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS);
+});
+
 test("verdict counts add up per verdict", () => {
   assert.deepEqual(
     countReviewAutoCheckVerdicts([

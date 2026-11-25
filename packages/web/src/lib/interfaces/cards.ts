@@ -591,11 +591,8 @@ export interface ReviewGridTileProps {
   onAccept: () => void;
   onCorrect: () => void;
   autoCheckOutcome?: ReviewAutoCheckOutcome;
-}
-
-export interface ReviewAutoCheckProgress {
-  checked: number;
-  total: number;
+  isAutoChecking?: boolean;
+  followsAutoCheck?: boolean;
 }
 
 export interface ReviewGridAttributeFieldsProps {
