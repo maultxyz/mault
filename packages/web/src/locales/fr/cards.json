@@ -606,7 +606,8 @@
     "bulkRemove": "Retirer l'étiquette",
     "names": {
       "downloaded": "Téléchargée",
-      "reviewed": "Vérifiée",
+      "reviewed": "Vérifiée à la main",
+      "autoReviewed": "Vérifiée automatiquement",
       "corrected": "Corrigée"
     }
   },

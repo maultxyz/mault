@@ -11,6 +11,9 @@ export interface CardTagsChangedEvent {
 export interface CardTagFlags {
   isDownloaded?: boolean;
   reviewed?: boolean;
+  autoReviewed?: boolean;
   corrected?: boolean;
   lowConfidenceMatch?: boolean;
 }
+
+export type CardTagNameKey = CardTag | "autoReviewed";

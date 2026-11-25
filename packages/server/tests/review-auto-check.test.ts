@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   countReviewAutoCheckVerdicts,
   decideReviewAutoCheck,
+  loadUnseenReviewCards,
   REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS,
   runReviewAutoCheck,
   type CardSearchResult,
@@ -78,6 +79,16 @@ test("no match at all stays unsure", () => {
   assert.equal(decideReviewAutoCheck(saved, { data: [] }, null).verdict, "unsure");
 });
 
+function confirmedResult(scanIds: string[]) {
+  return {
+    outcomes: scanIds.map((scanId) => ({
+      scanId,
+      verdict: "confirmed" as const,
+      suggestedCardName: null,
+    })),
+  };
+}
+
 test("auto-check runs per collection in request-sized chunks", async () => {
   const cards = [
     ...Array.from({ length: REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS + 1 }, (_, index) => ({
@@ -86,31 +97,43 @@ test("auto-check runs per collection in request-sized chunks", async () => {
     })),
     { scanId: "b0", collectionGuid: "b" },
   ];
-  const requests: string[][] = [];
-  const verdicts: string[] = [];
-  await runReviewAutoCheck({
-    cards,
+  const requests: [string, number][] = [];
+  const result = await runReviewAutoCheck({
+    cards: () => cards,
+    sentScanIds: new Set(),
     checkCollectionCards: async (collectionGuid, scanIds) => {
-      requests.push([collectionGuid, ...scanIds]);
-      return {
-        outcomes: scanIds.map((scanId) => ({
-          scanId,
-          verdict: "confirmed" as const,
-          suggestedCardName: null,
-        })),
-      };
+      requests.push([collectionGuid, scanIds.length]);
+      return confirmedResult(scanIds);
     },
-    onOutcomes: (outcomes) => verdicts.push(...outcomes.map((outcome) => outcome.verdict)),
+    onOutcomes: () => {},
   });
-  assert.deepEqual(
-    requests.map((request) => [request[0], request.length - 1]),
-    [
-      ["a", REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS],
-      ["a", 1],
-      ["b", 1],
-    ],
-  );
-  assert.equal(verdicts.length, cards.length);
+  assert.equal(result, "finished");
+  assert.deepEqual(requests, [
+    ["a", REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS],
+    ["a", 1],
+    ["b", 1],
+  ]);
+});
+
+test("auto-check loads more cards until none are left", async () => {
+  const cards = [{ scanId: "a0", collectionGuid: "a" }];
+  const morePages = [[{ scanId: "a1", collectionGuid: "a" }], []];
+  const checked: string[] = [];
+  await runReviewAutoCheck({
+    cards: () => cards,
+    sentScanIds: new Set(),
+    loadMoreCards: async () => {
+      const page = morePages.shift() ?? [];
+      cards.push(...page);
+      return page.length;
+    },
+    checkCollectionCards: async (_collectionGuid, scanIds) => {
+      checked.push(...scanIds);
+      return confirmedResult(scanIds);
+    },
+    onOutcomes: () => {},
+  });
+  assert.deepEqual(checked, ["a0", "a1"]);
 });
 
 test("auto-check announces each batch and pauses between batches", async () => {
@@ -121,27 +144,52 @@ test("auto-check announces each batch and pauses between batches", async () => {
   const startedBatches: string[][] = [];
   let isPaused = false;
   let appliedCount = 0;
-  await runReviewAutoCheck({
-    cards,
+  const result = await runReviewAutoCheck({
+    cards: () => cards,
+    sentScanIds: new Set(),
     onBatchStart: (scanIds) => startedBatches.push(scanIds),
     checkCollectionCards: async (_collectionGuid, scanIds) => {
       isPaused = true;
-      return {
-        outcomes: scanIds.map((scanId) => ({
-          scanId,
-          verdict: "unsure" as const,
-          suggestedCardName: null,
-        })),
-      };
+      return confirmedResult(scanIds);
     },
     onOutcomes: (outcomes) => {
       appliedCount += outcomes.length;
     },
     isCancelled: () => isPaused,
   });
+  assert.equal(result, "cancelled");
   assert.equal(startedBatches.length, 1);
-  assert.equal(startedBatches[0].length, REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS);
   assert.equal(appliedCount, REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS);
+});
+
+test("a failed batch is not counted as sent so a resume retries it", async () => {
+  const sentScanIds = new Set<string>();
+  await assert.rejects(
+    runReviewAutoCheck({
+      cards: () => [{ scanId: "a0", collectionGuid: "a" }],
+      sentScanIds,
+      checkCollectionCards: async () => {
+        throw new Error("offline");
+      },
+      onOutcomes: () => {},
+    }),
+  );
+  assert.equal(sentScanIds.size, 0);
+});
+
+test("loading unseen cards scans from the first page and skips seen cards", async () => {
+  const pages = [
+    [{ scanId: "seen" }],
+    [{ scanId: "seen2" }, { scanId: "new" }],
+  ];
+  const requestedPages: number[] = [];
+  const unseen = await loadUnseenReviewCards(async (page) => {
+    requestedPages.push(page);
+    return pages[page] ?? [];
+  }, new Set(["seen", "seen2"]));
+  assert.deepEqual(unseen, [{ scanId: "new" }]);
+  assert.deepEqual(requestedPages, [0, 1]);
+  assert.deepEqual(await loadUnseenReviewCards(async () => [], new Set()), []);
 });
 
 test("verdict counts add up per verdict", () => {

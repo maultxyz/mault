@@ -42,6 +42,7 @@ export function ReviewGrid({
   onOpenOneByOne,
   onClose,
   onCorrect,
+  loadReviewCardPage,
 }: ReviewGridProps) {
   const { t } = useTranslation("cards");
   const { acceptCards, correctCard } = useReviewGridActions();
@@ -52,16 +53,6 @@ export function ReviewGrid({
   const [attributeDrafts, setAttributeDrafts] = useState<
     Record<string, ReviewGridAttributes>
   >({});
-  const visibleCards = cards.filter((card) => !hiddenScanIds.has(card.scanId));
-  const savedAttributesOf = (card: ReviewGridCard) =>
-    reviewGridAttributesOf(card, t("foil"));
-  const attributesOf = (card: ReviewGridCard) =>
-    attributeDrafts[card.scanId] ?? savedAttributesOf(card);
-  const remaining = Math.max(
-    visibleCards.length,
-    total - (cards.length - visibleCards.length),
-  );
-
   const setHidden = (scanIds: string[], hidden: boolean) =>
     setHiddenScanIds((previous) => {
       const next = new Set(previous);
@@ -71,9 +62,24 @@ export function ReviewGrid({
       }
       return next;
     });
-
-  const autoCheck = useReviewAutoCheck(visibleCards, (scanIds) =>
-    setHidden(scanIds, true),
+  const autoCheck = useReviewAutoCheck({
+    cards,
+    hiddenScanIds,
+    remainingTotal: total,
+    loadReviewCardPage,
+    onConfirmed: (scanIds) => setHidden(scanIds, true),
+  });
+  const allCards = autoCheck.cards;
+  const visibleCards = allCards.filter(
+    (card) => !hiddenScanIds.has(card.scanId),
+  );
+  const savedAttributesOf = (card: ReviewGridCard) =>
+    reviewGridAttributesOf(card, t("foil"));
+  const attributesOf = (card: ReviewGridCard) =>
+    attributeDrafts[card.scanId] ?? savedAttributesOf(card);
+  const remaining = Math.max(
+    visibleCards.length,
+    total - (allCards.length - visibleCards.length),
   );
 
   const firstAutoCheckingScanId = visibleCards.find((card) =>
@@ -169,7 +175,7 @@ export function ReviewGrid({
           ) : (
             <Button
               variant="outline"
-              disabled={autoCheck.uncheckedCount === 0}
+              disabled={!autoCheck.canRun}
               onClick={() => void autoCheck.run()}
               title={t("reviewGrid.autoCheckHint")}
             >

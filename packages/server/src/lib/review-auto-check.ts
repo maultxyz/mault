@@ -170,7 +170,11 @@ async function saveDecisions(
     confirmedScanIds.length > 0
       ? await tx
           .update(collectionCards)
-          .set({ isReviewed: true, lowConfidenceMatch: false })
+          .set({
+            isReviewed: true,
+            isAutoReviewed: true,
+            lowConfidenceMatch: false,
+          })
           .where(
             and(
               eq(collectionCards.orgId, orgId),

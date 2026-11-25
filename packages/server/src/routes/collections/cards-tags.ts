@@ -33,6 +33,7 @@ export const setCollectionCardTagsRoute = new Hono<AppEnv>().post(
         .set({
           isDownloaded: changes.isDownloaded,
           isReviewed: changes.reviewed,
+          isAutoReviewed: changes.autoReviewed,
           isCorrected: changes.corrected,
           lowConfidenceMatch: changes.lowConfidenceMatch,
         })

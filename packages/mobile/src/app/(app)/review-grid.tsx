@@ -28,6 +28,8 @@ import { TabStrip } from "@/components/ui/tab-strip";
 import {
   acceptReviewCards,
   collectionReviewGridQueryOptions,
+  loadCollectionReviewCardPage,
+  loadStorageReviewCardPage,
   storageReviewGridQueryOptions,
 } from "@/features/cards/api/review-grid";
 import { useReviewAutoCheck } from "@/features/cards/api/use-review-auto-check";
@@ -56,11 +58,6 @@ export default function ReviewGridScreen() {
   const [attributePicker, setAttributePicker] = useState<ReviewGridAttributePicker | null>(null);
   const savedAttributesOf = (card: ReviewGridCard) => reviewGridAttributesOf(card, t("cardDetail.foil"));
   const attributesOf = (card: ReviewGridCard) => attributeDrafts[card.scanId] ?? savedAttributesOf(card);
-  const cards = review.data?.cards ?? [];
-  const visibleCards = cards.filter((card) => !hiddenScanIds.has(card.scanId));
-  const remaining = Math.max(visibleCards.length, (review.data?.total ?? 0) - (cards.length - visibleCards.length));
-  const isWaitingForMore = visibleCards.length === 0 && remaining > 0;
-
   const updateSet = (setter: typeof setHiddenScanIds, scanIds: string[], included: boolean) =>
     setter((previous) => {
       const next = new Set(previous);
@@ -71,11 +68,22 @@ export default function ReviewGridScreen() {
       return next;
     });
 
-  const autoCheck = useReviewAutoCheck(
-    visibleCards,
-    (scanIds) => updateSet(setHiddenScanIds, scanIds, true),
-    () => void review.refetch(),
-  );
+  const autoCheck = useReviewAutoCheck({
+    cards: review.data?.cards ?? [],
+    hiddenScanIds,
+    remainingTotal: review.data?.total ?? 0,
+    loadReviewCardPage: storageGuid
+      ? (page) => loadStorageReviewCardPage(storageGuid, page)
+      : guid
+        ? (page) => loadCollectionReviewCardPage(guid, page)
+        : undefined,
+    onConfirmed: (scanIds) => updateSet(setHiddenScanIds, scanIds, true),
+    onFinished: () => void review.refetch(),
+  });
+  const cards = autoCheck.cards;
+  const visibleCards = cards.filter((card) => !hiddenScanIds.has(card.scanId));
+  const remaining = Math.max(visibleCards.length, (review.data?.total ?? 0) - (cards.length - visibleCards.length));
+  const isWaitingForMore = visibleCards.length === 0 && remaining > 0;
 
   const listRef = useRef<FlatList<ReviewGridCard>>(null);
   const reduceMotion = useReducedMotion();
@@ -229,7 +237,7 @@ export default function ReviewGridScreen() {
                 icon={autoCheck.status === "paused" ? "play" : "sparkles"}
                 label={autoCheck.status === "paused" ? t("reviewGrid.autoCheckResume") : t("reviewGrid.autoCheck")}
                 accessibilityHint={t("reviewGrid.autoCheckHint")}
-                disabled={autoCheck.uncheckedCount === 0}
+                disabled={!autoCheck.canRun}
                 onPress={() => void autoCheck.run()}
               />
             ) : null}

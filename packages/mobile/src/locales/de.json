@@ -2873,7 +2873,8 @@
     "saveFailed": "Die Markierung konnte nicht geändert werden",
     "names": {
       "downloaded": "Heruntergeladen",
-      "reviewed": "Geprüft",
+      "reviewed": "Von Hand geprüft",
+      "autoReviewed": "Automatisch geprüft",
       "corrected": "Korrigiert"
     }
   },

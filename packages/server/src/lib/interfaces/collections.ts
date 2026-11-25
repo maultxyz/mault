@@ -64,6 +64,7 @@ export interface CollectionCardRow {
   is_corrected: boolean;
   low_confidence_match: boolean;
   is_reviewed: boolean;
+  is_auto_reviewed: boolean;
   location_guid?: string | null;
   location_name?: string | null;
   location_position?: number | null;

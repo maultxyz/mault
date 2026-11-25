@@ -169,6 +169,7 @@ function storedCardColumns() {
     hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
     corrected: collectionCards.isCorrected,
     reviewed: collectionCards.isReviewed,
+    autoReviewed: sql<boolean>`(${collectionCards.isReviewed} AND ${collectionCards.isAutoReviewed})`,
     acquisitionCost: collectionCards.acquisitionCost,
     acquisitionCurrency: collectionCards.acquisitionCurrency,
     collectionGuid: collections.guid,

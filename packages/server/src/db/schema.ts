@@ -808,6 +808,7 @@ export const collectionCards = pgTable(
     isCorrected: boolean("is_corrected").notNull().default(false),
     lowConfidenceMatch: boolean("low_confidence_match").notNull().default(false),
     isReviewed: boolean("is_reviewed").notNull().default(false),
+    isAutoReviewed: boolean("is_auto_reviewed").notNull().default(false),
     diagnostics: jsonb("diagnostics"),
     locationId: integer("location_id").references(() => storageLocations.id, {
       onDelete: "set null",

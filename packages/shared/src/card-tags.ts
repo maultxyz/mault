@@ -1,4 +1,8 @@
-import type { CardTag, CardTagFlags } from "./interfaces/card-tags.interface";
+import type {
+  CardTag,
+  CardTagFlags,
+  CardTagNameKey,
+} from "./interfaces/card-tags.interface";
 
 export function cardTagChanges(
   tags: readonly CardTag[],
@@ -8,6 +12,9 @@ export function cardTagChanges(
   if (tags.includes("downloaded")) changes.isDownloaded = enabled;
   if (tags.includes("reviewed")) changes.reviewed = enabled;
   if (tags.includes("corrected")) changes.corrected = enabled;
+  if (tags.includes("reviewed") || tags.includes("corrected")) {
+    changes.autoReviewed = false;
+  }
   if (enabled && (tags.includes("reviewed") || tags.includes("corrected"))) {
     changes.reviewed = true;
     changes.lowConfidenceMatch = false;
@@ -21,6 +28,13 @@ export function withCardTags<T extends CardTagFlags>(
   enabled: boolean,
 ): T {
   return { ...card, ...cardTagChanges(tags, enabled) };
+}
+
+export function cardTagNameKey(
+  tag: CardTag,
+  card: CardTagFlags,
+): CardTagNameKey {
+  return tag === "reviewed" && card.autoReviewed ? "autoReviewed" : tag;
 }
 
 export function cardTagsSetOn(card: CardTagFlags): CardTag[] {

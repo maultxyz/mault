@@ -2873,7 +2873,8 @@
     "saveFailed": "Couldn't update the tag",
     "names": {
       "downloaded": "Downloaded",
-      "reviewed": "Reviewed",
+      "reviewed": "Reviewed by hand",
+      "autoReviewed": "Auto-reviewed",
       "corrected": "Corrected"
     }
   },

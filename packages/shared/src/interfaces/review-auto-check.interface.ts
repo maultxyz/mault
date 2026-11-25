@@ -35,8 +35,17 @@ export interface ReviewAutoCheckCounts {
   unsure: number;
 }
 
+export interface ReviewAutoCheckCardRef {
+  scanId: string;
+  collectionGuid: string;
+}
+
+export type ReviewAutoCheckRunResult = "finished" | "cancelled";
+
 export interface ReviewAutoCheckRunOptions {
-  cards: { scanId: string; collectionGuid: string }[];
+  cards: () => readonly ReviewAutoCheckCardRef[];
+  sentScanIds: Set<string>;
+  loadMoreCards?: () => Promise<number>;
   checkCollectionCards: (
     collectionGuid: string,
     scanIds: string[],

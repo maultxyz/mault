@@ -1,5 +1,6 @@
 import {
   countReviewAutoCheckVerdicts,
+  loadUnseenReviewCards,
   runReviewAutoCheck,
   type ReviewAutoCheckOutcome,
   type ReviewAutoCheckProgress,
@@ -14,8 +15,18 @@ import { autoCheckCollectionReviewCards } from "@/features/cards/api/review-grid
 import { invalidateCollectionCards } from "@/features/collections/api/collection-cards";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { useActiveOrgId } from "@/hooks/use-org";
+import type { ReviewAutoCheckOptions } from "@/lib/interfaces/cards";
 
-export function useReviewAutoCheck(cards: ReviewGridCard[], onConfirmed: (scanIds: string[]) => void, onFinished: () => void) {
+function withoutDuplicateCards(cards: ReviewGridCard[]): ReviewGridCard[] {
+  const seen = new Set<string>();
+  return cards.filter((card) => {
+    if (seen.has(card.scanId)) return false;
+    seen.add(card.scanId);
+    return true;
+  });
+}
+
+export function useReviewAutoCheck({ cards, hiddenScanIds, remainingTotal, loadReviewCardPage, onConfirmed, onFinished }: ReviewAutoCheckOptions) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
@@ -25,9 +36,20 @@ export function useReviewAutoCheck(cards: ReviewGridCard[], onConfirmed: (scanId
   const [progress, setProgress] = useState<ReviewAutoCheckProgress | null>(null);
   const [outcomes, setOutcomes] = useState<ReadonlyMap<string, ReviewAutoCheckOutcome>>(new Map());
   const [checkingScanIds, setCheckingScanIds] = useState<ReadonlySet<string>>(new Set());
+  const [loadedCards, setLoadedCards] = useState<ReviewGridCard[]>([]);
+  const allCards = withoutDuplicateCards([...cards, ...loadedCards]);
+
+  const pageCardsRef = useRef(cards);
+  const loadedCardsRef = useRef(loadedCards);
+  const hiddenScanIdsRef = useRef(hiddenScanIds);
+  const sentScanIdsRef = useRef(new Set<string>());
   const isPauseRequestedRef = useRef(false);
   const jobOutcomesRef = useRef<ReviewAutoCheckOutcome[]>([]);
   const isUnmountedRef = useRef(false);
+  useEffect(() => {
+    pageCardsRef.current = cards;
+    hiddenScanIdsRef.current = hiddenScanIds;
+  }, [cards, hiddenScanIds]);
   useEffect(() => {
     isUnmountedRef.current = false;
     return () => {
@@ -35,33 +57,67 @@ export function useReviewAutoCheck(cards: ReviewGridCard[], onConfirmed: (scanId
     };
   }, []);
 
-  const uncheckedCards = cards.filter((card) => !outcomes.has(card.scanId));
-  const currentStatus: ReviewAutoCheckStatus = status === "paused" && uncheckedCards.length === 0 ? "idle" : status;
+  const currentCards = () =>
+    withoutDuplicateCards([...pageCardsRef.current, ...loadedCardsRef.current]).filter(
+      (card) => !hiddenScanIdsRef.current.has(card.scanId),
+    );
+
+  const visibleCards = allCards.filter((card) => !hiddenScanIds.has(card.scanId));
+  const unsentCount = visibleCards.filter((card) => !sentScanIdsRef.current.has(card.scanId)).length;
+  const checkedStillVisibleCount = visibleCards.length - unsentCount;
+  const estimatedUncheckedCount = Math.max(unsentCount, loadReviewCardPage ? remainingTotal - checkedStillVisibleCount : 0);
+  const currentStatus: ReviewAutoCheckStatus = status === "paused" && estimatedUncheckedCount === 0 ? "idle" : status;
+
+  const loadMoreCards = loadReviewCardPage
+    ? async () => {
+        const seenScanIds = new Set([
+          ...currentCards().map((card) => card.scanId),
+          ...hiddenScanIdsRef.current,
+          ...sentScanIdsRef.current,
+        ]);
+        const unseen = await loadUnseenReviewCards(loadReviewCardPage, seenScanIds);
+        if (unseen.length === 0) return 0;
+        loadedCardsRef.current = [...loadedCardsRef.current, ...unseen];
+        if (!isUnmountedRef.current) setLoadedCards(loadedCardsRef.current);
+        return unseen.length;
+      }
+    : undefined;
+
+  const bumpTotal = () =>
+    setProgress((previous) => {
+      if (!previous) return previous;
+      const unsent = currentCards().filter((card) => !sentScanIdsRef.current.has(card.scanId)).length;
+      return { ...previous, total: Math.max(previous.total, previous.checked + unsent) };
+    });
 
   const run = async () => {
     if (currentStatus === "running" || currentStatus === "pausing") return;
-    if (uncheckedCards.length === 0) return;
-    const cardsToCheck = uncheckedCards;
+    if (estimatedUncheckedCount === 0) return;
     const isResuming = currentStatus === "paused";
     if (!isResuming) jobOutcomesRef.current = [];
     isPauseRequestedRef.current = false;
     setStatus("running");
     setProgress((previous) => {
       const checked = isResuming && previous ? previous.checked : 0;
-      return { checked, total: checked + cardsToCheck.length };
+      return { checked, total: checked + estimatedUncheckedCount };
     });
-    let sentCount = 0;
-    let hasFailed = false;
+    const touchedCollectionGuids = new Set<string>();
+    let result: Awaited<ReturnType<typeof runReviewAutoCheck>> | "failed";
     try {
-      await runReviewAutoCheck({
-        cards: cardsToCheck,
+      result = await runReviewAutoCheck({
+        cards: currentCards,
+        sentScanIds: sentScanIdsRef.current,
+        loadMoreCards,
         checkCollectionCards: async (collectionGuid, scanIds) => {
-          const result = await autoCheckCollectionReviewCards(collectionGuid, scanIds);
-          sentCount += scanIds.length;
+          touchedCollectionGuids.add(collectionGuid);
+          const checkResult = await autoCheckCollectionReviewCards(collectionGuid, scanIds);
           setProgress((previous) => (previous ? { ...previous, checked: previous.checked + scanIds.length } : previous));
-          return result;
+          return checkResult;
         },
-        onBatchStart: (scanIds) => setCheckingScanIds(new Set(scanIds)),
+        onBatchStart: (scanIds) => {
+          setCheckingScanIds(new Set(scanIds));
+          bumpTotal();
+        },
         onOutcomes: (batch) => {
           jobOutcomesRef.current.push(...batch);
           setOutcomes((previous) => {
@@ -75,18 +131,18 @@ export function useReviewAutoCheck(cards: ReviewGridCard[], onConfirmed: (scanId
         isCancelled: () => isUnmountedRef.current || isPauseRequestedRef.current,
       });
     } catch {
-      hasFailed = true;
+      result = "failed";
     }
-    for (const guid of new Set(cardsToCheck.map((card) => card.collectionGuid))) invalidateCollectionCards(queryClient, guid);
+    for (const guid of touchedCollectionGuids) invalidateCollectionCards(queryClient, guid);
     if (isUnmountedRef.current) return;
     onFinished();
     setCheckingScanIds(new Set());
-    if (hasFailed) {
+    if (result === "failed") {
       setStatus("paused");
       showToast({ message: t("reviewGrid.autoCheckFailed"), tone: "destructive" });
       return;
     }
-    if (sentCount < cardsToCheck.length) {
+    if (result === "cancelled") {
       setStatus("paused");
       return;
     }
@@ -107,11 +163,12 @@ export function useReviewAutoCheck(cards: ReviewGridCard[], onConfirmed: (scanId
 
   return {
     isAvailable: billing.data?.reviewAutoCheck === true,
+    cards: allCards,
     status: currentStatus,
     progress: currentStatus === "idle" ? null : progress,
     outcomes,
     checkingScanIds,
-    uncheckedCount: uncheckedCards.length,
+    canRun: estimatedUncheckedCount > 0,
     run,
     pause,
   };

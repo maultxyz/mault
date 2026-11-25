@@ -35,6 +35,15 @@ export interface ReviewGridTileProps {
   isAutoChecking?: boolean;
 }
 
+export interface ReviewAutoCheckOptions {
+  cards: ReviewGridCard[];
+  hiddenScanIds: ReadonlySet<string>;
+  remainingTotal: number;
+  loadReviewCardPage?: (page: number) => Promise<ReviewGridCard[]>;
+  onConfirmed: (scanIds: string[]) => void;
+  onFinished: () => void;
+}
+
 export type ReviewGridAttributeField = keyof ReviewGridAttributes;
 
 export interface ReviewGridAttributePicker {
