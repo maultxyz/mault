@@ -1374,6 +1374,7 @@ async function routeUnsavedCard(
   context: PiScanRunContext,
   link: SorterLink,
   binNumber: () => number | null,
+  { isControlCard = false }: { isControlCard?: boolean } = {},
 ) {
   while (!session.stopRequested) {
     if (!(await waitForResume(session))) return;
@@ -1386,6 +1387,12 @@ async function routeUnsavedCard(
     }
     showCard(session, null, bin, false);
     await routeScannedPiCard(session, link, routeForBin(bin, context.routes));
+    if (isControlCard) {
+      const lastScannedCard = session.lastCard;
+      savedCard(session);
+      session.lastCard = lastScannedCard;
+      return;
+    }
     context.counts.set(bin, (context.counts.get(bin) ?? 0) + 1);
     context.contents.push({
       binNumber: bin,
@@ -1486,14 +1493,20 @@ async function applyControlCardWhenIdle(
     ? findScannerControlCommandProblem(command, targets)
     : "unreadable";
   const routedControlCard = { binNumber: null as number | null };
-  await routeUnsavedCard(session, context, link, () => {
-    routedControlCard.binNumber = resolveControlCardBinNumber(
-      context.configs,
-      problem ? null : command,
-      session.lastScannedCardBinNumber,
-    );
-    return routedControlCard.binNumber;
-  });
+  await routeUnsavedCard(
+    session,
+    context,
+    link,
+    () => {
+      routedControlCard.binNumber = resolveControlCardBinNumber(
+        context.configs,
+        problem ? null : command,
+        session.lastScannedCardBinNumber,
+      );
+      return routedControlCard.binNumber;
+    },
+    { isControlCard: true },
+  );
   if (session.stopRequested) return;
   if (command?.endBatch && !problem && routedControlCard.binNumber != null)
     session.storageBatchStartBins.add(routedControlCard.binNumber);
