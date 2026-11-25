@@ -1,4 +1,3 @@
-import { requestDiagnostics } from "./middleware/request-diagnostics";
 import "./lib/disable-onnx-telemetry";
 import "./lib/console-timestamps";
 import "./lib/redact-console-errors";
@@ -92,7 +91,6 @@ import { startShortLinkStartupSync } from "./lib/short-links";
 import { startStatsSyncSchedule } from "./lib/stats-sync-connection";
 
 const app = new Hono<AppEnv>();
-app.use(requestDiagnostics);
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
 
 const appCors = cors({

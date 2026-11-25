@@ -1,4 +1,3 @@
-import { markRequestDiagnosticStage } from "./request-diagnostics";
 import { SERVER_SCAN_ACTOR } from "../lib/constants/scan-actor";
 import type { ServerScanBindings } from "../lib/interfaces/scan-actor";
 import { timingSafeEqual } from "node:crypto";
@@ -200,10 +199,8 @@ export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
   }
   const token = authHeader?.slice(7) ?? "";
 
-  markRequestDiagnosticStage(c, "verifyImpersonationToken");
   const impersonation = actor ? null : await verifyImpersonationToken(token);
   if (impersonation) {
-    markRequestDiagnosticStage(c, "getUserRole");
     const role = await getUserRole(impersonation.sub);
     c.set(
       "jwtClaims",
@@ -212,16 +209,13 @@ export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
     c.set("userId", impersonation.sub);
     c.set("userRole", role);
     c.set("impersonatedBy", impersonation.act?.sub ?? null);
-    markRequestDiagnosticStage(c, "handler");
     await next();
     return;
   }
 
-  markRequestDiagnosticStage(c, "verifyToken");
   const payload = actor ? { sub: actor.userId } : await verifyToken(token);
   if (!payload?.sub)
     return c.json({ success: false, message: "Unauthorized" }, 401);
-  markRequestDiagnosticStage(c, "getUserRole");
   const role = await getUserRole(payload.sub);
   c.set(
     "jwtClaims",
@@ -235,11 +229,9 @@ export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
       ? parsePreviewPlan(c.req.header(PLAN_PREVIEW_HEADER))
       : null;
   if (previewPlan) {
-    markRequestDiagnosticStage(c, "handler");
     await planPreviewStorage.run(previewPlan, () => next());
     return;
   }
-  markRequestDiagnosticStage(c, "handler");
   await next();
 });
 
@@ -253,7 +245,6 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
   }
 
   const userId = c.get("userId");
-  markRequestDiagnosticStage(c, "orgMembership");
   const member = await orgMembershipCache.get(`${userId}:${orgId}`, () =>
     authProvider.resolveOrgMembership(userId, orgId),
   );
@@ -265,7 +256,6 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
     );
   }
 
-  markRequestDiagnosticStage(c, "memberSeat");
   const seatLimit = await findMemberSeatOverflow(orgId, userId, member.role);
   if (seatLimit != null) {
     return c.json(
@@ -286,7 +276,6 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
     JSON.stringify({ sub: userId, role: "authenticated", org_id: orgId }),
   );
   try {
-    markRequestDiagnosticStage(c, "handler");
     await next();
   } finally {
     if (
