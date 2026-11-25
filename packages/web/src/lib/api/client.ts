@@ -7,7 +7,7 @@ import {
 import { setLocalToken } from "@/lib/auth/local-token";
 import { getAuthSession, getOrgId } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/api";
-import type { ApiPostFormOptions } from "@/lib/interfaces/api-client";
+import type { ApiGetOptions, ApiPostFormOptions } from "@/lib/interfaces/api-client";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { readMemberSeatLimit, setMemberSeatLock } from "@/lib/member-seat-lock";
 import { getPlanPreview } from "@/lib/plan-preview";
@@ -86,13 +86,21 @@ export async function publicGet<T>(path: string): Promise<T> {
   return res.json();
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
+export async function apiGet<T>(path: string, { signal }: ApiGetOptions = {}): Promise<T> {
+  signal?.throwIfAborted();
   const wasImpersonating = !!getImpersonationState();
+  const headers = await getAuthHeaders();
+  signal?.throwIfAborted();
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { ...(await getAuthHeaders()) },
+    headers: { ...headers },
+    ...(signal ? { signal } : {}),
   });
+  signal?.throwIfAborted();
   await checkResponse(res, wasImpersonating);
-  return res.json();
+  signal?.throwIfAborted();
+  const result = await res.json();
+  signal?.throwIfAborted();
+  return result;
 }
 
 export async function apiGetBlob(path: string): Promise<Blob> {

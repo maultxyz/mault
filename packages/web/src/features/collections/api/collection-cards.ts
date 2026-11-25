@@ -96,12 +96,13 @@ export const unmatchedCardsPageQueryOptions = (
 ) =>
   queryOptions({
     queryKey: [...unmatchedCardsKeys.page(guid, page), pageSize] as const,
-    queryFn: () =>
+    queryFn: ({ signal }) =>
       unwrap(
         loadUnmatchedCards(
           guid!,
           pageSize,
           (page - 1) * pageSize,
+          signal,
         ),
       ),
     enabled: !!guid,
@@ -111,10 +112,12 @@ export const unmatchedCardsPageQueryOptions = (
 export function loadCollectionCardIds(
   guid: string,
   query: CollectionCardsQuery,
+  signal?: AbortSignal,
 ): Promise<string[]> {
   return unwrap(
     apiGet<Result<string[]>>(
       `/api/collections/${guid}/cards/ids?${cardsQueryParams(query)}`,
+      { signal },
     ),
   );
 }
@@ -134,11 +137,13 @@ export function loadStoredCardCount(
 export function loadBinContents(
   guid: string,
   bins: BinWindow[],
+  signal?: AbortSignal,
 ): Promise<BinContentCard[]> {
   const params = new URLSearchParams({ bins: JSON.stringify(bins) });
   return unwrap(
     apiGet<Result<BinContentCard[]>>(
       `/api/collections/${guid}/cards/bin-contents?${params}`,
+      { signal },
     ),
   );
 }
@@ -151,10 +156,11 @@ export const collectionCardsPageQueryOptions = (
 ) =>
   queryOptions({
     queryKey: [...collectionCardsKeys.page(guid, query, page), pageSize] as const,
-    queryFn: () =>
+    queryFn: ({ signal }) =>
       unwrap(
         apiGet<Result<CollectionCardsPage>>(
           `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(page), limit: String(pageSize), [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE })}`,
+          { signal },
         ),
       ),
     enabled: !!guid,
@@ -174,7 +180,7 @@ export const collectionCardGridPageQueryOptions = (
       pageSize,
       includesUnmatchedCards ? COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM : null,
     ] as const,
-    queryFn: () =>
+    queryFn: ({ signal }) =>
       unwrap(
         apiGet<Result<CollectionCardsPage>>(
           `/api/collections/${guid}/cards?${cardsQueryParams(query, {
@@ -185,6 +191,7 @@ export const collectionCardGridPageQueryOptions = (
               ? { [COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM]: "1" }
               : {}),
           })}`,
+          { signal },
         ),
       ),
     enabled: !!guid,
@@ -197,10 +204,11 @@ export const scanTimelineCardsQueryOptions = (
 ) =>
   infiniteQueryOptions({
     queryKey: collectionCardsKeys.scanTimelineCards(guid, query),
-    queryFn: ({ pageParam }) =>
+    queryFn: ({ pageParam, signal }) =>
       unwrap(
         apiGet<Result<CollectionCardsPage>>(
           `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(pageParam), limit: String(SCAN_TIMELINE_PAGE_SIZE), [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE })}`,
+          { signal },
         ),
       ),
     initialPageParam: 0,
@@ -224,10 +232,11 @@ export const scanTimelineBucketsQueryOptions = (
       grouping,
       timeZone,
     ),
-    queryFn: () =>
+    queryFn: ({ signal }) =>
       unwrap(
         apiGet<Result<ScanTimelineBuckets>>(
           `/api/collections/${guid}/cards/scan-timeline?${cardsQueryParams(query, { grouping, timeZone })}`,
+          { signal },
         ),
       ),
     enabled: !!guid,
@@ -240,10 +249,11 @@ export const collectionCardsSummaryQueryOptions = (
 ) =>
   queryOptions({
     queryKey: collectionCardsKeys.summary(guid, query),
-    queryFn: () =>
+    queryFn: ({ signal }) =>
       unwrap(
         apiGet<Result<CollectionCardsSummary>>(
           `/api/collections/${guid}/cards/summary?${cardsQueryParams(query)}`,
+          { signal },
         ),
       ),
     enabled: !!guid,
@@ -265,10 +275,11 @@ export const collectionCardsCountQueryOptions = (
   };
   return queryOptions({
     queryKey: collectionCardsKeys.count(guid, countQuery),
-    queryFn: () =>
+    queryFn: ({ signal }) =>
       unwrap(
         apiGet<Result<CollectionCardsCount>>(
           `/api/collections/${guid}/cards/count?${cardsQueryParams(countQuery)}`,
+          { signal },
         ),
       ),
     enabled: !!guid,
@@ -283,10 +294,11 @@ export const collectionCardPositionQueryOptions = (
 ) =>
   queryOptions({
     queryKey: collectionCardsKeys.position(guid, scanId, query),
-    queryFn: () =>
+    queryFn: ({ signal }) =>
       unwrap(
         apiGet<Result<CollectionCardPosition | null>>(
           `/api/collections/${guid}/cards/${scanId}/position?${cardsQueryParams(query)}`,
+          { signal },
         ),
       ),
     enabled: !!guid && !!scanId,
@@ -298,11 +310,12 @@ export const binCardCountsQueryOptions = (
 ) =>
   queryOptions({
     queryKey: collectionCardsKeys.binCounts(guid, bins),
-    queryFn: () => {
+    queryFn: ({ signal }) => {
       const params = new URLSearchParams({ bins: JSON.stringify(bins) });
       return unwrap(
         apiGet<Result<BinCardCount[]>>(
           `/api/collections/${guid}/cards/bin-counts?${params}`,
+          { signal },
         ),
       );
     },

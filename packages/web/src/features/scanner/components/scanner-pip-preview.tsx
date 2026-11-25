@@ -1,7 +1,7 @@
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
-import { useCameraContext } from "@/features/scanner/api/use-camera";
+import { useCameraContext, useCameraPreviewStream } from "@/features/scanner/api/use-camera";
 import { useDesktopPipDrag } from "@/features/scanner/api/use-desktop-pip-drag";
 import {
   useScanElapsedMs,
@@ -25,7 +25,8 @@ export function ScannerPipPreview({
   controls,
 }: ScannerPipPreviewProps) {
   const { t } = useTranslation("scanner");
-  const { stream, cameraSource } = useCameraContext();
+  const stream = useCameraPreviewStream();
+  const { cameraSource } = useCameraContext();
   const device = useDevice();
   const { isTimerActive, attention } = useScannedCards();
   const elapsedMs = useScanElapsedMs();

@@ -177,7 +177,8 @@ function takeJpeg(
   return null;
 }
 
-export async function acquirePiRelayStream(cameraId = PI_CAMERA_DEVICE_ID): Promise<MediaStream> {
+export async function acquirePiRelayStream(cameraId = PI_CAMERA_DEVICE_ID, signal?: AbortSignal): Promise<MediaStream> {
+  signal?.throwIfAborted();
   const canvas = document.createElement("canvas");
   canvas.width = PI_CAMERA_WIDTH;
   canvas.height = PI_CAMERA_HEIGHT;
@@ -190,16 +191,28 @@ export async function acquirePiRelayStream(cameraId = PI_CAMERA_DEVICE_ID): Prom
   piRelayCameraIds.set(track, cameraId);
   const controller = new AbortController();
   const stop = track.stop.bind(track);
+  const abort = () => track.stop();
   track.stop = () => {
+    signal?.removeEventListener("abort", abort);
     controller.abort();
     stop();
   };
+  signal?.addEventListener("abort", abort, { once: true });
 
-  const response = await fetch(piCameraUrl("stream", cameraId), {
-    signal: controller.signal,
-    cache: "no-store",
-    headers: await getAuthHeaders(),
-  });
+  let response: Response;
+  try {
+    const headers = await getAuthHeaders();
+    signal?.throwIfAborted();
+    response = await fetch(piCameraUrl("stream", cameraId), {
+      signal: controller.signal,
+      cache: "no-store",
+      headers,
+    });
+    controller.signal.throwIfAborted();
+  } catch (error) {
+    track.stop();
+    throw error;
+  }
   if (!response.ok || !response.body) {
     track.stop();
     throw new Error("camera stream failed");

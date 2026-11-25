@@ -24,6 +24,8 @@ export const piCameraRouter = new Hono<AppEnv>()
       const url = new URL(`${PI_CAMERA_HELPER_URL}/${action}`);
       const cameraId = c.req.query("cameraId");
       if (cameraId) url.searchParams.set("cameraId", cameraId);
+      if (action === "frame" && c.req.query("fresh") === "1")
+        url.searchParams.set("fresh", "1");
       const upstream = await fetch(url, {
         method,
         headers:

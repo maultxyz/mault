@@ -418,6 +418,7 @@ export async function loadUnmatchedCards(
   guid: string,
   limit: number,
   offset = 0,
+  signal?: AbortSignal,
 ): Promise<Result<UnmatchedCardsPage>> {
   const params = new URLSearchParams({
     limit: String(limit),
@@ -425,6 +426,7 @@ export async function loadUnmatchedCards(
   });
   return apiGet<Result<UnmatchedCardsPage>>(
     `/api/collections/${guid}/unmatched?${params}`,
+    { signal },
   );
 }
 

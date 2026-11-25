@@ -21,7 +21,6 @@ import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
 import {
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
   COLLECTION_CARDS_AGGREGATE_CACHE_TTL_MS,
-  COLLECTION_CARDS_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
   GROUPED_CARD_RANKING_CACHE_MAX_ENTRIES,
   GROUPED_CARD_RANKING_CACHE_TTL_MS,
 } from "../../lib/constants/collection-read-caches";
@@ -56,7 +55,6 @@ const cardsSummaryCache = createOrgReadCache<CollectionCardsSummary | null>(
   "org.collectionCardsSummary",
   COLLECTION_CARDS_AGGREGATE_CACHE_TTL_MS,
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
-  COLLECTION_CARDS_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
 );
 
 const cardsCountCache = createOrgReadCache<CollectionCardsCount | null>(

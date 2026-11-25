@@ -60,6 +60,30 @@ test("Pi camera requires authentication and org membership before forwarding", a
   assert.equal(upstream.origin, "http://127.0.0.1:8765");
   assert.equal(upstream.searchParams.get("cameraId"), "/dev/video-test-b");
   assert.equal(upstream.searchParams.has("url"), false);
+  assert.equal(upstream.searchParams.has("fresh"), false);
+  const fresh = await piCameraRouter.request("/frame?cameraId=%2Fdev%2Fvideo-test-b&fresh=1&url=http://attacker", {
+    headers: { ...authorization, "X-Org-Id": "org-1" },
+  });
+  assert.equal(fresh.status, 200);
+  const freshUpstream = new URL(urls.at(-1)!);
+  assert.equal(freshUpstream.searchParams.get("fresh"), "1");
+  assert.equal(freshUpstream.searchParams.get("cameraId"), "/dev/video-test-b");
+  assert.equal(freshUpstream.searchParams.has("url"), false);
+  await piCameraRouter.request("/stream?fresh=1", {
+    headers: { ...authorization, "X-Org-Id": "org-1" },
+  });
+  assert.equal(new URL(urls.at(-1)!).searchParams.has("fresh"), false);
+  await piCameraRouter.request("/frame?fresh=other", {
+    headers: { ...authorization, "X-Org-Id": "org-1" },
+  });
+  assert.equal(new URL(urls.at(-1)!).searchParams.has("fresh"), false);
+
+  t.mock.method(globalThis, "fetch", async () => new Response("no fresh frame", { status: 503 }));
+  const unavailable = await piCameraRouter.request("/frame?fresh=1", {
+    headers: { ...authorization, "X-Org-Id": "org-1" },
+  });
+  assert.equal(unavailable.status, 503);
+  assert.equal(await unavailable.text(), "no fresh frame");
 });
 
 test("Pi camera endpoints are disabled when PI_HOST=0", async (t) => {
