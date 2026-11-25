@@ -1,26 +1,24 @@
 import {
   cardColorSwatch,
-  fallbackSwatchHex,
-  RARITY_TIER_HEX_COLORS,
+  rarityHexColor,
   rarityLabel,
-  rarityTier,
   sortRarities,
   type CardStatsAggregate,
 } from "@magic-vault/shared";
 import type { StatsBreakdown } from "@/lib/interfaces/stats";
 
 
-export function toStatsBreakdown(aggregate: CardStatsAggregate): StatsBreakdown {
+export function toStatsBreakdown(
+  aggregate: CardStatsAggregate,
+  gameKey?: string | null,
+): StatsBreakdown {
   const rarities = sortRarities(
-    aggregate.rarities.map(({ key, count }) => {
-      const tier = rarityTier(key);
-      return {
-        key,
-        count,
-        label: rarityLabel(key),
-        color: tier ? RARITY_TIER_HEX_COLORS[tier] : fallbackSwatchHex(key),
-      };
-    }),
+    aggregate.rarities.map(({ key, count }) => ({
+      key,
+      count,
+      label: rarityLabel(key),
+      color: rarityHexColor(key, gameKey),
+    })),
   );
 
   const colors = [...aggregate.colors]

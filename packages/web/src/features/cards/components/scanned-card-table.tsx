@@ -27,6 +27,7 @@ import {
   IconSparkles,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { useRarityGameKey } from "@/hooks/use-rarity-game-key";
 import { raritySwatch } from "@/lib/card-swatches";
 import { rarityLabel } from "@magic-vault/shared";
 import { modifierClickSelectHandlers } from "@/lib/modifier-click-select";
@@ -41,6 +42,7 @@ export function ScannedCardTable({
 }: ScannedCardTableProps) {
   const { t } = useTranslation("cards");
   const { priceOf, format } = usePriceSource();
+  const rarityGameKey = useRarityGameKey();
   const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
   const selectable = !!onToggleSelect;
   const selectedCount = rows.filter((row) => row.isSelected).length;
@@ -189,7 +191,7 @@ export function ScannedCardTable({
                 <div className="flex items-center gap-1.5">
                   <div
                     className="size-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: raritySwatch(card.rarity).bg }}
+                    style={{ backgroundColor: raritySwatch(card.rarity, rarityGameKey).bg }}
                   />
                   <span className="text-foreground/70">{rarityText}</span>
                 </div>

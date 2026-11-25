@@ -4,10 +4,12 @@ import {
   SWATCH_FALLBACK_PALETTE,
 } from "./constants/card-colors.constant";
 import {
+  GAME_RARITY_HEX_COLORS,
   RARITY_ABBREVIATION_MAX_LENGTH,
   RARITY_ABBREVIATION_TIERS,
   RARITY_LABELS,
   RARITY_ORDER,
+  RARITY_TIER_HEX_COLORS,
   RARITY_TIER_ORDER,
   RARITY_TIER_PATTERNS,
   RARITY_WORD_ABBREVIATIONS,
@@ -35,6 +37,22 @@ export function rarityTier(key: string): RarityTier | null {
     RARITY_ABBREVIATION_TIERS[normalized] ??
     RARITY_TIER_PATTERNS.find(([pattern]) => pattern.test(normalized))?.[1] ??
     null
+  );
+}
+
+export function gameRarityHexColor(
+  key: string,
+  gameKey: string | null | undefined,
+): string | null {
+  if (!gameKey) return null;
+  return GAME_RARITY_HEX_COLORS[gameKey]?.[normalizeSwatchKey(key)] ?? null;
+}
+
+export function rarityHexColor(key: string, gameKey?: string | null): string {
+  const tier = rarityTier(key);
+  return (
+    gameRarityHexColor(key, gameKey) ??
+    (tier ? RARITY_TIER_HEX_COLORS[tier] : fallbackSwatchHex(key))
   );
 }
 

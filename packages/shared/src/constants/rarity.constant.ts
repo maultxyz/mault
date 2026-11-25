@@ -89,3 +89,18 @@ export const RARITY_WORD_ABBREVIATIONS: Record<string, string> = {
   prismatic: "P",
   premium: "P",
 };
+
+export const GAME_RARITY_HEX_COLORS: Record<string, Record<string, string>> = {
+  swu: {
+    common: "#B87333",
+    c: "#B87333",
+    uncommon: "#C0C0C0",
+    u: "#C0C0C0",
+    rare: "#D4AF37",
+    r: "#D4AF37",
+    legendary: "#5AB4E5",
+    l: "#5AB4E5",
+    special: "#FFFFFF",
+    s: "#FFFFFF",
+  },
+};

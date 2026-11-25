@@ -14,6 +14,7 @@ import { useUnmatchedView } from "@/features/scanner/api/use-unmatched-view";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { SessionMonitorViewProps } from "@/lib/interfaces/scanner";
+import { RarityGameKeyContext } from "@/lib/rarity-game-key-context";
 import { useCallback } from "react";
 
 export function SessionMonitorView({
@@ -46,109 +47,115 @@ export function SessionMonitorView({
     [setOpenScanId],
   );
 
+  const rarityGameKey = session.collection?.game?.key ?? null;
+
   if (isMobile) {
     return (
-      <MobileSessionMonitor
-        session={session}
-        cards={cards}
-        collectionGuid={cardsSource.collectionGuid}
-        header={header}
-        toolbarLeading={toolbarLeading}
-        binCount={binCount}
-        canEditCards={canEditCards}
-        backHref={backHref}
-      />
+      <RarityGameKeyContext value={rarityGameKey}>
+        <MobileSessionMonitor
+          session={session}
+          cards={cards}
+          collectionGuid={cardsSource.collectionGuid}
+          header={header}
+          toolbarLeading={toolbarLeading}
+          binCount={binCount}
+          canEditCards={canEditCards}
+          backHref={backHref}
+        />
+      </RarityGameKeyContext>
     );
   }
 
   return (
-    <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
-      <aside className="col-span-5 md:col-span-5 lg:col-span-4 xl:col-span-3 2xl:col-span-2 overflow-hidden flex flex-col h-full p-2 border-r gap-2 bg-sidebar/70">
-        {header}
-        <SessionStatsPanel stats={stats} totalCards={cardCount} />
-        {canEditCards ? (
-          <UnmatchedCardsPanel
-            canIdentify
-            cards={unmatchedCards}
-            total={unmatchedCount}
-            collectionGuid={cardsSource.collectionGuid}
-            onRemove={(scanId) =>
-              removeUnmatchedScan(cardsSource.collectionGuid, scanId)
-            }
-            onRemoveAll={() => clearUnmatchedScans(cardsSource.collectionGuid)}
-          />
-        ) : (
-          <UnmatchedCardsPanel cards={unmatchedCards} total={unmatchedCount} />
-        )}
-        <SessionErrorsPanel errors={errors} />
-      </aside>
-
-      <div className="col-span-7 md:col-span-7 lg:col-span-8 xl:col-span-9 2xl:col-span-10 overflow-y-auto h-full @container">
-        {unmatchedView.isOpen && canEditCards ? (
-          <UnmatchedCardsBrowser
-            collectionGuid={cardsSource.collectionGuid}
-            openIndex={unmatchedView.openIndex}
-            onOpenIndexChange={unmatchedView.setOpenIndex}
-            canIdentify
-            onRemove={(scanId) =>
-              removeUnmatchedScan(cardsSource.collectionGuid, scanId)
-            }
-            onRemoveAll={() => clearUnmatchedScans(cardsSource.collectionGuid)}
-            onClose={unmatchedView.close}
-            className="min-h-full"
-          />
-        ) : openScanId ? (
-          <MonitorCardDetail
-            collectionGuid={cardsSource.collectionGuid}
-            scanId={openScanId}
-            cardsQuery={cards.cardsQuery}
-            onNavigate={setOpenScanId}
-            onClose={handleCloseCard}
-          />
-        ) : (
-          <>
-            <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl p-2 border-b">
-              <CardToolbar
-                leading={toolbarLeading}
-                searchQuery={cards.searchQuery}
-                onSearchChange={cards.setSearchQuery}
-                sortKey={cards.sortKey}
-                onSortChange={cards.setSortKey}
-                sortableFields={cards.sortableFields}
-                hasCards={matchingCount > 0}
-                activeFilters={cards.filters}
-                onFiltersChange={cards.setFilters}
-                activeFilterCount={cards.activeFilterCount}
-                availableRarities={stats?.rarities}
-                availableColors={stats?.colors}
-                binCount={binCount}
-                cardCount={cardCount}
-                viewMode={cards.viewMode}
-                onViewModeChange={cards.setViewMode}
-                groupDuplicates={cards.groupDuplicates}
-                onGroupDuplicatesChange={cards.setGroupDuplicates}
-              />
-            </div>
-            <MonitorCardGrid
-              entries={cards.entries}
-              status={status}
-              cardCount={cardCount}
-              matchingCount={matchingCount}
-              isLoading={cards.isLoading}
-              viewMode={cards.viewMode}
-              groupDuplicates={cards.groupDuplicates}
-              page={cards.page}
-              pageSize={cards.pageSize}
-              preferredPageSize={cards.preferredPageSize}
-              onPageSizeChange={cards.setPageSize}
-              pageCount={cards.pageCount}
-              onPageChange={cards.setPage}
-              showBinLocation={showBinLocation}
-              onOpenCard={canEditCards ? handleOpenCard : undefined}
+    <RarityGameKeyContext value={rarityGameKey}>
+      <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
+        <aside className="col-span-5 md:col-span-5 lg:col-span-4 xl:col-span-3 2xl:col-span-2 overflow-hidden flex flex-col h-full p-2 border-r gap-2 bg-sidebar/70">
+          {header}
+          <SessionStatsPanel stats={stats} totalCards={cardCount} />
+          {canEditCards ? (
+            <UnmatchedCardsPanel
+              canIdentify
+              cards={unmatchedCards}
+              total={unmatchedCount}
+              collectionGuid={cardsSource.collectionGuid}
+              onRemove={(scanId) =>
+                removeUnmatchedScan(cardsSource.collectionGuid, scanId)
+              }
+              onRemoveAll={() => clearUnmatchedScans(cardsSource.collectionGuid)}
             />
-          </>
-        )}
+          ) : (
+            <UnmatchedCardsPanel cards={unmatchedCards} total={unmatchedCount} />
+          )}
+          <SessionErrorsPanel errors={errors} />
+        </aside>
+
+        <div className="col-span-7 md:col-span-7 lg:col-span-8 xl:col-span-9 2xl:col-span-10 overflow-y-auto h-full @container">
+          {unmatchedView.isOpen && canEditCards ? (
+            <UnmatchedCardsBrowser
+              collectionGuid={cardsSource.collectionGuid}
+              openIndex={unmatchedView.openIndex}
+              onOpenIndexChange={unmatchedView.setOpenIndex}
+              canIdentify
+              onRemove={(scanId) =>
+                removeUnmatchedScan(cardsSource.collectionGuid, scanId)
+              }
+              onRemoveAll={() => clearUnmatchedScans(cardsSource.collectionGuid)}
+              onClose={unmatchedView.close}
+              className="min-h-full"
+            />
+          ) : openScanId ? (
+            <MonitorCardDetail
+              collectionGuid={cardsSource.collectionGuid}
+              scanId={openScanId}
+              cardsQuery={cards.cardsQuery}
+              onNavigate={setOpenScanId}
+              onClose={handleCloseCard}
+            />
+          ) : (
+            <>
+              <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl p-2 border-b">
+                <CardToolbar
+                  leading={toolbarLeading}
+                  searchQuery={cards.searchQuery}
+                  onSearchChange={cards.setSearchQuery}
+                  sortKey={cards.sortKey}
+                  onSortChange={cards.setSortKey}
+                  sortableFields={cards.sortableFields}
+                  hasCards={matchingCount > 0}
+                  activeFilters={cards.filters}
+                  onFiltersChange={cards.setFilters}
+                  activeFilterCount={cards.activeFilterCount}
+                  availableRarities={stats?.rarities}
+                  availableColors={stats?.colors}
+                  binCount={binCount}
+                  cardCount={cardCount}
+                  viewMode={cards.viewMode}
+                  onViewModeChange={cards.setViewMode}
+                  groupDuplicates={cards.groupDuplicates}
+                  onGroupDuplicatesChange={cards.setGroupDuplicates}
+                />
+              </div>
+              <MonitorCardGrid
+                entries={cards.entries}
+                status={status}
+                cardCount={cardCount}
+                matchingCount={matchingCount}
+                isLoading={cards.isLoading}
+                viewMode={cards.viewMode}
+                groupDuplicates={cards.groupDuplicates}
+                page={cards.page}
+                pageSize={cards.pageSize}
+                preferredPageSize={cards.preferredPageSize}
+                onPageSizeChange={cards.setPageSize}
+                pageCount={cards.pageCount}
+                onPageChange={cards.setPage}
+                showBinLocation={showBinLocation}
+                onOpenCard={canEditCards ? handleOpenCard : undefined}
+              />
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </RarityGameKeyContext>
   );
 }
