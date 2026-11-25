@@ -1,4 +1,5 @@
 import type { CardCondition } from "../interfaces/card-condition.interface";
+import type { PriceSource } from "../interfaces/price-source.interface";
 
 export const CONDITION_EXPORT_LABELS: Record<CardCondition, string> = {
   NM: "Near Mint",
@@ -113,3 +114,11 @@ export const SORTSWIFT_OVERRIDE_PRICE_HEADERS = [
   "Override Price (Lgsmarket)",
   "Override Price (Cardnexus)",
 ];
+
+export const PRICE_SOURCE_EXPORT_LABELS: Record<PriceSource, string> = {
+  tcgplayer: "TCGplayer",
+  cardmarket: "Cardmarket",
+  cardkingdom: "Card Kingdom",
+};
+
+export const GENERIC_CSV_PRIMARY_PRICE_COLUMN = "primary-price";

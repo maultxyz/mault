@@ -1,4 +1,4 @@
-import type { ExportableCard, FieldMeta } from "@magic-vault/shared";
+import type { ExportableCard, FieldMeta, OrgPricing } from "@magic-vault/shared";
 
 export interface CardExportGame {
   key: string;
@@ -13,6 +13,7 @@ export interface CardExportInput {
   gameKeys: (string | null)[];
   game: CardExportGame | null;
   exportName: string;
+  pricing: OrgPricing;
 }
 
 export type CardExportResult =
