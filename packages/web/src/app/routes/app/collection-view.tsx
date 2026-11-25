@@ -32,7 +32,10 @@ import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 
 export default function CollectionViewPage() {
   const { t } = useTranslation("collections");
-  const { collectionGuid } = useParams<{ collectionGuid: string }>();
+  const { collectionGuid, scanId } = useParams<{
+    collectionGuid: string;
+    scanId: string;
+  }>();
   const { search } = useLocation();
   const {
     collections,
@@ -46,7 +49,12 @@ export default function CollectionViewPage() {
   const unmatchedView = useUnmatchedView();
 
   if (collectionGuid && collectionGuid === activeCollection?.guid) {
-    return <Navigate to={{ pathname: "/app", search }} replace />;
+    return (
+      <Navigate
+        to={{ pathname: scanId ? `/app/cards/${scanId}` : "/app", search }}
+        replace
+      />
+    );
   }
 
   if (isLoading) {
