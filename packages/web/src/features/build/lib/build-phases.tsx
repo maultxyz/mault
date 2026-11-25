@@ -143,6 +143,16 @@ export function buildPhases(
           ],
         },
         {
+          key: "print-module-pins",
+          text: t("assembly.phases.print.steps.printModulePins.text", {
+            modules: moduleCount,
+            count: modulePins.total,
+            top: modulePins.top,
+            front: modulePins.front,
+          }),
+          alert: t("assembly.phases.print.steps.printModulePins.glueAlert"),
+        },
+        {
           key: "print-plate-base-bottom",
           modelParts: ["circuitBoardPlate"],
           text: t(
@@ -190,16 +200,6 @@ export function buildPhases(
           text: t("assembly.phases.print.steps.printOptionalPlates.text"),
         },
         {
-          key: "print-module-pins",
-          text: t("assembly.phases.print.steps.printModulePins.text", {
-            modules: moduleCount,
-            count: modulePins.total,
-            top: modulePins.top,
-            front: modulePins.front,
-          }),
-          alert: t("assembly.phases.print.steps.printModulePins.glueAlert"),
-        },
-        {
           key: "dry-fit",
           text: t("assembly.phases.print.steps.dryFit.text"),
           images: ["/instructions/v5.jpg"],
@@ -211,11 +211,20 @@ export function buildPhases(
       title: t("assembly.phases.assembleModules.title"),
       icon: IconTool,
       video: ASSEMBLE_MODULES_VIDEO,
+      intro: (
+        <div className="flex flex-col gap-1.5 pb-2 text-sm/relaxed text-foreground/70">
+          <p className="font-medium text-foreground">
+            {t("assembly.phases.assembleModules.intro.horns")}
+          </p>
+          <p>{t("assembly.phases.assembleModules.intro.linkages")}</p>
+        </div>
+      ),
       steps: [
         {
           key: "mount-module-servos",
           text: t(
             "assembly.phases.assembleModules.steps.mountModuleServos.text",
+            { modules: moduleCount, count: moduleCount * 3 },
           ),
         },
         {
@@ -249,12 +258,18 @@ export function buildPhases(
         {
           key: "mount-pusher-arm",
           text: t("assembly.phases.assembleModules.steps.mountPusherArm.text"),
-          note: t("assembly.phases.assembleModules.steps.mountPusherArm.note"),
           images: [
             "/instructions/pusher_disassembled.jpg",
             "/instructions/pusher_assembled.jpg",
             "/instructions/pusher_attached.jpg",
           ],
+        },
+        {
+          key: "mount-module-ir",
+          text: t("assembly.phases.assembleModules.steps.mountModuleIr.text", {
+            modules: moduleCount,
+          }),
+          images: ["/instructions/sorter_ir_sensor_mounted.jpg"],
         },
         {
           key: "fit-feeder-orings",
@@ -271,9 +286,6 @@ export function buildPhases(
           key: "mount-feeder-servo",
           text: t(
             "assembly.phases.assembleModules.steps.mountFeederServo.text",
-          ),
-          note: t(
-            "assembly.phases.assembleModules.steps.mountFeederServo.note",
           ),
           images: ["/instructions/feeder_servo_mounted.jpg"],
         },
@@ -311,13 +323,6 @@ export function buildPhases(
             "assembly.phases.assembleModules.steps.mountHopperRiser.requiredAlert",
           ),
           images: ["/instructions/feeder_riser.JPG"],
-        },
-        {
-          key: "mount-module-ir",
-          text: t("assembly.phases.assembleModules.steps.mountModuleIr.text", {
-            modules: moduleCount,
-          }),
-          images: ["/instructions/sorter_ir_sensor_mounted.jpg"],
         },
         {
           key: "mount-hopper-ir",
@@ -479,12 +484,6 @@ export function buildPhases(
           ),
         },
         {
-          key: "calibrate-feeder",
-          text: t(
-            "assembly.phases.wireAndCalibrate.steps.calibrateFeeder.text",
-          ),
-        },
-        {
           key: "adjust-ir",
           text: t("assembly.phases.wireAndCalibrate.steps.adjustIr.text", {
             count: moduleCount + 1,
@@ -497,6 +496,12 @@ export function buildPhases(
             count: moduleCount + 1,
           }),
           note: t("assembly.phases.wireAndCalibrate.steps.checkIr.note"),
+        },
+        {
+          key: "calibrate-feeder",
+          text: t(
+            "assembly.phases.wireAndCalibrate.steps.calibrateFeeder.text",
+          ),
         },
         {
           key: "test-bins",
