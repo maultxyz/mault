@@ -2,7 +2,7 @@ import {
   BULK_SCAN_IDS_MAX,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { collectionCards } from "../../db/schema";
@@ -52,6 +52,7 @@ export const setCollectionCardsFoilTypeRoute = new Hono<AppEnv>().post(
           card: collectionCards.card,
           scannedAt: collectionCards.scannedAt,
           binNumber: collectionCards.binNumber,
+          isBinEmptied: sql<boolean>`${collectionCards.binEmptiedAt} IS NOT NULL`,
           isFoil: collectionCards.isFoil,
           foilType: collectionCards.foilType,
           condition: collectionCards.condition,

@@ -1050,7 +1050,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
     scanId: entry.scanId,
     scanIds: entry.scanIds,
     card: entry.card,
-    binNumber: entry.binNumber,
+    binNumber: entry.isBinEmptied ? undefined : entry.binNumber,
     quantity: entry.quantity,
     isFoil: entry.isFoil,
     foilType: entry.foilType,
@@ -1071,7 +1071,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
         card={entry.card}
         scannedAt={entry.scannedAt}
         onOpen={() => setOpenScanId(entry.scanId)}
-        binNumber={entry.binNumber}
+        binNumber={entry.isBinEmptied ? undefined : entry.binNumber}
         isSelected={isItemSelected(entry)}
         onToggleSelect={(options) =>
           handleSelect(entry.scanId, options)

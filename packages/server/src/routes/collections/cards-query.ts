@@ -529,6 +529,7 @@ function rankedCardsCte(
 
 const CARD_ROW_COLUMNS = sql`
   cc.guid, cc.card, ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
+  cc.bin_emptied_at IS NOT NULL AS is_bin_emptied,
   cc.is_foil, cc.foil_type, cc.stamp, cc.condition, cc.language, cc.is_downloaded,
   cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed, cc.is_auto_reviewed,
   cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name,
@@ -540,6 +541,7 @@ function toCard(row: CollectionCardRow) {
     card: row.card,
     scannedAt: new Date(row.scanned_at_ms),
     binNumber: row.bin_number,
+    isBinEmptied: row.is_bin_emptied,
     isFoil: row.is_foil,
     foilType: row.foil_type,
     stamp: row.stamp,
@@ -880,6 +882,7 @@ export async function loadAllCards(
   const result = await tx.execute(sql`
     SELECT cc.guid, (cc.card || COALESCE(${joinedCardPricesJsonSql()}, '{}'::jsonb)) AS card,
       ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
+      cc.bin_emptied_at IS NOT NULL AS is_bin_emptied,
       cc.is_foil, cc.foil_type, cc.stamp, cc.condition, cc.language, cc.is_downloaded,
       cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed, cc.is_auto_reviewed,
       cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name,
@@ -1118,7 +1121,8 @@ function binWindowsJoin(collectionId: number, bins: BinWindow[]): SQL {
     JOIN collection_cards cc
       ON cc.collection_id = ${collectionId}
       AND cc.bin_number = b."binNumber"
-      AND cc.bin_emptied_at IS NULL`;
+      AND cc.bin_emptied_at IS NULL
+      AND cc.location_id IS NULL`;
 }
 
 export async function loadBinCounts(
@@ -1134,6 +1138,7 @@ export async function loadBinCounts(
         WHERE cc.collection_id = ${collectionId}
           AND cc.bin_number = b."binNumber"
           AND cc.bin_emptied_at IS NULL
+          AND cc.location_id IS NULL
       )::int + (
         SELECT count(*) FROM unmatched_cards u
         WHERE u.collection_id = ${collectionId}
@@ -1154,6 +1159,7 @@ export async function loadBinCounts(
             WHERE cc.collection_id = ${collectionId}
               AND cc.bin_number = b."binNumber"
               AND cc.bin_emptied_at IS NULL
+              AND cc.location_id IS NULL
             UNION ALL
             SELECT u.scanned_at, 'unmatched' AS kind, u.id, u.starts_storage_batch
             FROM unmatched_cards u

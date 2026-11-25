@@ -151,7 +151,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                 location={storageLocation}
                 className="ml-auto shadow-md"
               />
-            ) : showBinLocation ? (
+            ) : binNumber == null ? null : showBinLocation ? (
               <Tooltip>
                 <TooltipTrigger
                   render={

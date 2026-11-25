@@ -945,7 +945,11 @@ const router = new Hono<AppEnv>()
       }
       const updated = await tx
         .update(collectionCards)
-        .set({ locationId: null, locationPosition: null })
+        .set({
+          locationId: null,
+          locationPosition: null,
+          binEmptiedAt: sql`coalesce(${collectionCards.binEmptiedAt}, now())`,
+        })
         .where(
           and(
             eq(collectionCards.guid, scanId),

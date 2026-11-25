@@ -70,6 +70,7 @@ export function toScannedCard(row: {
   card: unknown;
   scannedAt: Date;
   binNumber: number | null;
+  isBinEmptied?: boolean | null;
   capturedImageDataUrl?: string | null;
   isFoil?: boolean | null;
   foilType?: string | null;
@@ -89,6 +90,7 @@ export function toScannedCard(row: {
     card: row.card as PlayingCardWithDistance,
     scannedAt: row.scannedAt.getTime(),
     binNumber: row.binNumber ?? undefined,
+    isBinEmptied: (row.binNumber != null && row.isBinEmptied) || undefined,
     capturedImageUrl: row.capturedImageDataUrl ?? undefined,
     isFoil: row.isFoil ?? undefined,
     foilType: row.foilType ?? undefined,

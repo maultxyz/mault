@@ -54,6 +54,7 @@ export interface CollectionCardRow {
   card: unknown;
   scanned_at_ms: number;
   bin_number: number | null;
+  is_bin_emptied: boolean;
   is_foil: boolean;
   foil_type: string | null;
   stamp: string | null;

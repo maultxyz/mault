@@ -677,7 +677,11 @@ export async function removeCardsFromLocations(
   if (scanIds.length === 0) return 0;
   const updated = await tx
     .update(collectionCards)
-    .set({ locationId: null, locationPosition: null })
+    .set({
+      locationId: null,
+      locationPosition: null,
+      binEmptiedAt: sql`coalesce(${collectionCards.binEmptiedAt}, now())`,
+    })
     .where(
       and(
         eq(collectionCards.orgId, orgId),

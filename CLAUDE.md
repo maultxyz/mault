@@ -225,7 +225,7 @@ Neon scales to zero after ~5 idle minutes, so nothing may poll the DB on a timer
 - Fill lists: each bin has a stored claim (`bins.claimed_storage_location_id`), reassigned only by `reclaimFillLocations`, never recomputed by bin order. Slots are never reused; `location_position` is 1-based: never add 1.
 - Cards moved to a location get slots in scan order, never client order.
 - A batch separator control card is never stored itself: the adapter marks its bin, and the next card routed there saves `starts_storage_batch` (shared `ScanRoutingContext.startsStorageBatch`). `assignBinToLocation` numbers the stack through shared `planBinStackSlots`, skipping to a new storage batch at that card. Bin capacity counts those skipped slots: bin counts return `storageBatchStarts` (stack indices from the oldest card) and every adapter passes saved plus pending starts to `scanBinCapacity`.
-- A card is in its bin while `bin_emptied_at` is null; `markBinsEmptied` stamps cards, so presets hold no fill state.
+- A card is in its bin while `bin_emptied_at` and `location_id` are both null (a manual move to a location takes it out; removing it from a location stamps `bin_emptied_at`); `markBinsEmptied` stamps cards, so presets hold no fill state.
 - Never put a collection's full card list in a stream payload.
 - Every connected sorter is a station (tab) plus one idle standby. Background stations stay laid out (never `display: none`) so they keep sorting.
 
