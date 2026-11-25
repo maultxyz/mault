@@ -108,7 +108,7 @@ export interface MoveToLocationDialogProps {
   excludedLocationGuid?: string;
   isMoving: boolean;
   showLocations?: boolean;
-  sourceCollectionGuid?: string;
+  sourceCollectionGuid?: string | string[];
   onOpenChange: (open: boolean) => void;
   onMove: (locationGuid: string) => Promise<boolean>;
   onMoveToCollection?: (collectionGuid: string) => Promise<boolean>;
