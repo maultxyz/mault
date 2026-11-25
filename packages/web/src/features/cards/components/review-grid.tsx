@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useReviewAutoCheck } from "@/features/cards/api/use-review-auto-check";
 import { useReviewGridActions } from "@/features/cards/api/use-review-grid-actions";
 import { ReviewGridCorrectionDialog } from "@/features/cards/components/review-grid-correction-dialog";
 import { ReviewGridTile } from "@/features/cards/components/review-grid-tile";
@@ -22,6 +23,10 @@ import {
   IconChecks,
   IconLayoutGrid,
   IconListCheck,
+  IconLoader2,
+  IconPlayerPause,
+  IconPlayerPlay,
+  IconSparkles,
   IconSquareCheck,
   IconX,
 } from "@tabler/icons-react";
@@ -37,6 +42,7 @@ export function ReviewGrid({
   onOpenOneByOne,
   onClose,
   onCorrect,
+  loadReviewCardPage,
 }: ReviewGridProps) {
   const { t } = useTranslation("cards");
   const { acceptCards, correctCard } = useReviewGridActions();
@@ -47,16 +53,6 @@ export function ReviewGrid({
   const [attributeDrafts, setAttributeDrafts] = useState<
     Record<string, ReviewGridAttributes>
   >({});
-  const visibleCards = cards.filter((card) => !hiddenScanIds.has(card.scanId));
-  const savedAttributesOf = (card: ReviewGridCard) =>
-    reviewGridAttributesOf(card, t("foil"));
-  const attributesOf = (card: ReviewGridCard) =>
-    attributeDrafts[card.scanId] ?? savedAttributesOf(card);
-  const remaining = Math.max(
-    visibleCards.length,
-    total - (cards.length - visibleCards.length),
-  );
-
   const setHidden = (scanIds: string[], hidden: boolean) =>
     setHiddenScanIds((previous) => {
       const next = new Set(previous);
@@ -66,6 +62,29 @@ export function ReviewGrid({
       }
       return next;
     });
+  const autoCheck = useReviewAutoCheck({
+    cards,
+    hiddenScanIds,
+    remainingTotal: total,
+    loadReviewCardPage,
+    onConfirmed: (scanIds) => setHidden(scanIds, true),
+  });
+  const allCards = autoCheck.cards;
+  const visibleCards = allCards.filter(
+    (card) => !hiddenScanIds.has(card.scanId),
+  );
+  const savedAttributesOf = (card: ReviewGridCard) =>
+    reviewGridAttributesOf(card, t("foil"));
+  const attributesOf = (card: ReviewGridCard) =>
+    attributeDrafts[card.scanId] ?? savedAttributesOf(card);
+  const remaining = Math.max(
+    visibleCards.length,
+    total - (allCards.length - visibleCards.length),
+  );
+
+  const firstAutoCheckingScanId = visibleCards.find((card) =>
+    autoCheck.checkingScanIds.has(card.scanId),
+  )?.scanId;
 
   const accept = async (cardsToAccept: ReviewGridCard[]) => {
     if (cardsToAccept.length === 0) return;
@@ -113,7 +132,21 @@ export function ReviewGrid({
             {t("reviewGrid.title")}
           </h2>
           <p role="status" className="text-xs tabular-nums text-foreground/70">
-            {isLoading ? " " : t("reviewGrid.remaining", { count: remaining })}
+            {isLoading
+              ? " "
+              : autoCheck.status === "running" && autoCheck.progress
+                ? t("reviewGrid.autoChecking", {
+                    checked: autoCheck.progress.checked,
+                    total: autoCheck.progress.total,
+                  })
+                : autoCheck.status === "pausing"
+                  ? t("reviewGrid.autoCheckPausing")
+                  : autoCheck.status === "paused" && autoCheck.progress
+                    ? t("reviewGrid.autoCheckPaused", {
+                    checked: autoCheck.progress.checked,
+                    total: autoCheck.progress.total,
+                  })
+                    : t("reviewGrid.remaining", { count: remaining })}
           </p>
         </div>
         <ButtonGroup>
@@ -131,6 +164,33 @@ export function ReviewGrid({
             {t("reviewGrid.layoutOneByOne")}
           </Button>
         </ButtonGroup>
+        {autoCheck.isAvailable &&
+          (autoCheck.status === "running" || autoCheck.status === "pausing" ? (
+            <Button
+              variant="outline"
+              disabled={autoCheck.status === "pausing"}
+              onClick={autoCheck.pause}
+            >
+              {autoCheck.status === "pausing" ? (
+                <IconLoader2 className="animate-spin motion-reduce:animate-none" />
+              ) : (
+                <IconPlayerPause />
+              )}
+              {t("reviewGrid.autoCheckPause")}
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              disabled={!autoCheck.canRun}
+              onClick={() => void autoCheck.run()}
+              title={t("reviewGrid.autoCheckHint")}
+            >
+              {autoCheck.status === "paused" ? <IconPlayerPlay /> : <IconSparkles />}
+              {autoCheck.status === "paused"
+                ? t("reviewGrid.autoCheckResume")
+                : t("reviewGrid.autoCheck")}
+            </Button>
+          ))}
         <Button
           disabled={visibleCards.length === 0}
           onClick={() => void accept(visibleCards)}
@@ -216,6 +276,9 @@ export function ReviewGrid({
                 }
                 onAccept={() => void accept([card])}
                 onCorrect={() => setCorrectingCard(card)}
+                autoCheckOutcome={autoCheck.outcomes.get(card.scanId)}
+                isAutoChecking={autoCheck.checkingScanIds.has(card.scanId)}
+                followsAutoCheck={card.scanId === firstAutoCheckingScanId}
               />
             ))}
           </div>

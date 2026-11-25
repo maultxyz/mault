@@ -9,6 +9,7 @@ import type {
   CollectionCardsQuery,
   CollectionCardsSummary,
   Result,
+  ReviewGridCard,
   ScanTimelineBuckets,
   ScanTimelineGrouping,
 } from "@magic-vault/shared";
@@ -19,12 +20,14 @@ import {
   COLLECTION_CARDS_RAW_CARD_DATA_NONE,
   COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
   SCAN_TIMELINE_PAGE_SIZE,
+  toReviewGridCard,
   UNMATCHED_PAGE_SIZE,
 } from "@magic-vault/shared";
 import {
   infiniteQueryOptions,
   keepPreviousData,
   queryOptions,
+  type QueryClient,
 } from "@tanstack/react-query";
 import { loadUnmatchedCards } from "@/features/collections/api/collections";
 
@@ -160,6 +163,19 @@ export const collectionCardsPageQueryOptions = (
     enabled: !!guid,
     placeholderData: keepPreviousData,
   });
+
+export async function fetchCollectionReviewCardPage(
+  queryClient: QueryClient,
+  guid: string,
+  query: CollectionCardsQuery,
+  page: number,
+): Promise<ReviewGridCard[]> {
+  const result = await queryClient.fetchQuery({
+    ...collectionCardsPageQueryOptions(guid, query, page),
+    staleTime: 0,
+  });
+  return result.items.map((entry) => toReviewGridCard(guid, entry));
+}
 
 export const collectionCardGridPageQueryOptions = (
   guid: string | undefined,

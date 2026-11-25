@@ -113,6 +113,7 @@ export const getBillingRoute = new Hono<AppEnv>().get(
           storageLocationCount,
           apiAccess: planHasFeature(plan, "apiAccess"),
           businessTools: planHasFeature(plan, "businessTools"),
+          reviewAutoCheck: planHasFeature(plan, "reviewAutoCheck"),
           longShareLinks: planHasFeature(plan, "longShareLinks"),
           shareLinkLengths: getShareLinkLengths(),
         },

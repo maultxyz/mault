@@ -1,0 +1,1 @@
+ALTER TABLE "collection_cards" ADD COLUMN "is_auto_reviewed" boolean DEFAULT false NOT NULL;

@@ -16,13 +16,15 @@ import { cardPriceHistoryQueryOptions } from "@/features/cards/api/card-price-hi
 import { formatPriceHistoryDay } from "@/features/cards/lib/price-history-day";
 import { PriceHistorySparkline } from "@/features/cards/components/price-history-sparkline";
 import { usePricing } from "@/hooks/use-pricing";
+import { useTheme } from "@/hooks/use-theme";
 import { CARD_PRICE_HISTORY_SPARKLINE } from "@/lib/constants/cards";
-import { SPACING } from "@/lib/constants/theme";
+import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardPriceHistoryProps } from "@/lib/interfaces/cards";
 
 export function CardPriceHistory({ card, gameKey, lang, isFoil }: CardPriceHistoryProps) {
   const { t, i18n } = useTranslation();
   const { source, format } = usePricing();
+  const colors = useTheme();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const fields = PRICE_SOURCE_FIELDS[source];
   const hasCurrentPrice = card[fields.price] != null || card[fields.priceFoil] != null;
@@ -61,7 +63,10 @@ export function CardPriceHistory({ card, gameKey, lang, isFoil }: CardPriceHisto
             <Skeleton width={64} height={12} />
             <Skeleton width={84} height={22} />
           </View>
-          <Skeleton width={CARD_PRICE_HISTORY_SPARKLINE.width} height={CARD_PRICE_HISTORY_SPARKLINE.height} />
+          <Skeleton
+            width={CARD_PRICE_HISTORY_SPARKLINE.width + SPACING.sm * 2}
+            height={CARD_PRICE_HISTORY_SPARKLINE.height + SPACING.sm * 2}
+          />
         </View>
       ) : history.isError ? (
         <View style={{ gap: SPACING.sm, alignItems: "flex-start" }}>
@@ -97,13 +102,23 @@ export function CardPriceHistory({ card, gameKey, lang, isFoil }: CardPriceHisto
               })}
             </AppText>
           ) : (
-            <PriceHistorySparkline
-              values={series.days.map((day) => day.value)}
-              selectedIndex={shownIndex}
-              onSelectedIndexChange={setSelectedIndex}
-              accessibilityLabel={title}
-              accessibilityValueText={`${shownDayLabel}: ${format(shownDay.value)}`}
-            />
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                padding: SPACING.sm,
+                borderRadius: RADIUS.md,
+                backgroundColor: colors.muted,
+              }}
+            >
+              <PriceHistorySparkline
+                values={series.days.map((day) => day.value)}
+                selectedIndex={shownIndex}
+                onSelectedIndexChange={setSelectedIndex}
+                accessibilityLabel={title}
+                accessibilityValueText={`${shownDayLabel}: ${format(shownDay.value)}`}
+              />
+            </View>
           )}
         </View>
       )}

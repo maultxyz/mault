@@ -127,6 +127,7 @@ export function StorageCardDetail({
         lowConfidenceMatch={stored.lowConfidenceMatch}
         wasCorrected={stored.corrected}
         isReviewed={stored.reviewed}
+        isAutoReviewed={stored.autoReviewed}
         isDownloaded={scanned.isDownloaded}
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}

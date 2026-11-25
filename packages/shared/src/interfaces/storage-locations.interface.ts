@@ -85,6 +85,7 @@ export interface StorageLocationCard {
   hasAlternatives: boolean;
   corrected: boolean;
   reviewed: boolean;
+  autoReviewed?: boolean;
   acquisitionCost: number | null;
   acquisitionCurrency: string | null;
 }

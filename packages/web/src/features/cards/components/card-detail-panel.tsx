@@ -169,6 +169,7 @@ export function CardDetailPanel({
   lowConfidenceMatch = false,
   wasCorrected = false,
   isReviewed = false,
+  isAutoReviewed = false,
   isDownloaded = false,
   storageLocation,
   isFoil = false,
@@ -1055,6 +1056,7 @@ export function CardDetailPanel({
                     scanId={scanId}
                     isDownloaded={isDownloaded}
                     isReviewed={isReviewed}
+                    isAutoReviewed={isAutoReviewed}
                     wasCorrected={wasCorrected}
                     useSheet={inCardDrawer}
                   />

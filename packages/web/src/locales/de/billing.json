@@ -34,6 +34,7 @@
       "storage": "Lagerorte",
       "apiAccess": "API-Zugriff",
       "businessTools": "Ankauf und Verkauf",
+      "reviewAutoCheck": "Automatische Prüfung",
       "longShareLinks": "Monitor-Links bis 30 Tage"
     },
     "unlimited": "Unbegrenzt",

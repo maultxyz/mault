@@ -18,6 +18,7 @@ import { ChangePasswordForm } from "@/features/account/components/change-passwor
 import { SignInMethodsList } from "@/features/account/components/sign-in-methods-list";
 import { SeasonalDecorSetting } from "@/features/account/components/seasonal-decor-setting";
 import { SessionsList } from "@/features/account/components/sessions-list";
+import { TooltipsSetting } from "@/features/account/components/tooltips-setting";
 import { UpdateNameForm } from "@/features/account/components/update-name-form";
 import { useOnboarding } from "@/features/onboarding/api/use-onboarding";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -111,6 +112,14 @@ export default function AccountPage() {
               description={t("seasonalDecor.description")}
               action={<SeasonalDecorSetting />}
             />
+
+            {!isMobile && (
+              <SettingsSection
+                heading={t("tooltips.heading")}
+                description={t("tooltips.description")}
+                action={<TooltipsSetting />}
+              />
+            )}
 
             {!isMobile && (
               <SettingsSection

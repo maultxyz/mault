@@ -23,6 +23,7 @@ import type {
   PlayingCardImage,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewAutoCheckOutcome,
   ReviewGridAttributes,
   ReviewGridCard,
   ScannedCard,
@@ -533,6 +534,7 @@ export interface CardTagsMenuProps {
   scanId: string;
   isDownloaded?: boolean;
   isReviewed?: boolean;
+  isAutoReviewed?: boolean;
   wasCorrected?: boolean;
   useSheet: boolean;
 }
@@ -546,6 +548,7 @@ export interface CardDetailPanelProps {
   lowConfidenceMatch?: boolean;
   wasCorrected?: boolean;
   isReviewed?: boolean;
+  isAutoReviewed?: boolean;
   isDownloaded?: boolean;
   isFoil?: boolean;
   foilType?: string;
@@ -581,6 +584,15 @@ export interface ReviewGridProps {
   onOpenOneByOne: (card: ReviewGridCard) => void;
   onClose: () => void;
   onCorrect?: (card: ReviewGridCard, correctedCard: PlayingCard) => void;
+  loadReviewCardPage?: (page: number) => Promise<ReviewGridCard[]>;
+}
+
+export interface ReviewAutoCheckOptions {
+  cards: ReviewGridCard[];
+  hiddenScanIds: ReadonlySet<string>;
+  remainingTotal: number;
+  loadReviewCardPage?: (page: number) => Promise<ReviewGridCard[]>;
+  onConfirmed: (scanIds: string[]) => void;
 }
 
 export interface ReviewGridTileProps {
@@ -589,6 +601,9 @@ export interface ReviewGridTileProps {
   onAttributesChange: (attributes: ReviewGridAttributes) => void;
   onAccept: () => void;
   onCorrect: () => void;
+  autoCheckOutcome?: ReviewAutoCheckOutcome;
+  isAutoChecking?: boolean;
+  followsAutoCheck?: boolean;
 }
 
 export interface ReviewGridAttributeFieldsProps {

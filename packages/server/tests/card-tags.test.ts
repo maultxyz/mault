@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  cardTagNameKey,
   cardTagsSetOn,
   setCardTagsRequestSchema,
   withCardTags,
@@ -8,7 +9,11 @@ import {
 
 test("turning a tag off only resets that tag", () => {
   const card = { isDownloaded: true, reviewed: true, corrected: true, lowConfidenceMatch: false };
-  assert.deepEqual(withCardTags(card, ["reviewed"], false), { ...card, reviewed: false });
+  assert.deepEqual(withCardTags(card, ["reviewed"], false), {
+    ...card,
+    reviewed: false,
+    autoReviewed: false,
+  });
   assert.deepEqual(cardTagsSetOn(withCardTags(card, ["downloaded", "corrected"], false)), ["reviewed"]);
 });
 
@@ -16,10 +21,18 @@ test("turning on reviewed or corrected resolves the review like an accept", () =
   const card = { reviewed: false, corrected: false, lowConfidenceMatch: true };
   assert.deepEqual(withCardTags(card, ["corrected"], true), {
     reviewed: true,
+    autoReviewed: false,
     corrected: true,
     lowConfidenceMatch: false,
   });
   assert.deepEqual(withCardTags(card, ["downloaded"], true), { ...card, isDownloaded: true });
+});
+
+test("only an auto-reviewed card shows the auto-reviewed tag name", () => {
+  assert.equal(cardTagNameKey("reviewed", { reviewed: true, autoReviewed: true }), "autoReviewed");
+  assert.equal(cardTagNameKey("reviewed", { reviewed: true }), "reviewed");
+  assert.equal(cardTagNameKey("downloaded", { autoReviewed: true }), "downloaded");
+  assert.equal(withCardTags({ reviewed: true, autoReviewed: true }, ["downloaded"], true).autoReviewed, true);
 });
 
 test("tag requests need cards, a known tag and an on/off value", () => {

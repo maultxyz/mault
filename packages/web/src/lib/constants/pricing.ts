@@ -15,6 +15,7 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
       storage: false,
       apiAccess: false,
       businessTools: false,
+      reviewAutoCheck: false,
       longShareLinks: false,
     },
     limits: {
@@ -36,6 +37,7 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
       storage: true,
       apiAccess: false,
       businessTools: false,
+      reviewAutoCheck: false,
       longShareLinks: true,
     },
     limits: {
@@ -57,6 +59,7 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
       storage: true,
       apiAccess: true,
       businessTools: true,
+      reviewAutoCheck: true,
       longShareLinks: true,
     },
     limits: {
@@ -78,6 +81,7 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
       storage: true,
       apiAccess: true,
       businessTools: true,
+      reviewAutoCheck: true,
       longShareLinks: true,
     },
     limits: {

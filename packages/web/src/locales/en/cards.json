@@ -456,7 +456,20 @@
     "loadFailed": "Couldn't load the cards to review. Try again.",
     "acceptFailed_one": "Couldn't accept {{count}} card. Try again.",
     "acceptFailed_other": "Couldn't accept {{count}} cards. Try again.",
-    "correctFailed": "Couldn't save the correction. Try again."
+    "correctFailed": "Couldn't save the correction. Try again.",
+    "autoCheck": "Auto-check",
+    "autoCheckHint": "Rescan the photos with high accuracy and accept the cards that match",
+    "autoChecking": "Checking {{checked}} of {{total}}",
+    "autoCheckComplete_one": "Auto-check done: {{count}} card accepted, {{needsLook}} left to review.",
+    "autoCheckComplete_other": "Auto-check done: {{count}} cards accepted, {{needsLook}} left to review.",
+    "autoCheckFailed": "Auto-check stopped before it finished. Try again.",
+    "autoCheckDifferent": "Auto-check thinks this is {{name}}",
+    "autoCheckUnsure": "Auto-check couldn't confirm this card",
+    "autoCheckPause": "Pause",
+    "autoCheckResume": "Resume auto-check",
+    "autoCheckPausing": "Pausing after the cards being checked",
+    "autoCheckPaused": "Auto-check paused at {{checked}} of {{total}}",
+    "autoCheckCheckingCard": "Checking this card"
   },
   "removeDialog": {
     "title": "Remove {{name}}?",
@@ -593,7 +606,8 @@
     "bulkRemove": "Remove tag",
     "names": {
       "downloaded": "Downloaded",
-      "reviewed": "Reviewed",
+      "reviewed": "Reviewed by hand",
+      "autoReviewed": "Auto-reviewed",
       "corrected": "Corrected"
     }
   },

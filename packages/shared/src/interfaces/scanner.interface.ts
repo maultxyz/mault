@@ -116,6 +116,7 @@ export interface ScannedCard {
   corrected?: boolean;
   lowConfidenceMatch?: boolean;
   reviewed?: boolean;
+  autoReviewed?: boolean;
   storageLocation?: CardStorageLocation;
   vectorizedOn?: ScanVectorizeSource;
   diagnostics?: MatchedScanDiagnostics;

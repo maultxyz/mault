@@ -33,6 +33,7 @@ export const acceptReviewCollectionCardsRoute = new Hono<AppEnv>().post(
         .update(collectionCards)
         .set({
           isReviewed: true,
+          isAutoReviewed: false,
           lowConfidenceMatch: false,
           ...(confirmed ? { isCorrected: true } : {}),
         })

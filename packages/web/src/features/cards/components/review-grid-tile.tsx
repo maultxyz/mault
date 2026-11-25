@@ -5,8 +5,17 @@ import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { ReviewGridAttributeFields } from "@/features/cards/components/review-grid-attribute-fields";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { cn } from "@/lib/utils";
 import type { ReviewGridTileProps } from "@/lib/interfaces/cards";
-import { IconCheck, IconPencil, IconPhotoOff } from "@tabler/icons-react";
+import {
+  IconAlertTriangle,
+  IconCheck,
+  IconLoader2,
+  IconPencil,
+  IconPhotoOff,
+} from "@tabler/icons-react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 export function ReviewGridTile({
@@ -15,14 +24,42 @@ export function ReviewGridTile({
   onAttributesChange,
   onAccept,
   onCorrect,
+  autoCheckOutcome,
+  isAutoChecking = false,
+  followsAutoCheck = false,
 }: ReviewGridTileProps) {
   const { t } = useTranslation("cards");
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
     useScanImage(card.collectionGuid, card.scanId);
   const matchedImageUrl = card.card.image?.normal || card.card.image?.small;
+  const tileRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  useEffect(() => {
+    if (!followsAutoCheck) return;
+    tileRef.current?.scrollIntoView({
+      block: "center",
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  }, [followsAutoCheck, prefersReducedMotion]);
 
   return (
-    <div className="flex min-w-0 flex-col gap-2 rounded-card bg-card p-2 animate-in fade-in-0 motion-reduce:animate-none">
+    <div
+      ref={tileRef}
+      aria-busy={isAutoChecking}
+      className={cn(
+        "flex min-w-0 flex-col gap-2 rounded-card bg-card p-2 animate-in fade-in-0 motion-reduce:animate-none",
+        isAutoChecking && "ring-2 ring-primary",
+      )}
+    >
+      {isAutoChecking && (
+        <p className="flex items-center gap-1 px-0.5 text-xs font-medium text-primary">
+          <IconLoader2
+            className="size-3.5 animate-spin motion-reduce:animate-none"
+            aria-hidden
+          />
+          {t("reviewGrid.autoCheckCheckingCard")}
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-2">
         <figure className="flex min-w-0 flex-col gap-1">
           <figcaption className="text-2xs text-foreground/70">
@@ -74,6 +111,16 @@ export function ReviewGridTile({
           wasCorrected={card.corrected}
         />
       </div>
+      {autoCheckOutcome && autoCheckOutcome.verdict !== "confirmed" && (
+        <p className="flex items-start gap-1 px-0.5 text-xs text-warning-foreground">
+          <IconAlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+          {autoCheckOutcome.suggestedCardName
+            ? t("reviewGrid.autoCheckDifferent", {
+                name: autoCheckOutcome.suggestedCardName,
+              })
+            : t("reviewGrid.autoCheckUnsure")}
+        </p>
+      )}
       <ReviewGridAttributeFields
         card={card}
         attributes={attributes}

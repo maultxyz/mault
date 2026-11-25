@@ -1023,16 +1023,22 @@ export interface UnmatchedCardImageProps {
   showsBackSide?: boolean;
 }
 
-export interface ForcedSetPickerProps {
+export interface ForcedSetSubmenuProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export interface ForcedSetOptionProps {
+export interface ScanOptionsMenuProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  setSubmenuOpen: boolean;
+  onSetSubmenuOpenChange: (open: boolean) => void;
+}
+
+export interface ScanOptionsSubmenuTriggerProps {
+  icon: ReactNode;
   label: string;
-  detail?: string;
-  active: boolean;
-  onSelect: () => void;
+  value: string;
 }
 
 export interface BinCorrection {

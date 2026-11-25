@@ -381,7 +381,11 @@ export const intakeRoute = new Hono<AppEnv>()
     businessQuery(c, async (tx) => {
       const row = await findIntakeLot(tx, c.get("orgId"), c.req.param("guid"));
       if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
-      return { success: true, data: await loadUnreviewedLotCards(tx, row.id) };
+      const page = Math.max(Number.parseInt(c.req.query("page") ?? "", 10) || 0, 0);
+      return {
+        success: true,
+        data: await loadUnreviewedLotCards(tx, row.id, page),
+      };
     }),
   )
   .get("/intake/:guid/cards/:scanId/context", requireAuth, requireOrg, (c) => {

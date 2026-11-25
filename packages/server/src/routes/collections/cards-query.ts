@@ -530,7 +530,7 @@ function rankedCardsCte(
 const CARD_ROW_COLUMNS = sql`
   cc.guid, cc.card, ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
   cc.is_foil, cc.foil_type, cc.stamp, cc.condition, cc.language, cc.is_downloaded,
-  cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
+  cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed, cc.is_auto_reviewed,
   cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name,
       sl.batch_size AS location_batch_size`;
 
@@ -550,6 +550,7 @@ function toCard(row: CollectionCardRow) {
     isCorrected: row.is_corrected,
     lowConfidenceMatch: row.low_confidence_match,
     isReviewed: row.is_reviewed,
+    isAutoReviewed: row.is_auto_reviewed,
     storageLocation: row.location_guid
       ? {
           guid: row.location_guid,
@@ -880,7 +881,7 @@ export async function loadAllCards(
     SELECT cc.guid, (cc.card || COALESCE(${joinedCardPricesJsonSql()}, '{}'::jsonb)) AS card,
       ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
       cc.is_foil, cc.foil_type, cc.stamp, cc.condition, cc.language, cc.is_downloaded,
-      cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
+      cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed, cc.is_auto_reviewed,
       cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name,
       sl.batch_size AS location_batch_size
     FROM collection_cards cc

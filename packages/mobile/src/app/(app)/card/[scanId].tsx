@@ -11,6 +11,7 @@ import {
   CARD_CONDITIONS,
   CARD_LANGUAGES,
   CARD_TAGS,
+  cardTagNameKey,
   cardTagsSetOn,
   cardFoilTypeOptions,
   cardStampOptionsFor,
@@ -18,6 +19,7 @@ import {
   isCardLanguage,
   scanLanguage,
   type CardCondition,
+  type CardTag,
   type PlayingCard,
   scanDraftFormSchema,
   type ScanDraftFormValues,
@@ -188,6 +190,7 @@ export default function CardDetailScreen() {
   const canConfirm = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
   const isReviewed = !!entry?.reviewed || !!entry?.corrected;
   const tagsSet = entry ? cardTagsSetOn(entry) : [];
+  const setTagName = (tag: CardTag) => t(`cardTags.names.${entry ? cardTagNameKey(tag, entry) : tag}`);
   const areMatchesOpen = matchesOpenState?.scanId === scanId ? matchesOpenState.isOpen : !isReviewed;
 
   const candidates = useMemo(() => {
@@ -684,7 +687,7 @@ export default function CardDetailScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={
                     tagsSet.length > 0
-                      ? `${t("cardTags.edit")}: ${tagsSet.map((tag) => t(`cardTags.names.${tag}`)).join(", ")}`
+                      ? `${t("cardTags.edit")}: ${tagsSet.map(setTagName).join(", ")}`
                       : t("cardTags.edit")
                   }
                   accessibilityState={{ disabled: toggleTag.isPending }}
@@ -697,9 +700,9 @@ export default function CardDetailScreen() {
                   ) : (
                     tagsSet.map((tag) =>
                       tag === "reviewed" ? (
-                        <Pill key={tag} tone="success" icon="check" label={t(`cardTags.names.${tag}`)} />
+                        <Pill key={tag} tone="success" icon={entry?.autoReviewed ? "sparkles" : "check"} label={setTagName(tag)} />
                       ) : (
-                        <Pill key={tag} tone="neutral" label={t(`cardTags.names.${tag}`)} />
+                        <Pill key={tag} tone="neutral" label={setTagName(tag)} />
                       ),
                     )
                   )}
@@ -977,7 +980,7 @@ export default function CardDetailScreen() {
       <OptionSheet
         visible={sheet === "tags"}
         title={t("cardTags.title")}
-        options={CARD_TAGS.map((tag) => ({ value: tag, label: t(`cardTags.names.${tag}`) }))}
+        options={CARD_TAGS.map((tag) => ({ value: tag, label: setTagName(tag) }))}
         selected={tagsSet}
         onSelect={(value) => {
           setSheet(null);

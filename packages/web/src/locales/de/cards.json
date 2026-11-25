@@ -456,7 +456,20 @@
     "loadFailed": "Die zu prüfenden Karten konnten nicht geladen werden. Versuche es erneut.",
     "acceptFailed_one": "{{count}} Karte konnte nicht bestätigt werden. Versuche es erneut.",
     "acceptFailed_other": "{{count}} Karten konnten nicht bestätigt werden. Versuche es erneut.",
-    "correctFailed": "Die Korrektur konnte nicht gespeichert werden. Versuche es erneut."
+    "correctFailed": "Die Korrektur konnte nicht gespeichert werden. Versuche es erneut.",
+    "autoCheck": "Automatisch prüfen",
+    "autoCheckHint": "Prüft die Scanfotos erneut mit hoher Genauigkeit und bestätigt passende Karten",
+    "autoChecking": "Prüfe {{checked}} von {{total}}",
+    "autoCheckComplete_one": "Automatische Prüfung fertig: {{count}} Karte bestätigt, {{needsLook}} noch zu prüfen.",
+    "autoCheckComplete_other": "Automatische Prüfung fertig: {{count}} Karten bestätigt, {{needsLook}} noch zu prüfen.",
+    "autoCheckFailed": "Die automatische Prüfung wurde vorzeitig beendet. Versuche es erneut.",
+    "autoCheckDifferent": "Die automatische Prüfung erkennt hier {{name}}",
+    "autoCheckUnsure": "Die automatische Prüfung konnte diese Karte nicht bestätigen",
+    "autoCheckPause": "Pausieren",
+    "autoCheckResume": "Prüfung fortsetzen",
+    "autoCheckPausing": "Pausiert nach den Karten in Prüfung",
+    "autoCheckPaused": "Automatische Prüfung pausiert bei {{checked}} von {{total}}",
+    "autoCheckCheckingCard": "Diese Karte wird geprüft"
   },
   "removeDialog": {
     "title": "{{name}} entfernen?",
@@ -593,7 +606,8 @@
     "bulkRemove": "Markierung entfernen",
     "names": {
       "downloaded": "Heruntergeladen",
-      "reviewed": "Geprüft",
+      "reviewed": "Von Hand geprüft",
+      "autoReviewed": "Automatisch geprüft",
       "corrected": "Korrigiert"
     }
   },

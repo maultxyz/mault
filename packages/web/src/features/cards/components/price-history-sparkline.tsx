@@ -1,7 +1,8 @@
+import { useElementWidth } from "@/hooks/use-element-width";
 import { CARD_PRICE_HISTORY_SPARKLINE } from "@/lib/constants/cards";
 import type { PriceHistorySparklineProps } from "@/lib/interfaces/cards";
 import { indexAtX, sparklinePaths, sparklinePoints } from "@magic-vault/shared";
-import { useId, type KeyboardEvent, type PointerEvent } from "react";
+import { useId, useState, type KeyboardEvent, type PointerEvent } from "react";
 
 export function PriceHistorySparkline({
   values,
@@ -11,7 +12,10 @@ export function PriceHistorySparkline({
   ariaValueText,
 }: PriceHistorySparklineProps) {
   const fillId = useId();
-  const { width, height, verticalPadding, strokeWidth } = CARD_PRICE_HISTORY_SPARKLINE;
+  const [sliderElement, setSliderElement] = useState<HTMLDivElement | null>(null);
+  const measuredWidth = useElementWidth(sliderElement);
+  const { width: minWidth, height, verticalPadding, strokeWidth } = CARD_PRICE_HISTORY_SPARKLINE;
+  const width = Math.max(minWidth, measuredWidth);
   const plotHeight = height - verticalPadding * 2;
   const paths = sparklinePaths(values, width, plotHeight, verticalPadding);
   const points = sparklinePoints(values, width, plotHeight, verticalPadding);
@@ -40,6 +44,7 @@ export function PriceHistorySparkline({
 
   return (
     <div
+      ref={setSliderElement}
       role="slider"
       tabIndex={0}
       aria-label={ariaLabel}
@@ -54,8 +59,8 @@ export function PriceHistorySparkline({
       onPointerLeave={(event) => {
         if (event.pointerType === "mouse") onSelectedIndexChange(null);
       }}
-      className="relative shrink-0 touch-pan-y rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-      style={{ width, height }}
+      className="relative flex-1 touch-pan-y rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      style={{ minWidth, height }}
     >
       <svg aria-hidden width={width} height={height} className="absolute inset-0 overflow-visible text-primary">
         <defs>

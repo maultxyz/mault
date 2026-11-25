@@ -29,6 +29,7 @@ export const PLAN_FEATURE_KEYS = [
   "storage",
   "apiAccess",
   "businessTools",
+  "reviewAutoCheck",
   "longShareLinks",
 ] as const;
 

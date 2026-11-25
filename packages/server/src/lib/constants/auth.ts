@@ -22,6 +22,7 @@ export const MONITOR_LINK_GUEST_HIDDEN_KEYS: ReadonlySet<string> = new Set([
   "lowConfidenceMatch",
   "isCorrected",
   "isReviewed",
+  "autoReviewed",
   "wasCorrected",
   "diagnostics",
   "storageLocation",

@@ -81,6 +81,7 @@ export function toScannedCard(row: {
   isCorrected?: boolean | null;
   lowConfidenceMatch?: boolean | null;
   isReviewed?: boolean | null;
+  isAutoReviewed?: boolean | null;
   storageLocation?: CardStorageLocation | null;
 }): ScannedCard {
   return {
@@ -100,6 +101,7 @@ export function toScannedCard(row: {
     corrected: row.isCorrected ?? undefined,
     lowConfidenceMatch: row.lowConfidenceMatch || undefined,
     reviewed: row.isReviewed || undefined,
+    autoReviewed: (row.isReviewed && row.isAutoReviewed) || undefined,
     storageLocation: row.storageLocation ?? undefined,
   };
 }

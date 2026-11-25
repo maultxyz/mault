@@ -1288,7 +1288,20 @@
     "acceptFailed_one": "{{count}} Karte konnte nicht bestätigt werden. Versuche es erneut.",
     "acceptFailed_other": "{{count}} Karten konnten nicht bestätigt werden. Versuche es erneut.",
     "accepted_one": "{{count}} Karte bestätigt",
-    "accepted_other": "{{count}} Karten bestätigt"
+    "accepted_other": "{{count}} Karten bestätigt",
+    "autoCheck": "Automatisch prüfen",
+    "autoCheckHint": "Prüft die Scanfotos erneut mit hoher Genauigkeit und bestätigt passende Karten",
+    "autoChecking": "Prüfe {{checked}} von {{total}}",
+    "autoCheckComplete_one": "Automatische Prüfung fertig: {{count}} Karte bestätigt, {{needsLook}} noch zu prüfen.",
+    "autoCheckComplete_other": "Automatische Prüfung fertig: {{count}} Karten bestätigt, {{needsLook}} noch zu prüfen.",
+    "autoCheckFailed": "Die automatische Prüfung wurde vorzeitig beendet. Versuche es erneut.",
+    "autoCheckDifferent": "Die automatische Prüfung erkennt hier {{name}}",
+    "autoCheckUnsure": "Die automatische Prüfung konnte diese Karte nicht bestätigen",
+    "autoCheckPause": "Pausieren",
+    "autoCheckResume": "Prüfung fortsetzen",
+    "autoCheckPausing": "Pausiert nach den Karten in Prüfung",
+    "autoCheckPaused": "Automatische Prüfung pausiert bei {{checked}} von {{total}}",
+    "autoCheckCheckingCard": "Diese Karte wird geprüft"
   },
   "rules": {
     "title": "Sortierregeln",
@@ -2186,6 +2199,7 @@
           "storage": "Lagerorte",
           "apiAccess": "API-Zugriff",
           "businessTools": "Ankauf und Verkauf",
+          "reviewAutoCheck": "Automatische Prüfung",
           "longShareLinks": "Monitor-Links bis 30 Tage"
         },
         "unlimited": "Unbegrenzt",
@@ -2859,7 +2873,8 @@
     "saveFailed": "Die Markierung konnte nicht geändert werden",
     "names": {
       "downloaded": "Heruntergeladen",
-      "reviewed": "Geprüft",
+      "reviewed": "Von Hand geprüft",
+      "autoReviewed": "Automatisch geprüft",
       "corrected": "Korrigiert"
     }
   },
@@ -3175,6 +3190,10 @@
         "businessTools": {
           "label": "Kaufen und Verkaufen",
           "description": "Wareneingänge mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
+        },
+        "reviewAutoCheck": {
+          "label": "Automatische Prüfung",
+          "description": "Die Schaltfläche Automatisch prüfen im Prüfraster. Sie prüft die Fotos wartender Karten erneut mit hoher Genauigkeit, bestätigt passende Karten und markiert den Rest."
         },
         "repacks": {
           "label": "Repacks",

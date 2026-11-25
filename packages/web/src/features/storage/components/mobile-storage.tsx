@@ -15,6 +15,7 @@ import { MobileSearchInput } from "@/components/mobile-search-input";
 import { Button } from "@/components/ui/button";
 import { DrawerTitle } from "@/components/ui/drawer";
 import {
+  fetchStorageLocationUnreviewedCardPage,
   storageLocationUnreviewedCardsQueryOptions,
 } from "@/features/storage/api/storage-locations";
 import { MobileCardDrawer } from "@/features/cards/components/mobile-card-drawer";
@@ -120,6 +121,11 @@ export function MobileStorage() {
   const reviewGridPage = useQuery(
     storageLocationUnreviewedCardsQueryOptions(selected?.guid, isGridReviewing),
   );
+  const selectedLocationGuid = selected?.guid;
+  const loadStorageReviewCardPage = selectedLocationGuid
+    ? (page: number) =>
+        fetchStorageLocationUnreviewedCardPage(selectedLocationGuid, page)
+    : undefined;
 
   const showSelection = useCallback(
     (
@@ -182,6 +188,7 @@ export function MobileStorage() {
         <ReviewGrid
           cards={reviewGridPage.data?.cards ?? []}
           total={reviewGridPage.data?.total ?? 0}
+          loadReviewCardPage={loadStorageReviewCardPage}
           isLoading={reviewGridPage.isPending}
           isError={reviewGridPage.isError}
           onRetry={() => void reviewGridPage.refetch()}

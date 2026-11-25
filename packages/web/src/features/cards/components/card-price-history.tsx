@@ -54,8 +54,8 @@ export function CardPriceHistory({ card, gameKey, lang, isFoil }: CardPriceHisto
             <Skeleton className="h-5 w-20 rounded-sm" />
           </div>
           <Skeleton
-            className="shrink-0 rounded-sm"
-            style={{ width: CARD_PRICE_HISTORY_SPARKLINE.width, height: CARD_PRICE_HISTORY_SPARKLINE.height }}
+            className="box-content flex-1 rounded-lg p-2"
+            style={{ minWidth: CARD_PRICE_HISTORY_SPARKLINE.width, height: CARD_PRICE_HISTORY_SPARKLINE.height }}
           />
         </div>
       ) : history.isError ? (
@@ -64,7 +64,7 @@ export function CardPriceHistory({ card, gameKey, lang, isFoil }: CardPriceHisto
         <p className="text-xs text-foreground/70">{t("priceHistory.empty")}</p>
       ) : (
         <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-col">
+          <div className="flex shrink-0 flex-col">
             <span className="text-xs text-foreground/70">{shownDayLabel}</span>
             <span className="text-base font-semibold tabular-nums">{format(shownDay.value)}</span>
           </div>
@@ -75,13 +75,15 @@ export function CardPriceHistory({ card, gameKey, lang, isFoil }: CardPriceHisto
               })}
             </p>
           ) : (
-            <PriceHistorySparkline
-              values={series.days.map((day) => day.value)}
-              selectedIndex={Math.min(selectedIndex ?? lastIndex, lastIndex)}
-              onSelectedIndexChange={setSelectedIndex}
-              ariaLabel={title}
-              ariaValueText={`${shownDayLabel}: ${format(shownDay.value)}`}
-            />
+            <div className="flex flex-1 rounded-lg bg-foreground/6 p-2">
+              <PriceHistorySparkline
+                values={series.days.map((day) => day.value)}
+                selectedIndex={Math.min(selectedIndex ?? lastIndex, lastIndex)}
+                onSelectedIndexChange={setSelectedIndex}
+                ariaLabel={title}
+                ariaValueText={`${shownDayLabel}: ${format(shownDay.value)}`}
+              />
+            </div>
           )}
         </div>
       )}

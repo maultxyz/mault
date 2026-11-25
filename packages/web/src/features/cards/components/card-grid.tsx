@@ -63,6 +63,7 @@ import {
   collectionCardPositionQueryOptions,
   collectionCardsPageQueryOptions,
   collectionCardsCountQueryOptions,
+  fetchCollectionReviewCardPage,
   loadCollectionCardIds,
   scanTimelineBucketsQueryOptions,
   scanTimelineCardsQueryOptions,
@@ -945,6 +946,17 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
           setOpenScanId(card.scanId, { inReviewMode: true });
         }}
         onClose={() => setOpenScanId(null)}
+        loadReviewCardPage={
+          collectionGuid
+            ? (reviewPage) =>
+                fetchCollectionReviewCardPage(
+                  queryClient,
+                  collectionGuid,
+                  reviewGridQuery,
+                  reviewPage,
+                )
+            : undefined
+        }
         onCorrect={(card, correctedCard) =>
           readOnly
             ? viewedCardActions.correctCard(card.scanId, correctedCard)
@@ -973,6 +985,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
         lowConfidenceMatch={openEntry.lowConfidenceMatch}
         wasCorrected={openEntry.corrected}
         isReviewed={openEntry.reviewed}
+        isAutoReviewed={openEntry.autoReviewed}
         isDownloaded={openEntry.isDownloaded}
         storageLocation={openEntry.storageLocation}
         isFoil={openEntry.isFoil}
