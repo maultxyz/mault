@@ -450,6 +450,54 @@ export const devices = pgTable(
   ],
 ).enableRLS();
 
+export const piHosts = pgTable(
+  "pi_hosts",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    orgId: text("org_id").notNull(),
+    name: text("name").notNull(),
+    tokenHash: text("token_hash"),
+    pairedBy: text("paired_by").notNull(),
+    pairedAt: timestamp("paired_at").defaultNow().notNull(),
+    lastSeenAt: timestamp("last_seen_at"),
+    activeScanUserId: text("active_scan_user_id"),
+    activeScanStartedAt: timestamp("active_scan_started_at"),
+    sorterHardwareId: text("sorter_hardware_id"),
+    revokedAt: timestamp("revoked_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("pi_hosts_guid_idx").on(table.guid),
+    uniqueIndex("pi_hosts_token_hash_idx")
+      .on(table.tokenHash)
+      .where(sql`${table.tokenHash} IS NOT NULL`),
+    index("pi_hosts_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const piHostPairings = pgTable(
+  "pi_host_pairings",
+  {
+    id: serial().primaryKey(),
+    code: text("code").notNull(),
+    pollSecretHash: text("poll_secret_hash").notNull(),
+    hostName: text("host_name").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    piHostId: integer("pi_host_id"),
+    claimedAt: timestamp("claimed_at"),
+    tokenDeliveredAt: timestamp("token_delivered_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("pi_host_pairings_code_idx").on(table.code)],
+).enableRLS();
+
 export const bins = pgTable(
   "bins",
   {

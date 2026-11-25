@@ -1,68 +1,69 @@
 import {
   buildScanSaveRequest,
   type BinConfig,
+  type BinSet,
+  type Collection,
   type PickList,
   type PickListFoundInput,
+  type PiScanPendingSave,
+  type PiScanSessionStartCode,
   type ScannedCard,
 } from "@magic-vault/shared";
-import { Hono } from "hono";
-import { authQuery, type Transaction } from "../../db";
-import { requireAuth, requireOrg } from "../../middleware/auth";
-import { collectionsRouter } from "../../routes/collections";
-import { sortBinsRouter } from "../../routes/bins";
-import type { AppEnv } from "../../middleware/auth";
-import { SERVER_SCAN_ACTOR } from "../constants/scan-actor";
-import type { ServerScanActor } from "../interfaces/scan-actor";
+import { PI_SCAN_SESSION_START_CODES } from "../constants/pi-scan";
+import { SCAN_HOST_PATH } from "../constants/scan-host";
+import type { CardMatchSearchResult, CardTextMatchResult } from "../interfaces/card-search";
+import type { PiScanApiMethod, PiScanApiResponse } from "../interfaces/pi-scan-api";
 import type {
-  PiScanRouteJson,
+  PiScanRunContext,
   PiScanSaveOptions,
   PiScanSaveResult,
   SendPendingPiScanSave,
 } from "../interfaces/pi-scan";
+import type {
+  ScanHostApplyTargetRequest,
+  ScanHostContextPayload,
+  ScanHostMatchRequest,
+  ScanHostOcrRequest,
+} from "../interfaces/scan-host";
+import type { ServerScanActor } from "../interfaces/scan-actor";
+import { piScanApi } from "./api";
+import { contextFromScanHostPayload } from "./context-payload";
+import { PiScanActionError, PiScanStartError } from "./errors";
 import { recoverPiScanSaves, submitPiScanSave } from "./pending-saves";
 
-export class PiScanActionError extends Error {
-  constructor(
-    message: string,
-    readonly status: number,
-  ) {
-    super(message);
-  }
+export { PiScanActionError };
+
+function isPiScanSessionStartCode(code: unknown): code is PiScanSessionStartCode {
+  return typeof code === "string" && (PI_SCAN_SESSION_START_CODES as readonly string[]).includes(code);
 }
 
-async function callJson(
-  router: Hono<AppEnv>,
-  path: string,
-  method: "POST" | "PUT" | "GET",
+async function callJson<T = unknown>(
   actor: ServerScanActor,
+  method: PiScanApiMethod,
+  path: string,
+  body?: unknown,
+) {
+  return (await piScanApi()).request<T>(actor, method, path, body);
+}
+
+async function requireData<T>(
+  actor: ServerScanActor,
+  path: string,
   body: unknown,
-): Promise<{ ok: boolean; body: PiScanRouteJson; status: number }> {
-  const response = await router.request(
-    path,
-    {
-      method,
-      headers: { "X-Org-Id": actor.orgId, "Content-Type": "application/json" },
-      body: method === "GET" ? undefined : JSON.stringify(body),
-    },
-    { [SERVER_SCAN_ACTOR]: actor },
-  );
-  const payload = (await response
-    .json()
-    .catch(() => ({ success: false }))) as PiScanRouteJson;
-  return {
-    ok: response.ok && payload.success !== false,
-    body: payload,
-    status: response.status,
-  };
+  fallbackMessage: string,
+): Promise<T> {
+  const result = await callJson<T>(actor, "POST", `${SCAN_HOST_PATH}${path}`, body);
+  if (!result.ok)
+    throw new PiScanActionError(result.body.message ?? fallbackMessage, result.status);
+  return result.body.data as T;
 }
 
 function scanSaveSender(): SendPendingPiScanSave {
   return async (save, isRetry) => {
     const result = await callJson(
-      collectionsRouter,
-      `/${save.collectionGuid}/${save.kind}`,
-      "POST",
       { userId: save.userId, orgId: save.orgId },
+      "POST",
+      `/collections/${save.collectionGuid}/${save.kind}`,
       buildScanSaveRequest(save.body, { isRetry }),
     );
     return {
@@ -82,10 +83,9 @@ export async function saveThroughCollectionRoute(
 ): Promise<PiScanSaveResult> {
   if (kind === "cards/sorted") {
     const result = await callJson(
-      collectionsRouter,
-      `/${collectionGuid}/${kind}`,
-      "POST",
       { userId: options.userId, orgId },
+      "POST",
+      `/collections/${collectionGuid}/${kind}`,
       buildScanSaveRequest(body),
     );
     return {
@@ -125,11 +125,10 @@ export async function recordPickFound(
   binGuid: string,
   input: PickListFoundInput,
 ): Promise<PickList | null> {
-  const result = await callJson(
-    sortBinsRouter,
-    `/bins/${binGuid}/pick-list/found`,
-    "POST",
+  const result = await callJson<{ pickList?: PickList | null }>(
     actor,
+    "POST",
+    `/bins/bins/${binGuid}/pick-list/found`,
     {
       name: input.name,
       setCode: input.setCode,
@@ -147,26 +146,20 @@ export async function saveBinThroughRoute(
   bin: BinConfig,
 ): Promise<boolean> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
-  const result = await callJson(
-    sortBinsRouter,
-    `/bins/${bin.binNumber}${params}`,
-    "PUT",
-    actor,
-    {
-      rules: bin.rules,
-      isCatchAll: bin.isCatchAll,
-      isOverride: bin.isOverride,
-      overridePriority: bin.overridePriority,
-      lowMatchPercent: bin.lowMatchPercent,
-      maxCopies: bin.maxCopies,
-      maxCopiesBy: bin.maxCopiesBy,
-      maxCards: bin.maxCards,
-      overflowBin: bin.overflowBin,
-      isDisabled: bin.isDisabled,
-      pickList: bin.pickList,
-      repackPriority: bin.repackPriority,
-    },
-  );
+  const result = await callJson(actor, "PUT", `/bins/bins/${bin.binNumber}${params}`, {
+    rules: bin.rules,
+    isCatchAll: bin.isCatchAll,
+    isOverride: bin.isOverride,
+    overridePriority: bin.overridePriority,
+    lowMatchPercent: bin.lowMatchPercent,
+    maxCopies: bin.maxCopies,
+    maxCopiesBy: bin.maxCopiesBy,
+    maxCards: bin.maxCards,
+    overflowBin: bin.overflowBin,
+    isDisabled: bin.isDisabled,
+    pickList: bin.pickList,
+    repackPriority: bin.repackPriority,
+  });
   return result.ok;
 }
 
@@ -176,22 +169,17 @@ export async function loadRemovalCopiesThroughRoute(
   cardIds: string[],
 ): Promise<ScannedCard[]> {
   const query = new URLSearchParams({ cardIds: cardIds.join(",") });
-  const response = await collectionsRouter.request(
-    `/${collectionGuid}/cards/copies?${query}`,
-    { headers: { "X-Org-Id": actor.orgId } },
-    { [SERVER_SCAN_ACTOR]: actor },
+  const result = await callJson<ScannedCard[]>(
+    actor,
+    "GET",
+    `/collections/${collectionGuid}/cards/copies?${query}`,
   );
-  const result = (await response.json()) as {
-    success: boolean;
-    data?: ScannedCard[];
-    message?: string;
-  };
-  if (!response.ok || !result.success)
+  if (!result.ok)
     throw new PiScanActionError(
-      result.message ?? "Removal lookup failed.",
-      response.status,
+      result.body.message ?? "Removal lookup failed.",
+      result.status,
     );
-  return result.data ?? [];
+  return result.body.data ?? [];
 }
 
 export async function removeQueuedCardsThroughRoute(
@@ -200,37 +188,95 @@ export async function removeQueuedCardsThroughRoute(
   scanIds: string[],
 ): Promise<boolean> {
   return (
-    await callJson(
-      collectionsRouter,
-      `/${collectionGuid}/cards/remove-bulk`,
-      "POST",
-      actor,
-      { scanIds },
-    )
+    await callJson(actor, "POST", `/collections/${collectionGuid}/cards/remove-bulk`, { scanIds })
   ).ok;
 }
 
-export async function withScanActorTransaction<T>(
+function contextOrStartError(
+  result: PiScanApiResponse<ScanHostContextPayload>,
+): PiScanRunContext {
+  if (result.ok && result.body.data) return contextFromScanHostPayload(result.body.data);
+  const message = result.body.message ?? "The scan could not be prepared.";
+  if (result.status === 400 || result.status === 404)
+    throw new PiScanStartError(message, isPiScanSessionStartCode(result.body.code) ? result.body.code : "invalid", 400);
+  throw new PiScanActionError(message, result.status);
+}
+
+export async function loadScanContextThroughRoute(
   actor: ServerScanActor,
-  work: (tx: Transaction) => Promise<T>,
-): Promise<T> {
-  let value: T | undefined;
-  let workError: unknown;
-  const router = new Hono<AppEnv>()
-    .post("/", requireAuth, requireOrg, async (c) => {
-      value = await authQuery(c.get("jwtClaims"), work);
-      return c.json({ success: true });
-    })
-    .onError((error, c) => {
-      workError = error;
-      return c.json({ success: false, message: error.message }, 500);
-    });
-  const result = await callJson(router, "/", "POST", actor, {});
-  if (workError) throw workError;
-  if (!result.ok)
-    throw new PiScanActionError(
-      result.body.message ?? "The scan action could not be completed.",
-      result.status,
-    );
-  return value as T;
+  collectionGuid: string,
+  hardwareId: string,
+): Promise<PiScanRunContext> {
+  return contextOrStartError(
+    await callJson<ScanHostContextPayload>(actor, "POST", `${SCAN_HOST_PATH}/context`, {
+      collectionGuid,
+      hardwareId,
+    }),
+  );
+}
+
+export async function applyScanTargetThroughRoute(
+  actor: ServerScanActor,
+  request: ScanHostApplyTargetRequest,
+): Promise<PiScanRunContext> {
+  return contextOrStartError(
+    await callJson<ScanHostContextPayload>(actor, "POST", `${SCAN_HOST_PATH}/apply-target`, request),
+  );
+}
+
+export function matchThroughRoute(
+  actor: ServerScanActor,
+  request: ScanHostMatchRequest,
+): Promise<CardMatchSearchResult> {
+  return requireData(actor, "/match", request, "The card search failed.");
+}
+
+export function readTextThroughRoute(
+  actor: ServerScanActor,
+  request: ScanHostOcrRequest,
+): Promise<CardTextMatchResult | null> {
+  return requireData(actor, "/ocr", request, "The text search failed.");
+}
+
+export function loadControlTargetsThroughRoute(
+  actor: ServerScanActor,
+): Promise<{ collections: Collection[]; presets: BinSet[] }> {
+  return requireData(actor, "/targets", {}, "The scan targets could not be loaded.");
+}
+
+export async function lockCollectionThroughRoute(
+  actor: ServerScanActor,
+  collectionGuid: string,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const result = await callJson(actor, "POST", `${SCAN_HOST_PATH}/lock`, { collectionGuid });
+  if (result.ok) return { ok: true };
+  if ([401, 402, 403].includes(result.status))
+    throw new PiScanActionError(result.body.message ?? "Not allowed.", result.status);
+  return { ok: false, message: result.body.message ?? "The collection could not be locked." };
+}
+
+export async function unlockCollectionThroughRoute(
+  actor: ServerScanActor,
+  collectionGuid: string,
+): Promise<void> {
+  try {
+    await callJson(actor, "POST", `${SCAN_HOST_PATH}/unlock`, { collectionGuid });
+  } catch (error) {
+    console.error("[pi-scan] could not release the collection lock:", error);
+  }
+}
+
+export async function publishPendingSaveThroughRoute(
+  actor: ServerScanActor,
+  pendingSave: PiScanPendingSave,
+): Promise<void> {
+  await callJson(actor, "POST", `${SCAN_HOST_PATH}/pending-save`, pendingSave);
+}
+
+export async function revealGiftThroughRoute(
+  actor: ServerScanActor,
+  collectionGuid: string,
+  record: ScannedCard,
+): Promise<void> {
+  await callJson(actor, "POST", `${SCAN_HOST_PATH}/gift-reveal`, { collectionGuid, record });
 }

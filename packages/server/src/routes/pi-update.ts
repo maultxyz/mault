@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { isPiHost } from "../lib/pi-host";
 import { getPiUpdateStatus, startPiUpdate } from "../lib/pi-update";
+import { getActiveScanLockStats } from "../lib/scan-lock";
 import { requireAuth, requireRole, type AppEnv } from "../middleware/auth";
 
 export const piUpdateRouter = new Hono<AppEnv>()
@@ -18,7 +19,7 @@ export const piUpdateRouter = new Hono<AppEnv>()
   })
   .post("/", async (c) => {
     try {
-      return c.json({ success: true, data: await startPiUpdate() }, 202);
+      return c.json({ success: true, data: await startPiUpdate(getActiveScanLockStats().sessions) }, 202);
     } catch (error) {
       return c.json(
         {

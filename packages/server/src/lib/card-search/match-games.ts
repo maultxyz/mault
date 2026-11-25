@@ -1,10 +1,10 @@
-import { defaultCatalogLangOf } from "@magic-vault/shared";
 import { MATCH_GAME_KEYS_MAX } from "../constants/card-search";
 import type {
   CardMatchSearchResult,
   CollectionMatchScope,
 } from "../interfaces/card-search";
 import { ADAPTERS_BY_GAME_KEY } from "./resolve";
+export { matchScopeForGame, matchScopesForGames, tagWithGame } from "./match-scopes";
 
 export function parseMatchGameKeys(value: unknown): string[] {
   if (typeof value !== "string" || value.length === 0) return [];
@@ -25,47 +25,12 @@ export function parseMatchGameKeys(value: unknown): string[] {
   ].slice(0, MATCH_GAME_KEYS_MAX);
 }
 
-export function matchScopeForGame(gameKey: string): CollectionMatchScope {
-  return {
-    gameKey,
-    lang: defaultCatalogLangOf(gameKey),
-    matchAllLanguages: false,
-  };
-}
-
-export function matchScopesForGames(
-  collectionScope: CollectionMatchScope,
-  matchGameKeys: string[],
-): CollectionMatchScope[] {
-  return [
-    collectionScope,
-    ...matchGameKeys
-      .filter((gameKey) => gameKey !== collectionScope.gameKey)
-      .map(matchScopeForGame),
-  ];
-}
-
 function leadingDistance(result: CardMatchSearchResult): number {
   return (
     result.data?.[0]?.distance ??
     result.nearestDistance ??
     Number.POSITIVE_INFINITY
   );
-}
-
-export function tagWithGame<T extends CardMatchSearchResult>(
-  result: T,
-  gameKey: string,
-): T {
-  if (!result.data) return result;
-  return {
-    ...result,
-    data: result.data.map((match) => ({
-      ...match,
-      gameKey,
-      card: match.card ? { ...match.card, gameKey } : match.card,
-    })),
-  };
 }
 
 export async function findBestMatchAcrossGames<

@@ -394,7 +394,8 @@
     "statsSyncKeyInvalid": "Paste the whole key. It starts with mvstats_.",
     "expiryDaysInvalid": "Enter whole numbers of days from 1 to {{max}}, separated by commas.",
     "expiryDaysTooMany": "Enter no more than {{max}} lengths.",
-    "organizationIdInvalid": "Enter an organization id (letters, numbers, - or _, at least 8 characters)."
+    "organizationIdInvalid": "Enter an organization id (letters, numbers, - or _, at least 8 characters).",
+    "piPairingCodeInvalid": "Enter the 8-character code shown on the Pi."
   },
   "memberSeatLock": {
     "title": "This organization is over its member limit",

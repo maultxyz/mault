@@ -38,6 +38,8 @@ import {
 } from "../constants/webhooks.constant";
 import { isConditionMultiplier } from "../card-condition";
 import { formValidationMessage } from "../form-validation";
+import { PI_HOST_NAME_MAX_LENGTH } from "../constants/pi-link.constant";
+import { isPiPairingCode, normalizePiPairingCode } from "../pi-link";
 import type {
   CardCondition,
   ConditionMultipliers,
@@ -117,6 +119,27 @@ export const organizationInviteFormSchema = z.object({
 export const orgApiKeyFormSchema = z.object({
   name: nameSchema(API_KEY_NAME_MAX_LENGTH),
   allowWrite: z.boolean(),
+});
+
+export const piHostClaimFormSchema = z.object({
+  code: z
+    .string()
+    .refine(isPiPairingCode, formValidationMessage("piPairingCodeInvalid"))
+    .transform(normalizePiPairingCode),
+  name: nameSchema(PI_HOST_NAME_MAX_LENGTH),
+});
+
+export const piHostNameFormSchema = z.object({
+  name: nameSchema(PI_HOST_NAME_MAX_LENGTH),
+});
+
+export const piHostScanStartFormSchema = z.object({
+  collectionGuid: z.string().min(1, formValidationMessage("collectionRequired")),
+  condition: z.enum(CARD_CONDITIONS as [CardCondition, ...CardCondition[]]),
+  foilType: z.string(),
+  preferredSetCodes: z.string(),
+  autoFeed: z.boolean(),
+  allowDuplicates: z.boolean(),
 });
 
 export const syncApiKeyFormSchema = z.object({
@@ -368,3 +391,7 @@ export const presetDescriptionFormSchema = z.object({
 });
 
 export type PresetDescriptionFormValues = z.infer<typeof presetDescriptionFormSchema>;
+export type PiHostClaimFormInput = z.input<typeof piHostClaimFormSchema>;
+export type PiHostClaimFormValues = z.output<typeof piHostClaimFormSchema>;
+export type PiHostScanStartFormValues = z.infer<typeof piHostScanStartFormSchema>;
+export type PiHostNameFormValues = z.infer<typeof piHostNameFormSchema>;

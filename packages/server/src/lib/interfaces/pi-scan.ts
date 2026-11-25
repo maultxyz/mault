@@ -158,6 +158,8 @@ export interface PiScanPipelineOptions {
   onFed: (reply: Record<string, unknown>) => void;
 }
 
+export type PiScanActionActor = Pick<PiScanStartInput, "orgId" | "userId" | "jwtClaims">;
+
 export interface PiScanStartInput {
   orgId: string;
   userId: string;

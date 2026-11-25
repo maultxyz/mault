@@ -305,6 +305,9 @@ const SettingsIntegrationsPage = lazyRoute(
     ["integrations"],
   ),
 );
+const SettingsRaspberryPisPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/settings/raspberry-pis"), ["cards"]),
+);
 const SettingsNotificationsPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/app/settings/notifications"),
@@ -936,6 +939,10 @@ export const routes: RouteObject[] = [
                   {
                     path: "integrations",
                     element: <SettingsIntegrationsPage />,
+                  },
+                  {
+                    path: "raspberry-pis",
+                    element: <SettingsRaspberryPisPage />,
                   },
                 ],
               },

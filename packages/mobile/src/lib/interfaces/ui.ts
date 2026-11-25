@@ -52,7 +52,8 @@ export interface TextFieldProps {
   textContentType?: "emailAddress" | "password" | "newPassword" | "name" | "none";
   keyboardType?: "default" | "email-address" | "decimal-pad" | "number-pad" | "numeric" | "numbers-and-punctuation";
   editable?: boolean;
-  autoCapitalize?: "none" | "sentences" | "words";
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  autoCorrect?: boolean;
   returnKeyType?: "next" | "done" | "go" | "search";
   onSubmitEditing?: () => void;
   multiline?: boolean;

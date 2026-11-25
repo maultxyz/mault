@@ -1,5 +1,6 @@
 import { resetPiScanScope } from "@/features/scanner/lib/pi-scan-store";
 import { recordSessionInits } from "@/lib/session-init-registry";
+import { RASPBERRY_PIS_QUERY_KEY } from "@/lib/constants/raspberry-pis";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { businessKeys } from "@/features/business/api/business";
@@ -161,6 +162,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
           es.addEventListener("open", () => {
             refreshMyTradeOffers();
             refreshMyCardReservations();
+            queryClient.invalidateQueries({ queryKey: [RASPBERRY_PIS_QUERY_KEY] });
           });
         }
         es.addEventListener(MY_TRADE_OFFERS_CHANGED_EVENT, refreshMyTradeOffers);

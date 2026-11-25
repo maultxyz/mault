@@ -2018,6 +2018,10 @@
       "business": {
         "title": "Business",
         "description": "Offres de rachat, droits des membres et catalogues boutique"
+      },
+      "raspberryPis": {
+        "title": "Raspberry Pi",
+        "description": "Associer un Pi et lancer ses scans"
       }
     },
     "appearance": {
@@ -2667,6 +2671,76 @@
         "connected": "Synchronisation des statistiques connectée."
       },
       "cancel": "Annuler"
+    },
+    "raspberryPis": {
+      "heading": "Raspberry Pi associés",
+      "description": "Un Pi associé enregistre les cartes qu'il scanne dans cette organisation. Lancez un scan ici et il s'exécute sur le Pi.",
+      "link": "Associer un Raspberry Pi",
+      "linkTitle": "Associer un Raspberry Pi",
+      "linkDescription": "Allumez le Pi et configurez-le avec Mault. Il affiche un code de 8 caractères : saisissez-le ici.",
+      "codeLabel": "Code affiché sur le Pi",
+      "codePlaceholder": "ABCD-2345",
+      "codeDescription": "Exécutez sudo mault link sur le Pi pour revoir le code.",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Trieur de l'atelier",
+      "linked": "Raspberry Pi associé",
+      "linkFailed": "Impossible d'associer le Raspberry Pi.",
+      "managersOnly": "Seuls les propriétaires et les administrateurs peuvent associer ou retirer un Raspberry Pi. Tous les membres de l'organisation peuvent lancer un scan.",
+      "loadFailed": "Impossible de charger vos Raspberry Pi.",
+      "empty": "Aucun Raspberry Pi associé pour l'instant",
+      "emptyDescription": "Configurez un Pi avec l'image ou l'installateur Mault et choisissez votre compte Mault.",
+      "linkedOn": "Associé le {{date}}",
+      "lastSeen": "vu pour la dernière fois le {{date}}",
+      "remove": "Retirer",
+      "removeConfirmTitle": "Retirer {{name}} ?",
+      "removeConfirmDescription": "Le Pi ne scanne plus pour cette organisation et il lui faut un nouveau code pour être associé à nouveau. Les cartes déjà enregistrées sont conservées.",
+      "removed": "Raspberry Pi retiré",
+      "removeFailed": "Impossible de retirer le Raspberry Pi.",
+      "offlineHint": "Vérifiez que le Pi est allumé et connecté à Internet.",
+      "collectionLabel": "Collection",
+      "collectionPlaceholder": "Choisissez une collection",
+      "start": "Lancer le scan",
+      "pause": "Pause",
+      "resume": "Reprendre",
+      "stop": "Arrêter",
+      "emergencyStop": "Arrêt d'urgence",
+      "scanFailed": "Le Raspberry Pi n'a pas pu effectuer cette action.",
+      "progress_one": "{{count}} carte scannée dans {{collection}}",
+      "progress_other": "{{count}} cartes scannées dans {{collection}}",
+      "lastCard": "Dernière carte : {{name}}",
+      "status": {
+        "offline": "Hors ligne",
+        "idle": "Prêt",
+        "running": "Scan en cours",
+        "paused": "En pause",
+        "stopping": "Arrêt en cours",
+        "error": "Arrêté sur une erreur"
+      },
+      "cancel": "Annuler",
+      "startTitle": "Lancer le scan sur {{name}}",
+      "startDescription": "Le Pi fait passer les cartes et les trie dans la collection choisie.",
+      "foilLabel": "Type de foil",
+      "foilAuto": "Ne pas imposer de type de foil",
+      "foilDescription": "Enregistre chaque carte avec ce type de foil.",
+      "setsLabel": "Extensions préférées",
+      "setsPlaceholder": "MKM, OTJ",
+      "setsDescription": "Codes d'extension à privilégier quand une carte correspond à plusieurs impressions. Séparez-les par des virgules.",
+      "autoFeedLabel": "Faire passer les cartes automatiquement",
+      "autoFeedDescription": "Désactivez pour faire passer une carte à la fois avec Carte suivante.",
+      "duplicatesLabel": "Enregistrer les doublons",
+      "duplicatesDescription": "Enregistrer à nouveau une carte quand le même exemplaire est scanné deux fois de suite.",
+      "feed": "Carte suivante",
+      "camera": "Caméra",
+      "cameraAlt": "Caméra en direct de {{name}}",
+      "cameraWaiting": "En attente de la caméra",
+      "rename": "Renommer",
+      "renameTitle": "Renommer le Raspberry Pi",
+      "renameFailed": "Impossible de renommer le Raspberry Pi.",
+      "conditionLabel": "État",
+      "renameSave": "Enregistrer",
+      "cameraShow": "Afficher la caméra",
+      "cameraHide": "Masquer la caméra",
+      "cameraUnavailable": "Impossible de joindre la caméra. Fermez-la et réessayez."
     }
   },
   "binCorrection": {
@@ -2865,7 +2939,8 @@
     "statsSyncKeyInvalid": "Colle la clé entière. Elle commence par mvstats_.",
     "expiryDaysInvalid": "Saisissez des nombres entiers de jours entre 1 et {{max}}, séparés par des virgules.",
     "expiryDaysTooMany": "Saisissez au maximum {{max}} durées.",
-    "organizationIdInvalid": "Saisissez un identifiant d'organisation (lettres, chiffres, - ou _, au moins 8 caractères)."
+    "organizationIdInvalid": "Saisissez un identifiant d'organisation (lettres, chiffres, - ou _, au moins 8 caractères).",
+    "piPairingCodeInvalid": "Saisissez le code à 8 caractères affiché par le Pi."
   },
   "cardTags": {
     "title": "Étiquettes",

@@ -7,6 +7,13 @@
 #
 # Status: not applied yet
 
+# Where your cards are stored, read only the first time the board starts:
+#   mault.xyz  (recommended) your Mault account at mault.xyz; the board shows a
+#              code to link it to your organization
+#   self       a database on this board, with its own accounts
+# Change it later with: sudo mault hosting mault.xyz|self
+hosting=mault.xyz
+
 # Login: creates this account (or changes its password) with administrator
 # (sudo) rights. Use lowercase letters, digits, - or _, starting with a letter.
 username=

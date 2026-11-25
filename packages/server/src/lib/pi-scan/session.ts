@@ -5,14 +5,11 @@ import { runPiScanCardWorkflow } from "./workflow";
 import { readPiScannerControlCode } from "./control-code";
 import { configurePiScanSorter } from "./configure";
 import { checkPiScanFoil } from "./foil";
-import { loadSoundRules } from "../../routes/sounds/shared";
-import { loadCollections } from "../../routes/collections/shared";
 import { PiScanPrefetch, usablePrefetchedMatch } from "./prefetch";
 import { routeLoadedPiCard } from "./route-card";
 import { feedNextPiScanCard } from "./feed-next-card";
 import { retainPiScanUnsavedCards, waitForPiScanResume } from "./recovery";
 import { randomUUID } from "node:crypto";
-import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   runScanDisposition,
   applyPickListFound,
@@ -34,12 +31,8 @@ import {
   type ScannerControlCommand,
   type PiScanRemovalAction,
   type ScanRoutingDecision,
-  DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CARD_CONDITION,
   toCardCondition,
-  DEFAULT_FEEDER_CALIBRATION,
-  DEFAULT_CHECK_BOTH_ORIENTATIONS,
-  DEFAULT_MATCHES_NEEDED,
   DEWARP_OUTPUT_SIZE,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
@@ -57,29 +50,17 @@ import {
   scanBinCapacity,
   binStorageBatchStarts,
   claimStorageBatchStart,
-  CHANNEL_OFFSET,
-  DEFAULT_CHANNEL_LAYOUT,
   applyAutoAssignTarget,
   type ScanRoutingContext,
-  createDefaultBinRoutes,
-  hasMaxCopiesBins,
-  isRulesMode,
-  reservePickListBins,
-  toRuleCard,
-  withScanRuleFields,
   isCardFromOtherGame,
   presetMatchGameKeys,
-  presetMatchedGameOptions,
   type CornerDetection,
   type BinConfig,
-  type BinDirection,
   type BinRoute,
   type CardSearchDiagnostics,
-  type FieldMeta,
   type MatchedScanDiagnostics,
   type ScanDetectionDiagnostics,
   type PiScanSessionStartBody,
-  type PiScanSessionStartCode,
   type PiScanSessionState,
   type PlayingCardWithDistance,
   type ScanAttemptDiagnostic,
@@ -89,18 +70,8 @@ import {
   type RgbaImage,
   type ScanOrientation,
 } from "@magic-vault/shared";
-import { authQuery, type Transaction } from "../../db";
-import { activateScanCollection, activateScanPreset } from "../scan-targets";
-import { emitToOrg } from "../session-stream";
 import { piUpdateRunning } from "../pi-update";
-import {
-  collections,
-  feederConfigs,
-  games,
-  orgSettings,
-} from "../../db/schema";
 import type {
-  PiScanBinCard,
   PiScanEarlyRoute,
   PiScanFrameMatch,
   PiScanIdentification,
@@ -120,8 +91,6 @@ import {
   PI_SCAN_POLL_MS,
   PI_SCAN_STATUS_TIMEOUT_MS,
 } from "../constants/pi-scan";
-import { acquireHostScanLock, releaseHostScanLock } from "../scan-lock";
-import { getUserDisplayName } from "../../middleware/auth";
 import {
   detectScanCorners,
   readScanImage,
@@ -133,23 +102,9 @@ import {
   releaseSorterPort,
   SorterPortError,
 } from "../pi-serial-port";
-import {
-  attachMatchedCards,
-  findCardMatches,
-  findCardMatchesByOcr,
-} from "../../routes/card/shared";
-import {
-  loadBinContents,
-  loadBinCounts,
-} from "../../routes/collections/cards-query";
-import { toScanRegion } from "../../routes/org-settings/shared";
-import { loadSets } from "../../routes/bins/shared";
-import {
-  findBestMatchAcrossGames,
-  matchScopesForGames,
-  tagWithGame,
-} from "../card-search/match-games";
+import { matchScopesForGames } from "../card-search/match-scopes";
 import type { CollectionMatchScope } from "../interfaces/card-search";
+import type { ServerScanActor } from "../interfaces/scan-actor";
 import { grabSettledCameraFrame } from "./camera";
 import {
   resolveCardSearchMatches,
@@ -161,28 +116,40 @@ import {
   routeForBin,
 } from "@magic-vault/shared";
 import {
+  applyScanTargetThroughRoute,
+  loadControlTargetsThroughRoute,
+  loadScanContextThroughRoute,
+  lockCollectionThroughRoute,
+  matchThroughRoute,
+  publishPendingSaveThroughRoute,
+  readTextThroughRoute,
   recordPickFound,
+  revealGiftThroughRoute,
   saveBinThroughRoute,
   saveThroughCollectionRoute,
   recoverSessionScanSaves,
   loadRemovalCopiesThroughRoute,
   removeQueuedCardsThroughRoute,
-  withScanActorTransaction,
+  unlockCollectionThroughRoute,
   PiScanActionError,
 } from "./existing-routes";
+import { PiScanStartError } from "./errors";
 import { SorterLink } from "./sorter-link";
-import { emitPiScanGiftReveal } from "./gift-reveal";
 
 const sessions = new Map<string, PiScanLive>();
 
-export class PiScanStartError extends Error {
-  constructor(
-    message: string,
-    readonly code: PiScanSessionStartCode,
-    readonly status: 400 | 409 = 409,
-  ) {
-    super(message);
-  }
+export { PiScanStartError };
+
+function scanActor(session: PiScanLive): ServerScanActor {
+  return { userId: session.userId, orgId: session.orgId };
+}
+
+function loadContext(
+  session: PiScanLive,
+  hardwareId: string,
+  collectionGuid = session.collectionGuid,
+): Promise<PiScanRunContext> {
+  return loadScanContextThroughRoute(scanActor(session), collectionGuid, hardwareId);
 }
 
 function sleep(ms: number): Promise<void> {
@@ -280,17 +247,16 @@ export function getPiScanMachineSource(orgId: string) {
   };
 }
 
+export function piScanSessionDone(orgId: string): Promise<void> | null {
+  return sessions.get(orgId)?.done ?? null;
+}
+
 export function listPiScanSessionOrgIds(): string[] {
   return [...sessions.keys()];
 }
 
 function jpegDataUrl(buffer: Buffer): string {
   return `data:image/jpeg;base64,${buffer.toString("base64")}`;
-}
-
-function asDirection(value: string): BinDirection | null {
-  if (value === "left" || value === "right" || value === "bottom") return value;
-  return null;
 }
 
 function lineError(line: Record<string, unknown>): string | null {
@@ -310,265 +276,6 @@ function withoutEmbedding(
 ): Omit<CardSearchDiagnostics, "embedding"> {
   const { embedding: _embedding, ...search } = diagnostics;
   return search;
-}
-
-async function loadFillCounts(
-  jwtClaims: string,
-  context: PiScanRunContext,
-  transaction?: Transaction,
-): Promise<void> {
-  const windows = context.configs.map((bin) => ({
-    binNumber: bin.binNumber,
-    lastEmptiedAt: bin.lastEmptiedAt ?? null,
-  }));
-  const load = (tx: Transaction) =>
-    loadBinCounts(tx, context.collectionId, windows);
-  const rows =
-    windows.length === 0
-      ? []
-      : await (transaction ? load(transaction) : authQuery(jwtClaims, load));
-  context.counts = new Map(rows.map((row) => [row.binNumber, row.count]));
-  context.storageBatchStarts = new Map(
-    rows.map((row) => [row.binNumber, row.storageBatchStarts ?? []]),
-  );
-}
-
-async function prepareContext(
-  session: PiScanLive,
-  hardwareId: string,
-  transaction?: Transaction,
-  collectionGuid = session.collectionGuid,
-): Promise<PiScanRunContext> {
-  const load = async (tx: Transaction): Promise<PiScanRunContext> => {
-    const [collection] = await tx
-      .select({
-        id: collections.id,
-        name: collections.name,
-        gameId: collections.gameId,
-        lang: collections.lang,
-        matchAllLanguages: collections.matchAllLanguages,
-        gameKey: games.key,
-        gameGuid: games.guid,
-        gameName: games.name,
-        fieldDefinitions: games.fieldDefinitions,
-        foilTypes: games.foilTypes,
-        cardThickness: games.cardThickness,
-      })
-      .from(collections)
-      .leftJoin(games, eq(games.id, collections.gameId))
-      .where(
-        and(
-          eq(collections.guid, collectionGuid),
-          eq(collections.orgId, session.orgId),
-          eq(collections.isDeleted, false),
-        ),
-      )
-      .limit(1);
-    if (!collection) {
-      throw new PiScanStartError(
-        "That collection was not found.",
-        "invalid",
-        400,
-      );
-    }
-    if (collection.gameId == null || !collection.gameKey) {
-      throw new PiScanStartError(
-        "This collection has no game.",
-        "invalid",
-        400,
-      );
-    }
-
-    const sets = await loadSets(tx, session.orgId, collection.id);
-    const active = sets.data?.find(
-      (item) => item.isActive && item.game?.key === collection.gameKey,
-    );
-    if (!active || !collection.gameGuid) {
-      throw new PiScanStartError(
-        "This collection's game has no active bin preset.",
-        "invalid",
-        400,
-      );
-    }
-    const device = await tx.query.devices.findFirst({
-      where: (table, { eq: eqCol, and: andCol }) =>
-        andCol(
-          eqCol(table.orgId, session.orgId),
-          eqCol(table.hardwareId, hardwareId),
-          eqCol(table.isDeleted, false),
-        ),
-      columns: {
-        id: true,
-        guid: true,
-        moduleCount: true,
-        channelLayout: true,
-        scanCoverage: true,
-        scanOffsetX: true,
-        scanOffsetY: true,
-        captureSettleDelayMs: true,
-        checkBothOrientations: true,
-        flipCamera: true,
-        matchesNeeded: true,
-        pipelinedFeed: true,
-      },
-    });
-    if (!device?.guid) {
-      throw new PiScanStartError(
-        "This sorter is not registered yet. Connect it once from the app, then start again.",
-        "invalid",
-        400,
-      );
-    }
-
-    const routeRows = await tx.query.binRoutes.findMany({
-      where: (table, { eq: eqCol, and: andCol }) =>
-        andCol(eqCol(table.deviceId, device.id), eqCol(table.isDeleted, false)),
-      columns: { binNumber: true, module: true, direction: true },
-    });
-    const savedRoutes: BinRoute[] = [];
-    for (const row of routeRows) {
-      const direction = asDirection(row.direction);
-      if (direction) {
-        savedRoutes.push({
-          binNumber: row.binNumber,
-          module: row.module,
-          direction,
-        });
-      }
-    }
-    const routes =
-      savedRoutes.length > 0
-        ? savedRoutes
-        : createDefaultBinRoutes(device.moduleCount);
-
-    const heightRows = await tx.query.binHeights.findMany({
-      where: (table, { eq: eqCol, and: andCol }) =>
-        andCol(eqCol(table.deviceId, device.id), eqCol(table.isDeleted, false)),
-      columns: { binNumber: true, height: true },
-    });
-    const heights = new Map<number, number>();
-    for (const row of heightRows) heights.set(row.binNumber, row.height);
-
-    const foilTypes =
-      (collection.foilTypes as string[] | null) ?? active.game?.foilTypes ?? [];
-    const matchGameKeys = presetMatchGameKeys(active);
-    const matchedGames =
-      matchGameKeys.length > 0
-        ? await tx
-            .select({ key: games.key, name: games.name })
-            .from(games)
-            .where(inArray(games.key, [collection.gameKey, ...matchGameKeys]))
-        : [];
-    const fieldDefinitions = withScanRuleFields(
-      (collection.fieldDefinitions as FieldMeta[] | null) ??
-        active.game?.fieldDefinitions ??
-        [],
-      foilTypes,
-      collection.gameKey,
-      undefined,
-      presetMatchedGameOptions(active, matchedGames),
-    );
-    const trackContents = active.isRepackMode || hasMaxCopiesBins(active.bins);
-    const windows = trackContents
-      ? active.bins
-          .filter((bin) => !bin.isCatchAll)
-          .map((bin) => ({
-            binNumber: bin.binNumber,
-            lastEmptiedAt: bin.lastEmptiedAt ?? null,
-          }))
-      : [];
-    const settings = await tx.query.orgSettings.findFirst({
-      where: eq(orgSettings.orgId, session.orgId),
-      columns: {
-        ocrEnabled: true,
-        highAccuracyScans: true,
-        foilDetectionEnabled: true,
-        foilStarDetectionEnabled: true,
-      },
-    });
-    const feeder = await tx.query.feederConfigs.findFirst({
-      where: eq(feederConfigs.deviceId, device.id),
-    });
-    const loaded = await loadBinContents(
-      tx,
-      { id: collection.id, gameKey: collection.gameKey, lang: collection.lang },
-      windows,
-    );
-    const contents: PiScanBinCard[] = loaded.map((row) => ({
-      binNumber: row.binNumber,
-      scannedAt: row.scannedAt,
-      card: toRuleCard(row.card, row),
-    }));
-    const moduleRows = await tx.query.moduleConfigs.findMany({
-      where: (table, { eq, and }) =>
-        and(eq(table.deviceId, device.id), eq(table.isDeleted, false)),
-    });
-    const moduleCalibrations = moduleRows
-      .filter(
-        (row) =>
-          row.moduleNumber >= 1 && row.moduleNumber <= device.moduleCount,
-      )
-      .sort((a, b) => a.moduleNumber - b.moduleNumber)
-      .map((row) => ({ moduleNumber: row.moduleNumber, calibration: row }));
-    const nudgeCalibration =
-      moduleCalibrations.find((module) => module.moduleNumber === 1)
-        ?.calibration ?? null;
-    const soundRules = await loadSoundRules(
-      tx,
-      session.orgId,
-      collection.gameId,
-    );
-    const sourceBins = active.bins.map((bin) => ({ ...bin }));
-
-    return {
-      channelOffset:
-        CHANNEL_OFFSET[
-          device.channelLayout === "legacy" ? "legacy" : DEFAULT_CHANNEL_LAYOUT
-        ],
-      moduleCalibrations,
-      feederCalibration: feeder ?? null,
-      nudgeCalibration,
-      soundRules,
-      hardwareId,
-      collectionId: collection.id,
-      collectionName: collection.name,
-      gameId: collection.gameId,
-      gameKey: collection.gameKey,
-      gameGuid: collection.gameGuid,
-      gameName: collection.gameName ?? undefined,
-      lang: collection.lang,
-      deviceGuid: device.guid,
-      moduleCount: device.moduleCount,
-      pipelinedFeed: device.pipelinedFeed,
-      region: toScanRegion(device),
-      settleMs: device.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS,
-      feedRetryCount:
-        feeder?.feedRetryCount ?? DEFAULT_FEEDER_CALIBRATION.feedRetryCount,
-      checkBothOrientations:
-        device.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
-      flipCamera: device.flipCamera,
-      matchesNeeded: device.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
-      matchAllLanguages: collection.matchAllLanguages,
-      ocrEnabled: settings?.ocrEnabled === true,
-      foilDetectionEnabled: settings?.foilDetectionEnabled === true,
-      highAccuracyScans: settings?.highAccuracyScans === true,
-      isFoilStarDetectionEnabled: settings?.foilStarDetectionEnabled === true,
-      cardThickness: collection.cardThickness,
-      fieldDefinitions,
-      foilTypes,
-      set: active,
-      configs: isRulesMode(active)
-        ? reservePickListBins(sourceBins.map((bin) => ({ ...bin })))
-        : sourceBins.map((bin) => ({ ...bin })),
-      pickConfigs: sourceBins,
-      routes,
-      heights,
-      counts: new Map(),
-      storageBatchStarts: new Map(),
-      contents,
-    };
-  };
-  return transaction ? load(transaction) : authQuery(session.jwtClaims, load);
 }
 
 async function rememberAutoAssign(
@@ -662,24 +369,14 @@ async function searchOrientation(
           orientation,
         )?.present ?? null)
       : null;
-  const scopes = piMatchScopes(context);
-  const { result: nearest, scope } = await findBestMatchAcrossGames(
-    scopes,
-    (matchScope) =>
-      findCardMatches({
-        ...matchScope,
-        embeddings,
-        preferredSetCodes: session.preferredSetCodes,
-        skipsUnloadedIndex: matchScope.gameKey !== context.gameKey,
-        printingMarkGrids:
-          matchScope.gameKey === context.gameKey ? printingMarkGrids : null,
-        printedLanguageCode:
-          matchScope.gameKey === context.gameKey ? printedLanguageCode : null,
-      }),
-  );
-  const attached = await attachMatchedCards(nearest, scope.gameKey, scope.lang);
-  const result =
-    scopes.length > 1 ? tagWithGame(attached, scope.gameKey) : attached;
+  const result = await matchThroughRoute(scanActor(session), {
+    scopes: piMatchScopes(context),
+    primaryGameKey: context.gameKey,
+    embeddings,
+    preferredSetCodes: session.preferredSetCodes,
+    printingMarkGrids,
+    printedLanguageCode,
+  });
   return {
     image,
     orientation,
@@ -803,28 +500,21 @@ async function matchFrame(
       const regions = OCR_REGIONS_BY_GAME_KEY[scope.gameKey] ?? [];
       if (!regions.length) return null;
       try {
-        const result = await findCardMatchesByOcr(
-          await rgbaToJpeg(
-            orientedOcrCrop(source, corners.contour, candidate.orientation),
-          ),
-          regions,
-          {
-            ...scope,
-            embeddings: { embedding: candidate.embedding },
-            preferredSetCodes: session.preferredSetCodes,
-          },
-        );
-        const attached = await attachMatchedCards(
-          result,
-          scope.gameKey,
-          scope.lang,
-        );
+        const result = await readTextThroughRoute(scanActor(session), {
+          scope,
+          tagsGame: piMatchScopes(context).length > 1,
+          imageBase64: (
+            await rgbaToJpeg(
+              orientedOcrCrop(source, corners.contour, candidate.orientation),
+            )
+          ).toString("base64"),
+          embedding: candidate.embedding,
+          preferredSetCodes: session.preferredSetCodes,
+        });
+        if (!result) return null;
         return {
           ...candidate,
-          result:
-            piMatchScopes(context).length > 1
-              ? tagWithGame(attached, scope.gameKey)
-              : attached,
+          result,
           ocr: result.ocr ?? null,
         };
       } catch (error) {
@@ -980,9 +670,8 @@ function savedCard(session: PiScanLive, hasPending = false) {
 
 async function waitForResume(session: PiScanLive): Promise<boolean> {
   return waitForPiScanResume(session, async (context) => {
-    const fresh = await prepareContext(session, context.hardwareId);
+    const fresh = await loadContext(session, context.hardwareId);
     session.configurationVersion += 1;
-    await loadFillCounts(session.jwtClaims, fresh);
     return fresh;
   });
 }
@@ -1211,7 +900,9 @@ async function processMatched(
             collectorNumber: card.collectorNumber,
           },
         };
-        emitToOrg(session.orgId, "pi_scan_pending_save", session.pendingSave);
+        publishPendingSaveThroughRoute(scanActor(session), session.pendingSave).catch(
+          (error: unknown) => console.error("[pi-scan] pending save notice failed", error),
+        );
       };
       if (publishesPendingSave) publishPendingSave("saving");
       try {
@@ -1225,7 +916,7 @@ async function processMatched(
         if (!saved.success) throw new Error(saved.message);
         if (publishesPendingSave) {
           publishPendingSave("saved");
-          emitPiScanGiftReveal(session.orgId, collectionGuid, decision.record).catch(
+          revealGiftThroughRoute(scanActor(session), collectionGuid, decision.record).catch(
             (error) => console.error("[pi-scan] gift reveal failed", error),
           );
         }
@@ -1481,14 +1172,11 @@ async function applyControlCardWhenIdle(
   command: ScannerControlCommand | null,
 ) {
   session.lastCardId = null;
-  const targets = await withScanActorTransaction(
-    { userId: session.userId, orgId: session.orgId },
-    async (tx) => ({
-      collections: (await loadCollections(tx, session.orgId)).data ?? [],
-      presets: (await loadSets(tx, session.orgId)).data ?? [],
-      activeCollectionGuid: session.collectionGuid,
-    }),
-  );
+  const actor = scanActor(session);
+  const targets = {
+    ...(await loadControlTargetsThroughRoute(actor)),
+    activeCollectionGuid: session.collectionGuid,
+  };
   const problem = command
     ? findScannerControlCommandProblem(command, targets)
     : "unreadable";
@@ -1514,7 +1202,6 @@ async function applyControlCardWhenIdle(
     holdCard(session, `Control card rejected: ${problem ?? "unreadable"}.`);
     return;
   }
-  const actor = { userId: session.userId, orgId: session.orgId };
   const oldCollection = session.collectionGuid;
   const nextCollection = command.collectionGuid ?? oldCollection;
   const switching = nextCollection !== oldCollection;
@@ -1526,45 +1213,24 @@ async function applyControlCardWhenIdle(
         saveOptions(session),
       );
       if (!recovered.success) throw new Error(recovered.message);
-      const lock = acquireHostScanLock(
-        nextCollection,
-        session.userId,
-        session.orgId,
-        await getUserDisplayName(session.userId),
-      );
+      const lock = await lockCollectionThroughRoute(actor, nextCollection);
       if (!lock.ok)
         throw new Error("The target collection is locked by another scanner.");
       acquired = true;
     }
-    const fresh = await withScanActorTransaction(actor, async (tx) => {
-      if (
-        command.presetGuid &&
-        !(await activateScanPreset(tx, session.orgId, command.presetGuid))
-      )
-        throw new Error("Preset not found.");
-      if (
-        switching &&
-        !(await activateScanCollection(tx, session.orgId, nextCollection))
-      )
-        throw new Error("Collection not found.");
-      const loaded = await prepareContext(
-        session,
-        context.hardwareId,
-        tx,
-        nextCollection,
-      );
-      await loadFillCounts(session.jwtClaims, loaded, tx);
-      return loaded;
+    const fresh = await applyScanTargetThroughRoute(actor, {
+      collectionGuid: nextCollection,
+      hardwareId: context.hardwareId,
+      presetGuid: command.presetGuid ?? null,
+      activatesCollection: switching,
     });
     retainPiScanUnsavedCards(context, fresh);
     if (switching)
       for (const entry of fresh.contents)
         if (entry.unsaved) entry.capacityOnly = true;
     session.collectionGuid = nextCollection;
-    if (switching)
-      emitToOrg(session.orgId, "collections_changed", { guid: nextCollection });
     if (switching) {
-      releaseHostScanLock(oldCollection, session.userId);
+      await unlockCollectionThroughRoute(actor, oldCollection);
       session.removalEntries = [];
       session.foilType = null;
       session.preferredSetCodes = [];
@@ -1583,7 +1249,7 @@ async function applyControlCardWhenIdle(
     if (command.pauseScanner) holdCard(session, "Paused by a control card.");
   } catch (error) {
     session.collectionGuid = oldCollection;
-    if (acquired) releaseHostScanLock(nextCollection, session.userId);
+    if (acquired) await unlockCollectionThroughRoute(actor, nextCollection);
     holdCard(
       session,
       error instanceof Error
@@ -1843,7 +1509,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       session.portHeld = false;
     }
     if (session.locked) {
-      releaseHostScanLock(session.collectionGuid, session.userId);
+      await unlockCollectionThroughRoute(scanActor(session), session.collectionGuid);
       session.locked = false;
     }
     if (session.phase === "running" || session.phase === "paused") {
@@ -1881,21 +1547,10 @@ async function arm(session: PiScanLive) {
   );
   if (!recovered.success)
     throw new PiScanStartError(recovered.message, "invalid");
-  const displayName = await getUserDisplayName(session.userId);
   if (await piUpdateRunning())
     throw new PiScanStartError("A system update is running.", "busy");
-  const lock = acquireHostScanLock(
-    session.collectionGuid,
-    session.userId,
-    session.orgId,
-    displayName,
-  );
-  if (!lock.ok) {
-    throw new PiScanStartError(
-      "Another org member is currently scanning into this collection.",
-      "invalid",
-    );
-  }
+  const lock = await lockCollectionThroughRoute(scanActor(session), session.collectionGuid);
+  if (!lock.ok) throw new PiScanStartError(lock.message, "invalid");
   session.locked = true;
 
   let port;
@@ -1934,8 +1589,7 @@ async function arm(session: PiScanLive) {
     if (!hardwareId) {
       throw new PiScanStartError("The sorter did not report an id.", "invalid");
     }
-    session.context = await prepareContext(session, hardwareId);
-    await loadFillCounts(session.jwtClaims, session.context);
+    session.context = await loadContext(session, hardwareId);
     await configurePiScanSorter(
       (command, timeout) => link.command(command, timeout),
       session.context,
@@ -2082,7 +1736,7 @@ export async function startPiScanSession(
     session.phase = "error";
     session.message = message;
     if (session.locked) {
-      releaseHostScanLock(session.collectionGuid, session.userId);
+      await unlockCollectionThroughRoute(scanActor(session), session.collectionGuid);
       session.locked = false;
     }
     if (!session.handedOff) session.resolveDone();

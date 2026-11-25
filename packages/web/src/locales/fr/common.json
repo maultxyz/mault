@@ -394,7 +394,8 @@
     "statsSyncKeyInvalid": "Colle la clé entière. Elle commence par mvstats_.",
     "expiryDaysInvalid": "Saisissez des nombres entiers de jours entre 1 et {{max}}, séparés par des virgules.",
     "expiryDaysTooMany": "Saisissez au maximum {{max}} durées.",
-    "organizationIdInvalid": "Saisissez un identifiant d'organisation (lettres, chiffres, - ou _, au moins 8 caractères)."
+    "organizationIdInvalid": "Saisissez un identifiant d'organisation (lettres, chiffres, - ou _, au moins 8 caractères).",
+    "piPairingCodeInvalid": "Saisissez le code à 8 caractères affiché par le Pi."
   },
   "memberSeatLock": {
     "title": "Cette organisation dépasse sa limite de membres",

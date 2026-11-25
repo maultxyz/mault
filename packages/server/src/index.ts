@@ -5,6 +5,12 @@ import "./lib/redact-console-errors";
 import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
 import { piCameraRouter } from "./routes/pi-camera";
+import { piHostsRouter } from "./routes/pi-hosts";
+import { createPiLinkDeviceRouter } from "./routes/pi-link";
+import { createPiHostCameraRouter } from "./routes/pi-hosts/camera";
+import { setPiScanApi } from "./lib/pi-scan/api";
+import { localPiScanApi } from "./lib/pi-scan/local-api";
+import { PI_HOSTS_PATH, PI_LINK_DEVICE_PATH } from "@magic-vault/shared";
 import { piUpdateRouter } from "./routes/pi-update";
 import { createPiSerialRouter, createPiSorterRouter } from "./routes/pi-serial";
 import { PI_SERIAL_PATH, PI_SORTER_PATH } from "./lib/constants/pi-serial";
@@ -13,6 +19,7 @@ import {
   getApiHost,
   PUBLIC_REQUEST_BODY_MAX_BYTES,
   REQUEST_BODY_MAX_BYTES,
+  WEBSOCKET_MAX_MESSAGE_BYTES,
 } from "./lib/constants/server";
 import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
 import { Hono } from "hono";
@@ -91,7 +98,8 @@ import { startShortLinkStartupSync } from "./lib/short-links";
 import { startStatsSyncSchedule } from "./lib/stats-sync-connection";
 
 const app = new Hono<AppEnv>();
-const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
+const { injectWebSocket, upgradeWebSocket, wss } = createNodeWebSocket({ app });
+wss.options.maxPayload = WEBSOCKET_MAX_MESSAGE_BYTES;
 
 const appCors = cors({
   origin: getWebUrl(),
@@ -187,6 +195,9 @@ app.route(PI_SERIAL_PATH, createPiSerialRouter(upgradeWebSocket));
 app.route(PI_SORTER_PATH, createPiSorterRouter(upgradeWebSocket));
 app.route("/stream", streamRoute);
 app.route("/sorter-link", createSorterLinkRouter(upgradeWebSocket));
+app.route(PI_HOSTS_PATH, createPiHostCameraRouter(upgradeWebSocket));
+app.route(PI_HOSTS_PATH, piHostsRouter);
+app.route(PI_LINK_DEVICE_PATH, createPiLinkDeviceRouter(upgradeWebSocket));
 app.route("/v1", publicApiRouter);
 app.route(SYNC_API_PATH, syncApiRouter);
 
@@ -209,6 +220,7 @@ startCardMatchIndexWarmup();
 startShortLinkStartupSync();
 startStatsSyncSchedule();
 startPiHostMachineStatusPublisher();
+setPiScanApi(localPiScanApi);
 
 const server = serve(
   { fetch: app.fetch, port: API_PORT, hostname: getApiHost() },

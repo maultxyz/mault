@@ -7,4 +7,5 @@ export function getApiHost(): string {
 }
 
 export const PUBLIC_REQUEST_BODY_MAX_BYTES = 1024 * 1024;
+export const WEBSOCKET_MAX_MESSAGE_BYTES = 2 * 1024 * 1024;
 export const REQUEST_BODY_MAX_BYTES = 32 * 1024 * 1024;

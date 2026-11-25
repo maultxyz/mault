@@ -12,6 +12,11 @@ mkdir -p "$LOG_DIR"
 exec >>"$LOG_DIR/api.log" 2>&1
 cd "$ROOT"
 
+linked_url="$(sed -n 's/^[[:space:]]*MAULT_LINK_URL=//p' "$ROOT/.env" 2>/dev/null | tail -n 1 | tr -d "\"'[:space:]" || true)"
+if [[ -n "$linked_url" ]]; then
+  exec node --env-file="$ROOT/.env" "$ROOT/packages/server/dist/pi-link.js"
+fi
+
 database_ready=0
 for _ in $(seq 1 50); do
   if (echo >/dev/tcp/127.0.0.1/5432) >/dev/null 2>&1; then

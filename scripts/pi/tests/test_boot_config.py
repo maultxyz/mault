@@ -1,7 +1,9 @@
 import importlib.util
+import io
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 SCRIPTS = Path(__file__).resolve().parents[1]
@@ -103,6 +105,26 @@ class BootConfigTests(unittest.TestCase):
             settings = CONFIG.read_settings(path.read_text(encoding="utf-8"))
             self.assertEqual(settings["password"], "")
             self.assertIn((["chpasswd"], "kenny:pw\n"), runner.calls)
+
+    def test_hosting_defaults_to_mault_xyz_in_the_template(self):
+        self.assertEqual(CONFIG.hosting_choice(CONFIG.read_settings(TEMPLATE)), "hosted")
+        self.assertEqual(CONFIG.validate(CONFIG.read_settings(TEMPLATE), no_user), [])
+
+    def test_hosting_choices_and_invalid_values(self):
+        self.assertEqual(CONFIG.hosting_choice({"hosting": "self"}), "self")
+        self.assertEqual(CONFIG.hosting_choice({"hosting": " Mault.xyz "}), "hosted")
+        self.assertIsNone(CONFIG.hosting_choice({}))
+        self.assertIsNone(CONFIG.hosting_choice({"hosting": "cloud"}))
+        self.assertIn("hosting must be mault.xyz or self", CONFIG.validate({"hosting": "cloud"}, no_user))
+
+    def test_print_hosting_reads_the_card_and_ignores_a_missing_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "mault-config.txt"
+            path.write_text(TEMPLATE.replace("hosting=mault.xyz", "hosting=self"), encoding="utf-8")
+            with patch("sys.stdout", new_callable=io.StringIO) as output:
+                self.assertEqual(CONFIG.print_hosting(path), 0)
+                self.assertEqual(CONFIG.print_hosting(Path(directory) / "missing.txt"), 0)
+            self.assertEqual(output.getvalue(), "self\n")
 
     def test_missing_file_is_ignored(self):
         self.assertEqual(CONFIG.main(Path(tempfile.gettempdir()) / "no-such-mault-config.txt"), 0)

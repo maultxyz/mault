@@ -2,12 +2,18 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { authProvider } from "../src/auth";
 import {
+  applyScanTargetThroughRoute,
+  loadControlTargetsThroughRoute,
   loadRemovalCopiesThroughRoute,
+  loadScanContextThroughRoute,
   PiScanActionError,
-  withScanActorTransaction,
 } from "../src/lib/pi-scan/existing-routes";
+import { setPiScanApi } from "../src/lib/pi-scan/api";
+import { localPiScanApi } from "../src/lib/pi-scan/local-api";
 
-test("revoked headless actors cannot look up removal copies or apply control-card target transactions", async (t) => {
+setPiScanApi(localPiScanApi);
+
+test("revoked headless actors cannot look up removal copies, load scan targets or apply control-card targets", async (t) => {
   t.mock.method(authProvider, "verifyToken", async () =>
     assert.fail(
       "Internal scans must retain process-bound actor authentication",
@@ -22,10 +28,18 @@ test("revoked headless actors cannot look up removal copies or apply control-car
     loadRemovalCopiesThroughRoute(actor, "collection", ["printing"]),
     forbidden,
   );
+  await assert.rejects(loadControlTargetsThroughRoute(actor), forbidden);
   await assert.rejects(
-    withScanActorTransaction(actor, async () =>
-      assert.fail("A revoked actor must not begin a transaction"),
-    ),
+    loadScanContextThroughRoute(actor, "collection", "SORTER"),
+    forbidden,
+  );
+  await assert.rejects(
+    applyScanTargetThroughRoute(actor, {
+      collectionGuid: "collection",
+      hardwareId: "SORTER",
+      presetGuid: "preset",
+      activatesCollection: true,
+    }),
     forbidden,
   );
 });

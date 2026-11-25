@@ -25,6 +25,7 @@ export const THEME_COLORS: ThemeColorOption[] = [
 export const SETTINGS_SECTION_LINKS: SettingsSectionLink[] = [
   { path: "/settings/general", key: "general", icon: "adjust" },
   { path: "/settings/scanning", key: "scanning", icon: "scan" },
+  { path: "/settings/raspberry-pis", key: "raspberryPis", icon: "sorter" },
   { path: "/settings/pricing", key: "pricing", icon: "stats" },
   { path: "/settings/organization", key: "organization", icon: "account" },
   { path: "/settings/billing", key: "billing", icon: "check" },

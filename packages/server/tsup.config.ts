@@ -3,6 +3,7 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: {
     index: "src/index.ts",
+    "pi-link": "src/pi-link-main.ts",
     "lib/sync-job/worker": "src/lib/sync-job/worker.ts",
     "scripts/sync-prices": "scripts/sync-prices.ts",
     "scripts/post-platform-stats": "scripts/post-platform-stats.ts",

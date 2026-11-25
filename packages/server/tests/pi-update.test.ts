@@ -19,7 +19,7 @@ import { piUpdateRouter } from "../src/routes/pi-update";
 import { PI_UPDATE_CHECK_MS } from "../src/lib/constants/pi-update";
 import { PiControllerPort } from "../src/lib/pi-controller-port";
 import { claimSorterPort, releaseSorterPort, piSerialRuntime } from "../src/lib/pi-serial-port";
-import { acquireLock, releaseLock } from "../src/lib/scan-lock";
+import { acquireLock, getActiveScanLockStats, releaseLock } from "../src/lib/scan-lock";
 import { db } from "../src/db";
 
 class FakeSorterPort extends EventEmitter {
@@ -109,13 +109,13 @@ test("host updater refuses active database sync", async (t) => {
   const previous = getStatus();
   t.after(() => resetState(previous));
   resetState({ ...previous, status: "running" });
-  await assert.rejects(startPiUpdate(), /stop database syncing/);
+  await assert.rejects(startPiUpdate(getActiveScanLockStats().sessions), /stop database syncing/);
 });
 
 test("host updates release idle GPIO viewers and resume them after a failed request", async (t) => {
   const directory = await fixture(t);
   const viewer = await gpioViewer(t);
-  await startPiUpdate();
+  await startPiUpdate(getActiveScanLockStats().sessions);
   assert.equal(viewer.isOpen, false);
   await assert.rejects(claimSorterPort("bridge", { controllerId: "gpio" }), /busy/);
   const later = Date.now() + 60_000;
@@ -131,7 +131,7 @@ for (const phase of ["succeeded", "failed"] as const) {
   test(`GPIO reconnects after the root updater reports ${phase}`, async (t) => {
     const directory = await fixture(t);
     await gpioViewer(t);
-    const state = await startPiUpdate();
+    const state = await startPiUpdate(getActiveScanLockStats().sessions);
     await rm(join(directory, "requests/update-request"));
     await writeFile(join(directory, "update.json"), JSON.stringify({ ...state, phase }));
     assert.equal((await readPiUpdateState()).phase, phase);
@@ -158,7 +158,7 @@ test("an older status poll cannot release a newer GPIO update reservation", asyn
   });
   const oldPoll = readPiUpdateState();
   await polling;
-  await startPiUpdate();
+  await startPiUpdate(getActiveScanLockStats().sessions);
   finishOldPoll();
   assert.equal((await oldPoll).phase, "failed");
   await assert.rejects(claimSorterPort("bridge", { controllerId: "gpio" }), /busy/);
@@ -168,7 +168,7 @@ test("a failed request write releases the GPIO update reservation", async (t) =>
   const directory = await fixture(t);
   const viewer = await gpioViewer(t);
   await rm(join(directory, "requests"), { recursive: true });
-  await assert.rejects(startPiUpdate(), /ENOENT/);
+  await assert.rejects(startPiUpdate(getActiveScanLockStats().sessions), /ENOENT/);
   assert.equal(viewer.isOpen, false);
   const reconnected = await claimSorterPort("bridge", { controllerId: "gpio" });
   assert.equal(reconnected.isOpen, true);
@@ -178,7 +178,7 @@ test("active GPIO commands still prevent an update", async (t) => {
   const directory = await fixture(t);
   const viewer = await gpioViewer(t);
   viewer.write('{"test":true,"seq":1}\n');
-  await assert.rejects(startPiUpdate(), /disconnect the sorter/);
+  await assert.rejects(startPiUpdate(getActiveScanLockStats().sessions), /disconnect the sorter/);
   assert.equal(viewer.isOpen, true);
   await assert.rejects(stat(join(directory, "requests/update-request")));
 });
@@ -189,7 +189,7 @@ test("active scan locks still prevent an update with idle GPIO viewers", async (
   t.mock.method(db, "update", () => ({ set: () => ({ where: async () => [] }) }));
   acquireLock("update-test-collection", "update-test-user", "update-test-org", "Test");
   t.after(() => releaseLock("update-test-collection", "update-test-user"));
-  await assert.rejects(startPiUpdate(), /Finish scanning/);
+  await assert.rejects(startPiUpdate(getActiveScanLockStats().sessions), /Finish scanning/);
   assert.equal(viewer.isOpen, true);
 });
 
@@ -205,7 +205,7 @@ test("USB sorter connections still prevent an update", async (t) => {
   t.mock.method(piSerialRuntime, "list", async () => [{ path: "/dev/ttyACM904" }]);
   t.mock.method(piSerialRuntime, "open", async () => new FakeSorterPort());
   const viewer = await claimSorterPort("bridge", { controllerId: "/dev/ttyACM904" });
-  await assert.rejects(startPiUpdate(), /disconnect the sorter/);
+  await assert.rejects(startPiUpdate(getActiveScanLockStats().sessions), /disconnect the sorter/);
   assert.equal(viewer.isOpen, true);
 });
 
@@ -216,13 +216,13 @@ test("host update only drops a request for the root updater and rejects duplicat
     calls.push(program);
     return { stdout: "", stderr: "" };
   });
-  const state = await startPiUpdate();
+  const state = await startPiUpdate(getActiveScanLockStats().sessions);
   assert.equal(state.phase, "running");
   const request = join(directory, "requests/update-request");
   assert.ok((await stat(request)).isFile());
   assert.deepEqual(calls, []);
   assert.equal((await readPiUpdateState()).phase, "running");
-  await assert.rejects(startPiUpdate(), /already running/);
+  await assert.rejects(startPiUpdate(getActiveScanLockStats().sessions), /already running/);
   await rm(request);
   await writeFile(
     join(directory, "update.json"),
@@ -235,7 +235,7 @@ test("in-app updates ask for a one-time reinstall before the root updater exists
   const directory = await fixture(t);
   t.mock.method(piUpdateRuntime, "rootUpdaterInstalled", () => false);
   await assert.rejects(
-    startPiUpdate(),
+    startPiUpdate(getActiveScanLockStats().sessions),
     /curl -fsSL https:\/\/example\.test\/pi-latest\/install\.sh \| sudo bash/,
   );
   await assert.rejects(stat(join(directory, "requests/update-request")));

@@ -1,3 +1,5 @@
+import type { PiScanRemovalAction } from "@magic-vault/shared";
+
 export const PI_CAMERA_FRAME_URL = "http://127.0.0.1:8765/frame";
 
 export const PI_SCAN_FEED_TIMEOUT_MS = 20_000;
@@ -19,3 +21,14 @@ export const PI_SCAN_EMERGENCY_STOP_UNCONFIRMED_MESSAGE =
   "Scanning stopped, but the sorter did not confirm the emergency stop, so the current card may still be sorted. Update the sorter firmware.";
 export const PI_SCAN_CARD_STUCK_IN_MODULE_ONE_MESSAGE =
   "A card is stuck in module 1. Remove it, then resume.";
+
+export const PI_SCAN_SESSION_START_CODES = ["running", "busy", "missing", "unsupported", "invalid"] as const;
+
+export const PI_SCAN_REMOVAL_ACTIONS: PiScanRemovalAction["action"][] = [
+  "select",
+  "drop",
+  "clear",
+  "remove",
+];
+
+export const PI_SCAN_PENDING_SAVE_EVENT = "pi_scan_pending_save";

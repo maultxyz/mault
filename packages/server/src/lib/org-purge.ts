@@ -46,6 +46,7 @@ import {
 } from "../db/schema";
 import { forgetDiscordGuildOrgs } from "./discord/guild-orgs";
 import { forgetLeaderboardOptIns } from "./leaderboard";
+import { purgePiHostsOfOrg } from "./pi-hosts";
 const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "canceled",
   "incomplete_expired",
@@ -115,6 +116,7 @@ export async function purgeOrgData(
   await tx.delete(apiKeyUsageDaily).where(eq(apiKeyUsageDaily.orgId, orgId));
   await tx.delete(orgApiKeys).where(eq(orgApiKeys.orgId, orgId));
   await tx.delete(statsSyncKeys).where(eq(statsSyncKeys.orgId, orgId));
+  await purgePiHostsOfOrg(tx, orgId);
   await tx.delete(webhookEndpoints).where(eq(webhookEndpoints.orgId, orgId));
   await tx.delete(unmatchedCards).where(eq(unmatchedCards.orgId, orgId));
   await tx.delete(soundRules).where(eq(soundRules.orgId, orgId));
