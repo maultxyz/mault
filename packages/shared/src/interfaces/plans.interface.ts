@@ -95,6 +95,7 @@ export interface BillingStatus {
   storageLocationCount?: number;
   apiAccess?: boolean;
   businessTools?: boolean;
+  reviewAutoCheck?: boolean;
   longShareLinks?: boolean;
   shareLinkLengths?: ShareLinkLengths;
 }

@@ -426,6 +426,10 @@
         "label": "Kaufen und Verkaufen",
         "description": "Wareneingänge mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Verkäufe, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
       },
+      "reviewAutoCheck": {
+        "label": "Automatische Prüfung",
+        "description": "Die Schaltfläche Automatisch prüfen im Prüfraster. Sie prüft die Fotos wartender Karten erneut mit hoher Genauigkeit, bestätigt passende Karten und markiert den Rest."
+      },
       "repacks": {
         "label": "Repacks",
         "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Vorlagen es einschalten. Vorlagen, die schon Repacks erstellen, funktionieren weiter."

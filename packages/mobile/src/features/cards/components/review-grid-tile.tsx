@@ -21,7 +21,7 @@ import { cardArtSources } from "@/lib/card-art";
 import { absoluteUrl } from "@/lib/url";
 import { cardStampOptionsFor } from "@magic-vault/shared";
 
-export function ReviewGridTile({ card, attributes, onAccept, onCorrect, onPickAttribute }: ReviewGridTileProps) {
+export function ReviewGridTile({ card, attributes, onAccept, onCorrect, onPickAttribute, autoCheckOutcome }: ReviewGridTileProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const image = useQuery(scanImageQueryOptions(card.collectionGuid, card.scanId));
@@ -80,6 +80,16 @@ export function ReviewGridTile({ card, attributes, onAccept, onCorrect, onPickAt
         </View>
         {card.lowConfidenceMatch || card.hasAlternatives ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
       </View>
+      {autoCheckOutcome && autoCheckOutcome.verdict !== "confirmed" ? (
+        <View style={{ flexDirection: "row", alignItems: "flex-start", gap: SPACING.xs }}>
+          <Icon name="warning" size={16} color={colors.warningForeground} />
+          <AppText size="xs" tone="warning" style={{ flex: 1 }}>
+            {autoCheckOutcome.suggestedCardName
+              ? t("reviewGrid.autoCheckDifferent", { name: autoCheckOutcome.suggestedCardName })
+              : t("reviewGrid.autoCheckUnsure")}
+          </AppText>
+        </View>
+      ) : null}
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
         <View style={attributeFieldStyle}>
           <SelectField

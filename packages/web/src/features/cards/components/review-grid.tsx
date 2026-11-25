@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useReviewAutoCheck } from "@/features/cards/api/use-review-auto-check";
 import { useReviewGridActions } from "@/features/cards/api/use-review-grid-actions";
 import { ReviewGridCorrectionDialog } from "@/features/cards/components/review-grid-correction-dialog";
 import { ReviewGridTile } from "@/features/cards/components/review-grid-tile";
@@ -22,6 +23,8 @@ import {
   IconChecks,
   IconLayoutGrid,
   IconListCheck,
+  IconLoader2,
+  IconSparkles,
   IconSquareCheck,
   IconX,
 } from "@tabler/icons-react";
@@ -66,6 +69,10 @@ export function ReviewGrid({
       }
       return next;
     });
+
+  const autoCheck = useReviewAutoCheck(visibleCards, (scanIds) =>
+    setHidden(scanIds, true),
+  );
 
   const accept = async (cardsToAccept: ReviewGridCard[]) => {
     if (cardsToAccept.length === 0) return;
@@ -113,7 +120,11 @@ export function ReviewGrid({
             {t("reviewGrid.title")}
           </h2>
           <p role="status" className="text-xs tabular-nums text-foreground/70">
-            {isLoading ? " " : t("reviewGrid.remaining", { count: remaining })}
+            {isLoading
+              ? " "
+              : autoCheck.progress
+                ? t("reviewGrid.autoChecking", autoCheck.progress)
+                : t("reviewGrid.remaining", { count: remaining })}
           </p>
         </div>
         <ButtonGroup>
@@ -131,6 +142,21 @@ export function ReviewGrid({
             {t("reviewGrid.layoutOneByOne")}
           </Button>
         </ButtonGroup>
+        {autoCheck.isAvailable && (
+          <Button
+            variant="outline"
+            disabled={!!autoCheck.progress || autoCheck.uncheckedCount === 0}
+            onClick={() => void autoCheck.run()}
+            title={t("reviewGrid.autoCheckHint")}
+          >
+            {autoCheck.progress ? (
+              <IconLoader2 className="animate-spin motion-reduce:animate-none" />
+            ) : (
+              <IconSparkles />
+            )}
+            {t("reviewGrid.autoCheck")}
+          </Button>
+        )}
         <Button
           disabled={visibleCards.length === 0}
           onClick={() => void accept(visibleCards)}
@@ -216,6 +242,7 @@ export function ReviewGrid({
                 }
                 onAccept={() => void accept([card])}
                 onCorrect={() => setCorrectingCard(card)}
+                autoCheckOutcome={autoCheck.outcomes.get(card.scanId)}
               />
             ))}
           </div>

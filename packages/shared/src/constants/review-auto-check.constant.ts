@@ -1,0 +1,1 @@
+export const REVIEW_AUTO_CHECK_REQUEST_MAX_SCANS = 8;

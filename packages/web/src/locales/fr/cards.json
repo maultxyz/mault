@@ -456,7 +456,15 @@
     "loadFailed": "Impossible de charger les cartes à vérifier. Réessayez.",
     "acceptFailed_one": "Impossible de valider {{count}} carte. Réessayez.",
     "acceptFailed_other": "Impossible de valider {{count}} cartes. Réessayez.",
-    "correctFailed": "Impossible d'enregistrer la correction. Réessayez."
+    "correctFailed": "Impossible d'enregistrer la correction. Réessayez.",
+    "autoCheck": "Vérification auto",
+    "autoCheckHint": "Analyse à nouveau les photos en haute précision et valide les cartes qui correspondent",
+    "autoChecking": "Vérification {{checked}} sur {{total}}",
+    "autoCheckComplete_one": "Vérification terminée : {{count}} carte validée, {{needsLook}} à revoir.",
+    "autoCheckComplete_other": "Vérification terminée : {{count}} cartes validées, {{needsLook}} à revoir.",
+    "autoCheckFailed": "La vérification automatique s'est arrêtée avant la fin. Réessayez.",
+    "autoCheckDifferent": "La vérification automatique y voit {{name}}",
+    "autoCheckUnsure": "La vérification automatique n'a pas pu confirmer cette carte"
   },
   "removeDialog": {
     "title": "Retirer {{name}} ?",

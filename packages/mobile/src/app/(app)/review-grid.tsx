@@ -29,6 +29,7 @@ import {
   collectionReviewGridQueryOptions,
   storageReviewGridQueryOptions,
 } from "@/features/cards/api/review-grid";
+import { useReviewAutoCheck } from "@/features/cards/api/use-review-auto-check";
 import { ReviewGridTile } from "@/features/cards/components/review-grid-tile";
 import { ReviewGridTileSkeleton } from "@/features/cards/components/review-grid-tile-skeleton";
 import { useTheme } from "@/hooks/use-theme";
@@ -68,6 +69,12 @@ export default function ReviewGridScreen() {
       }
       return next;
     });
+
+  const autoCheck = useReviewAutoCheck(
+    visibleCards,
+    (scanIds) => updateSet(setHiddenScanIds, scanIds, true),
+    () => void review.refetch(),
+  );
 
   const accept = async (cardsToAccept: ReviewGridCard[]) => {
     if (cardsToAccept.length === 0) return;
@@ -156,7 +163,13 @@ export default function ReviewGridScreen() {
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
         title={t("reviewGrid.title")}
-        subtitle={review.data ? t("reviewGrid.remaining", { count: remaining }) : null}
+        subtitle={
+          autoCheck.progress
+            ? t("reviewGrid.autoChecking", autoCheck.progress)
+            : review.data
+              ? t("reviewGrid.remaining", { count: remaining })
+              : null
+        }
         onBack={() => router.back()}
         tabs={
           <TabStrip<ReviewLayout>
@@ -183,6 +196,17 @@ export default function ReviewGridScreen() {
         }
         ListHeaderComponent={
           <View style={{ gap: SPACING.md }}>
+            {autoCheck.isAvailable && visibleCards.length > 0 ? (
+              <Button
+                variant="secondary"
+                icon="sparkles"
+                label={autoCheck.progress ? t("reviewGrid.autoChecking", autoCheck.progress) : t("reviewGrid.autoCheck")}
+                accessibilityHint={t("reviewGrid.autoCheckHint")}
+                loading={!!autoCheck.progress}
+                disabled={!!autoCheck.progress || autoCheck.uncheckedCount === 0}
+                onPress={() => void autoCheck.run()}
+              />
+            ) : null}
             {visibleCards.length > 0 ? (
               <Button
                 icon="checkAll"
@@ -224,6 +248,7 @@ export default function ReviewGridScreen() {
               onCorrect={() =>
                 router.push({ pathname: "/card/[scanId]", params: { scanId: item.scanId, guid: item.collectionGuid } })
               }
+              autoCheckOutcome={autoCheck.outcomes.get(item.scanId)}
             />
           </View>
         )}

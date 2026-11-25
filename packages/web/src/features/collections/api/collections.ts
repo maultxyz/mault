@@ -28,6 +28,7 @@ import {
   type Result,
   type SetCardTagsRequest,
   type ReviewAcceptRequest,
+  type ReviewAutoCheckResult,
   type ReviewAcceptResult,
   type ReviewGridAttributeUpdate,
   SCAN_SAVE_ACCEPTED_STATUSES,
@@ -328,6 +329,18 @@ export async function removeCollectionCard(
   scanId: string,
 ): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/cards/${scanId}`);
+}
+
+export async function autoCheckCollectionReviewCards(
+  guid: string,
+  scanIds: string[],
+): Promise<ReviewAutoCheckResult> {
+  const result = await apiPost<Result<ReviewAutoCheckResult>>(
+    `/api/collections/${guid}/cards/auto-check`,
+    { scanIds },
+  );
+  if (!result.success || !result.data) throw new Error(result.message);
+  return result.data;
 }
 
 export async function acceptCollectionCardReviews(

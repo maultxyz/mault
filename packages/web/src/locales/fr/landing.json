@@ -299,6 +299,7 @@
       "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
       "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
       "businessTools": "Achat et vente : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges",
+      "reviewAutoCheck": "Vérification auto : analyse à nouveau en haute précision les photos des cartes à revoir et valide celles qui correspondent",
       "longShareLinks": "Liens de suivi jusqu'à 30 jours : partagez une vue en direct d'une collection pendant des jours au lieu d'une heure"
     },
     "compare": {
@@ -333,6 +334,7 @@
         "storage": "Emplacements de rangement",
         "apiAccess": "Accès API",
         "businessTools": "Achat et vente",
+        "reviewAutoCheck": "Vérification auto",
         "longShareLinks": "Liens de suivi jusqu'à 30 jours"
       }
     }

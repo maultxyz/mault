@@ -48,6 +48,7 @@ export function defaultPlanConfig(): PlanConfig {
         storage: false,
         apiAccess: false,
         businessTools: false,
+        reviewAutoCheck: false,
         longShareLinks: false,
       },
       limits: {
@@ -69,6 +70,7 @@ export function defaultPlanConfig(): PlanConfig {
         storage: true,
         apiAccess: false,
         businessTools: false,
+        reviewAutoCheck: false,
         longShareLinks: true,
       },
       limits: {
@@ -90,6 +92,7 @@ export function defaultPlanConfig(): PlanConfig {
         storage: true,
         apiAccess: true,
         businessTools: true,
+        reviewAutoCheck: true,
         longShareLinks: true,
       },
       limits: {
@@ -111,6 +114,7 @@ export function defaultPlanConfig(): PlanConfig {
         storage: true,
         apiAccess: true,
         businessTools: true,
+        reviewAutoCheck: true,
         longShareLinks: true,
       },
       limits: {

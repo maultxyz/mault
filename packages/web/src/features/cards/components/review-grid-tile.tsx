@@ -6,7 +6,12 @@ import { CapturedImageThumb } from "@/features/cards/components/captured-image-t
 import { ReviewGridAttributeFields } from "@/features/cards/components/review-grid-attribute-fields";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import type { ReviewGridTileProps } from "@/lib/interfaces/cards";
-import { IconCheck, IconPencil, IconPhotoOff } from "@tabler/icons-react";
+import {
+  IconAlertTriangle,
+  IconCheck,
+  IconPencil,
+  IconPhotoOff,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function ReviewGridTile({
@@ -15,6 +20,7 @@ export function ReviewGridTile({
   onAttributesChange,
   onAccept,
   onCorrect,
+  autoCheckOutcome,
 }: ReviewGridTileProps) {
   const { t } = useTranslation("cards");
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
@@ -74,6 +80,16 @@ export function ReviewGridTile({
           wasCorrected={card.corrected}
         />
       </div>
+      {autoCheckOutcome && autoCheckOutcome.verdict !== "confirmed" && (
+        <p className="flex items-start gap-1 px-0.5 text-xs text-warning-foreground">
+          <IconAlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+          {autoCheckOutcome.suggestedCardName
+            ? t("reviewGrid.autoCheckDifferent", {
+                name: autoCheckOutcome.suggestedCardName,
+              })
+            : t("reviewGrid.autoCheckUnsure")}
+        </p>
+      )}
       <ReviewGridAttributeFields
         card={card}
         attributes={attributes}

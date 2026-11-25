@@ -9,6 +9,7 @@ import {
   type Result,
   type ReviewAcceptRequest,
   type ReviewAcceptResult,
+  type ReviewAutoCheckResult,
   type ReviewGridAttributeUpdate,
   type ReviewGridCard,
   type StorageLocationCardPage,
@@ -43,6 +44,10 @@ export const storageReviewGridQueryOptions = (guid: string) =>
       return { cards: page.cards, total: page.total };
     },
   });
+
+export function autoCheckCollectionReviewCards(guid: string, scanIds: string[]): Promise<ReviewAutoCheckResult> {
+  return unwrap(apiPost<Result<ReviewAutoCheckResult>>(`/api/collections/${guid}/cards/auto-check`, { scanIds }));
+}
 
 function acceptCollectionCardReviews(guid: string, request: ReviewAcceptRequest): Promise<ReviewAcceptResult> {
   return unwrap(apiPost<Result<ReviewAcceptResult>>(`/api/collections/${guid}/cards/accept-review`, request));

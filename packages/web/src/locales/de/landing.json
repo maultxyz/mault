@@ -299,6 +299,7 @@
       "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle",
       "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
       "businessTools": "Kaufen und Verkaufen: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen",
+      "reviewAutoCheck": "Automatische Prüfung: prüft die Fotos wartender Karten erneut mit hoher Genauigkeit und bestätigt passende Karten",
       "longShareLinks": "Monitor-Links bis 30 Tage: Teile eine Live-Ansicht einer Sammlung tagelang statt eine Stunde"
     },
     "compare": {
@@ -333,6 +334,7 @@
         "storage": "Lagerorte",
         "apiAccess": "API-Zugriff",
         "businessTools": "An- und Verkauf",
+        "reviewAutoCheck": "Automatische Prüfung",
         "longShareLinks": "Monitor-Links bis 30 Tage"
       }
     }

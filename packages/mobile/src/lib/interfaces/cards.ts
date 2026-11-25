@@ -10,6 +10,7 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewAutoCheckOutcome,
   ReviewGridAttributes,
   ReviewGridCard,
   ScanImageSide,
@@ -30,6 +31,12 @@ export interface ReviewGridTileProps {
   onAccept: () => void;
   onCorrect: () => void;
   onPickAttribute: (field: ReviewGridAttributeField) => void;
+  autoCheckOutcome?: ReviewAutoCheckOutcome;
+}
+
+export interface ReviewAutoCheckProgress {
+  checked: number;
+  total: number;
 }
 
 export type ReviewGridAttributeField = keyof ReviewGridAttributes;
