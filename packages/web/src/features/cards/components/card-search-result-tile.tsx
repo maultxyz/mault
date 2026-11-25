@@ -1,10 +1,10 @@
 import { CardImage } from "@/components/card-image";
 import { Badge } from "@/components/ui/badge";
 import { usePriceSource } from "@/hooks/use-price-source";
-import { raritySwatch } from "@/lib/card-swatches";
+import { RarityBadge } from "@/components/rarity-badge";
 import type { CardSearchResultTileProps } from "@/lib/interfaces/cards";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
-import { DEFAULT_CARD_LANGUAGE, rarityLabel } from "@magic-vault/shared";
+import { DEFAULT_CARD_LANGUAGE } from "@magic-vault/shared";
 
 export function CardSearchResultTile({
   card,
@@ -57,13 +57,7 @@ export function CardSearchResultTile({
             {card.setName || card.set.toUpperCase()}
           </p>
           <div className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums">
-            <span
-              role="img"
-              aria-label={rarityLabel(card.rarity)}
-              className="size-2 shrink-0 rounded-full"
-              style={{ backgroundColor: raritySwatch(card.rarity).bg }}
-              title={card.rarity}
-            />
+            <RarityBadge rarity={card.rarity} />
             <span className="min-w-0 truncate font-semibold uppercase">
               {card.set} #{card.collectorNumber}
             </span>
@@ -96,12 +90,7 @@ export function CardSearchResultTile({
           </div>
           <div className="flex flex-row items-center justify-between gap-2">
             <div className="flex min-w-0 flex-row items-center gap-1.5">
-              <div
-                role="img"
-                aria-label={rarityLabel(card.rarity)}
-                className="size-3 shrink-0 rounded-full"
-                style={{ backgroundColor: raritySwatch(card.rarity).bg }}
-              />
+              <RarityBadge rarity={card.rarity} />
               <p
                 className="truncate text-xs font-semibold uppercase"
                 title={card.setName}
