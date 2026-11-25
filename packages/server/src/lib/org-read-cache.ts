@@ -40,9 +40,9 @@ export function createOrgReadCache<T>(
   ttlMs: number,
   maxEntries: number,
   minimumMsBetweenLoads = 0,
-  { isUnaffectedByCardWrites = false }: OrgReadCacheOptions = {},
+  { isUnaffectedByCardWrites = false, staleWhileRefreshingMs = 0 }: OrgReadCacheOptions = {},
 ): OrgReadCache<T> {
-  const cache = createKeyedCache<T>(name, ttlMs, maxEntries);
+  const cache = createKeyedCache<T>(name, ttlMs, maxEntries, { staleWhileRefreshingMs });
   const spacedLoader = createSpacedLoader<T>(minimumMsBetweenLoads, maxEntries);
   return {
     get(orgId, variantKey, load) {

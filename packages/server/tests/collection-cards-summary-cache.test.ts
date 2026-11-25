@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { CardStatsAggregate } from "@magic-vault/shared";
 import type { Transaction } from "../src/db";
-import { invalidateOrgCardReadCaches } from "../src/lib/org-read-cache";
+import { invalidateOrgCardReadCaches, invalidateOrgReadCaches } from "../src/lib/org-read-cache";
 import { readCardsSummary } from "../src/routes/collections/cards-read";
 
 const collectionGuid = "7a7bb8df-a019-457e-b647-fab4abfae979";
@@ -46,38 +46,46 @@ function summaryRunner() {
   };
 }
 
-test("filtered summary returns fresh data immediately after each card invalidation", async (context) => {
+test("card writes serve cached summaries and refresh once in the background after fifteen seconds", async (context) => {
   context.mock.timers.enable({ apis: ["Date", "setTimeout"], now: 1_000_000 });
   const source = summaryRunner();
-  const orgId = "summary-immediate-invalidation";
+  const orgId = "summary-background-refresh";
   const read = () => readCardsSummary(source.run, collectionGuid, orgId, { unreviewed: "1" });
   assert.equal((await read())?.filtered.totalCount, 1);
-  for (const count of [2, 3, 4]) {
-    source.setCount(count);
-    invalidateOrgCardReadCaches(orgId);
-    const pending = read();
-    await new Promise<void>((resolve) => setImmediate(resolve));
-    assert.equal(source.loads(), count);
-    assert.equal((await pending)?.filtered.totalCount, count);
-  }
-});
-
-test("concurrent filtered summary reads share the current generation load", async () => {
-  const source = summaryRunner();
-  const orgId = "summary-concurrent-generation";
-  const read = () => readCardsSummary(source.run, collectionGuid, orgId, { unreviewed: "1" });
-  await read();
   source.setCount(2);
-  source.hold();
   invalidateOrgCardReadCaches(orgId);
-  const first = read();
-  const second = read();
+  assert.equal((await read())?.filtered.totalCount, 1);
+  assert.equal(source.loads(), 1);
+  context.mock.timers.tick(15_000);
+  source.hold();
+  assert.equal((await read())?.filtered.totalCount, 1);
+  assert.equal((await read())?.filtered.totalCount, 1);
   await new Promise<void>((resolve) => setImmediate(resolve));
   assert.equal(source.loads(), 2);
   source.release();
-  const [left, right] = await Promise.all([first, second]);
-  assert.equal(left?.filtered.totalCount, 2);
-  assert.deepEqual(left, right);
-  assert.deepEqual(await read(), left);
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal((await read())?.filtered.totalCount, 2);
+});
+
+test("broader organization invalidation does not serve the previous summary", async () => {
+  const source = summaryRunner();
+  const orgId = "summary-broad-invalidation";
+  const read = () => readCardsSummary(source.run, collectionGuid, orgId, { unreviewed: "1" });
+  await read();
+  source.setCount(2);
+  invalidateOrgReadCaches(orgId);
+  assert.equal((await read())?.filtered.totalCount, 2);
   assert.equal(source.loads(), 2);
+});
+
+test("cold concurrent summary reads share one database load", async () => {
+  const source = summaryRunner();
+  source.hold();
+  const read = () => readCardsSummary(source.run, collectionGuid, "summary-cold-concurrent", { unreviewed: "1" });
+  const first = read();
+  const second = read();
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(source.loads(), 1);
+  source.release();
+  assert.deepEqual(await first, await second);
 });
