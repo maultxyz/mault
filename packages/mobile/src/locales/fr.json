@@ -938,6 +938,7 @@
         "autoFeedOff": "Alimentation auto désactivée",
         "duplicatesOn": "Autoriser les doublons",
         "duplicatesOff": "Ignorer les doublons",
+        "endBatch": "Fin du lot",
         "pause": "Mettre le scan en pause"
       }
     },

@@ -43,3 +43,16 @@ test("a claimed storage location caps the bin at the room left in that location"
   assert.equal(scanBinCapacity(100, 1, null, { isCatchAll: false, claimedStorageLocation: claim(null) }), 100);
   assert.equal(scanBinCapacity(100, 1, null, { isCatchAll: false, claimedStorageLocation: null }), 100);
 });
+
+test("storage batch breaks shrink the room a claimed location leaves the bin", () => {
+  const claimedStorageLocation = {
+    guid: "box",
+    name: "Box",
+    capacity: 100,
+    remainingSlots: 100,
+    batchSize: 10,
+    usedSlots: 0,
+  };
+  assert.equal(scanBinCapacity(UNLIMITED_BIN_HEIGHT, 1, null, { isCatchAll: false, claimedStorageLocation }, [3]), 93);
+  assert.equal(scanBinCapacity(UNLIMITED_BIN_HEIGHT, 1, null, { isCatchAll: false, claimedStorageLocation }), 100);
+});

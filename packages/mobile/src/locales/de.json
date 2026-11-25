@@ -938,6 +938,7 @@
         "autoFeedOff": "Automatischer Einzug aus",
         "duplicatesOn": "Duplikate erlauben",
         "duplicatesOff": "Duplikate überspringen",
+        "endBatch": "Ende des Stapels",
         "pause": "Scan pausieren"
       }
     },

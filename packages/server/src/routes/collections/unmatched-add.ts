@@ -48,6 +48,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       embedding,
       deviceGuid,
       isRetry,
+      startsStorageBatch,
     } = await c.req.json<UnmatchedCard & ScanSaveRequestFields>();
     saveTimer.markStage("requestBodyRead");
     if (
@@ -118,6 +119,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
             capturedBackImageKey: storedBackImage.key,
             scannedAt: new Date(scannedAt),
             binNumber: binNumber ?? null,
+            startsStorageBatch: startsStorageBatch === true,
             binEmptiedAt: lateSaveBinEmptiedAtSql(
               orgId,
               collection.id,

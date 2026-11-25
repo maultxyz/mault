@@ -35,6 +35,17 @@ export interface MoveCardsToLocationInput {
   scanIds: string[];
 }
 
+export interface BinStackRow {
+  kind: "card" | "unmatched";
+  id: number | string;
+  starts_storage_batch: boolean;
+}
+
+export interface BinStackLocationRow {
+  batch_size: number | null;
+  used_slots: number | string;
+}
+
 export interface AssignBinToLocationInput {
   binNumber: number;
   collectionId: number;

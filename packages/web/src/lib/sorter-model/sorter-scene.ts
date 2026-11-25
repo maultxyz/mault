@@ -23,6 +23,7 @@ import {
   SORTER_PRINT_DIMMED_OPACITY,
   SORTER_PRINT_PART_COLORS,
   SORTER_FEEDER_ROLLER_NODE,
+  SORTER_FEEDER_SERVO_NODE,
   SORTER_PRINT_PART_PATTERN,
   SORTER_XRAY_OPACITY,
 } from "@/lib/constants/sorter-model";
@@ -375,6 +376,7 @@ export class SorterScene {
         paint(roller, partMaterial("feeder"));
         feeder?.add(roller);
       }
+      paint(feeder?.getObjectByName(SORTER_FEEDER_SERVO_NODE), partMaterial("servo"));
       paint(model.getObjectByName("top"), frame);
       paint(template.getObjectByName("frame"), frame);
       paint(template.getObjectByName("servos"), partMaterial("servo"));

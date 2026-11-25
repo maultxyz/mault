@@ -56,6 +56,7 @@ function binFillOf(context: PiScanRunContext) {
         context.cardThickness,
         context.set,
         context.configs.find((bin) => bin.binNumber === binNumber) ?? { isCatchAll: false },
+        context.storageBatchStarts?.get(binNumber) ?? [],
       ),
   );
 }

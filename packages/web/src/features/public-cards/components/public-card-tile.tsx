@@ -4,7 +4,7 @@ import { CardReservationTileBadge } from "@/features/card-reservations/component
 import { useCardReservationTileLabel } from "@/features/card-reservations/lib/use-card-reservation-tile-label";
 import { PublicCardBadges } from "@/features/public-cards/components/public-card-badges";
 import { usePriceSource } from "@/hooks/use-price-source";
-import { raritySwatch } from "@/lib/card-swatches";
+import { RarityBadge } from "@/components/rarity-badge";
 import { FOIL_GRADIENT_CLASS } from "@/lib/constants/ui";
 import type { PublicCardTileProps } from "@/lib/interfaces/public-cards";
 import { cn } from "@/lib/utils";
@@ -74,12 +74,7 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
           <span className="truncate text-xs font-semibold">{entry.card.name}</span>
           <span className="flex items-center justify-between gap-2">
             <span className="flex min-w-0 items-center gap-1.5">
-              <span
-                className="size-3 shrink-0 rounded-full"
-                style={{ backgroundColor: raritySwatch(entry.card.rarity).bg }}
-                title={rarityLabel(entry.card.rarity)}
-                aria-hidden
-              />
+              <RarityBadge rarity={entry.card.rarity} decorative />
               <span className="truncate text-xs font-semibold uppercase">{entry.card.set}</span>
               {entry.card.collectorNumber && (
                 <span className="min-w-0 truncate text-xs text-foreground/70">

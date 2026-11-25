@@ -78,3 +78,14 @@ export const RARITY_TIER_PATTERNS: [RegExp, RarityTier][] = [
   [/common/, "common"],
   [/promo|special|bonus|token|basic|land|starter/, "promo"],
 ];
+
+export const RARITY_ABBREVIATION_MAX_LENGTH = 4;
+
+export const RARITY_WORD_ABBREVIATIONS: Record<string, string> = {
+  secret: "Sc",
+  starlight: "St",
+  platinum: "Pl",
+  ultimate: "Ut",
+  prismatic: "P",
+  premium: "P",
+};

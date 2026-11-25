@@ -993,6 +993,8 @@
       "retractDescription": "Run the feeder backward to pull a card back into the hopper",
       "neutral": "Reset to neutral",
       "neutralDescription": "Move every servo back to its resting position",
+      "stopSession": "Stop session",
+      "stopSessionDescription": "Stop scanning and release the sorter",
       "sorterDescription": "Connection, self-test and status"
     },
     "condition": "Condition",
@@ -1124,6 +1126,7 @@
   "controlCards": {
     "openPage": "Print control cards",
     "applied": "Control card applied",
+    "batchSeparatorName": "Batch separator",
     "rejected": {
       "title": "Control card not applied"
     },
@@ -1146,6 +1149,7 @@
       "autoFeedOff": "Auto-feed off",
       "duplicatesOn": "Allow duplicates",
       "duplicatesOff": "Skip duplicates",
+      "endBatch": "End of batch",
       "pause": "Pause scanning"
     },
     "form": {
@@ -1166,6 +1170,7 @@
       "autoFeed": "Auto-feed",
       "allowDuplicates": "Allow duplicates",
       "pauseScanner": "Pause scanning after this card",
+      "endBatch": "Batch separator: goes into the last card's bin",
       "add": "Add to sheet",
       "unchanged": "No change",
       "toggle": {
@@ -1187,7 +1192,7 @@
     "page": {
       "back": "Back to scanner",
       "title": "Control cards",
-      "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection.",
+      "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection. A batch separator goes into the same bin as the last sorted card instead, so you can see where each batch ends.",
       "print": "Print",
       "printTip": "Print on Letter cardstock at 100% scale (Actual size) with margins set to None. Each page holds 9 cards. Cut along the corner marks and keep the QR code flat and free of glare."
     },
@@ -1211,6 +1216,7 @@
         "autoFeedOff": "Autofeed Blocker",
         "duplicatesOn": "Angelic Duplicates",
         "duplicatesOff": "Duplicate Blocker",
+        "endBatch": "Line in the Sand",
         "pause": "Sorter's Respite"
       },
       "rules": {
@@ -1225,6 +1231,7 @@
         "autoFeedOff": "Turn auto feed off on target Mault instance.",
         "duplicatesOn": "Target Mault instance allows duplicates.",
         "duplicatesOff": "Target Mault instance loses the ability to scan duplicates.",
+        "endBatch": "Mark the end of a batch. This card follows the last sorted card into its bin.",
         "pause": "Tap target Mault instance. It doesn't untap until you resume scanning."
       }
     }

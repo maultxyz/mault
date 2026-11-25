@@ -13,6 +13,12 @@ import type {
   StoredScanImageRow,
 } from "./scan-images";
 
+export interface BinCountRow {
+  bin_number: number;
+  count: number;
+  storage_batch_starts: number[] | null;
+}
+
 export interface CardStatsSource {
   scope: CatalogJoinScope;
   joins: SQL;

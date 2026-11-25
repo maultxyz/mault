@@ -85,7 +85,9 @@ export type MatchedScanPlan = ScanRoutingDecision & {
 export type UnmatchedScanPlan = ScanRoutingDecision & {
   kind: "unmatched";
   record: UnmatchedCard;
-  persistence: { kind: "unmatched"; record: UnmatchedCard } | { kind: "none" };
+  persistence:
+    | { kind: "unmatched"; record: UnmatchedCard & ScanSaveRequestFields }
+    | { kind: "none" };
   binContent: ScanPlannedBinCard | null;
 };
 

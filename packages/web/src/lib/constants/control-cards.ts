@@ -78,6 +78,7 @@ export const CONTROL_CARD_DEFAULT_VALUES: ControlCardFormValues = {
   autoFeed: CONTROL_CARD_UNCHANGED,
   allowDuplicates: CONTROL_CARD_UNCHANGED,
   pauseScanner: false,
+  endBatch: false,
 };
 
 const CONTROL_CARD_ART_DIRECTORY = "/control-cards";
@@ -155,6 +156,7 @@ export const CONTROL_CARD_FRAMES_BY_ACTION: Record<
   autoFeedOff: { color: "green", typeLine: "creature" },
   duplicatesOn: { color: "white", typeLine: "creature" },
   duplicatesOff: { color: "white", typeLine: "artifact" },
+  endBatch: { color: "green", typeLine: "sorcery" },
   pause: { color: "black", typeLine: "instant" },
 };
 

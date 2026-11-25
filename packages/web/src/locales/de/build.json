@@ -53,11 +53,11 @@
       "label": "ESP32-Montage",
       "breakout": {
         "title": "Auf einer Breakout-Platine",
-        "description": "Der ESP32 steckt auf einer Breakout-Platine. Nutzt die Breakout-Platinenplatte (Platte 8) und eine Basisstütze mit Seitenplatten und panel esp (Platten 10 und 11)."
+        "description": "Der ESP32 steckt auf einer Breakout-Platine. Nutzt Platte 14 \"ESP 32 Breakout\": die ESP32 breakout mount plate und ein hohes base-Teil mit base panel esp."
       },
       "bare": {
         "title": "Blanke Platine",
-        "description": "Verkabelung direkt an den Pins des ESP32. Nutzt die ESP-32-Platinenplatte von Platte 7."
+        "description": "Verkabelung direkt an den Pins des ESP32. Nutzt die ESP32 mount plate von Platte 16."
       }
     },
     "modules": {
@@ -174,19 +174,19 @@
           },
           "hopperORing": {
             "part": "O-Ring 9,2mm ID 14mm OD 2,4mm Schnurstärke",
-            "notes": "Wird auf die Trichterrolle gezogen"
+            "notes": "Wird auf die Trichter-Andruckrolle (hopper idler roller) gezogen"
           },
           "servoControllerPlate": {
-            "part": "3D-gedruckte Servo-Controller-Platte (Platte 12)",
+            "part": "3D-gedruckte Servo-Controller-Platte (Platte 7)",
             "notes": "Wird unabhängig von der Modulanzahl nur einmal gedruckt"
           },
           "binsPlate": {
-            "part": "3D-gedruckte Fächer (Platte 16)",
-            "notes": "card_sleeve_lg, card_sleeve_md und card_sleeve_small. Fangen die Karten auf, die der Schieber zu beiden Seiten auswirft"
+            "part": "3D-gedruckte Fächer (Platte 10)",
+            "notes": "card bin large, card bin medium und card bin small. Fangen die Karten auf, die der Schieber zu beiden Seiten auswirft"
           },
           "endBinPlate": {
-            "part": "3D-gedrucktes Endfach (Platte 17)",
-            "notes": "card_sleeve_end. Ergänzt die Fächer zur kompletten Fachanordnung"
+            "part": "3D-gedrucktes Endfach (Platte 11)",
+            "notes": "end card tray. Ergänzt die Fächer zur kompletten Fachanordnung"
           }
         }
       },
@@ -203,15 +203,15 @@
           },
           "m10Washer": {
             "part": "M10-Unterlegscheibe",
-            "notes": "Wird mit den M3×8-Schrauben verwendet, mit denen die Trichterrolle montiert wird"
+            "notes": "Wird mit den M3×8-Schrauben verwendet, mit denen die Trichter-Andruckrolle montiert wird"
           },
           "m3x8Screw": {
             "part": "M3×8-Schraube",
-            "notes": "Befestigt die Trichterrolle"
+            "notes": "Befestigt die Trichter-Andruckrolle"
           },
           "m3x25Screw": {
             "part": "M3×25-Schraube",
-            "notes": "Stellt zusammen mit der Feder die Spannung der Trichterrolle ein"
+            "notes": "Stellt zusammen mit der Feder die Spannung der Trichter-Andruckrolle ein"
           },
           "hopperSpring": {
             "part": "Feder 7/32\" x 11/16\"",
@@ -272,7 +272,7 @@
           },
           "feederBearings": {
             "part": "Kugellager",
-            "notes": "Für feeder base with bearings (Platte 5 \"Feeder With Bearings\"), damit sich die Rolle leichter dreht"
+            "notes": "Für die Zuführbasis mit Kugellagern (Platte 4 \"Alternative Feeder Base\"), damit sich die Rolle leichter dreht"
           },
           "neodymiumMagnets": {
             "part": "Neodym-Magnete (5×2 mm)",
@@ -384,51 +384,51 @@
         "title": "Die Strukturteile drucken",
         "steps": {
           "printSortingModule": {
-            "text": "Drucke Platte 1 \"Sorting Module metric - Print to Need\" {{count}}-mal, einmal pro Sortiermodul, aus dem <mesh>MakerWorld-Modell</mesh> (oder exportiere neu aus <source>Card Sorter.f3d</source>). Jeder Druck ist ein komplettes Modul: module_base, platform, bottom_paddle, left_paddle, right_paddle, bottom_paddle_arm, left_paddle_arm, right_paddle_arm, 2 pusher_arm, pusher left, pusher right, bottom_servo_arm, side paddle horn und pusher horn.",
-            "alternativesNote": "Optionale Alternativen: Platte 2 \"Alternative Sorting Platform\" hat eine weitere platform, pusher left und pusher right als Ersatz für die von Platte 1. Platte 3 \"Alternative Horns\" hat lockere und straffe Versionen der Hörner (bottom paddle horn loose, bottom paddle horn snug, side paddle horn, side paddle horn loose, pusher horn loose, pusher horn snug) für Servos, auf deren Welle die Standardhörner zu fest oder zu locker sitzen."
+            "text": "Drucke Platte 1 \"Sorting Module - Print to Need\" {{count}}-mal, einmal pro Sortiermodul, aus dem <mesh>MakerWorld-Modell</mesh> (oder exportiere neu aus <source>Card Sorter.f3d</source>). Jeder Druck ist ein komplettes Modul: sorting module base, card platform, bottom paddle, left paddle, right paddle, card pusher left, card pusher right, bottom paddle linkage, left paddle linkage, right paddle linkage, 2 pusher linkage, bottom paddle servo horn, side paddles servo horn (no spline) und pusher servo horn.",
+            "alternativesNote": "Optionale Alternativen: Platte 2 \"Alternative Horns\" hat lockere (loose fit) und straffe (snug fit) Versionen aller Servohörner (bottom paddle servo horn, side paddles servo horn, pusher servo horn und roller servo horn) für Servos, auf deren Welle die Standardhörner zu fest oder zu locker sitzen."
           },
           "printFeederModule": {
-            "text": "Drucke Platte 4 \"Feeder Module\" einmal, egal wie viele Module: feeder_base, roller, roller horn mg90s, hopper, hopper roller, variable hopper wall und feeder riser. Der feeder riser ist für eine zuverlässige Zuführung nötig, drucke ihn also auf jeden Fall mit, auch wenn er ein eigenes Teil ist.",
-            "alternativesNote": "roller horn mg90s passt auf den MG90S-Zuführservo aus der Teileliste. Sitzt es auf deinem Servo zu fest oder zu locker, drucke stattdessen roller horn, roller horn loose oder roller horn snug von Platte 3 \"Alternative Horns\". Kugellager gekauft? Drucke feeder base with bearings von Platte 5 \"Feeder With Bearings\" anstelle von feeder_base."
+            "text": "Drucke Platte 3 \"Feeder Module\" einmal, egal wie viele Module: feeder base (flat), roller, roller servo horn (MG90S), hopper, hopper idler roller (small), hopper adjustable wall (side-print version) und feeder ramp (steep). Die feeder ramp ist für eine zuverlässige Zuführung nötig, drucke sie also auf jeden Fall mit, auch wenn sie ein eigenes Teil ist.",
+            "alternativesNote": "roller servo horn (MG90S) passt auf den MG90S-Zuführservo aus der Teileliste. Sitzt es auf deinem Servo zu fest oder zu locker, drucke stattdessen roller servo horn, roller servo horn (loose fit) oder roller servo horn (snug fit) von Platte 2 \"Alternative Horns\". Kugellager gekauft? Drucke Platte 4 \"Alternative Feeder Base\" (feeder base (flat, bearing version) und feed roller (bearing version)) anstelle von Zuführbasis und Rolle."
           },
           "printSortingModuleShroud": {
-            "text": "Drucke Platte 6 \"Sorting Module Shroud\" einmal: die Abdeckung (shroud) über den gestapelten Modulen sowie phone mount und camera_mount. Du brauchst nur die Halterung für die Kamera, die du verwendest."
+            "text": "Drucke Platte 5 \"Sorting Module Shroud\" einmal: die Abdeckung (camera shroud) über den gestapelten Modulen sowie phone mount und zwei camera mount. Du brauchst nur die Halterung für die Kamera, die du verwendest."
           },
           "printPlateBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{threeTall}} hohe base-Teile (3 Einheiten hoch) und {{oneTall}} niedrige base-Teile (1 Einheit hoch) von Platte 9 \"Base Support - Print to Need\". Beide heißen in der Datei base. Die Module werden treppenförmig gestapelt, daher braucht jede zusätzliche Stufe eine Höheneinheit mehr als die darüber. Kombiniere die beiden Höhen, um jede Stufe aufzubauen. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
-            "breakoutText": "Für {{modules}} Sortiermodule drucke {{threeTall}} hohe base-Teile (3 Einheiten hoch) und {{oneTall}} niedrige base-Teile (1 Einheit hoch) von Platte 9 \"Base Support - Print to Need\", dazu Platte 10 \"Alternative Base Support\" anstelle eines weiteren hohen base-Teils. Platte 10 ist ein hohes base-Teil mit Seitenplatten: Setze ein base support panel von Platte 10 und das panel esp von Platte 11 \"Alternative Panels\" ein, das Platz für die Breakout-Platine lässt. Die Module werden treppenförmig gestapelt, daher braucht jede zusätzliche Stufe eine Höheneinheit mehr als die darüber. Kombiniere die beiden Höhen, um jede Stufe aufzubauen. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
-            "alternativeNote": "Optional: Platte 10 \"Alternative Base Support\" ist eine Version des hohen base-Teils mit 2 abnehmbaren base support panel für den Zugang. Platte 11 \"Alternative Panels\" hat ein panel finger hole und ein panel esp, die du gegen eines der beiden Panels tauschen kannst."
+            "text": "Für {{modules}} Sortiermodule drucke {{threeTall}} hohe base-Teile (3 Einheiten hoch) und {{oneTall}} niedrige base-Teile (1 Einheit hoch) von Platte 6 \"Base Support - Print to Need\". Das hohe Teil ist base frame module (tall, open) mit seinen 2 base panel, das niedrige ist base frame module. Jeder Druck enthält eins von beiden, drucke also nur die Teile, die dir noch fehlen. Die Module werden treppenförmig gestapelt, daher braucht jede zusätzliche Stufe eine Höheneinheit mehr als die darüber. Kombiniere die beiden Höhen, um jede Stufe aufzubauen. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
+            "breakoutText": "Für {{modules}} Sortiermodule drucke {{threeTall}} hohe base-Teile (3 Einheiten hoch) und {{oneTall}} niedrige base-Teile (1 Einheit hoch) von Platte 6 \"Base Support - Print to Need\". Das hohe Teil ist base frame module (tall, open) mit seinen 2 base panel, das niedrige ist base frame module. Jeder Druck enthält eins von beiden, drucke also nur die Teile, die dir noch fehlen. Platte 14 \"ESP 32 Breakout\" zählt als ein weiteres hohes base-Teil: Ihr base frame module (tall, open) bekommt ein base panel und das base panel esp, das Platz für die Breakout-Platine lässt. Die Module werden treppenförmig gestapelt, daher braucht jede zusätzliche Stufe eine Höheneinheit mehr als die darüber. Kombiniere die beiden Höhen, um jede Stufe aufzubauen. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
+            "alternativeNote": "Optional: Platte 18 \"Alternative Panel\" hat ein base panel finger hole, das du gegen eines der beiden base panel tauschen kannst."
           },
           "printPlateBaseBottom": {
-            "esp32OrArduino": "Drucke deine Platinenplatte von Platte 7 \"Circuit Boards\". Sie hat zwei Teile, beide heißen in der Datei base arduino: das mit der Prägung Arduino (mit Abstandshaltern) für einen Arduino Uno R4 und das mit der Prägung ESP 32 (mit Schlitzen) für ein ESP32-Board ohne Breakout. Drucke nur das für dein Board.",
-            "esp32Breakout": "Drucke base esp32 breakout von Platte 8 \"DIY Kit - ESP 32 Breakout\" anstelle einer Platinenplatte von Platte 7. Sie hält den ESP32 auf seiner Breakout-Platine."
+            "esp32OrArduino": "Drucke deine Platinenplatte von Platte 16 \"Circuit Boards\": Arduino mount plate (mit Abstandshaltern) für einen Arduino Uno R4 oder ESP32 mount plate (mit Schlitzen) für ein ESP32-Board ohne Breakout. Drucke nur die für dein Board.",
+            "esp32Breakout": "Drucke Platte 14 \"ESP 32 Breakout\" einmal anstelle einer Platinenplatte von Platte 16. Ihre ESP32 breakout mount plate hält den ESP32 auf seiner Breakout-Platine, und derselbe Druck enthält das hohe base-Teil mit Seitenplatten und 10 module alignment pin."
           },
           "printServoControllerPlate": {
-            "text": "Drucke Platte 12 \"Servo Controller Plates\" einmal: pwm servo controller plate sowie folding left bin holder, folding right bin holder, folding left hinge und folding right hinge."
+            "text": "Drucke Platte 7 \"Servo Controller Plates\" einmal: servo controller mount plate sowie folding wing left und folding wing right."
           },
           "printEndBottom": {
-            "text": "Drucke Platte 13 \"End Plate\" einmal: base_end sowie folding left bin holder, folding right bin holder und folding end bin holder mit folding left hinge, folding right hinge und folding end hinge."
+            "text": "Drucke Platte 8 \"End Plate\" einmal: end mount plate sowie folding wing left, folding wing right und folding wing end."
           },
           "printGenericBase": {
-            "text": "Für {{modules}} Sortiermodule drucke Platte 14 \"Generic Plate - Print to Need\" {{count}}-mal. Jeder Druck ist eine generic base mit folding left bin holder, folding right bin holder, folding left hinge und folding right hinge. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
-            "alternativeNote": "Optional: Platte 15 \"Alternative Bin Holders\" hat feste Flügel (generic base wing, generic base wing (1) und card_base_wing_end) als Ersatz für die klappbaren Fachhalter und Scharniere auf den Platten 12, 13 und 14."
+            "text": "Für {{modules}} Sortiermodule drucke Platte 9 \"Generic Plate - Print to Need\" {{count}}-mal. Jeder Druck ist eine blank mount plate mit folding wing left und folding wing right. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
+            "alternativeNote": "Optional: Platte 13 \"Optional - Regular Bin Holders\" hat feste Flügel (bin wing left, bin wing right und bin wing end) als Ersatz für die klappbaren Flügel auf den Platten 7, 8 und 9."
           },
           "printBinsPlate": {
-            "text": "Drucke Platte 16 \"Bins\" zweimal. Jeder Druck hat 3 Fächer: card_sleeve_lg, card_sleeve_md und card_sleeve_small. Platte 19 \"Extra Bins\" hat ein weiteres card_sleeve_lg, falls du noch ein Fach brauchst.",
-            "risersNote": "Wenn du mehr als 3 Module verwendest, brauchst du eventuell Platte 18 \"Bin Riser\" (3 riser-Teile), damit die hinteren beiden Fächer hoch genug stehen."
+            "text": "Drucke Platte 10 \"Bins\" zweimal. Jeder Druck hat 3 Fächer: card bin large, card bin medium und card bin small. Platte 20 \"Additional Bins\" hat ein card bin XL, falls du ein größeres Fach brauchst.",
+            "risersNote": "Wenn du mehr als 3 Module verwendest, brauchst du eventuell den module riser von Platte 15 \"Bin Riser\", damit die hinteren beiden Fächer hoch genug stehen."
           },
           "printEndBinPlate": {
-            "text": "Drucke Platte 17 \"End Bin\" einmal: card_sleeve_end."
+            "text": "Drucke Platte 11 \"End Bin\" einmal: end card tray."
           },
           "printModulePins": {
-            "text": "Drucke {{count}} module_pin-Teile für {{modules}} Sortiermodule: {{top}} für die Oberseiten und {{front}} für die Vorderseiten der base-Teile. Platte 9 \"Base Support - Print to Need\" hat 16 pro Druck, drucke also nur die Pins davon, bis du genug hast. Jedes base-Teil braucht oben 4 Pins, und jede Höheneinheit vorne 2, außer der obersten Einheit jeder Säule. Die Pins verbinden die base-Teile miteinander und halten die Sortiermodule auf dem Sockel. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
-            "glueAlert": "Klebe die Pins in die Stützen. Stecke die base-Teile und Sortiermodule zuerst probeweise mit den Pins zusammen, und wenn alles passt, klebe jeden module_pin mit Sekundenkleber fest."
+            "text": "Drucke {{count}} module alignment pin für {{modules}} Sortiermodule: {{top}} für die Oberseiten und {{front}} für die Vorderseiten der base-Teile. Platte 6 \"Base Support - Print to Need\" hat 16 pro Druck (Platte 14 hat 10 weitere), drucke also nur die Pins davon, bis du genug hast. Jedes base-Teil braucht oben 4 Pins, und jede Höheneinheit vorne 2, außer der obersten Einheit jeder Säule. Die Pins verbinden die base-Teile miteinander und halten die Sortiermodule auf dem Sockel. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
+            "glueAlert": "Klebe die Pins in die Stützen. Stecke die base-Teile und Sortiermodule zuerst probeweise mit den Pins zusammen, und wenn alles passt, klebe jeden module alignment pin mit Sekundenkleber fest."
           },
           "dryFit": {
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
           },
           "printOptionalPlates": {
-            "text": "Optional: Platte 20 \"Optional\" hat 3 back plate, eine front plate, eine hopper extension und zwei Rückplatten für den Netzteilanschluss (back plate power adapter und back plate power adapter alt). Die zweite Platte 21 \"Optional\" hat die Gewichte für den Trichter (weight large washer, weight small washer) und einen tight module pin für Verbindungen, die zu locker sitzen."
+            "text": "Optional: Platte 12 \"Optional Facades\" hat die frame front plate und drei Rückplatten (frame back plate, frame back plate (feeder) und frame back plate (Arduino)). Platte 17 \"Hopper Weights\" hat card weight v2 und card weight (small), die den Kartenstapel nach unten drücken, und Platte 19 \"Hopper Accessories\" hat die hopper extension für einen höheren Stapel."
           }
         }
       },
@@ -477,7 +477,7 @@
         "title": "Die Module zusammenbauen",
         "steps": {
           "mountModuleServos": {
-            "text": "Setze den Boden-, Klappen- und Schieberservo, alles 180°-Positionsservos vom Typ SG90, in jedes der 3 Modulgehäuse (module_base von Platte 1) ein, insgesamt 9 Servos.",
+            "text": "Setze den Boden-, Klappen- und Schieberservo, alles 180°-Positionsservos vom Typ SG90, in jedes der 3 Modulgehäuse (sorting module base von Platte 1) ein, insgesamt 9 Servos.",
             "note": "Montiere die Hörner noch nicht auf die Servowellen – setze die Klappen/den Schieberarm unten auf ihre Hörner, aber lasse das Horn selbst vom Servo, bis jedes Modul über die App kalibriert ist."
           },
           "centerServos": {
@@ -485,46 +485,46 @@
             "note": "Noch nicht kalibriert? Dann wird mit sinnvollen Standardwerten zentriert. Kann jederzeit durch erneutes Verbinden wiederholt werden, wenn ein Servo vor der Montage oder Neupositionierung eines Horns neu zentriert werden muss."
           },
           "mountBottomFlapper": {
-            "text": "Baue die Bodenklappe aus den Teilen von Platte 1 zusammen: Schraube bottom_paddle an bottom_paddle_arm (das Gestänge), dann das Gestänge an bottom_servo_arm (das Horn). Schraube die fertige Bodenklappe mit 2 M2×6-Schrauben ins Modulgehäuse. Setze das Horn noch nicht auf den Servo.",
+            "text": "Baue die Bodenklappe aus den Teilen von Platte 1 zusammen: Schraube bottom paddle an bottom paddle linkage (das Gestänge), dann das Gestänge an bottom paddle servo horn (das Horn). Schraube die fertige Bodenklappe mit 2 M2×6-Schrauben ins Modulgehäuse. Setze das Horn noch nicht auf den Servo.",
             "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Dies ist die Bodenklappe, durch die eine Karte fällt, um das nächste Modul zu erreichen, oder das aktuelle bei einem Treffer. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
           },
           "mountSideFlappers": {
-            "text": "Baue die Seitenklappen aus den Teilen von Platte 1 zusammen: Schraube left_paddle an left_paddle_arm und right_paddle an right_paddle_arm, dann beide Arme an side paddle horn (ein Satz pro Modul). Schraube die fertigen Seitenklappen mit 4 M2×6-Schrauben ins Modulgehäuse. Setze das Horn noch nicht auf den Servo.",
+            "text": "Baue die Seitenklappen aus den Teilen von Platte 1 zusammen: Schraube left paddle an left paddle linkage und right paddle an right paddle linkage, dann beide Gestänge an side paddles servo horn (ein Satz pro Modul). Schraube die fertigen Seitenklappen mit 4 M2×6-Schrauben ins Modulgehäuse. Setze das Horn noch nicht auf den Servo.",
             "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Ein Paddelservo treibt beide Paddel gemeinsam an – sie öffnen und schließen als Paar, nicht unabhängig voneinander. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
           },
           "mountPusherArm": {
-            "text": "Baue den Schieber aus den Teilen von Platte 1 zusammen: Schraube pusher left und pusher right an die beiden pusher_arm-Gestänge, dann beide Gestänge an pusher horn. Schraube den fertigen Schieber mit zwei M2×8-Schrauben ins Modulgehäuse. Setze das Horn noch nicht auf den Servo.",
+            "text": "Baue den Schieber aus den Teilen von Platte 1 zusammen: Schraube card pusher left und card pusher right an die beiden pusher linkage, dann beide Gestänge an pusher servo horn. Schraube den fertigen Schieber mit zwei M2×8-Schrauben ins Modulgehäuse. Setze das Horn noch nicht auf den Servo.",
             "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
           },
           "fitFeederOrings": {
-            "text": "Ziehe 6 G20-O-Ringe auf die roller von Platte 4.",
+            "text": "Ziehe 6 G20-O-Ringe auf die roller von Platte 3.",
             "note": "Diese geben der Rolle Griffigkeit auf der Kartenoberfläche – verteile sie gleichmäßig über die Länge der Rolle."
           },
           "mountFeederRoller": {
-            "text": "Befestige die roller an feeder_base (beide Platte 4)."
+            "text": "Befestige die roller an feeder base (flat) (beide Platte 3)."
           },
           "mountRollerHorn": {
-            "text": "Drücke roller horn mg90s (Platte 4) auf die Welle des Dauerdreh-Zuführservos.",
-            "note": "Die Zuführrolle wird in zwei Teilen gedruckt: roller und roller horn mg90s. Auf keinem der beiden steht \"servo\". Das Rollenhorn ist das kleine Teil, das auf die Servowelle passt."
+            "text": "Drücke roller servo horn (MG90S) (Platte 3) auf die Welle des Dauerdreh-Zuführservos.",
+            "note": "Die Zuführrolle wird in zwei Teilen gedruckt: roller und roller servo horn (MG90S). Auf keinem der beiden steht \"servo\". Das Rollenhorn ist das kleine Teil, das auf die Servowelle passt."
           },
           "mountFeederServo": {
             "text": "Schiebe den Zuführservo mit dem Rollenhorn auf der Welle in das Ende der Rolle am Fuß des Trichters. Das Rollenhorn sitzt in der Rolle, sodass der Servo sie dreht.",
-            "note": "Hast du die zweiteilige Rolle? Schraube zuerst roller horn mg90s auf die Servowelle, führe das Horn dann durch das Loch in feeder_base und schiebe danach die roller auf das Horn."
+            "note": "Hast du die zweiteilige Rolle? Schraube zuerst roller servo horn (MG90S) auf die Servowelle, führe das Horn dann durch das Loch in feeder base (flat) und schiebe danach die roller auf das Horn."
           },
           "fitHopperRollerOrings": {
-            "text": "Ziehe O-Ringe auf die hopper roller (Platte 4).",
+            "text": "Ziehe O-Ringe auf die hopper idler roller (small) (Platte 3).",
             "note": "Wie bei der Zuführrolle geben diese ihr Griffigkeit auf der Kartenoberfläche."
           },
           "mountHopperRoller": {
-            "text": "Montiere die hopper roller mit 2 M3×8-Schrauben und 2 M10-Unterlegscheiben am hopper (beide Platte 4).",
+            "text": "Montiere die hopper idler roller (small) mit 2 M3×8-Schrauben und 2 M10-Unterlegscheiben am hopper (beide Platte 3).",
             "note": "Die Rolle sollte nach der Montage stramm sitzen, sie darf nicht frei durchdrehen."
           },
           "calibrateHopperRoller": {
             "text": "Setze die Feder und die M3×25-Schraube ein und ziehe die Schraube an, bis sie unten am Montagepunkt herausragt. Löse sie dann langsam, bis der Trichter jeweils nur 1 Karte zuführt."
           },
           "mountHopperRiser": {
-            "text": "Montiere den feeder riser (Platte 4) hinten am hopper.",
-            "requiredAlert": "Pflicht: Lass den feeder riser nicht weg. Ohne ihn zieht der Zuführer die Karten nicht zuverlässig ein."
+            "text": "Montiere die feeder ramp (steep) (Platte 3) hinten am hopper.",
+            "requiredAlert": "Pflicht: Lass die feeder ramp nicht weg. Ohne sie zieht der Zuführer die Karten nicht zuverlässig ein."
           },
           "mountModuleIr": {
             "text": "Befestige an jedem Modul (1-{{modules}}) einen IR-Sensor am Tor mit je 1 M2×6-Schraube, ausgerichtet quer zum Kartenweg."
@@ -627,21 +627,21 @@
       "shroud": "Sorting-Module-Shroud und Kamerahalterung",
       "baseSupportTall": "Hohes base-Teil (3 hoch)",
       "baseSupportShort": "Niedriges base-Teil (1 hoch)",
-      "baseSupportBreakout": "Alternative Base Support mit panel esp",
+      "baseSupportBreakout": "Hohes base-Teil mit base panel esp",
       "circuitBoardPlate": "Circuit-Board-Platte (ESP32 / Arduino)",
-      "circuitBoardPlateBreakout": "Circuit-Board-Platte (ESP32 + Breakout-Platine)",
+      "circuitBoardPlateBreakout": "ESP32 breakout mount plate",
       "servoControllerPlate": "Servo-Controller-Platte",
       "genericPlate": "Generic-Platte",
       "endPlate": "End-Platte und End-Bin-Halter",
       "binsPlate": "Bins",
       "endBinPlate": "End Bin",
-      "optionalPlate": "Back- und Front-Platte (optional)"
+      "optionalPlate": "Front- und Rückblenden (optional)"
     },
     "xray": "Röntgenblick"
   },
   "imageAlt": {
     "printPart": "3D-Modellansicht: {{part}}",
-    "breakoutBaseSupport": "Alternative Base Support",
+    "breakoutBaseSupport": "Hohes base-Teil mit base panel esp",
     "stepPhoto": "Foto zu diesem Bauschritt",
     "photos": {
       "baseModule": "Ein einzelner lila 3D-gedruckter Sortiermodulrahmen: ein offener Kasten mit vier Zapfen oben und Laschen an den Seiten zum Verbinden der Module.",

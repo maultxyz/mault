@@ -91,6 +91,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       isRetry,
       pickListUpdate,
       storageLocationGuid,
+      startsStorageBatch,
     } = await c.req.json<ScannedCard & ScanSaveRequestFields>();
     saveTimer.markStage("requestBodyRead");
     if (pickListUpdate !== undefined && !isScanSavePickListUpdate(pickListUpdate))
@@ -345,6 +346,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             card: saved.card,
             scannedAt: new Date(scannedAt),
             binNumber: binNumber ?? null,
+            startsStorageBatch: startsStorageBatch === true,
             binEmptiedAt: lateSaveBinEmptiedAtSql(
               orgId,
               collection.id,

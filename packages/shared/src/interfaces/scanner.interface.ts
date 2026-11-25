@@ -215,6 +215,7 @@ export interface ScanSaveRequestFields {
   deviceGuid?: string;
   isRetry?: boolean;
   storageLocationGuid?: string;
+  startsStorageBatch?: boolean;
 }
 
 export type ScanDestination =

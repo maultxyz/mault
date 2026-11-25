@@ -42,6 +42,7 @@ vi.mock("@/features/collections/api/use-collection-cards", () => ({
       [1, 5],
       [2, 5],
     ]),
+    storageBatchStarts: new Map(),
     updatedAt: 0,
   }),
 }));

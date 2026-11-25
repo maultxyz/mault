@@ -24,6 +24,7 @@ export interface ScanRoutingContext {
   isBinFull: (binNumber: number) => boolean;
   binRoom: (binNumber: number) => number;
   createRuleId: () => string;
+  startsStorageBatch?: (binNumber: number) => boolean;
 }
 
 export interface AutoAssignTarget {

@@ -1,34 +1,21 @@
 import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { ResizeHandle } from "@/components/ui/resize-handle";
-import { PresetSelector } from "@/features/bins/components/preset-selector";
-import { MobileScannerBuyStrip } from "@/features/business/components/mobile-scanner-buy-strip";
 import { useReviewQueueSession } from "@/features/cards/api/use-review-queue";
-import { CardGrid } from "@/features/cards/components/card-grid";
 import { ReviewQueuePanel } from "@/features/cards/components/collection-review-queue-panel";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
-import { useCollections } from "@/features/collections/api/use-collections";
-import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
-import { AutoAssignControl } from "@/features/scanner/components/auto-assign-control";
-import { PresetStageControl } from "@/features/scanner/components/preset-stage-control";
-import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
-import { CardScanner } from "@/features/scanner/components/card-scanner";
-import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { ScannerMainContent } from "@/features/scanner/components/scanner-main-content";
 import { StationPanels } from "@/features/scanner/components/station-panels";
-import { usePiHost } from "@/hooks/use-pi-host";
 import { ActiveCollectionUnmatchedCardsPanel } from "@/features/scanner/components/active-collection-unmatched-cards-panel";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { MOBILE_SCAN_PATH } from "@/lib/constants/nav";
 import type { StationPanelLayout } from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { useResizablePanel } from "@/hooks/use-resizable-panel";
-import { IconCards } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { Navigate } from "react-router-dom";
 
 function ScannerPanels({
   layout,
@@ -61,62 +48,6 @@ function ScannerPanels({
           <ActiveCollectionUnmatchedCardsPanel />
         </>
       )}
-    </div>
-  );
-}
-
-function MobileScanner() {
-  const { t } = useTranslation(["scanner", "common"]);
-  const { isImpersonating } = useImpersonation();
-  const { totalCount } = useCollectionCardsSummary();
-  const { activeCollection } = useCollections();
-  const piHost = usePiHost();
-
-  return (
-    <div
-      className={cn(
-        "relative min-h-0 flex-1 overflow-hidden",
-        piHost && MOBILE_NAV_SCROLL_PADDING_CLASS,
-      )}
-    >
-      <h1 className="sr-only">{t("common:nav.scanner")}</h1>
-      <div className="p-2 size-full bg-sidebar flex flex-col gap-2">
-        {isImpersonating ? (
-          <div className="flex-1 min-h-0">
-            <ScanningBlockedWhileImpersonating />
-          </div>
-        ) : (
-          <CardScanner className="flex-1 min-h-0" />
-        )}
-        <ActiveCollectionUnmatchedCardsPanel />
-        <MobileScannerBuyStrip collectionGuid={activeCollection?.guid} />
-        <BinStatusMeter />
-        <AutoAssignControl />
-        <AlphabetPassControl />
-        <PresetStageControl />
-      </div>
-      <Drawer>
-        <DrawerTrigger asChild>
-          <button
-            type="button"
-            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 rounded-xl bg-popover px-4 py-2 text-sm font-medium text-popover-foreground shadow-popover ring-1 ring-border"
-          >
-            <IconCards size={16} />
-            {t("cardCount", { count: totalCount })}
-          </button>
-        </DrawerTrigger>
-        <DrawerContent>
-          <div className="overflow-y-auto p-4 flex flex-col gap-4 md:gap-2 max-h-[calc(80vh-2rem)]">
-            <div className="flex flex-col gap-4 md:gap-2">
-              <PresetSelector />
-            </div>
-            <ScanStats />
-            <div className="@container">
-              <CardGrid />
-            </div>
-          </div>
-        </DrawerContent>
-      </Drawer>
     </div>
   );
 }
@@ -161,7 +92,7 @@ export default function App() {
   });
 
   if (isMobile) {
-    return <MobileScanner />;
+    return <Navigate to={MOBILE_SCAN_PATH} replace />;
   }
 
   if (isVertical) {

@@ -11,6 +11,7 @@ export interface ScannerControlCommand {
   pauseScanner?: boolean;
   autoFeed?: boolean;
   allowDuplicates?: boolean;
+  endBatch?: boolean;
 }
 
 export type ScannerControlCommandProblem =
@@ -38,6 +39,7 @@ export type ScannerControlCommandActionKey =
   | "autoFeedOff"
   | "duplicatesOn"
   | "duplicatesOff"
+  | "endBatch"
   | "pause";
 
 export interface ScannerControlCommandAction {

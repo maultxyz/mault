@@ -938,6 +938,7 @@
         "autoFeedOff": "Auto-feed off",
         "duplicatesOn": "Allow duplicates",
         "duplicatesOff": "Skip duplicates",
+        "endBatch": "End of batch",
         "pause": "Pause scanning"
       }
     },

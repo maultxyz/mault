@@ -1492,6 +1492,13 @@
       "when": 1795482508175,
       "tag": "0212_card_price_history",
       "breakpoints": true
+    },
+    {
+      "idx": 213,
+      "version": "7",
+      "when": 1795620155537,
+      "tag": "0213_storage_batch_start",
+      "breakpoints": true
     }
   ]
 }

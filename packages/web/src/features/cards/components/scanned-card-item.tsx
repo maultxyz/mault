@@ -23,11 +23,10 @@ import { IconDownload, IconSparkles } from "@tabler/icons-react";
 import {
   cardReviewStatus,
   DEFAULT_CARD_CONDITION,
-  rarityLabel,
 } from "@magic-vault/shared";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { raritySwatch } from "@/lib/card-swatches";
+import { RarityBadge } from "@/components/rarity-badge";
 
 export const ScannedCardItem = memo(function ScannedCardItem({
   card,
@@ -203,12 +202,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
       )}
       <div className="flex flex-row flex-wrap items-center justify-between gap-x-2 gap-y-0.5 px-1 pb-1">
         <div className="flex min-w-0 flex-row items-center gap-1.5">
-          <div
-            role="img"
-            aria-label={rarityLabel(card.rarity)}
-            className="size-3 rounded-full shrink-0"
-            style={{ backgroundColor: raritySwatch(card.rarity).bg }}
-          />
+          <RarityBadge rarity={card.rarity} />
           <p
             className="truncate text-xs font-semibold uppercase"
             title={card.set}
