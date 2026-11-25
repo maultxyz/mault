@@ -135,11 +135,17 @@ export function ReviewGrid({
             {isLoading
               ? " "
               : autoCheck.status === "running" && autoCheck.progress
-                ? t("reviewGrid.autoChecking", autoCheck.progress)
+                ? t("reviewGrid.autoChecking", {
+                    checked: autoCheck.progress.checked,
+                    total: autoCheck.progress.total,
+                  })
                 : autoCheck.status === "pausing"
                   ? t("reviewGrid.autoCheckPausing")
                   : autoCheck.status === "paused" && autoCheck.progress
-                    ? t("reviewGrid.autoCheckPaused", autoCheck.progress)
+                    ? t("reviewGrid.autoCheckPaused", {
+                    checked: autoCheck.progress.checked,
+                    total: autoCheck.progress.total,
+                  })
                     : t("reviewGrid.remaining", { count: remaining })}
           </p>
         </div>
