@@ -1,3 +1,4 @@
+import { FeederCalibrationTip } from "@/features/build/components/feeder-calibration-tip";
 import { FlashInBrowserStep } from "@/features/build/components/flash-in-browser-step";
 import { PrintPartsModel } from "@/features/build/components/print-parts-model";
 import {
@@ -502,6 +503,7 @@ export function buildPhases(
           text: t(
             "assembly.phases.wireAndCalibrate.steps.calibrateFeeder.text",
           ),
+          reference: <FeederCalibrationTip />,
         },
         {
           key: "test-bins",

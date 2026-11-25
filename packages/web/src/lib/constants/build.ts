@@ -294,3 +294,16 @@ export const BUILD_STEP_IMAGE_ALT_KEYS: Record<string, string> = {
 
 export const isPiBoard = (board: BoardType): boolean =>
   board === "raspberry-pi" || board === "orange-pi-zero4";
+
+export const FEEDER_CALIBRATION_TIP_STEP_KEYS = [
+  "removeShim",
+  "openGap",
+  "placeCards",
+  "findContact",
+  "replaceShim",
+  "loadCards",
+  "testFeed",
+  "backOff",
+  "testMore",
+  "repeat",
+] as const;

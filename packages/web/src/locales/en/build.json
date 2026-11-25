@@ -563,7 +563,22 @@
             "note": "The wizard opens the first time the sorter connects, and any time from the help (?) menu on /app/calibrate. A horn fitted off-center biases the whole linkage. The exact positions get fine-tuned in the next step."
           },
           "calibrateFeeder": {
-            "text": "In the Feeder panel, tune feed speed, pulse/pause timing and settle duration against your actual hopper."
+            "text": "In the Feeder panel, tune feed speed, pulse/pause timing and settle duration against your actual hopper.",
+            "tip": {
+              "title": "Getting a better calibration",
+              "steps": {
+                "removeShim": "Remove the rear shim if you have one.",
+                "openGap": "Turn the screw clockwise until two cards fit in easily.",
+                "placeCards": "Place 2 cards between the feeder roller and the top roller, lying flat on the hopper.",
+                "findContact": "Slide the top card back and forth while turning the screw counterclockwise, until the top card spins the top roller.",
+                "replaceShim": "Refit the rear shim.",
+                "loadCards": "Load some cards.",
+                "testFeed": "Test the feed.",
+                "backOff": "If more than one card comes out, turn the screw counterclockwise 1/8 of a turn.",
+                "testMore": "Test 5-10 cards.",
+                "repeat": "If more than one card still comes out, repeat from step 6 as many times as needed."
+              }
+            }
           },
           "adjustIr": {
             "text": "Set all {{count}} IR sensors to see a card 1 inch (2.5 cm) in front of them. With the board powered, use a small screwdriver on the screw of each sensor's blue box (the potentiometer). First turn it until the sensor's indicator LED goes off with nothing in front of it. Then hold a card 1 inch in front of the sensor and turn the screw slowly back the other way until the LED just comes on.",

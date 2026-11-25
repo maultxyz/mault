@@ -563,7 +563,22 @@
             "note": "Der Assistent öffnet sich beim ersten Verbinden des Sortierers und jederzeit über das Hilfemenü (?) unter /app/calibrate. Ein außermittig montiertes Horn verzerrt das gesamte Gestänge. Die genauen Positionen werden im nächsten Schritt feinjustiert."
           },
           "calibrateFeeder": {
-            "text": "Stimme im Bereich Zuführung die Zuführgeschwindigkeit, Impuls-/Pausenzeiten und Setzzeit auf deinen tatsächlichen Trichter ab."
+            "text": "Stimme im Bereich Zuführung die Zuführgeschwindigkeit, Impuls-/Pausenzeiten und Setzzeit auf deinen tatsächlichen Trichter ab.",
+            "tip": {
+              "title": "Besser kalibrieren",
+              "steps": {
+                "removeShim": "Entferne den hinteren Shim, falls du einen hast.",
+                "openGap": "Drehe die Schraube im Uhrzeigersinn, bis zwei Karten leicht hineinpassen.",
+                "placeCards": "Lege 2 Karten zwischen die Zuführrolle und die obere Rolle, flach auf dem Trichter aufliegend.",
+                "findContact": "Bewege die obere Karte vor und zurück und drehe dabei die Schraube gegen den Uhrzeigersinn, bis die obere Karte die obere Rolle mitdreht.",
+                "replaceShim": "Setze den hinteren Shim wieder ein.",
+                "loadCards": "Lege einige Karten ein.",
+                "testFeed": "Teste die Zuführung.",
+                "backOff": "Kommt mehr als eine Karte heraus, drehe die Schraube 1/8 Umdrehung gegen den Uhrzeigersinn.",
+                "testMore": "Teste 5-10 Karten.",
+                "repeat": "Kommt weiterhin mehr als eine Karte heraus, wiederhole ab Schritt 6, so oft wie nötig."
+              }
+            }
           },
           "adjustIr": {
             "text": "Stelle alle {{count}} IR-Sensoren so ein, dass jeder eine Karte 2,5 cm (1 Zoll) vor sich erkennt. Drehe bei eingeschaltetem Board mit einem kleinen Schraubendreher an der Schraube im blauen Gehäuse (dem Potentiometer) jedes Sensors. Drehe sie zuerst so weit, bis die Anzeige-LED des Sensors ausgeht, solange nichts vor ihm ist. Halte dann eine Karte 2,5 cm vor den Sensor und drehe die Schraube langsam in die andere Richtung, bis die LED gerade angeht.",

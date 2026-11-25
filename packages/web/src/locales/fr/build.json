@@ -563,7 +563,22 @@
             "note": "L'assistant s'ouvre à la première connexion du trieur, et à tout moment depuis le menu d'aide (?) sur /app/calibrate. Un palonnier fixé de façon décentrée biaise toute la tringlerie. Les positions exactes seront affinées à l'étape suivante."
           },
           "calibrateFeeder": {
-            "text": "Dans le panneau Chargeur, ajuste la vitesse d'alimentation, le minutage impulsion/pause et la durée de stabilisation en fonction de ta trémie réelle."
+            "text": "Dans le panneau Chargeur, ajuste la vitesse d'alimentation, le minutage impulsion/pause et la durée de stabilisation en fonction de ta trémie réelle.",
+            "tip": {
+              "title": "Obtenir une meilleure calibration",
+              "steps": {
+                "removeShim": "Retire la cale arrière si tu en as une.",
+                "openGap": "Tourne la vis dans le sens horaire jusqu'à ce que deux cartes passent facilement.",
+                "placeCards": "Place 2 cartes entre le rouleau du chargeur et le rouleau supérieur, bien à plat sur la trémie.",
+                "findContact": "Fais aller et venir la carte du dessus tout en tournant la vis dans le sens antihoraire, jusqu'à ce que la carte du dessus fasse tourner le rouleau supérieur.",
+                "replaceShim": "Remets la cale arrière.",
+                "loadCards": "Charge quelques cartes.",
+                "testFeed": "Teste l'alimentation.",
+                "backOff": "Si plus d'une carte sort, tourne la vis d'1/8 de tour dans le sens antihoraire.",
+                "testMore": "Teste 5 à 10 cartes.",
+                "repeat": "Si plus d'une carte sort encore, reprends à l'étape 6 autant de fois que nécessaire."
+              }
+            }
           },
           "adjustIr": {
             "text": "Règle les {{count}} capteurs IR pour que chacun voie une carte à 2,5 cm (1 pouce) devant lui. Carte alimentée, utilise un petit tournevis sur la vis du boîtier bleu (le potentiomètre) de chaque capteur. Tourne-la d'abord jusqu'à ce que la LED témoin du capteur s'éteigne sans rien devant lui. Tiens ensuite une carte à 2,5 cm devant le capteur et tourne lentement la vis dans l'autre sens jusqu'à ce que la LED s'allume tout juste.",
