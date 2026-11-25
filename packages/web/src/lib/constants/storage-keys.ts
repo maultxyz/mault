@@ -92,4 +92,5 @@ export const SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS = {
 } as const;
 
 export const SINGLE_KEY_HOTKEYS_STORAGE_KEY = "magic-vault:single-key-hotkeys";
+export const TOOLTIPS_STORAGE_KEY = "magic-vault:tooltips";
 export const SCANNER_BUY_START_HIDDEN_STORAGE_KEY = "magic-vault:scanner-buy-start-hidden";

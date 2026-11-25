@@ -2,6 +2,7 @@
 
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 
+import { useTooltipsEnabled } from "@/lib/tooltips-store"
 import { cn } from "@/lib/utils"
 
 function TooltipProvider({
@@ -17,8 +18,15 @@ function TooltipProvider({
   )
 }
 
-function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
-  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+function Tooltip({ disabled, ...props }: TooltipPrimitive.Root.Props) {
+  const tooltipsEnabled = useTooltipsEnabled()
+  return (
+    <TooltipPrimitive.Root
+      data-slot="tooltip"
+      disabled={disabled || !tooltipsEnabled}
+      {...props}
+    />
+  )
 }
 
 function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {

@@ -82,6 +82,11 @@
     "codeInstructions": "Führe /link-account <code> auf einem Server mit dem Mault-Bot oder in einer Direktnachricht an ihn aus.",
     "expiresIn": "Läuft in {{seconds}}s ab"
   },
+  "tooltips": {
+    "heading": "Tooltips",
+    "description": "Zeigt Hinweise, wenn du mit der Maus über Schaltflächen und Symbole fährst. Wird auf diesem Gerät gespeichert.",
+    "label": "Tooltips anzeigen"
+  },
   "tour": {
     "heading": "Geführte Tour",
     "description": "Wiederhole die Einführung in Scanner, Sammlungen und Sortierregeln.",
