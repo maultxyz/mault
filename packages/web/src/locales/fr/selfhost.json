@@ -1,19 +1,24 @@
 {
   "meta": {
     "title": "Guide d'auto-hébergement | Mault",
-    "description": "Héberge Mault avec Docker Compose, Coolify ou directement sur un hôte Pi/Linux. Prérequis, installation et mises à jour, étape par étape."
+    "description": "Associez une trieuse Raspberry Pi à votre compte Mault, ou hébergez Mault vous-même avec Docker Compose, Coolify ou un hôte Pi/Linux. Étape par étape."
   },
   "hero": {
     "eyebrow": "Guide d'auto-hébergement",
     "title": "Mault sur ton propre serveur",
-    "description": "Fais tourner Mault sur ton propre matériel. Choisis ta configuration et le guide n'affiche que les étapes utiles. Ta progression est enregistrée dans ce navigateur."
+    "description": "Le plus simple est un Raspberry Pi associé à votre compte Mault : la carte gère la caméra et la trieuse, et mault.xyz conserve vos cartes. Pour tout héberger vous-même, choisissez plutôt une autre configuration. Le guide n'affiche que les étapes utiles, et votre progression est enregistrée dans ce navigateur."
   },
   "setup": {
     "label": "Ta configuration",
     "title": "Choisis ta configuration",
     "description": "Tes choix sont enregistrés dans l'URL, tu peux donc ajouter ce guide à tes favoris ou le partager.",
+    "recommended": "Recommandé",
     "host": {
       "label": "Où héberges-tu ?",
+      "linked": {
+        "title": "Pi associé à mault.xyz",
+        "description": "Flashez l'image Raspberry Pi et associez-la à votre compte Mault. Le Pi gère la caméra, le scan et la trieuse ; vos cartes, les données des cartes et les prix restent sur mault.xyz. Aucun serveur ni base de données à entretenir."
+      },
       "compose": {
         "title": "Docker Compose",
         "description": "N'importe quel serveur que tu gères. Construit la pile depuis le dépôt."
@@ -29,7 +34,6 @@
     },
     "auth": {
       "label": "Comptes et base de données",
-      "recommended": "Recommandé",
       "local": {
         "title": "Intégré",
         "description": "Postgres et les comptes tournent dans la pile. Aucun service externe, mais les sauvegardes sont à ta charge."
@@ -69,6 +73,9 @@
       "title": "Avant de commencer",
       "description": "Ce qu'il faut avoir sous la main.",
       "steps": {
+        "maultAccount": {
+          "text": "Un compte Mault sur <code>mault.xyz</code> où vous êtes propriétaire ou admin de l'organisation dans laquelle la trieuse scanne."
+        },
         "docker": {
           "text": "Docker avec Compose v2. Cette commande doit afficher une version."
         },
@@ -323,10 +330,97 @@
         }
       }
     },
+    "linkedInstall": {
+      "label": "Installation",
+      "title": "Installer Mault sur la carte",
+      "description": "La carte exécute une version précompilée et n'a pas de base de données. Les cartes, les comptes et les prix sont dans votre compte Mault.",
+      "steps": {
+        "flash": {
+          "text": "Téléchargez <code>mault-pi.img.xz</code> depuis la dernière version Pi et flashez-le sur la carte microSD avec Raspberry Pi Imager. Imager ne propose pas de personnalisation de l'OS pour cette image, passez cet écran.",
+          "note": "Ethernet fonctionne sans configuration. La connexion, SSH et le Wi-Fi viennent du fichier de l'étape suivante."
+        },
+        "config": {
+          "text": "Avant le premier démarrage, ouvrez le lecteur <code>bootfs</code> de la carte sur n'importe quel ordinateur et remplissez <code>mault-config.txt</code>. Gardez <code>hosting=mault.xyz</code>, puis ajoutez vos informations Wi-Fi et, si vous le souhaitez, un nom d'utilisateur et un mot de passe avec <code>ssh=yes</code> pour l'accès au terminal.",
+          "note": "En Ethernet, vous pouvez passer cette étape : l'association ne demande qu'un navigateur. Choisissez n'importe quel nom d'utilisateur sauf mault-service. La carte applique le fichier à chaque démarrage et en efface les mots de passe."
+        },
+        "boot": {
+          "text": "Insérez la carte dans le Pi et allumez-le. Le premier démarrage prend quelques minutes. Si un pilote de servos PCA9685 répond sur le connecteur I2C, Mault contrôle la trieuse directement (GPIO) ; sinon il attend une trieuse USB ou Bluetooth.",
+          "note": "Changez cela plus tard avec sudo mault sorter usb ou sudo mault sorter builtin."
+        },
+        "installOther": {
+          "text": "Sur une autre carte arm64, ou un Raspberry Pi qui tourne déjà sous Raspberry Pi OS, lancez cette commande en SSH. Elle installe la dernière version associée à mault.xyz, puis demande comment la trieuse est connectée.",
+          "note": "Une carte qui garde déjà ses cartes dans sa propre base de données reste ainsi après une réinstallation. Basculez-la avec sudo mault hosting mault.xyz."
+        }
+      }
+    },
+    "linkedLink": {
+      "label": "Association",
+      "title": "Associer la carte à votre compte",
+      "description": "L'association prend une minute dans n'importe quel navigateur du même réseau. Aucune commande nécessaire.",
+      "steps": {
+        "open": {
+          "text": "Ouvrez <code>http://mault.local</code> sur un téléphone ou un ordinateur du même réseau. La page affiche le code d'association de la carte et vous guide à travers les étapes ci-dessous.",
+          "note": "Si mault.local ne se charge pas, utilisez l'adresse IP de la carte indiquée par votre routeur. Le code n'est affiché que sur votre propre réseau, et seulement tant que la carte n'est pas associée."
+        },
+        "signIn": {
+          "text": "Choisissez Se connecter à Mault et connectez-vous en tant que propriétaire ou admin de votre organisation."
+        },
+        "enterCode": {
+          "text": "De retour sur la page de la carte, choisissez Relier cette trieuse. Mault ouvre Paramètres, Raspberry Pi avec le code déjà saisi. Nommez la trieuse et choisissez Relier.",
+          "note": "Le code change toutes les quelques minutes. Vous pouvez aussi le saisir vous-même dans Paramètres, Raspberry Pi, Associer un Raspberry Pi."
+        },
+        "terminal": {
+          "text": "En SSH, cette commande affiche le code d'association ou, une fois associée, son état."
+        }
+      }
+    },
+    "linkedScan": {
+      "label": "Premier scan",
+      "title": "Scanner depuis Mault",
+      "description": "Scannez depuis n'importe quel ordinateur ou téléphone connecté à Mault. Vos jeux, les données des cartes et les prix y sont déjà.",
+      "steps": {
+        "select": {
+          "text": "Ouvrez le scanner et choisissez le Pi associé dans le menu des trieuses. Le scanner affiche la webcam du Pi, et les cartes apparaissent dans la grille au fur et à mesure que le Pi les enregistre."
+        },
+        "calibrate": {
+          "text": "Calibrez la trieuse depuis le scanner ou les pages de calibrage, comme n'importe quelle autre trieuse.",
+          "note": "Le Pi prête sa trieuse aux pages de calibrage seulement quand aucun scan n'est en cours."
+        },
+        "scan": {
+          "text": "Choisissez une collection et lancez le scan. Le Pi alimente, photographie, identifie et trie chaque carte lui-même.",
+          "note": "Le scan continue sur le Pi quand vous fermez le navigateur. Arrêtez-le depuis le scanner ou depuis Paramètres, Raspberry Pi."
+        }
+      }
+    },
+    "linkedMaintain": {
+      "label": "Maintenance",
+      "title": "Mettre à jour et entretenir la carte",
+      "description": "Les propriétaires et admins mettent la carte à jour depuis Mault. La commande mault s'occupe du reste en SSH.",
+      "steps": {
+        "update": {
+          "text": "Quand Paramètres, Raspberry Pi indique une mise à jour pour la carte, arrêtez son scan et choisissez Mettre à jour. En SSH, cette commande fait la même chose.",
+          "note": "La carte redémarre et revient en ligne en quelques minutes. Si la nouvelle version ne démarre pas, elle revient automatiquement à la précédente."
+        },
+        "osUpdates": {
+          "text": "Les mises à jour de sécurité du système s'installent automatiquement chaque jour sans redémarrer la carte, pour ne jamais interrompre un scan. Les cartes installées avant cet ajout les activent avec cette commande."
+        },
+        "relink": {
+          "text": "Pour déplacer la carte vers une autre organisation, retirez-la dans Paramètres, Raspberry Pi. Elle affiche alors un nouveau code d'association sur mault.local, tout comme cette commande.",
+          "note": "Les cartes déjà scannées restent dans l'ancienne organisation."
+        },
+        "selfHost": {
+          "text": "Pour garder plutôt les cartes et les comptes sur la carte, passez-la en auto-hébergement.",
+          "note": "Les cartes déjà dans votre compte Mault y restent. sudo mault hosting mault.xyz revient en arrière."
+        },
+        "logs": {
+          "text": "En cas d'échec au démarrage, à l'association ou au scan, consultez le journal."
+        }
+      }
+    },
     "piInstall": {
       "label": "Installation",
       "title": "Installer Mault sur la carte",
-      "description": "Rien n'est cloné ni compilé sur la carte : elle exécute une version précompilée. Ce guide garde vos cartes et vos comptes sur la carte. Pour utiliser plutôt votre compte Mault sur mault.xyz, gardez le réglage par défaut hosting=mault.xyz et saisissez le code affiché dans Paramètres, Raspberry Pis.",
+      "description": "Rien n'est cloné ni compilé sur la carte : elle exécute une version précompilée. Cette configuration garde vos cartes et vos comptes sur la carte. Pour les garder plutôt dans votre compte Mault, choisissez Pi associé à mault.xyz ci-dessus.",
       "steps": {
         "flash": {
           "text": "Téléchargez <code>mault-pi.img.xz</code> depuis la dernière version Pi et écrivez-la sur la carte microSD avec Raspberry Pi Imager. Imager ne propose pas de personnalisation de l'OS pour cette image : passez cet écran.",

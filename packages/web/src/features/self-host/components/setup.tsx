@@ -4,10 +4,12 @@ import { OptionCard } from "@/components/option-card";
 import { useSelfHostSetup } from "@/features/self-host/api/use-self-host-setup";
 import {
   SELF_HOST_AUTH_OPTIONS,
+  SELF_HOST_BOARD_HOSTS,
   SELF_HOST_BOARD_OPTIONS,
   SELF_HOST_SORTER_OPTIONS,
   SELF_HOST_HOST_OPTIONS,
   SELF_HOST_RECOMMENDED_AUTH,
+  SELF_HOST_RECOMMENDED_HOST,
   SELF_HOST_SETUP_ANCHOR,
 } from "@/lib/constants/self-host";
 import { useTranslation } from "react-i18next";
@@ -15,6 +17,7 @@ import { useTranslation } from "react-i18next";
 export function SelfHostSetup() {
   const { t } = useTranslation("selfhost");
   const { host, auth, sorter, board, updateSetup } = useSelfHostSetup();
+  const isBoardHost = SELF_HOST_BOARD_HOSTS.includes(host);
 
   return (
     <section
@@ -37,7 +40,7 @@ export function SelfHostSetup() {
           <div
             role="radiogroup"
             aria-label={t("setup.host.label")}
-            className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
+            className="grid gap-2 sm:grid-cols-2"
           >
             {SELF_HOST_HOST_OPTIONS.map((option) => (
               <OptionCard
@@ -45,13 +48,18 @@ export function SelfHostSetup() {
                 icon={option.icon}
                 title={t(`setup.host.${option.value}.title`)}
                 description={t(`setup.host.${option.value}.description`)}
+                badge={
+                  option.value === SELF_HOST_RECOMMENDED_HOST
+                    ? t("setup.recommended")
+                    : undefined
+                }
                 selected={host === option.value}
                 onSelect={() => updateSetup({ host: option.value })}
               />
             ))}
           </div>
         </GuideSetupStep>
-        {host === "pi" && (
+        {isBoardHost && (
           <GuideSetupStep step={2} label={t("setup.sorter.label")}>
             <div
               role="radiogroup"
@@ -71,7 +79,7 @@ export function SelfHostSetup() {
             </div>
           </GuideSetupStep>
         )}
-        {host === "pi" && sorter === "gpio" && (
+        {isBoardHost && sorter === "gpio" && (
           <GuideSetupStep step={3} label={t("setup.board.label")}>
             <div
               role="radiogroup"
@@ -91,38 +99,40 @@ export function SelfHostSetup() {
             </div>
           </GuideSetupStep>
         )}
-        <GuideSetupStep
-          step={host === "pi" ? (sorter === "gpio" ? 4 : 3) : 2}
-          label={t("setup.auth.label")}
-        >
-          <div
-            role="radiogroup"
-            aria-label={t("setup.auth.label")}
-            className="grid gap-2 sm:grid-cols-2"
+        {host !== "linked" && (
+          <GuideSetupStep
+            step={host === "pi" ? (sorter === "gpio" ? 4 : 3) : 2}
+            label={t("setup.auth.label")}
           >
-            {SELF_HOST_AUTH_OPTIONS.map((option) => (
-              <OptionCard
-                key={option.value}
-                icon={option.icon}
-                title={t(`setup.auth.${option.value}.title`)}
-                description={t(`setup.auth.${option.value}.description`)}
-                badge={
-                  option.value === SELF_HOST_RECOMMENDED_AUTH
-                    ? t("setup.auth.recommended")
-                    : undefined
-                }
-                disabled={host === "pi" && option.value === "neon"}
-                selected={auth === option.value}
-                onSelect={() => updateSetup({ auth: option.value })}
-              />
-            ))}
-          </div>
-          {host === "pi" && (
-            <p className="mt-3 text-sm/relaxed text-foreground/70">
-              {t("setup.auth.piNote")}
-            </p>
-          )}
-        </GuideSetupStep>
+            <div
+              role="radiogroup"
+              aria-label={t("setup.auth.label")}
+              className="grid gap-2 sm:grid-cols-2"
+            >
+              {SELF_HOST_AUTH_OPTIONS.map((option) => (
+                <OptionCard
+                  key={option.value}
+                  icon={option.icon}
+                  title={t(`setup.auth.${option.value}.title`)}
+                  description={t(`setup.auth.${option.value}.description`)}
+                  badge={
+                    option.value === SELF_HOST_RECOMMENDED_AUTH
+                      ? t("setup.recommended")
+                      : undefined
+                  }
+                  disabled={host === "pi" && option.value === "neon"}
+                  selected={auth === option.value}
+                  onSelect={() => updateSetup({ auth: option.value })}
+                />
+              ))}
+            </div>
+            {host === "pi" && (
+              <p className="mt-3 text-sm/relaxed text-foreground/70">
+                {t("setup.auth.piNote")}
+              </p>
+            )}
+          </GuideSetupStep>
+        )}
       </div>
     </section>
   );

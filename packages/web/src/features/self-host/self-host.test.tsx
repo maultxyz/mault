@@ -235,28 +235,76 @@ describe("Pi/Linux self-host guide", () => {
     );
     expect(maintenance.textContent).not.toContain("--headless");
   });
-  it("falls back to the existing defaults for invalid URL choices", () => {
+  it("falls back to the linked Pi for invalid URL choices", () => {
     renderGuide("/self-host?host=unknown&auth=unknown");
-    expect(radio("Docker Compose")).toHaveAttribute("aria-checked", "true");
-    expect(radio("Neon")).toHaveAttribute("aria-checked", "true");
+    expect(radio("Pi linked to mault.xyz")).toHaveAttribute("aria-checked", "true");
+    expect(
+      screen.queryByRole("radiogroup", { name: en.setup.auth.label }),
+    ).not.toBeInTheDocument();
   });
   it("recommends Neon first and bookmarks the built-in database when chosen", () => {
-    renderGuide("/self-host");
+    renderGuide("/self-host?host=compose");
     const authOptions = within(
       screen.getByRole("radiogroup", { name: en.setup.auth.label }),
     ).getAllByRole("radio");
     expect(authOptions[0]).toHaveAccessibleName(
-      expect.stringContaining(en.setup.auth.recommended),
+      expect.stringContaining(en.setup.recommended),
     );
     expect(authOptions[0]).toHaveAccessibleName(expect.stringMatching(/^Neon/));
     expect(radio("Built-in")).not.toHaveAccessibleName(
-      expect.stringContaining(en.setup.auth.recommended),
+      expect.stringContaining(en.setup.recommended),
     );
     fireEvent.click(radio("Built-in"));
     expect(new URLSearchParams(window.location.search).get("auth")).toBe("local");
     expect(
       screen.queryByRole("heading", { name: "Set up Neon" }),
     ).not.toBeInTheDocument();
+  });
+});
+describe("linked Pi guide", () => {
+  it("is the recommended default and shows only the linking steps", () => {
+    const { container } = renderGuide("/self-host");
+    const hostOptions = within(
+      screen.getByRole("radiogroup", { name: en.setup.host.label }),
+    ).getAllByRole("radio");
+    expect(hostOptions[0]).toHaveAccessibleName(
+      expect.stringMatching(/^Pi linked to mault\.xyz/),
+    );
+    expect(hostOptions[0]).toHaveAccessibleName(
+      expect.stringContaining(en.setup.recommended),
+    );
+    expect(hostOptions[0]).toHaveAttribute("aria-checked", "true");
+    expect(window.location.search).toBe("");
+    expect(
+      [...container.querySelectorAll("section[id]")].map((s) => s.id),
+    ).toEqual([
+      "setup",
+      "requirements",
+      "piHardware",
+      "linkedInstall",
+      "linkedLink",
+      "linkedScan",
+      "linkedMaintain",
+    ]);
+    expect(container.textContent).toContain("hosting=mault.xyz");
+    expect(container.textContent).toContain("install.sh | sudo MAULT_HOSTING=hosted bash");
+    expect(container.textContent).toContain("sudo mault link");
+    expect(container.textContent).toContain("http://mault.local");
+    expect(container.textContent).not.toContain("hosting=self");
+    expect(container.textContent).not.toContain("sudo mault prices");
+    expect(container.textContent).not.toContain("pg_dump");
+    expect(container.textContent).not.toContain("/app/admin");
+    expect(container.textContent).not.toContain("Neon account");
+  });
+  it("keeps hardware choices when switching between the linked and self-hosted Pi", () => {
+    renderGuide("/self-host?sorter=gpio&board=orange-pi-zero4");
+    expect(radio("Orange Pi Zero 4")).toHaveAttribute("aria-checked", "true");
+    fireEvent.click(radio("Pi/Linux"));
+    const params = new URLSearchParams(window.location.search);
+    expect(params.get("host")).toBe("pi");
+    expect(params.get("board")).toBe("orange-pi-zero4");
+    fireEvent.click(radio("Docker Compose"));
+    expect(new URLSearchParams(window.location.search).has("board")).toBe(false);
   });
 });
 describe("existing hosting paths", () => {

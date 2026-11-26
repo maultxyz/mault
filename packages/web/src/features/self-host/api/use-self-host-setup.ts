@@ -1,17 +1,24 @@
 import {
   DEFAULT_SELF_HOST_SETUP,
   SELF_HOST_AUTH_OPTIONS,
+  SELF_HOST_BOARD_HOSTS,
   SELF_HOST_BOARD_OPTIONS,
   SELF_HOST_SORTER_OPTIONS,
   SELF_HOST_HOST_OPTIONS,
+  SELF_HOST_RECOMMENDED_AUTH,
   SELF_HOST_SETUP_PARAMS,
 } from "@/lib/constants/self-host";
 import type {
+  SelfHostHost,
   SelfHostSetupState,
   SelfHostSetupValue,
 } from "@/lib/interfaces/self-host";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+function isBoardHost(host: SelfHostHost): boolean {
+  return SELF_HOST_BOARD_HOSTS.includes(host);
+}
 
 function parseSelfHostSetup(search: string): SelfHostSetupState {
   const params = new URLSearchParams(search);
@@ -31,10 +38,9 @@ function parseSelfHostSetup(search: string): SelfHostSetupState {
     sorter: sorter?.value ?? DEFAULT_SELF_HOST_SETUP.sorter,
     board: board?.value ?? DEFAULT_SELF_HOST_SETUP.board,
     host: host?.value ?? DEFAULT_SELF_HOST_SETUP.host,
-    auth:
-      host?.value === "pi"
-        ? "local"
-        : (auth?.value ?? DEFAULT_SELF_HOST_SETUP.auth),
+    auth: isBoardHost(host?.value ?? DEFAULT_SELF_HOST_SETUP.host)
+      ? "local"
+      : (auth?.value ?? SELF_HOST_RECOMMENDED_AUTH),
   };
 }
 
@@ -45,9 +51,11 @@ function writeSelfHostSetup(search: string, setup: SelfHostSetupState): string {
   ) as (keyof SelfHostSetupState)[];
   for (const key of keys) {
     if (
-      setup[key] === DEFAULT_SELF_HOST_SETUP[key] ||
-      ((key === "sorter" || key === "board") && setup.host !== "pi") ||
-      (key === "auth" && setup.host === "pi") ||
+      (key === "auth"
+        ? setup.auth === SELF_HOST_RECOMMENDED_AUTH
+        : setup[key] === DEFAULT_SELF_HOST_SETUP[key]) ||
+      ((key === "sorter" || key === "board") && !isBoardHost(setup.host)) ||
+      (key === "auth" && isBoardHost(setup.host)) ||
       (key === "board" && setup.sorter !== "gpio")
     ) {
       params.delete(SELF_HOST_SETUP_PARAMS[key]);
@@ -68,9 +76,9 @@ export function useSelfHostSetup(): SelfHostSetupValue {
     (patch: Partial<SelfHostSetupState>) => {
       const current = parseSelfHostSetup(window.location.search);
       const next = { ...current, ...patch };
-      if (next.host === "pi") next.auth = "local";
-      else if (current.host === "pi" && !patch.auth) {
-        next.auth = DEFAULT_SELF_HOST_SETUP.auth;
+      if (isBoardHost(next.host)) next.auth = "local";
+      else if (isBoardHost(current.host) && !patch.auth) {
+        next.auth = SELF_HOST_RECOMMENDED_AUTH;
       }
       navigate(
         {

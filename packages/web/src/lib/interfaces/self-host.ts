@@ -1,6 +1,6 @@
 import type { Icon } from "@tabler/icons-react";
 
-export type SelfHostHost = "compose" | "coolify" | "pi";
+export type SelfHostHost = "linked" | "compose" | "coolify" | "pi";
 
 export type SelfHostAuth = "local" | "neon";
 
