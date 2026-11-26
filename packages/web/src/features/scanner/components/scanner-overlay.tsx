@@ -95,7 +95,7 @@ export function ScannerOverlay({
   region = "all",
 }: ScannerOverlayProps) {
   const { t } = useTranslation("scanner");
-  const hasWifiSorters = useWifiSorters(false).length > 0;
+  const hasWifiSorters = useWifiSorters(false).sorters.length > 0;
   const isPhoneMode = cameraSource === "phone";
   const pillPlacement = region === "status-strip" ? "strip" : "overlay";
   const fullOverlay = renderFullOverlay();

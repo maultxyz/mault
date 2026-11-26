@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNewBoardFlash } from "@/features/scanner/api/use-new-board-flash";
 import { useSerial } from "@/features/scanner/api/use-serial";
+import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
 import { IconDeviceUsb, IconDownload, IconPlugX } from "@tabler/icons-react";
 import { useState } from "react";
@@ -25,6 +26,7 @@ export function KitBoardPanel() {
     transport,
     connect,
     connectBluetooth,
+    connectCloud,
     disconnect,
   } = useSerial();
   const { isSupported: flashSupported } = useNewBoardFlash();
@@ -70,6 +72,12 @@ export function KitBoardPanel() {
                     {t("kitTest.board.connectBluetooth")}
                   </DropdownMenuItem>
                 )}
+                <WifiSorterMenuItems
+                  triggerContent={t("kitTest.board.connectWifi")}
+                  onSelect={(deviceGuid) =>
+                    void connectCloud(deviceGuid, { skipAutoTest: true })
+                  }
+                />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

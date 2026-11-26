@@ -388,6 +388,7 @@
     "cameraInUseElsewhere": "In use by another station",
     "connectUsb": "Connect via USB",
     "connectBluetooth": "Connect via Bluetooth",
+    "connectWifi": "Connect via Wi-Fi",
     "autoFeed": "Auto-feed",
     "allowDuplicates": "Allow duplicates",
     "scanWithoutSorter": "Scan without sorter",
@@ -397,6 +398,7 @@
     "phoneCameraConnected": "Phone Camera Connected",
     "connectAnotherUsb": "Connect another sorter (USB)",
     "connectAnotherBluetooth": "Connect another sorter (Bluetooth)",
+    "connectAnotherWifi": "Connect another sorter (Wi-Fi)",
     "flashNewBoard": "Flash a new board",
     "connectAnotherUpgrade": "Connect more sorters with a bigger plan",
     "clearDevice": "Clear device",
@@ -1086,7 +1088,8 @@
     "connected": "Connected"
   },
   "wifiConnect": {
-    "item": "Wi-Fi: {{name}}",
+    "loading": "Looking for Wi-Fi sorters…",
+    "empty": "No sorters set up for Wi-Fi yet",
     "offline": "Offline",
     "inUse": "In use",
     "connectedHere": "Connected"

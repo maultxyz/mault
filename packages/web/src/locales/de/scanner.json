@@ -388,6 +388,7 @@
     "cameraInUseElsewhere": "Von einer anderen Station verwendet",
     "connectUsb": "Über USB verbinden",
     "connectBluetooth": "Über Bluetooth verbinden",
+    "connectWifi": "Über WLAN verbinden",
     "autoFeed": "Automatische Zufuhr",
     "allowDuplicates": "Duplikate zulassen",
     "scanWithoutSorter": "Ohne Sortierer scannen",
@@ -397,6 +398,7 @@
     "phoneCameraConnected": "Telefonkamera verbunden",
     "connectAnotherUsb": "Weiteren Sortierer verbinden (USB)",
     "connectAnotherBluetooth": "Weiteren Sortierer verbinden (Bluetooth)",
+    "connectAnotherWifi": "Weiteren Sortierer verbinden (WLAN)",
     "flashNewBoard": "Neue Platine flashen",
     "connectAnotherUpgrade": "Mehr Sortierer mit einem größeren Tarif verbinden",
     "clearDevice": "Gerät leeren",
@@ -1086,7 +1088,8 @@
     "connected": "Verbunden"
   },
   "wifiConnect": {
-    "item": "WLAN: {{name}}",
+    "loading": "WLAN-Sortierer werden gesucht…",
+    "empty": "Noch kein Sortierer für WLAN eingerichtet",
     "offline": "Offline",
     "inUse": "In Benutzung",
     "connectedHere": "Verbunden"

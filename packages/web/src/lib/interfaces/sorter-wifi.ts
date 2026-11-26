@@ -1,5 +1,6 @@
 import type { SorterWifiFormValues } from "@/schemas/sorter-wifi.schema";
 import type { SorterWifiStatus } from "@magic-vault/shared";
+import type { ReactNode } from "react";
 
 export type SorterWifiResult =
   | { ok: true; restarting: boolean; serverLinkRemovalFailed: boolean }
@@ -41,9 +42,15 @@ export interface WifiSorterOption {
   connectedHere: boolean;
 }
 
+export interface WifiSorters {
+  sorters: WifiSorterOption[];
+  isLoading: boolean;
+}
+
 export interface WifiSorterMenuItemsProps {
   onSelect: (deviceGuid: string) => void;
   disabled?: boolean;
+  triggerContent?: ReactNode;
 }
 
 export interface ConnectSorterMenuItemsProps {

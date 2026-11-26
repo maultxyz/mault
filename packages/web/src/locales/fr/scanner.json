@@ -388,6 +388,7 @@
     "cameraInUseElsewhere": "Utilisée par une autre station",
     "connectUsb": "Connecter via USB",
     "connectBluetooth": "Connecter via Bluetooth",
+    "connectWifi": "Connecter via Wi-Fi",
     "autoFeed": "Alimentation auto",
     "allowDuplicates": "Autoriser les doublons",
     "scanWithoutSorter": "Scanner sans trieuse",
@@ -397,6 +398,7 @@
     "phoneCameraConnected": "Caméra du téléphone connectée",
     "connectAnotherUsb": "Connecter une autre trieuse (USB)",
     "connectAnotherBluetooth": "Connecter une autre trieuse (Bluetooth)",
+    "connectAnotherWifi": "Connecter une autre trieuse (Wi-Fi)",
     "flashNewBoard": "Flasher une nouvelle carte",
     "connectAnotherUpgrade": "Connecter plus de trieuses avec une offre supérieure",
     "clearDevice": "Vider l'appareil",
@@ -1086,7 +1088,8 @@
     "connected": "Connecté"
   },
   "wifiConnect": {
-    "item": "Wi-Fi : {{name}}",
+    "loading": "Recherche des trieuses Wi-Fi…",
+    "empty": "Aucune trieuse configurée en Wi-Fi pour le moment",
     "offline": "Hors ligne",
     "inUse": "Utilisée",
     "connectedHere": "Connectée"

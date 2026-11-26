@@ -258,7 +258,15 @@ export function ScannerStatusBar({
                       {t("scannerMenu.connectAnotherBluetooth")}
                     </DropdownMenuItem>
                   )}
-                  <WifiSorterMenuItems onSelect={onConnectAnotherCloud} />
+                  <WifiSorterMenuItems
+                    onSelect={onConnectAnotherCloud}
+                    triggerContent={
+                      <>
+                        <IconPlus />
+                        {t("scannerMenu.connectAnotherWifi")}
+                      </>
+                    }
+                  />
                 </>
               ) : sorterLimitReason !== "plan" ? (
                 <DropdownMenuItem disabled>
