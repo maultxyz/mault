@@ -24,15 +24,15 @@ const GAMES = [
 test("share paths resolve to their link kind, guid and token", () => {
   assert.deepEqual(parseSharePreviewPath(`/watch/${GUID}?t=abc.def`), {
     kind: "collection",
-    subjectGuid: GUID,
+    subjectKey: GUID,
     token: "abc.def",
     pathWithQuery: `/watch/${GUID}?t=abc.def`,
   });
   assert.equal(parseSharePreviewPath(`/shared/storage/${GUID}?t=x`)?.kind, "storage");
-  assert.equal(parseSharePreviewPath(`/shared/card/${GUID.toUpperCase()}?t=x`)?.subjectGuid, GUID);
+  assert.equal(parseSharePreviewPath(`/shared/card/${GUID.toUpperCase()}?t=x`)?.subjectKey, GUID);
   assert.deepEqual(parseSharePreviewPath(`/shop/${GUID}/`), {
     kind: "shopCatalog",
-    subjectGuid: GUID,
+    subjectKey: GUID,
     token: null,
     pathWithQuery: `/shop/${GUID}/`,
   });

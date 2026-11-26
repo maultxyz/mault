@@ -1,6 +1,6 @@
 import type { PlayingCard } from "@magic-vault/shared";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { SWU_CARD_PAGE_URL, SWU_FOIL_VARIANT_TYPES } from "../../constants/swu";
+import { SWU_CARD_PAGE_URL, SWU_FOIL_VARIANT_TYPES, SWU_OP_PROMO_FOIL_VARIANT_TYPE } from "../../constants/swu";
 import { SWU_DEFAULT_URL } from "../../constants/urls";
 import type { SwuCard } from "../../interfaces/swu";
 
@@ -24,6 +24,21 @@ export function isSwuFoilVariant(raw: Pick<SwuCard, "VariantType">): boolean {
   return SWU_FOIL_VARIANT_TYPES.includes(raw.VariantType);
 }
 
+export function swuCardImageUrl(raw: Pick<SwuCard, "VariantType" | "Number" | "FrontArt">): string {
+  if (raw.VariantType !== SWU_OP_PROMO_FOIL_VARIANT_TYPE || !raw.Number.endsWith("F")) {
+    return raw.FrontArt;
+  }
+  try {
+    const url = new URL(raw.FrontArt);
+    const foilFilename = `${raw.Number}.png`;
+    if (url.hostname === "cdn.swu-db.com" && url.pathname.endsWith(`/${foilFilename}`)) {
+      url.pathname = `${url.pathname.slice(0, -foilFilename.length)}${raw.Number.slice(0, -1)}.png`;
+      return url.toString();
+    }
+  } catch {}
+  return raw.FrontArt;
+}
+
 function toNumber(value: string | undefined): number | null {
   if (value == null || value === "") return null;
   const parsed = Number(value);
@@ -35,11 +50,12 @@ export function normalizeSwuCard(raw: SwuCard): PlayingCard {
     .filter((part): part is string => !!part)
     .join("\n\n");
   const cost = toNumber(raw.Cost);
+  const imageUrl = swuCardImageUrl(raw);
 
   return {
     id: swuCardId(raw.Set, raw.Number),
     name: swuCardName(raw),
-    image: raw.FrontArt ? { small: raw.FrontArt, normal: raw.FrontArt } : null,
+    image: imageUrl ? { small: imageUrl, normal: imageUrl } : null,
     backImage: raw.BackArt ? { small: raw.BackArt, normal: raw.BackArt } : null,
     set: raw.Set,
     setName: raw.Set,

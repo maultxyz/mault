@@ -103,6 +103,19 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const piRemote = usePiHost();
   const usesLinkedPiCamera = !!usePiScanMode().linkedPi;
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const relayClaimsRef = useRef(0);
+  const [relayRequested, setRelayRequested] = useState(false);
+  const claimPiCameraStream = useCallback(() => {
+    relayClaimsRef.current += 1;
+    if (relayClaimsRef.current === 1) setRelayRequested(true);
+    let released = false;
+    return () => {
+      if (released) return;
+      released = true;
+      relayClaimsRef.current -= 1;
+      if (relayClaimsRef.current === 0) setRelayRequested(false);
+    };
+  }, []);
   const [status, setStatus] = useState<CameraStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [focusRange, setFocusRange] = useState<CameraRange | null>(null);
@@ -471,7 +484,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
             setStatus("error");
             return;
           }
-          const mediaStream = isMobile && browserMustUsePiCamera()
+          const mediaStream = browserMustUsePiCamera()
             ? null
             : await acquirePiRelayStream(selected);
           if (isSuperseded()) {
@@ -612,6 +625,36 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     setStream(null);
   }, []);
 
+  useEffect(() => {
+    if (!piRemote || isMobile || !browserMustUsePiCamera() || !relayRequested || status !== "ready" || cameraSource !== "local" || !isPiCameraId(selectedCameraId)) return;
+    const controller = new AbortController();
+    let acquired: MediaStream | null = null;
+    void acquirePiRelayStream(selectedCameraId ?? undefined, controller.signal).then((next) => {
+      if (controller.signal.aborted) {
+        stopMediaStream(next);
+        return;
+      }
+      acquired = next;
+      streamRef.current = next;
+      setStream(next);
+    }).catch(() => {
+      if (!controller.signal.aborted) {
+        setErrorMessage(t("camera.piUnavailable"));
+        setStatus("error");
+      }
+    });
+    return () => {
+      controller.abort();
+      if (acquired) {
+        stopMediaStream(acquired);
+        if (streamRef.current === acquired) {
+          streamRef.current = null;
+          setStream(null);
+        }
+      }
+    };
+  }, [piRemote, isMobile, relayRequested, status, cameraSource, selectedCameraId, t]);
+
   const stopCamera = useCallback(() => {
     if (cameraSource === "phone") {
       stopPhonePairingInternal();
@@ -715,6 +758,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     <CameraContext
       value={{
         stream,
+        claimPiCameraStream,
         status,
         errorMessage,
         focusRange,
@@ -764,4 +808,13 @@ export function useCameraContext() {
   if (!ctx)
     throw new Error("useCameraContext must be used within a CameraProvider");
   return ctx;
+}
+
+export function useCameraPreviewStream() {
+  const { stream, claimPiCameraStream } = useCameraContext();
+  const isMobile = useIsMobile();
+  useEffect(() => {
+    if (!isMobile) return claimPiCameraStream();
+  }, [claimPiCameraStream, isMobile]);
+  return stream;
 }

@@ -386,6 +386,8 @@
     "orderBinDuplicate": "Chaque commande a besoin de son propre bac.",
     "shortLinkCodeInvalid": "Utilisez jusqu'à {{max}} lettres minuscules, chiffres et tirets, en commençant et en finissant par une lettre ou un chiffre.",
     "shortLinkCodeReserved": "Ce code est réservé. Choisissez-en un autre.",
+    "profileHandleInvalid": "Utilisez de {{min}} à {{max}} lettres minuscules, chiffres et tirets, en commençant et en finissant par une lettre ou un chiffre.",
+    "profileHandleReserved": "Cet identifiant est réservé. Choisissez-en un autre.",
     "shortLinkTargetInvalid": "Saisissez une URL complète en http:// ou https://.",
     "orderBinCatchAll": "Le dernier bac reçoit toutes les autres cartes, choisis-en un autre.",
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",

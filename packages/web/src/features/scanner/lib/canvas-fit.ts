@@ -3,14 +3,16 @@ export function fitCanvasesToContainer(
   videoWidth: number,
   videoHeight: number,
   rotated: boolean,
+  fit: "cover" | "contain" = "cover",
 ) {
   const container = canvases[0]?.parentElement;
   if (!container || !videoWidth || !videoHeight) return;
   const cw = container.clientWidth;
   const ch = container.clientHeight;
+  const scaleToFit = fit === "contain" ? Math.min : Math.max;
   const scale = rotated
-    ? Math.max(cw / videoHeight, ch / videoWidth)
-    : Math.max(cw / videoWidth, ch / videoHeight);
+    ? scaleToFit(cw / videoHeight, ch / videoWidth)
+    : scaleToFit(cw / videoWidth, ch / videoHeight);
   const cssW = Math.round(videoWidth * scale);
   const cssH = Math.round(videoHeight * scale);
   for (const canvas of canvases) {

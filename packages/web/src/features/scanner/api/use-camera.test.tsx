@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   mustUsePi: vi.fn(),
   acquireStream: vi.fn(),
   acquireRelay: vi.fn(),
+  stopStream: vi.fn(),
   applyTrackFocus: vi.fn().mockResolvedValue(undefined),
   applyPiFocus: vi.fn().mockResolvedValue(undefined),
   loadSavedFocus: vi.fn(),
@@ -64,7 +65,7 @@ vi.mock("../lib/camera-zoom", () => ({
 vi.mock("../lib/camera-stream", () => ({
   acquireFreeStream: mocks.acquireStream,
   camerasHeldByOtherStations: () => new Set(),
-  stopMediaStream: vi.fn(),
+  stopMediaStream: mocks.stopStream,
   waitForTrackSetup: async () => {},
 }));
 vi.mock("../lib/pi-camera", () => ({
@@ -253,4 +254,103 @@ it("keeps a restored assignment when initial default-camera startup finishes lat
   expect(mocks.setStationCamera).not.toHaveBeenCalledWith("station", "pi-camera:/dev/test");
 });
 
+});
+
+
+describe("Pi relay demand", () => {
+  const relay = { getVideoTracks: () => [] } as unknown as MediaStream;
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.station.cameraId = null;
+    mocks.mustUsePi.mockReturnValue(true);
+    mocks.isMobile.mockReturnValue(false);
+    mocks.readHealth.mockResolvedValue({ status: "ready" });
+    mocks.acquireRelay.mockResolvedValue(relay);
+  });
+  afterEach(cleanup);
+
+  it.each([false, true])("loads host camera settings without a relay, mobile=%s", async (mobile) => {
+    mocks.isMobile.mockReturnValue(mobile);
+    const { result } = renderHook(useCameraContext, { wrapper: CameraProvider });
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    expect(result.current.stream).toBeNull();
+    expect(mocks.acquireRelay).not.toHaveBeenCalled();
+    if (mobile) {
+      act(() => { result.current.claimPiCameraStream(); });
+      expect(mocks.acquireRelay).not.toHaveBeenCalled();
+    }
+  });
+
+  it("shares a relay until the final idempotent release", async () => {
+    const { result } = renderHook(useCameraContext, { wrapper: CameraProvider });
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    let releaseFirst!: () => void;
+    let releaseSecond!: () => void;
+    act(() => {
+      releaseFirst = result.current.claimPiCameraStream();
+      releaseSecond = result.current.claimPiCameraStream();
+    });
+    await waitFor(() => expect(result.current.stream).toBe(relay));
+    expect(mocks.acquireRelay).toHaveBeenCalledTimes(1);
+    act(() => { releaseFirst(); releaseFirst(); });
+    expect(result.current.stream).toBe(relay);
+    expect(mocks.stopStream).not.toHaveBeenCalledWith(relay);
+    act(() => releaseSecond());
+    await waitFor(() => expect(result.current.stream).toBeNull());
+    expect(mocks.stopStream).toHaveBeenCalledWith(relay);
+  });
+
+  it("aborts a pending relay on final release and ignores late acquisition", async () => {
+    let finish!: (stream: MediaStream) => void;
+    mocks.acquireRelay.mockReturnValue(new Promise<MediaStream>((resolve) => { finish = resolve; }));
+    const { result } = renderHook(useCameraContext, { wrapper: CameraProvider });
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    let release!: () => void;
+    act(() => { release = result.current.claimPiCameraStream(); });
+    await waitFor(() => expect(mocks.acquireRelay).toHaveBeenCalledTimes(1));
+    const signal = mocks.acquireRelay.mock.calls[0][1] as AbortSignal;
+    act(() => release());
+    expect(signal.aborted).toBe(true);
+    await act(async () => { finish(relay); });
+    expect(result.current.stream).toBeNull();
+    expect(mocks.stopStream).toHaveBeenCalledWith(relay);
+  });
+
+  it("aborts a pending relay on provider unmount", async () => {
+    mocks.acquireRelay.mockReturnValue(new Promise(() => {}));
+    const { result, unmount } = renderHook(useCameraContext, { wrapper: CameraProvider });
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    act(() => { result.current.claimPiCameraStream(); });
+    await waitFor(() => expect(mocks.acquireRelay).toHaveBeenCalledTimes(1));
+    const signal = mocks.acquireRelay.mock.calls[0][1] as AbortSignal;
+    unmount();
+    expect(signal.aborted).toBe(true);
+  });
+
+  it("retries a failed demanded relay through retryCamera", async () => {
+    mocks.acquireRelay.mockRejectedValueOnce(new Error("unavailable")).mockResolvedValueOnce(relay);
+    const { result } = renderHook(useCameraContext, { wrapper: CameraProvider });
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    act(() => { result.current.claimPiCameraStream(); });
+    await waitFor(() => expect(result.current.status).toBe("error"));
+    await act(async () => { await result.current.retryCamera(); });
+    await waitFor(() => expect(result.current.stream).toBe(relay));
+    expect(result.current.status).toBe("ready");
+    expect(mocks.acquireRelay).toHaveBeenCalledTimes(2);
+  });
+
+  it("switches the demanded relay when the selected camera changes", async () => {
+    const second = { getVideoTracks: () => [] } as unknown as MediaStream;
+    mocks.acquireRelay.mockResolvedValueOnce(relay).mockResolvedValueOnce(second);
+    const { result } = renderHook(useCameraContext, { wrapper: CameraProvider });
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    act(() => { result.current.claimPiCameraStream(); });
+    await waitFor(() => expect(result.current.stream).toBe(relay));
+    const firstSignal = mocks.acquireRelay.mock.calls[0][1] as AbortSignal;
+    await act(async () => { await result.current.selectCamera("pi-camera:/dev/second", false); });
+    await waitFor(() => expect(result.current.stream).toBe(second));
+    expect(firstSignal.aborted).toBe(true);
+    expect(mocks.acquireRelay).toHaveBeenLastCalledWith("pi-camera:/dev/second", expect.any(AbortSignal));
+    expect(mocks.stopStream).toHaveBeenCalledWith(relay);
+  });
 });

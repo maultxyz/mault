@@ -1,3 +1,4 @@
+import { COLLECTION_CARDS_SUMMARY_REFRESH_MS, COLLECTION_CARDS_SUMMARY_STALE_WHILE_REFRESHING_MS } from "../../lib/constants/collection-read-caches";
 import {
   COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM,
   COLLECTION_CARDS_PAGE_SIZE,
@@ -21,7 +22,6 @@ import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
 import {
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
   COLLECTION_CARDS_AGGREGATE_CACHE_TTL_MS,
-  COLLECTION_CARDS_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
   GROUPED_CARD_RANKING_CACHE_MAX_ENTRIES,
   GROUPED_CARD_RANKING_CACHE_TTL_MS,
 } from "../../lib/constants/collection-read-caches";
@@ -54,9 +54,10 @@ import type {
 
 const cardsSummaryCache = createOrgReadCache<CollectionCardsSummary | null>(
   "org.collectionCardsSummary",
-  COLLECTION_CARDS_AGGREGATE_CACHE_TTL_MS,
+  COLLECTION_CARDS_SUMMARY_REFRESH_MS,
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
-  COLLECTION_CARDS_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
+  0,
+  { isUnaffectedByCardWrites: true, staleWhileRefreshingMs: COLLECTION_CARDS_SUMMARY_STALE_WHILE_REFRESHING_MS },
 );
 
 const cardsCountCache = createOrgReadCache<CollectionCardsCount | null>(

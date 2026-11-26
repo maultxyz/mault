@@ -7,7 +7,7 @@ export interface OrgReadCache<T> {
   get(orgId: string, variantKey: string, load: () => Promise<T>): Promise<T>;
 }
 
-export interface OrgReadCacheOptions {
+export interface OrgReadCacheOptions extends KeyedCacheOptions {
   isUnaffectedByCardWrites?: boolean;
 }
 

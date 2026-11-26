@@ -38,6 +38,7 @@ import {
 import { planSyncPrune } from "./prune";
 import { fetchPortraitCardImage } from "./card-image-fetch";
 import { planCardSync } from "./card-sync-plan";
+import { oneMarkWriteAtATime, storePrintingMarks } from "./printing-marks";
 import { buildCatalogCardRow, sourceDataHashOf } from "./catalog-row";
 import {
   addToPrintingMarkBatch,
@@ -322,45 +323,11 @@ async function refreshStoredData(
   return updated;
 }
 
-let printingMarkWrites: Promise<unknown> = Promise.resolve();
-
-function oneMarkWriteAtATime<T>(write: () => Promise<T>): Promise<T> {
-  const next = printingMarkWrites.then(write, write);
-  printingMarkWrites = next.catch(() => undefined);
-  return next;
-}
-
-async function storePrintingMarks(
-  source: SyncSource,
-  lang: string,
-  cards: { cardId: string; marks: CatalogPrintingMarks | null }[],
-  batch: PrintingMarkBatch,
-): Promise<void> {
-  const rows = JSON.stringify(
-    cards.map(({ cardId, marks }) => ({
-      card_id: cardId,
-      ...printingMarkColumns(source.gameKey, marks),
-    })),
-  );
-  await db.transaction(async (tx) => {
-    await tx.execute(sql`
-      UPDATE cards AS c
-      SET printing_mark_groups = x."printingMarkGroups",
-        printing_mark_version = x."printingMarkVersion"
-      FROM jsonb_to_recordset(${rows}::jsonb)
-        AS x(card_id text, "printingMarkGroups" jsonb, "printingMarkVersion" smallint)
-      WHERE c.game_key = ${source.gameKey}
-        AND c.lang = ${lang}
-        AND c.card_id = x.card_id
-    `);
-    await persistPrintingMarkBatch(tx, source.gameKey, batch);
-  });
-}
-
 async function backfillPrintingMarks(
   source: SyncSource,
   lang: string,
   cards: SyncSourceCard[],
+  vectorizeOn: SyncVectorizeOn = "server",
 ): Promise<void> {
   if (!gameUsesPrintingMarks(source.gameKey)) return;
   const counted = await cardIdsWithCurrentPrintingMarks(source.gameKey, lang);
@@ -368,6 +335,23 @@ async function backfillPrintingMarks(
     (card) => card.imageUrl && !counted.has(card.id),
   );
   if (pending.length === 0) return;
+  if (vectorizeOn === "browser") {
+    await serveBrowserQueue({
+      kind: "printingMarks",
+      source,
+      lang,
+      cards: pending,
+      skipped: 0,
+      addLog,
+      patchState,
+      incrementCounters,
+      emitEvent,
+      getState,
+      isCancelled,
+    });
+    patchState({ acceptingWork: false, queued: 0 });
+    return;
+  }
   let stored = 0;
   let failed = 0;
   addLog(
@@ -704,7 +688,7 @@ async function runSync(
       return;
     }
     patchState({ acceptingWork: false, queued: 0 });
-    await backfillPrintingMarks(source, lang, allCards);
+    await backfillPrintingMarks(source, lang, allCards, "browser");
     if (isCancelled()) {
       emitCancelledDone();
       return;

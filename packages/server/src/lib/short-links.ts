@@ -10,6 +10,7 @@ import type {
   ShopCatalogShortTargetRow,
   StorageLabelShortTargetRow,
 } from "./interfaces/short-links";
+import { loadPublishedOrgProfileHandles, orgProfileShortTarget } from "./org-profiles";
 import { shareLinkShortTarget } from "./share-links";
 import { shopCatalogLinkToken } from "./shop-catalogs";
 import {
@@ -67,6 +68,7 @@ async function loadLiveShortTargets(): Promise<ShortenerLink[]> {
     ...storageLabels.map((location) =>
       storageLabelShortTarget({ ...location, guid: location.guid! }),
     ),
+    ...(await loadPublishedOrgProfileHandles()).map(orgProfileShortTarget),
   ];
 }
 

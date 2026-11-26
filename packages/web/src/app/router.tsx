@@ -69,6 +69,7 @@ import {
 } from "react-router-dom";
 import { PRESET_WORKFLOW_PATH, SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { ORG_PROFILE_ROUTE_PATH } from "@/lib/constants/org-profile";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { SERVED_FROM_PI_BUNDLE } from "@/lib/constants/pi-bundle";
 import {
@@ -118,6 +119,12 @@ const ShopCatalogPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/shop-catalog"),
     ["common", "business", "cards"],
+  ),
+);
+const OrgProfilePage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/org-profile"),
+    ["common", "org-profile", "cards"],
   ),
 );
 const LinkNotFoundPage = lazyRoute(
@@ -298,6 +305,9 @@ const SettingsPricingPage = lazyRoute(
 );
 const SettingsBusinessPage = lazyRoute(
   () => import("@/app/routes/app/settings/business"),
+);
+const SettingsProfilePage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/settings/profile"), ["org-profile"]),
 );
 const SettingsSoundsPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/app/settings/sounds"), ["sounds"]),
@@ -560,6 +570,10 @@ export const routes: RouteObject[] = [
           {
             path: SHORT_LINK_NOT_FOUND_PATH,
             element: <LinkNotFoundPage />,
+          },
+          {
+            path: ORG_PROFILE_ROUTE_PATH,
+            element: <OrgProfilePage />,
           },
         ],
       },
@@ -957,6 +971,7 @@ export const routes: RouteObject[] = [
                   { path: "scanning", element: <SettingsScanningPage /> },
                   { path: "pricing", element: <SettingsPricingPage /> },
                   { path: "business", element: <SettingsBusinessPage /> },
+                  { path: "profile", element: <SettingsProfilePage /> },
                   { path: "sounds", element: <SettingsSoundsPage /> },
                   {
                     path: "notifications",

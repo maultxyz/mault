@@ -1,0 +1,111 @@
+{
+  "saved": "Profilseite gespeichert.",
+  "managersOnly": "Nur Inhaber und Admins können die Profilseite bearbeiten. Du kannst sehen, was sie zeigt.",
+  "errors": {
+    "handleTaken": "Dieser Handle ist vergeben. Wähle einen anderen.",
+    "forbidden": "Nur Inhaber und Admins können die Profilseite bearbeiten.",
+    "sourcesInvalid": "Einige Karten oder Shop-Kataloge sind nicht mehr verfügbar. Lade die Seite neu und versuche es erneut.",
+    "saveFailed": "Die Profilseite konnte nicht gespeichert werden. Versuche es erneut.",
+    "loadFailed": "Die Profilseite konnte nicht geladen werden."
+  },
+  "reorder": {
+    "moveUp": "{{name}} nach oben verschieben",
+    "moveDown": "{{name}} nach unten verschieben",
+    "remove": "{{name}} entfernen"
+  },
+  "published": {
+    "heading": "Sichtbarkeit",
+    "label": "Veröffentlicht",
+    "description": "Alle mit dem Link können deine Profilseite sehen. Schalte dies aus, um sie zu verbergen."
+  },
+  "link": {
+    "heading": "Link",
+    "description": "Dein Handle ist die Adresse deiner Profilseite.",
+    "handleLabel": "Handle",
+    "liveNote": "Deine Profilseite ist unter dieser Adresse erreichbar.",
+    "notLiveNote": "Speichere mit aktiviertem „Veröffentlicht“, um diese Adresse freizuschalten.",
+    "urlLabel": "Adresse der Profilseite:",
+    "copy": "Link kopieren",
+    "copied": "Link kopiert.",
+    "copyFailed": "Der Link konnte nicht kopiert werden.",
+    "open": "Seite öffnen",
+    "share": "Teilen"
+  },
+  "details": {
+    "heading": "Details",
+    "description": "Der Name und die kurze Beschreibung oben auf deiner Seite.",
+    "displayNameLabel": "Anzeigename",
+    "bioLabel": "Beschreibung",
+    "bioPlaceholder": "Was du verkaufst, wo du spielst, wie man dich erreicht",
+    "bioCounter": "{{current}} von {{max}} Zeichen"
+  },
+  "links": {
+    "heading": "Links",
+    "description": "Schaltflächen für deine Shops und sozialen Netzwerke, in dieser Reihenfolge. Bis zu {{max}}.",
+    "add": "Link hinzufügen",
+    "empty": "Noch keine Links.",
+    "position": "Link {{position}}",
+    "kindLabel": "Art",
+    "urlLabel": "Adresse",
+    "urlPlaceholder": "example.com/shop",
+    "labelLabel": "Text der Schaltfläche (optional)",
+    "labelPlaceholder": "Verwendet die Art, wenn leer"
+  },
+  "kinds": {
+    "website": "Website",
+    "tcgplayer": "TCGplayer",
+    "cardmarket": "Cardmarket",
+    "ebay": "eBay",
+    "whatnot": "Whatnot",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "youtube": "YouTube",
+    "x": "X",
+    "bluesky": "Bluesky",
+    "facebook": "Facebook",
+    "twitch": "Twitch",
+    "discord": "Discord",
+    "other": "Link"
+  },
+  "shopCatalogs": {
+    "heading": "Shop-Kataloge",
+    "description": "Zeige Schaltflächen für diese Kataloge auf deiner Seite. Bis zu {{max}}.",
+    "publicBadge": "Öffentlich"
+  },
+  "showcase": {
+    "heading": "Vitrine",
+    "description": "Karten aus deiner Bibliothek zum Vorzeigen, in dieser Reihenfolge. {{current}} von {{max}}.",
+    "add": "Karten hinzufügen",
+    "empty": "Noch keine Karten in der Vitrine.",
+    "unknownCard": "Karte"
+  },
+  "picker": {
+    "title": "Karten zur Vitrine hinzufügen",
+    "description": "Wähle bis zu {{max}} Karten aus deinen Sammlungen.",
+    "collectionLabel": "Sammlung",
+    "chooseCollection": "Sammlung wählen",
+    "searchPlaceholder": "Karten suchen",
+    "selectedCount": "{{current}} von {{max}} ausgewählt",
+    "loadFailed": "Die Karten konnten nicht geladen werden.",
+    "noResults": "Keine Karten passen zu deiner Suche.",
+    "empty": "Diese Sammlung hat noch keine Karten.",
+    "cancel": "Abbrechen",
+    "done": "Fertig"
+  },
+  "prices": {
+    "heading": "Preise",
+    "label": "Preise anzeigen",
+    "description": "Zeige den Preis jeder Vitrinenkarte auf deiner Seite."
+  },
+  "public": {
+    "linksHeading": "Links",
+    "opensInNewTab": "(öffnet in einem neuen Tab)",
+    "showcaseHeading": "Vitrine",
+    "showcaseLoadFailed": "Die Vitrine konnte nicht geladen werden.",
+    "notFoundTitle": "Profil nicht gefunden",
+    "notFoundDescription": "Diese Profilseite existiert nicht oder ist nicht veröffentlicht.",
+    "shopsHeading": "Shops",
+    "catalogCardCount_one": "{{count, compact}} Karte",
+    "catalogCardCount_other": "{{count, compact}} Karten"
+  }
+}

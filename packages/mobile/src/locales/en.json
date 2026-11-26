@@ -2022,6 +2022,10 @@
       "raspberryPis": {
         "title": "Raspberry Pis",
         "description": "Link a Pi and run its scans"
+      },
+      "profilePage": {
+        "title": "Profile page",
+        "description": "Public page with your links, shops and showcase cards"
       }
     },
     "appearance": {
@@ -2606,6 +2610,105 @@
       "reservationsRequireAccount": "Require an account to reserve",
       "reservationsRequireAccountDescription": "Only customers who log in can reserve cards. They get updates and see their reservations on any device."
     },
+    "orgProfile": {
+      "description": "A public link in bio page for your organization with your links, shop catalogs and a showcase of cards.",
+      "managersOnly": "Only owners and admins can edit the profile page.",
+      "handleTaken": "This handle is already taken. Try another one.",
+      "saveErrors": {
+        "handleTaken": "This handle is already taken. Try another one.",
+        "forbidden": "Only owners and admins can edit the profile page.",
+        "sourcesInvalid": "Some showcase cards or shop catalogs no longer exist. Remove them and try again.",
+        "invalid": "Some profile details are invalid. Check the fields and try again."
+      },
+      "linkCopied": "Profile link copied",
+      "moveUp": "Move {{name}} up",
+      "moveDown": "Move {{name}} down",
+      "remove": "Remove {{name}}",
+      "handleLabel": "Handle",
+      "handlePlaceholder": "your-shop",
+      "displayNameLabel": "Display name",
+      "bioLabel": "Bio",
+      "bioPlaceholder": "Tell visitors what you collect or sell",
+      "bioCount": "{{length}}/{{max}}",
+      "published": {
+        "heading": "Published",
+        "toggle": "Publish profile page",
+        "description": "Anyone with the link can see your profile page."
+      },
+      "link": {
+        "heading": "Link",
+        "description": "Your handle is part of the page address.",
+        "liveUrl": "Your profile page",
+        "previewUrl": "Address preview",
+        "handleChangeNote": "Save to move your page to the new handle.",
+        "unpublishedNote": "Publish and save to make this address live.",
+        "copy": "Copy link",
+        "share": "Share",
+        "open": "Open",
+        "openHint": "Opens your profile page in the browser"
+      },
+      "details": {
+        "heading": "Details"
+      },
+      "links": {
+        "heading": "Links",
+        "description": "Buttons to your shops and socials, up to {{max}}.",
+        "empty": "No links yet.",
+        "itemLabel": "Link {{number}}",
+        "kindLabel": "Type",
+        "urlLabel": "URL",
+        "urlPlaceholder": "example.com/your-shop",
+        "labelLabel": "Label (optional)",
+        "labelPlaceholder": "Shown instead of the type name",
+        "add": "Add link",
+        "limitReached": "You can add up to {{max}} links."
+      },
+      "linkKinds": {
+        "website": "Website",
+        "tcgplayer": "TCGplayer",
+        "cardmarket": "Cardmarket",
+        "ebay": "eBay",
+        "whatnot": "Whatnot",
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "x": "X",
+        "bluesky": "Bluesky",
+        "facebook": "Facebook",
+        "twitch": "Twitch",
+        "discord": "Discord",
+        "other": "Other"
+      },
+      "shopCatalogs": {
+        "heading": "Shop catalogs",
+        "description": "Catalogs listed on your profile, up to {{max}}.",
+        "publicCatalog": "Public catalog",
+        "privateCatalog": "Link-only catalog. Profile visitors can open it."
+      },
+      "showcase": {
+        "heading": "Showcase",
+        "description": "Cards shown on your profile in this order, up to {{max}}.",
+        "count": "{{selected}}/{{max}}",
+        "empty": "No showcase cards yet.",
+        "unknownCard": "Card",
+        "add": "Add cards",
+        "pickerTitle": "Add showcase cards",
+        "collectionLabel": "Collection",
+        "search": "Search this collection",
+        "noCollections": "No collections yet.",
+        "noCards": "No cards found.",
+        "cardsLoadFailed": "Couldn't load cards.",
+        "loadMore": "Load more",
+        "limitReached": "The showcase is full ({{max}} cards). Remove one to add another.",
+        "added": "{{name}} added to the showcase",
+        "removed": "{{name}} removed from the showcase"
+      },
+      "prices": {
+        "heading": "Prices",
+        "toggle": "Show prices",
+        "description": "Show card prices on your profile page."
+      }
+    },
     "statsSync": {
       "key": {
         "heading": "Self-hosted stats sync",
@@ -2941,6 +3044,8 @@
     "controlCardActionRequired": "Pick at least one thing for the card to change.",
     "orderBinDuplicate": "Each order needs its own bin.",
     "shortLinkCodeInvalid": "Use up to {{max}} lowercase letters, numbers and hyphens, starting and ending with a letter or number.",
+    "profileHandleInvalid": "Use {{min}} to {{max}} lowercase letters, numbers and hyphens, starting and ending with a letter or number.",
+    "profileHandleReserved": "This handle is reserved. Choose another one.",
     "shortLinkCodeReserved": "That code is reserved. Pick another.",
     "shortLinkTargetInvalid": "Enter a full http:// or https:// URL.",
     "orderBinCatchAll": "The last bin catches every other card, so pick another one.",

@@ -12,6 +12,7 @@ import {
 } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/api";
 import type {
+  ApiGetOptions,
   ApiPostFormOptions,
   AuthenticatedRequestInit,
   AuthenticatedResponse,
@@ -99,11 +100,16 @@ export async function fetchWithAuthRetry(
   init: AuthenticatedRequestInit = {},
 ): Promise<AuthenticatedResponse> {
   const wasImpersonating = !!getImpersonationState();
-  const sendRequest = async (authHeaders: Record<string, string>) =>
-    fetch(`${API_BASE}${path}`, {
+  init.signal?.throwIfAborted();
+  const sendRequest = async (authHeaders: Record<string, string>) => {
+    init.signal?.throwIfAborted();
+    const response = await fetch(`${API_BASE}${path}`, {
       ...init,
       headers: { ...authHeaders, ...init.headers },
     });
+    init.signal?.throwIfAborted();
+    return response;
+  };
   const authHeaders = (await getAuthHeaders()) as Record<string, string>;
   const res = await sendRequest(authHeaders);
   const rejectedToken = authHeaders.Authorization?.slice("Bearer ".length);
@@ -118,10 +124,13 @@ export async function fetchWithAuthRetry(
   };
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
-  const { res, wasImpersonating } = await fetchWithAuthRetry(path);
+export async function apiGet<T>(path: string, { signal }: ApiGetOptions = {}): Promise<T> {
+  const { res, wasImpersonating } = await fetchWithAuthRetry(path, { signal });
   await checkResponse(res, wasImpersonating);
-  return res.json();
+  signal?.throwIfAborted();
+  const result = await res.json();
+  signal?.throwIfAborted();
+  return result;
 }
 
 export async function apiGetBlob(path: string): Promise<Blob> {

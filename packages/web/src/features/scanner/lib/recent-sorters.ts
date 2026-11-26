@@ -11,7 +11,7 @@ export function readRecentSorters(orgId: string): RecentSorter[] {
   }
 }
 
-export function rememberRecentBluetoothSorter(
+export function rememberRecentSorterForOrg(
   orgId: string,
   connected: Omit<RecentSorter, "connectedAt">,
 ): void {

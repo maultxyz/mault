@@ -142,7 +142,7 @@ A Raspberry Pi or Orange Pi Zero 4 runs the sorter headlessly, either linked to 
 **Other arm64 boards, or an existing Raspberry Pi OS install:**
 
 ```bash
-curl -fsSL https://github.com/<owner>/<repo>/releases/download/pi-latest/install.sh | sudo bash
+curl -fsSL https://github.com/maultxyz/mault/releases/download/pi-latest/install.sh | sudo bash
 ```
 
 `install.sh` installs Postgres with pgvector, nginx, ffmpeg, the webcam tools, BlueZ and Bleak, creates the `mault-service` account, unpacks the release into root-owned `/opt/mault/releases/<version>` (`/opt/mault/current` points at the running one), installs the `mault` command and the root helpers (see [Security](#pi-security)), and runs `scripts/pi/setup.sh`. Setup writes `/var/lib/mault/.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, a generated `CARD_API_USER_AGENT` and new secrets, creates the `mault` role and database, and enables the user services under `mault-service` with linger so they start at boot. Reruns keep the saved settings. `sudo bash install.sh --bundle mault-pi-arm64.tar.gz` installs a downloaded bundle offline.
@@ -203,6 +203,8 @@ The operating system patches itself: the installer turns on `unattended-upgrades
 | `/var/lib/mault`             | The service account's own data (`.env`, calibration, logs); root never reads or writes it directly  |
 
 Before root runs anything from a release, `trusted-tree.py` checks that every directory leading to it, the `current` link and every file under `scripts/pi` are root-owned and not writable by anyone else, and refuses otherwise. Root scripts pin `PATH` and run Python with `-I`, so nothing is picked up from the working directory or the environment. Anything that reads the service's files, renders its units or runs Node runs as `mault-service`.
+
+If installation stops with `/opt is writable by group or others`, run `sudo chmod go-w -- /opt`, then rerun the installer command below. This changes only `/opt` itself. Mault requires its parent directories to be root-owned without group or other write access; the installer checks the parents of releases, service data, root helpers, root state and system configuration before changing packages or releases. It reports independent permission problems together, with repair commands, instead of stopping at the first directory.
 
 **Upgrading boards on Pi release 1.0.209 or older.** Those releases were writable by `mault-service`, so they can't be trusted to switch themselves over. Run the newest installer once over SSH instead of `sudo mault update`:
 

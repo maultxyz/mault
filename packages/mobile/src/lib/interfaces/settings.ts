@@ -35,7 +35,8 @@ export interface SettingsSectionLink {
     | "/settings/notifications"
     | "/settings/webhooks"
     | "/settings/integrations"
-    | "/settings/business";
+    | "/settings/business"
+    | "/settings/profile-page";
   key: string;
   icon: IconName;
 }

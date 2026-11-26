@@ -50,13 +50,15 @@ export interface TextFieldProps {
   secureTextEntry?: boolean;
   autoComplete?: "email" | "password" | "name" | "off" | "new-password";
   textContentType?: "emailAddress" | "password" | "newPassword" | "name" | "none";
-  keyboardType?: "default" | "email-address" | "decimal-pad" | "number-pad" | "numeric" | "numbers-and-punctuation";
+  keyboardType?: "default" | "email-address" | "decimal-pad" | "number-pad" | "numeric" | "numbers-and-punctuation" | "url";
   editable?: boolean;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   autoCorrect?: boolean;
   returnKeyType?: "next" | "done" | "go" | "search";
   onSubmitEditing?: () => void;
   multiline?: boolean;
+  prefix?: string;
+  maxLength?: number;
 }
 
 export interface NumberTextFieldProps {

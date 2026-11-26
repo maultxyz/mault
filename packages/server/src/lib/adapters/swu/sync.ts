@@ -11,6 +11,7 @@ import {
   isSwuFoilVariant,
   parseSwuCardId,
   swuCardId,
+  swuCardImageUrl,
   swuCardName,
 } from "./search";
 import { markSyncFetchIncomplete } from "../../sync-job/fetch-completeness";
@@ -21,7 +22,7 @@ function toSyncCard(raw: SwuCard): SyncSourceCard {
       id: swuCardId(raw.Set, raw.Number),
       name: swuCardName(raw),
       setCode: raw.Set,
-      imageUrl: raw.FrontArt,
+      imageUrl: swuCardImageUrl(raw),
       backImageUrl: raw.BackArt || undefined,
     },
     raw,

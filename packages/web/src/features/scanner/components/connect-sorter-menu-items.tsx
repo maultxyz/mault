@@ -28,10 +28,11 @@ export function ConnectSorterMenuItems({
 
   return (
     <>
-      {!piRemote && isWebBluetoothSupported() && (
+      {!piRemote && (
         <RecentSorterMenuItems
           disabled={disabled}
-          onSelect={(bluetoothDevice) => onConnectBluetooth(bluetoothDevice)}
+          onConnectBluetooth={onConnectBluetooth}
+          onConnectUsb={onConnectUsb}
         />
       )}
       <DropdownMenuItem disabled={disabled} onClick={() => onConnectUsb()}>

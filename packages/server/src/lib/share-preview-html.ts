@@ -3,6 +3,9 @@ import {
   OPEN_GRAPH_IMAGE_ROUTE_PATH,
   OPEN_GRAPH_IMAGE_THEME_PARAM,
   type OpenGraphTheme,
+  ORG_PROFILE_PATH_PREFIX,
+  orgProfilePath,
+  parseOrgProfileHandleFromPath,
   SHARED_CARD_PATH_PREFIX,
   SHARED_STORAGE_PATH_PREFIX,
   SHARE_LINK_TOKEN_PARAM,
@@ -19,6 +22,7 @@ import {
   SHARE_PREVIEW_FOIL_STAT,
   SHARE_PREVIEW_SHARED_ON_SITE,
   SHARE_PREVIEW_SHOP_EYEBROW,
+  SHARE_PREVIEW_PROFILE_EYEBROW,
   SHARE_PREVIEW_TRADE_STAT,
   SHARE_PREVIEW_STORAGE_EYEBROW,
   SHARE_PREVIEW_TRADE_EYEBROW,
@@ -63,13 +67,25 @@ export function parseSharePreviewPath(pathWithQuery: string): SharePreviewReques
     return null;
   }
   const pathname = url.pathname.replace(/\/+$/, "");
+  const profileSegment = pathname.replace(/^\/%40/i, ORG_PROFILE_PATH_PREFIX).slice(1);
+  const profileHandle = profileSegment.includes("/")
+    ? null
+    : parseOrgProfileHandleFromPath(profileSegment);
+  if (profileHandle) {
+    return {
+      kind: "profile",
+      subjectKey: profileHandle,
+      token: null,
+      pathWithQuery: orgProfilePath(profileHandle),
+    };
+  }
   for (const [prefix, kind] of SHARE_PREVIEW_KIND_BY_PATH_PREFIX) {
     if (!pathname.startsWith(`${prefix}/`)) continue;
-    const subjectGuid = pathname.slice(prefix.length + 1);
-    if (!UUID_PATTERN.test(subjectGuid)) return null;
+    const subjectKey = pathname.slice(prefix.length + 1);
+    if (!UUID_PATTERN.test(subjectKey)) return null;
     return {
       kind,
-      subjectGuid: subjectGuid.toLowerCase(),
+      subjectKey: subjectKey.toLowerCase(),
       token: url.searchParams.get(SHARE_LINK_TOKEN_PARAM) || null,
       pathWithQuery: `${url.pathname}${url.search}`,
     };
@@ -181,6 +197,24 @@ export function shopCatalogSharePreviewText(summary: SharePreviewListSummary): {
   };
 }
 
+export function profileSharePreviewText(
+  summary: SharePreviewListSummary,
+  bio: string,
+): {
+  title: string;
+  description: string;
+} {
+  return {
+    title: summary.subjectName,
+    description:
+      bio.trim() ||
+      withGames(
+        `See ${cardCountText(summary.cardCount)} showcased by ${summary.subjectName}`,
+        summary.games,
+      ),
+  };
+}
+
 export function cardSharePreviewText(card: SharePreviewCardSummary): {
   title: string;
   description: string;
@@ -225,7 +259,7 @@ function openGraphImageAlt(
 }
 
 export function listOpenGraphImage(
-  kind: "collection" | "storage" | "shopCatalog",
+  kind: "collection" | "storage" | "shopCatalog" | "profile",
   summary: SharePreviewListSummary,
   cardArt: SharePreviewCardArt[],
   shopPhotoOrgId: string | null,
@@ -234,7 +268,9 @@ export function listOpenGraphImage(
   const eyebrow =
     kind === "shopCatalog"
       ? SHARE_PREVIEW_SHOP_EYEBROW
-      : summary.isTradeLink
+      : kind === "profile"
+        ? SHARE_PREVIEW_PROFILE_EYEBROW
+        : summary.isTradeLink
         ? SHARE_PREVIEW_TRADE_EYEBROW
         : kind === "storage"
           ? SHARE_PREVIEW_STORAGE_EYEBROW

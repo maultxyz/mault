@@ -266,12 +266,12 @@ export const GROUPS: BomGroup[] = [
         buyUrl: "https://amzn.to/3VfNwJN",
       },
       {
-        key: "m10-washer",
+        key: "m3-washer",
         qty: () => "2",
-        name: "M10 washer",
-        part: (t) => t("bom.groups.fasteners.items.m10Washer.part"),
-        notes: (t) => t("bom.groups.fasteners.items.m10Washer.notes"),
-        buyUrl: "https://link.amazon/B0h61W2hh",
+        name: "M3 washer",
+        part: (t) => t("bom.groups.fasteners.items.m3Washer.part"),
+        notes: (t) => t("bom.groups.fasteners.items.m3Washer.notes"),
+        buyUrl: "https://amzn.to/3VfNwJN",
       },
       {
         key: "m3x8-screw",
@@ -402,6 +402,14 @@ export const GROUPS: BomGroup[] = [
         part: (t) => t("bom.groups.optional.items.hopperWeights.part"),
         notes: (t) => t("bom.groups.optional.items.hopperWeights.notes"),
         buyUrl: "https://amzn.to/4jtsnGk",
+      },
+      {
+        key: "m10-washer",
+        qty: () => "2",
+        name: "M10 washer",
+        part: (t) => t("bom.groups.optional.items.m10Washer.part"),
+        notes: (t) => t("bom.groups.optional.items.m10Washer.notes"),
+        buyUrl: "https://link.amazon/B0h61W2hh",
       },
       {
         key: "servo-extension-cables",

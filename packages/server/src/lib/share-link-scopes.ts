@@ -1,5 +1,6 @@
 import type { PublicCardBrowseScope } from "./interfaces/public-cards";
 import type { MonitorLinkClaims } from "./interfaces/monitor-links";
+import type { OrgProfileScopeSource } from "./interfaces/org-profiles";
 import type {
   CardShareLinkClaims,
   ShopCatalogClaims,
@@ -46,7 +47,12 @@ export function cardShareLinkScope(claims: CardShareLinkClaims): PublicCardBrows
   };
 }
 
-export function shopCatalogScope(claims: ShopCatalogClaims): PublicCardBrowseScope {
+export function shopCatalogScope(
+  claims: Pick<
+    ShopCatalogClaims,
+    "orgId" | "catalogGuid" | "collectionIds" | "storageLocationIds" | "showsPrices"
+  >,
+): PublicCardBrowseScope {
   return {
     orgId: claims.orgId,
     collectionIds: claims.collectionIds,
@@ -57,5 +63,20 @@ export function shopCatalogScope(claims: ShopCatalogClaims): PublicCardBrowseSco
     showsPrices: claims.showsPrices,
     usesSellPrices: true,
     readsCacheKey: `${claims.catalogGuid}|${claims.orgId}`,
+  };
+}
+
+export function orgProfileScope(profile: OrgProfileScopeSource): PublicCardBrowseScope {
+  return {
+    orgId: profile.orgId,
+    collectionIds: profile.collectionIds,
+    storageLocationIds: [],
+    collectionCardIds: profile.collectionCardIds,
+    ordersByCollectionCardIds: true,
+    inventoryOnly: false,
+    hidesCardsReservedByOpenPicks: false,
+    hidesCardsHeldByReservations: false,
+    showsPrices: profile.showsPrices,
+    readsCacheKey: `${profile.handle}|${profile.orgId}`,
   };
 }

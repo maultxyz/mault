@@ -20,19 +20,26 @@ async function send(
   method: string,
   path: string,
   body?: unknown,
+  signal?: AbortSignal,
 ): Promise<PiScanSessionResult> {
+  signal?.throwIfAborted();
   const headers = new Headers(await getAuthHeaders());
+  signal?.throwIfAborted();
   const requestOrgId = headers.get("X-Org-Id");
   const response = await fetch(`${API_BASE}${path}`, {
     method,
+    ...(signal ? { signal } : {}),
     headers: {
       "Content-Type": "application/json",
       ...Object.fromEntries(headers.entries()),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
+  signal?.throwIfAborted();
   const result = (await response.json()) as PiScanSessionResult;
+  signal?.throwIfAborted();
   const currentAuth = await getRequestAuth();
+  signal?.throwIfAborted();
   if (currentAuth.orgId !== requestOrgId)
     return { ...result, success: false, data: undefined };
   return result;
@@ -42,9 +49,10 @@ export function piScanHoldsPort(state: PiScanSessionState): boolean {
   return state.phase === "running" || state.phase === "paused";
 }
 
-export async function fetchPiScanSession(): Promise<PiScanSessionState> {
+export async function fetchPiScanSession(signal?: AbortSignal): Promise<PiScanSessionState> {
   if (!(await loadPiHost())) return IDLE_PI_SCAN_SESSION;
-  const result = await send("GET", PI_SCAN_SESSION_API);
+  signal?.throwIfAborted();
+  const result = await send("GET", PI_SCAN_SESSION_API, undefined, signal);
   return result.data ?? IDLE_PI_SCAN_SESSION;
 }
 

@@ -33,7 +33,6 @@ import { linkedPiScanHostGuid } from "@/features/scanner/lib/pi-scan-target";
 import { useAppStreamSource, useCollectionStream } from "@/lib/app-stream";
 import { PI_SCAN_CARD_EVENTS } from "@/lib/constants/scanner";
 import { toast } from "@/lib/toast";
-import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   IconHandStop,
@@ -184,14 +183,15 @@ export function PiScanStatusBar() {
   return (
     <div className="flex items-center gap-2 border-b bg-card px-3 py-1.5 text-xs">
       {!onScanner && (
-        <PiCameraPreview
-          cameraId={state.cameraId}
-          alt={t("piScan.preview")}
-          className={cn(
-            "h-14 w-10 shrink-0 rounded-md bg-muted object-cover",
-            device?.flipCamera && "rotate-180",
-          )}
-        />
+        <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+          <PiCameraPreview
+            cameraId={state.cameraId}
+            alt={t("piScan.preview")}
+            rotated
+            flipped={device?.flipCamera}
+            className="absolute max-w-none"
+          />
+        </div>
       )}
       <StationStatusDot status={paused ? "paused" : "sorting"} />
       <div className="min-w-0 flex-1">

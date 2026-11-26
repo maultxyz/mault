@@ -136,10 +136,14 @@ async function loadScopeSellPrices(
 }
 
 function cardOrderSql(
+  scope: PublicCardBrowseScope,
   sort: PublicCardSort,
   pricing: OrgPricing,
   sellPrices: SellPriceSqlContext | null,
 ): SQL {
+  if (scope.ordersByCollectionCardIds && scope.collectionCardIds && sort === DEFAULT_PUBLIC_CARD_SORT) {
+    return sql`array_position(${integerArraySql(scope.collectionCardIds)}, cc.id) ASC`;
+  }
   if (sort === "name") return sql`cc.card_name COLLATE "und-x-icu" ASC, cc.id ASC`;
   if (sort === "price-desc" || sort === "price-asc") {
     const direction = sort === "price-desc" ? sql`DESC` : sql`ASC`;
@@ -204,7 +208,7 @@ export async function loadPublicCardIdsPage(
     !!request.search || filters.rarities.length > 0 || filters.colors.length > 0;
   const ranked = sql`
     ranked AS (
-      SELECT cc.id, row_number() OVER (ORDER BY ${cardOrderSql(request.sort, pricing, sellPrices)}) AS rn
+      SELECT cc.id, row_number() OVER (ORDER BY ${cardOrderSql(scope, request.sort, pricing, sellPrices)}) AS rn
       FROM collection_cards cc
       ${PUBLIC_CARD_JOINS}
       ${usesCatalog ? cardCatalogJoinSql(STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}

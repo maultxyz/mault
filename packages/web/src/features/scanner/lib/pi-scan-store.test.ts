@@ -117,3 +117,55 @@ it("publishes pending-save-only transitions and clears them on organization rese
   resetPiScanScope("org-b");
   expect(getPiScanState().pendingSave).toBeUndefined();
 });
+
+it("does not accumulate status requests while a slow poll is pending", async () => {
+  mocks.host.mockResolvedValue(true);
+  let finish: (value: typeof IDLE_PI_SCAN_SESSION) => void = () => {};
+  mocks.fetch.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+  resetPiScanScope("org-a");
+  const unsubscribe = subscribePiScan(() => {});
+  try {
+    await vi.waitFor(() => expect(mocks.fetch).toHaveBeenCalledOnce());
+    await vi.advanceTimersByTimeAsync(4000);
+    expect(mocks.fetch).toHaveBeenCalledOnce();
+    finish({ ...IDLE_PI_SCAN_SESSION, cardsScanned: 58 });
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(mocks.fetch).toHaveBeenCalledTimes(2);
+  } finally {
+    unsubscribe();
+  }
+});
+
+it("continues polling after a failed request", async () => {
+  mocks.host.mockResolvedValue(true);
+  mocks.fetch.mockRejectedValueOnce(new Error("connection interrupted"));
+  resetPiScanScope("org-a");
+  const unsubscribe = subscribePiScan(() => {});
+  try {
+    await vi.waitFor(() => expect(mocks.fetch).toHaveBeenCalledOnce());
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(mocks.fetch).toHaveBeenCalledTimes(2);
+  } finally {
+    unsubscribe();
+  }
+});
+
+
+it("aborts an unsubscribed poll and ignores its late state after subscribing again", async () => {
+  mocks.host.mockResolvedValue(true);
+  let finish!: (value: typeof IDLE_PI_SCAN_SESSION) => void;
+  mocks.fetch.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+  resetPiScanScope("org-a");
+  const unsubscribe = subscribePiScan(() => {});
+  await vi.advanceTimersByTimeAsync(0);
+  const signal = mocks.fetch.mock.calls[0][0] as AbortSignal;
+  unsubscribe();
+  expect(signal.aborted).toBe(true);
+  const stop = subscribePiScan(() => {});
+  await vi.advanceTimersByTimeAsync(0);
+  finish({ ...IDLE_PI_SCAN_SESSION, cardsScanned: 99 });
+  await vi.advanceTimersByTimeAsync(0);
+  expect(getPiScanState().cardsScanned).toBe(0);
+  expect(mocks.fetch).toHaveBeenCalledTimes(2);
+  stop();
+});

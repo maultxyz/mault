@@ -11,7 +11,8 @@
     "integrations": "API & webhooks",
     "pricing": "Pricing",
     "business": "Business",
-    "raspberryPis": "Raspberry Pis"
+    "raspberryPis": "Raspberry Pis",
+    "profile": "Profile page"
   },
   "organizations": {
     "heading": "Organizations"
@@ -103,7 +104,8 @@
     "notifications": "Link your Discord server and choose which scans and alerts get posted where.",
     "integrations": "Create API keys and webhooks so your shop or other tools can see where your cards are stored.",
     "business": "Choose what members can see and do, and share your shop catalogs.",
-    "raspberry-pis": "Link a Raspberry Pi sorter to this organization, then start and stop its scans from here."
+    "raspberry-pis": "Link a Raspberry Pi sorter to this organization, then start and stop its scans from here.",
+    "profile": "Your public page at mault.xyz/@handle with your links, shop catalogs and favorite cards."
   },
   "controlCards": {
     "heading": "Control cards",

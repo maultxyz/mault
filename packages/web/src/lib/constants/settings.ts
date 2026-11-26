@@ -8,6 +8,7 @@ import {
   IconCurrencyDollar,
   IconPlug,
   IconScan,
+  IconUserCircle,
   IconVolume,
 } from "@tabler/icons-react";
 
@@ -19,6 +20,7 @@ export const SETTINGS_PATHS = {
   scanning: "/app/settings/scanning",
   pricing: "/app/settings/pricing",
   business: "/app/settings/business",
+  profile: "/app/settings/profile",
   sounds: "/app/settings/sounds",
   notifications: "/app/settings/notifications",
   integrations: "/app/settings/integrations",
@@ -47,6 +49,7 @@ export const SETTINGS_SECTIONS = [
   },
   { path: "pricing", icon: IconCurrencyDollar, labelKey: "sections.pricing" },
   { path: "business", icon: IconBuildingStore, labelKey: "sections.business" },
+  { path: "profile", icon: IconUserCircle, labelKey: "sections.profile" },
   { path: "sounds", icon: IconVolume, labelKey: "sections.sounds" },
   {
     path: "notifications",

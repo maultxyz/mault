@@ -1,4 +1,4 @@
-export const PRINTING_MARK_VERSION = 4;
+export { PRINTING_MARK_VERSION } from "@magic-vault/shared";
 export const PRINTING_MARK_REFERENCES_REVALIDATE_MS = 60_000;
 export const PRINTING_MARK_GROUP_UNKNOWN = -2;
 export const PRINTING_MARK_GROUP_ABSENT = -1;

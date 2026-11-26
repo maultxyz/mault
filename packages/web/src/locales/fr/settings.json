@@ -11,7 +11,8 @@
     "integrations": "API et webhooks",
     "pricing": "Prix",
     "business": "Business",
-    "raspberryPis": "Raspberry Pi"
+    "raspberryPis": "Raspberry Pi",
+    "profile": "Page de profil"
   },
   "organizations": {
     "heading": "Organisations"
@@ -97,7 +98,8 @@
     "notifications": "Relie ton serveur Discord et choisis quels scans et alertes sont publiés et où.",
     "integrations": "Crée des clés API et des webhooks pour que ta boutique ou d'autres outils sachent où tes cartes sont rangées.",
     "business": "Choisissez ce que les membres peuvent voir et faire, et partagez vos catalogues.",
-    "raspberry-pis": "Associez un trieur Raspberry Pi à cette organisation, puis lancez et arrêtez ses scans depuis cette page."
+    "raspberry-pis": "Associez un trieur Raspberry Pi à cette organisation, puis lancez et arrêtez ses scans depuis cette page.",
+    "profile": "Votre page publique sur mault.xyz/@handle avec vos liens, catalogues de boutique et cartes favorites."
   },
   "invites": {
     "heading": "Invitations"
