@@ -1,7 +1,7 @@
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
-import { useCollectionLatestCard } from "@/features/scanner/api/use-collection-latest-card";
+import { useCollectionCardCount } from "@/features/scanner/api/use-collection-card-count";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStationAttentionLabel } from "@/features/scanner/api/use-station-attention-label";
@@ -60,9 +60,7 @@ export function StationOverviewTile() {
   const selectionKey = station.deviceGuid ?? station.id;
   const pauseLabel = t("stations.overview.pause", { name });
   const { activeCollection } = useCollections();
-  const { latestCard, totalCount } = useCollectionLatestCard(
-    activeCollection?.guid,
-  );
+  const totalCount = useCollectionCardCount(activeCollection?.guid);
   const videoRef = useRef<HTMLVideoElement>(null);
   const showsVideo = !!stream && cameraSource === "local";
 
@@ -80,7 +78,6 @@ export function StationOverviewTile() {
     <StationOverviewCard
       name={name}
       status={status}
-      latestCard={latestCard}
       collectionName={activeCollection?.name}
       totalCount={totalCount}
       sessionScanCount={sessionScanCount}

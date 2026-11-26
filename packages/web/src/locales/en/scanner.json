@@ -706,7 +706,6 @@
       "openStation": "Switch to {{name}}",
       "offline": "Not connected",
       "noCamera": "No camera",
-      "noCards": "No cards scanned yet",
       "emptyTitle": "No sorters yet",
       "emptyDescription": "Connect a sorter to see it here.",
       "stats": {

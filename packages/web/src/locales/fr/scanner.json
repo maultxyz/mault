@@ -706,7 +706,6 @@
       "openStation": "Basculer vers {{name}}",
       "offline": "Non connecté",
       "noCamera": "Aucune caméra",
-      "noCards": "Aucune carte scannée pour l'instant",
       "emptyTitle": "Aucun trieur pour l'instant",
       "emptyDescription": "Connectez un trieur pour le voir ici.",
       "stats": {

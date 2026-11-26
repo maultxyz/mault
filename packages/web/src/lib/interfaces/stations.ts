@@ -1,4 +1,3 @@
-import type { PlayingCard } from "@magic-vault/shared";
 import type { ReactNode } from "react";
 import type { Device } from "@/lib/interfaces/calibration";
 
@@ -145,7 +144,6 @@ export interface StationOverviewCardProps {
   status: StationStatus;
   camera: ReactNode;
   bins?: ReactNode;
-  latestCard: PlayingCard | undefined;
   collectionName: string | undefined;
   totalCount: number;
   sessionScanCount?: number;

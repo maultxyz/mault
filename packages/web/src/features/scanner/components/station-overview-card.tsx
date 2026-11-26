@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { CardImage } from "@/components/card-image";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StationStatusDot } from "@/features/scanner/components/station-status-dot";
@@ -14,7 +13,7 @@ import {
 } from "@/lib/constants/scanner";
 import type { StationOverviewCardProps } from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
-import { IconAlertTriangle, IconCards } from "@tabler/icons-react";
+import { IconAlertTriangle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function StationOverviewCard({
@@ -22,7 +21,6 @@ export function StationOverviewCard({
   status,
   camera,
   bins,
-  latestCard,
   collectionName,
   totalCount,
   sessionScanCount = 0,
@@ -34,7 +32,6 @@ export function StationOverviewCard({
   onToggleSelect,
 }: StationOverviewCardProps) {
   const { t } = useTranslation("scanner");
-  const latestImage = latestCard?.image?.small || latestCard?.image?.normal;
   const statusLabel = {
     sorting: t("scannerPip.sorting"),
     paused: t("scannerPip.paused"),
@@ -105,17 +102,6 @@ export function StationOverviewCard({
         </Badge>
       </div>
       <div className="flex items-center gap-3 border-t p-3">
-        <div className="relative aspect-[2.5/3.5] w-8 shrink-0 overflow-hidden rounded-sm bg-muted">
-          {latestImage ? (
-            <CardImage
-              src={latestImage}
-              alt=""
-              className="absolute inset-0"
-            />
-          ) : (
-            <IconCards className="absolute inset-0 m-auto size-3.5 text-foreground/70" />
-          )}
-        </div>
         <div className="min-w-0 flex-1">
           {onOpen ? (
             <button
@@ -129,7 +115,6 @@ export function StationOverviewCard({
             <p className="truncate text-sm font-semibold">{name}</p>
           )}
           <p className="truncate text-xs tabular-nums text-foreground/70">
-            {latestCard?.name ?? t("stations.overview.noCards")} ·{" "}
             {t("cardCount", { count: totalCount })}
             {sessionScanCount > 0 &&
               ` · ${t("stations.overview.sessionCount", { count: sessionScanCount })}`}
