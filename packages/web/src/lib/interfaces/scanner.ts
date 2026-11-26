@@ -117,6 +117,7 @@ export type CameraTrackCapabilities = MediaTrackCapabilities & {
 };
 
 export interface CameraContextValue {
+  claimPiCameraStream: () => () => void;
   stream: MediaStream | null;
   status: CameraStatus;
   errorMessage: string;

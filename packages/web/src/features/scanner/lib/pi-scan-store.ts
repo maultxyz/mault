@@ -3,7 +3,7 @@ import {
   fetchPiScanSession,
   piScanHoldsPort,
 } from "@/features/scanner/api/pi-scan-session";
-import { IDLE_PI_SCAN_SESSION } from "@/lib/constants/scanner";
+import { IDLE_PI_SCAN_SESSION, PI_SCAN_POLL_TIMEOUT_MS } from "@/lib/constants/scanner";
 import { setPiScanHoldingPort } from "@/features/scanner/lib/pi-scan-hold";
 import type { PiScanSessionState } from "@magic-vault/shared";
 import { loadPiHost } from "@/lib/pi-host";
@@ -15,6 +15,7 @@ let state: PiScanSessionState = IDLE_PI_SCAN_SESSION;
 let holdOverride = false;
 let announced: string | null = null;
 let timer: ReturnType<typeof setInterval> | null = null;
+let pendingPoll: AbortController | null = null;
 const listeners = new Set<PiScanListener>();
 
 function publishHold() {
@@ -69,6 +70,8 @@ export function resetPiScanScope(orgId: string | null) {
   if (scopeOrgId === orgId) return;
   scopeOrgId = orgId;
   scopeGeneration++;
+  pendingPoll?.abort();
+  pendingPoll = null;
   if (timer) clearInterval(timer);
   timer = null;
   holdOverride = false;
@@ -110,27 +113,44 @@ export function takePiScanAnnouncement(
 }
 
 async function pull() {
+  if (pendingPoll) return;
+  const poll = new AbortController();
+  pendingPoll = poll;
   const generation = scopeGeneration;
+  let rejectAborted: () => void = () => {};
+  const aborted = new Promise<never>((_, reject) => {
+    rejectAborted = () => reject(poll.signal.reason);
+    poll.signal.addEventListener("abort", rejectAborted, { once: true });
+  });
+  const deadline = setTimeout(() => poll.abort(), PI_SCAN_POLL_TIMEOUT_MS);
   try {
-    const next = await fetchPiScanSession();
-    if (generation !== scopeGeneration) return;
+    const next = await Promise.race([
+      (async () => {
+        if (!(await loadPiHost())) return;
+        poll.signal.throwIfAborted();
+        return fetchPiScanSession(poll.signal);
+      })(),
+      aborted,
+    ]);
+    if (poll.signal.aborted || generation !== scopeGeneration || pendingPoll !== poll || listeners.size === 0) return;
+    if (!next) {
+      if (timer) clearInterval(timer);
+      timer = null;
+      return;
+    }
     applyPiScanState(next);
-  } catch {}
+  } catch {
+  } finally {
+    clearTimeout(deadline);
+    poll.signal.removeEventListener("abort", rejectAborted);
+    if (pendingPoll === poll) pendingPoll = null;
+  }
 }
 
-async function ensurePolling() {
+function ensurePolling() {
   if (timer || listeners.size === 0 || scopeOrgId === null) return;
-  const generation = scopeGeneration;
-  if (
-    !(await loadPiHost()) ||
-    generation !== scopeGeneration ||
-    scopeOrgId === null ||
-    timer ||
-    listeners.size === 0
-  )
-    return;
-  void pull();
   timer = setInterval(() => void pull(), 1000);
+  void pull();
 }
 
 export function subscribePiScan(listener: PiScanListener): () => void {
@@ -138,9 +158,11 @@ export function subscribePiScan(listener: PiScanListener): () => void {
   void ensurePolling();
   return () => {
     listeners.delete(listener);
-    if (listeners.size === 0 && timer) {
-      clearInterval(timer);
+    if (listeners.size === 0) {
+      if (timer) clearInterval(timer);
       timer = null;
+      pendingPoll?.abort();
+      pendingPoll = null;
     }
   };
 }

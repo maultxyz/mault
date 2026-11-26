@@ -203,6 +203,7 @@
     "browserStopped": "Browser vectorization stopped",
     "browserStoppedHint": "The browser could not run the image model. Reload this page before trying again. Saved cards are kept.",
     "browserWorking": "This computer is vectorizing up to {{count}} cards at a time. Keep this page open.",
+    "browserReadingPrintingMarks": "This computer is reading printing marks for up to {{count}} cards at a time. Keep this page open.",
     "ratePerMinute": "{{count}}/min",
     "embeddingCount": "{{count}} embedding",
     "progressCount": "{{done}} / {{total}}",

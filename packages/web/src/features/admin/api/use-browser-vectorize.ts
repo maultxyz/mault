@@ -1,5 +1,6 @@
 import { loadSyncCanvas } from "@/features/admin/lib/embed-sync-image";
 import { MiloSyncPool } from "@/features/admin/lib/milo-sync-pool";
+import { readSyncPrintingMarks } from "@/features/admin/lib/read-sync-printing-marks";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import { toast } from "@/lib/toast";
 import { cancelSync, claimBrowserSyncWork, submitBrowserSyncWork } from "@/lib/api/admin";
@@ -67,6 +68,7 @@ export function useBrowserVectorize(
     let stopped = false;
     const signal = controller.signal;
     let activePool: MiloSyncPool | null = null;
+    let poolPromise: Promise<MiloSyncPool> | null = null;
     const stopAfterFailure = () => {
       if (signal.aborted) return;
       stopped = true;
@@ -77,17 +79,33 @@ export function useBrowserVectorize(
       });
       void cancelSync().catch(() => {});
     };
+    const getPool = () => {
+      poolPromise ??= MiloSyncPool.create(parallel, signal).then((pool) => {
+        activePool = pool;
+        if (signal.aborted) pool.close();
+        return pool;
+      }).catch((err) => {
+        stopAfterFailure();
+        throw err;
+      });
+      return poolPromise;
+    };
 
     const bumpEmbedding = (delta: number) => {
       setEmbeddingCount((count) => Math.max(0, count + delta));
     };
     const runCard = async (
       card: BrowserSyncWorkCard,
-      pool: MiloSyncPool,
     ) => {
       bumpEmbedding(1);
       let canvas: HTMLCanvasElement | null = null;
       try {
+        if (card.kind === "printingMarks") {
+          const result = await readSyncPrintingMarks(card, signal);
+          if (!signal.aborted) await submitBrowserSyncWork([result], []);
+          return;
+        }
+        const pool = await getPool();
         canvas = await loadSyncCanvas(card.imageUrl, signal);
         const embedding = await pool.embed(canvas);
         releaseCanvases([canvas]);
@@ -101,14 +119,14 @@ export function useBrowserVectorize(
         await submitBrowserSyncWork([{ cardId: card.cardId, embedding, backEmbedding }], []);
       } catch (err) {
         if (signal.aborted) return;
-        if (pool.failure) {
+        if (activePool?.failure) {
           stopAfterFailure();
           return;
         }
         try {
           await submitBrowserSyncWork(
             [],
-            [{ cardId: card.cardId, message: errorText(err) }],
+            [{ kind: card.kind, cardId: card.cardId, message: errorText(err) }],
           );
         } catch {}
       } finally {
@@ -117,30 +135,15 @@ export function useBrowserVectorize(
       }
     };
 
-    const loop = async (pool: MiloSyncPool) => {
+    const loop = async () => {
       while (!stopped && !signal.aborted) {
         const card = await claimOne(signal, () => acceptingRef.current);
         if (!card || signal.aborted) return;
-        await runCard(card, pool);
+        await runCard(card);
       }
     };
 
-    void (async () => {
-      let pool: MiloSyncPool | null = null;
-      try {
-        pool = await MiloSyncPool.create(parallel, signal);
-        activePool = pool;
-      } catch {
-        stopAfterFailure();
-        return;
-      }
-      if (stopped || signal.aborted) {
-        pool?.close();
-        return;
-      }
-      await Promise.all(Array.from({ length: parallel }, () => loop(pool)));
-      pool?.close();
-    })();
+    void Promise.all(Array.from({ length: parallel }, loop)).finally(() => activePool?.close());
 
     return () => {
       stopped = true;

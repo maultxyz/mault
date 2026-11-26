@@ -17,7 +17,7 @@ import {
   contourToBox,
   rawContourToPortraitBox,
 } from "@/features/calibration/lib/scan-region-geometry";
-import { useCameraContext } from "@/features/scanner/api/use-camera";
+import { useCameraContext, useCameraPreviewStream } from "@/features/scanner/api/use-camera";
 import { CameraFocusControl } from "@/features/scanner/components/camera-focus-control";
 import { CameraZoomControl } from "@/features/scanner/components/camera-zoom-control";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
@@ -64,6 +64,7 @@ export function ScanRegionCalibrationPanel({
   onFlipCameraChange,
 }: ScanRegionCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
+  const stream = useCameraPreviewStream();
   const regionRef = useRef(region);
   regionRef.current = region;
 
@@ -71,7 +72,6 @@ export function ScanRegionCalibrationPanel({
     useExecutionProviderPreference();
 
   const {
-    stream,
     status: cameraStatus,
     errorMessage,
     retryCamera,

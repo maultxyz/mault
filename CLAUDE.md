@@ -116,6 +116,7 @@ pnpm + Turborepo, one root `.env`:
 
 - In-process server state (locks, leases, sorter links, rate limits, machine status) is per process.
 - Every in-memory read cache registers with `lib/cache-registry.ts` (the `create*Cache` helpers do it; hand-rolled `Map`s call `registerMapCache`). Token-keyed caches register with `hasSecretKeys`.
+- Filtered collection summaries retain cached totals across card writes for 15 s, then refresh on demand in the background with a further 15 s stale window; broader org invalidations discard them. Collection query functions forward TanStack cancellation through `apiGet`, including auth retries.
 - Repeated org reads use `createOrgReadCache`: keys carry every input; per-role filtering runs after.
 - `requireOrg` bumps the org data generation after every non-GET unless `markRequestAsReadOnly`; writers outside `requireOrg` call `invalidateOrgReadCaches`.
 - `invalidateOrgCardReadCaches` spares `isUnaffectedByCardWrites` caches; a new cache is card-dependent unless no card save can change it.
@@ -299,15 +300,19 @@ Scanning:
 - `piHost` is true when `PI_HOST=1` or the device-tree model is a Raspberry Pi; `PI_HOST=0` forces it off. One host session per org.
 - `PI_SORTER=1` selects the built-in GPIO/I2C controller (one station, other connections blocked); USB stays on `/pi-serial` with exclusive per-port claims (`lib/pi-serial-port.ts`). A missing selection never falls back to another device.
 - Internal route calls use `SERVER_SCAN_ACTOR` and still run membership/RLS/plan checks; never persist bearer tokens.
+- Browser scan-status polling is single-flight with a five-second deadline across host lookup, authentication and response reading; scope changes or the last unsubscribe abort it, and late results never replace current state.
 - Host scans keep their collection lock across browser releases; only host cleanup releases it.
 - Automatic browser attachment must never move servos or run the self-test.
 - Host prefetch may run side-effect-free `matchFrame` early, used only while `piMatchInputsKey` is unchanged; QR commands, removal, foil nudge and disposition never run speculatively.
 - Browser-mode vectorizing (`vectorizeOn: "browser"`) is offered only with `piHost`; `crypto.subtle` is missing on plain HTTP, so hashing falls back to `fast-sha256`.
+- Browser vectorization also backfills printing marks from original-size portrait pixels through the shared catalog sampler, with version/shape validation and server-owned groups; cards and reference sums persist together in batches of 250, and only persisted cards count as read.
 - Host Bluetooth uses BlueZ/Bleak through the system Python helper; keep NUS UUIDs in shared.
 
 Camera:
 
 - The camera helper (`scripts/pi/camera-ctl.py`, `127.0.0.1:8765`) is exposed only through the authenticated `/api/pi-camera`; the web server must not proxy to it directly. Frames are re-encoded to JFIF.
+- Pi browser previews request the next JPEG publication (`frame?fresh=1`) with a deadline covering auth, response headers and body; failed frames retry independently of host scanning.
+- Desktop Pi MJPEG relays are acquired only while calibration, overview or picture-in-picture consumers claim them; releasing a relay never stops the host camera or scan.
 - Camera calibration previews never persist: Discard/unmount restores the saved camera and focus; await restoration before leaving.
 - UVC focus readback can lie: force manual writes through an adjacent value and reapply after a startup settle.
 

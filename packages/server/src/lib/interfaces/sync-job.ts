@@ -79,6 +79,7 @@ export type WorkerToParentMessage =
   | WorkResponseMessage;
 
 export interface BrowserQueueHost {
+  kind?: "vectors" | "printingMarks";
   source: SyncSource;
   lang: string;
   cards: SyncSourceCard[];
@@ -113,6 +114,7 @@ export interface QueueState {
   announced: boolean;
   settled: boolean;
   submitsInFlight: number;
+  printingMarks: { item: QueuedCard; marks: CatalogPrintingMarks }[];
   resolve: (outcome: "done" | "cancelled") => void;
 }
 

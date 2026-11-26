@@ -203,6 +203,7 @@
     "browserStopped": "Vectorisation du navigateur arrêtée",
     "browserStoppedHint": "Le navigateur n’a pas pu exécuter le modèle d’image. Rechargez cette page avant de réessayer. Les cartes enregistrées sont conservées.",
     "browserWorking": "Cet ordinateur vectorise jusqu’à {{count}} cartes à la fois. Laissez cette page ouverte.",
+    "browserReadingPrintingMarks": "Cet ordinateur lit les marques d’impression de {{count}} cartes à la fois au maximum. Laissez cette page ouverte.",
     "ratePerMinute": "{{count}}/min",
     "embeddingCount": "{{count}} embedding",
     "progressCount": "{{done}} / {{total}}",

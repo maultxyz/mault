@@ -82,6 +82,70 @@ release_field() {
   python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])' "$1" "$2"
 }
 
+# Check the OS-owned parents before installing packages or touching releases.
+# The downloaded installer must not load this check from an existing release.
+require_trusted_install_parent() {
+  python3 -I - "$MAULT_HOME" "$MAULT_DATA" <<'PYPARENT'
+from pathlib import Path
+import shlex
+import stat
+import sys
+
+# These are destinations, so only their parent directories are checked.
+# Release contents have their own replacement and trust checks below.
+destinations = [
+    *map(Path, sys.argv[1:]),
+    Path("/usr/local/sbin/mault"),
+    Path("/usr/local/bin/mault"),
+    Path("/usr/local/lib/mault/trusted-tree.py"),
+    Path("/var/lib/mault-system/setup-complete"),
+    Path("/etc/systemd/system/mault-setup.service"),
+    Path("/etc/nginx/sites-available/mault"),
+    Path("/etc/nginx/sites-enabled/mault"),
+    Path("/etc/apt/apt.conf.d/20auto-upgrades"),
+]
+parents = dict.fromkeys(parent for destination in destinations for parent in reversed(destination.parents))
+if any(not destination.is_absolute() or ".." in destination.parts for destination in destinations):
+    sys.exit("[install] MAULT_HOME and MAULT_DATA must be absolute paths without parent references.")
+blocked = set()
+problems = False
+for parent in parents:
+    # Do not follow an unsafe ancestor, especially a symlink, to inspect children.
+    if any(ancestor in blocked for ancestor in parent.parents):
+        continue
+    repairs = []
+    try:
+        info = parent.lstat()
+    except FileNotFoundError:
+        continue
+    except OSError as error:
+        problem = f"cannot be inspected: {error.strerror}"
+    else:
+        if not stat.S_ISDIR(info.st_mode):
+            problem = "is not a real directory"
+        else:
+            reasons = []
+            if info.st_uid != 0:
+                reasons.append(f"is owned by uid {info.st_uid}")
+                repairs.append(f"sudo chown root:root -- {shlex.quote(str(parent))}")
+            if info.st_mode & (stat.S_IWGRP | stat.S_IWOTH):
+                reasons.append("is writable by group or others")
+                repairs.append(f"sudo chmod go-w -- {shlex.quote(str(parent))}")
+            if not reasons:
+                continue
+            problem = " and ".join(reasons)
+    problems = True
+    blocked.add(parent)
+    print(f"[install] {parent} {problem}.", file=sys.stderr)
+    for repair in repairs:
+        print(f"  {repair}", file=sys.stderr)
+if problems:
+    print("[install] Mault needs root-owned parent directories without group/other write access.", file=sys.stderr)
+    print("[install] Fix the directories listed above, then rerun this installer; no installation changes have been made.", file=sys.stderr)
+    sys.exit(1)
+PYPARENT
+}
+
 # Root may adopt /opt/mault only when the service account never could change
 # it: older installs made it service-owned, so anything in it may have been
 # replaced. Such a tree is never re-owned or run, only deleted; settings and
@@ -158,6 +222,7 @@ if [[ "$(id -u)" -ne 0 ]]; then
   echo "Run the installer with sudo." >&2
   exit 1
 fi
+require_trusted_install_parent
 if [[ "$(uname -m)" != aarch64 ]]; then
   echo "Mault needs a 64-bit (arm64) OS. Flash the 64-bit Raspberry Pi OS or your board's arm64 image." >&2
   exit 1

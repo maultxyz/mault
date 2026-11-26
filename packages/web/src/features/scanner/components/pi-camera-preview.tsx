@@ -2,8 +2,10 @@ import { getAuthHeaders } from "@/lib/api/client";
 import { piCameraUrl } from "@/features/scanner/lib/pi-camera";
 import {
   PI_CAMERA_PREVIEW_INTERVAL_MS,
+  PI_CAMERA_PREVIEW_TIMEOUT_MS,
 } from "@/lib/constants/scanner";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { PiCameraPreviewProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { fitCanvasesToContainer, observeContainerResize } from "@/features/scanner/lib/canvas-fit";
@@ -15,49 +17,82 @@ export function PiCameraPreview({
   rotated = false,
   flipped = false,
 }: PiCameraPreviewProps) {
+  const { t } = useTranslation("scanner");
   const [src, setSrc] = useState<string>();
+  const [unavailable, setUnavailable] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
   const fit = () => {
     const image = imageRef.current;
     if (rotated && image) {
-      fitCanvasesToContainer([image], image.naturalWidth, image.naturalHeight, true);
+      fitCanvasesToContainer([image], image.naturalWidth, image.naturalHeight, true, "contain");
     }
   };
   useEffect(() => {
     if (!rotated) return;
     const image = imageRef.current;
     const resize = () => {
-      if (image) fitCanvasesToContainer([image], image.naturalWidth, image.naturalHeight, true);
+      if (image) fitCanvasesToContainer([image], image.naturalWidth, image.naturalHeight, true, "contain");
     };
     resize();
     return observeContainerResize(image, resize);
   }, [rotated]);
   useEffect(() => {
-    const controller = new AbortController();
+    let disposed = false;
+    let controller: AbortController | undefined;
     let url: string | undefined;
-    let timer: ReturnType<typeof setTimeout>;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    const frameUrl = piCameraUrl("frame", cameraId);
+    const clearFrame = () => {
+      setSrc(undefined);
+      if (url) URL.revokeObjectURL(url);
+      url = undefined;
+    };
+    const loadFrame = async (signal: AbortSignal) => {
+      const headers = await getAuthHeaders();
+      signal.throwIfAborted();
+      const response = await fetch(`${frameUrl}${frameUrl.includes("?") ? "&" : "?"}fresh=1`, {
+        headers,
+        signal,
+        cache: "no-store",
+      });
+      if (!response.ok) throw new Error("Camera is unavailable");
+      return response.blob();
+    };
     const pull = async () => {
+      const request = new AbortController();
+      controller = request;
+      const aborted = new Promise<never>((_, reject) => {
+        request.signal.onabort = () => reject(request.signal.reason);
+      });
+      deadline = setTimeout(() => request.abort(), PI_CAMERA_PREVIEW_TIMEOUT_MS);
       try {
-        const response = await fetch(piCameraUrl("frame", cameraId), {
-          headers: await getAuthHeaders(),
-          signal: controller.signal,
-          cache: "no-store",
-        });
-        if (response.ok) {
-          const blob = await response.blob();
-          if (controller.signal.aborted) return;
-          if (url) URL.revokeObjectURL(url);
-          url = URL.createObjectURL(blob);
-          setSrc(url);
+        const blob = await Promise.race([loadFrame(request.signal), aborted]);
+        if (disposed || request.signal.aborted) return;
+        if (url) URL.revokeObjectURL(url);
+        url = URL.createObjectURL(blob);
+        setSrc(url);
+        setUnavailable(false);
+      } catch {
+        if (!disposed) {
+          clearFrame();
+          setUnavailable(true);
         }
-      } catch {}
-      if (!controller.signal.aborted)
+      } finally {
+        clearTimeout(deadline);
+        request.signal.onabort = null;
+      }
+      if (!disposed)
         timer = setTimeout(pull, PI_CAMERA_PREVIEW_INTERVAL_MS);
     };
+    clearFrame();
+    setUnavailable(false);
     void pull();
     return () => {
-      controller.abort();
+      disposed = true;
+      controller?.abort();
       clearTimeout(timer);
+      clearTimeout(deadline);
       if (url) URL.revokeObjectURL(url);
     };
   }, [cameraId]);
@@ -65,7 +100,7 @@ export function PiCameraPreview({
     <img
       ref={imageRef}
       src={src}
-      alt={alt}
+      alt={unavailable ? t("camera.piUnavailable") : alt}
       onLoad={fit}
       className={cn(
         className,

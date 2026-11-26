@@ -1,4 +1,6 @@
+import contextlib
 import importlib.util
+import io
 import os
 from pathlib import Path
 import re
@@ -6,6 +8,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 SCRIPTS = Path(__file__).resolve().parents[1]
@@ -69,6 +72,10 @@ class TrustedTreeTests(unittest.TestCase):
     def test_writable_releases_parent_is_refused(self):
         os.chmod(self.releases, 0o775)
         self.assertRefused("releases is writable by group or others")
+
+    def test_group_writable_opt_is_refused(self):
+        os.chmod(self.top / "opt", 0o775)
+        self.assertRefused("/opt is writable by group or others")
 
     def test_writable_release_json_is_refused(self):
         os.chmod(self.release / "release.json", 0o666)
@@ -186,6 +193,97 @@ class InstallerMigrationTests(unittest.TestCase):
         home, legacy_command = self.make_install()
         self.run_removal(home, legacy_command)
         self.assertFalse(home.exists())
+
+
+class InstallerParentTests(unittest.TestCase):
+    def check_parent(self, mode=0o755, uid=0, kind=0o040000, overrides=None):
+        source = re.search(r"<<'PYPARENT'\n(.*?)\nPYPARENT", script("install.sh"), re.S)[1]
+
+        def lstat(path):
+            permissions, owner = (mode, uid) if str(path) == "/opt" else (0o755, 0)
+            entry_kind = kind if str(path) == "/opt" else 0o040000
+            if overrides and str(path) in overrides:
+                value = overrides[str(path)]
+                if isinstance(value, Exception):
+                    raise value
+                permissions, owner, entry_kind = value
+            return os.stat_result((entry_kind | permissions, 0, 0, 1, owner, 0, 0, 0, 0, 0))
+
+        output = io.StringIO()
+        with patch("sys.argv", ["-", "/opt/mault", "/var/lib/mault"]), patch.object(Path, "lstat", lstat), contextlib.redirect_stderr(output):
+            try:
+                exec(compile(source, "install-parent-check", "exec"), {})
+            except SystemExit as error:
+                return error.code, output.getvalue()
+        return 0, output.getvalue()
+
+    def test_root_owned_parent_is_accepted(self):
+        self.assertEqual(self.check_parent(), (0, ""))
+
+    def test_writable_parent_explains_how_to_recover(self):
+        for mode in (0o775, 0o777):
+            with self.subTest(mode=oct(mode)):
+                code, output = self.check_parent(mode=mode)
+                self.assertEqual(code, 1)
+                self.assertIn("/opt is writable by group or others", output)
+                self.assertIn("sudo chmod go-w -- /opt", output)
+                self.assertIn("rerun this installer", output)
+
+    def test_non_root_parent_is_refused(self):
+        code, output = self.check_parent(uid=1000)
+        self.assertEqual(code, 1)
+        self.assertIn("/opt is owned by uid 1000", output)
+
+    def test_symlink_parent_is_refused_without_suggesting_chmod(self):
+        code, output = self.check_parent(kind=0o120000)
+        self.assertEqual(code, 1)
+        self.assertIn("/opt is not a real directory", output)
+        self.assertNotIn("sudo chmod", output)
+
+    def test_all_system_parent_locations_are_checked(self):
+        for parent in ("/", "/opt", "/usr", "/usr/local", "/usr/local/sbin",
+                       "/usr/local/bin", "/usr/local/lib", "/usr/local/lib/mault",
+                       "/var", "/var/lib", "/var/lib/mault-system", "/etc",
+                       "/etc/systemd", "/etc/systemd/system", "/etc/nginx",
+                       "/etc/nginx/sites-available", "/etc/nginx/sites-enabled",
+                       "/etc/apt", "/etc/apt/apt.conf.d"):
+            with self.subTest(parent=parent):
+                code, output = self.check_parent(overrides={parent: (0o775, 0, 0o040000)})
+                self.assertEqual(code, 1)
+                self.assertIn(f"{parent} is writable by group or others", output)
+
+    def test_multiple_independent_problems_are_reported_together(self):
+        code, output = self.check_parent(mode=0o775, overrides={"/usr": (0o777, 1000, 0o040000)})
+        self.assertEqual(code, 1)
+        self.assertIn("/opt is writable", output)
+        self.assertIn("/usr is owned by uid 1000 and is writable", output)
+        self.assertEqual(output.count("sudo chmod go-w -- /usr"), 1)
+        self.assertIn("sudo chown root:root -- /usr", output)
+
+    def test_missing_parent_can_be_created_by_installer(self):
+        self.assertEqual(self.check_parent(overrides={
+            "/usr/local/lib/mault": FileNotFoundError(),
+            "/var/lib/mault-system": FileNotFoundError(),
+        }), (0, ""))
+
+    def test_symlink_ancestor_is_not_followed(self):
+        code, output = self.check_parent(overrides={
+            "/usr": (0o777, 0, 0o120000),
+            "/usr/local": AssertionError("followed a symlink"),
+        })
+        self.assertEqual(code, 1)
+        self.assertIn("/usr is not a real directory", output)
+
+    def test_unreadable_parent_reports_error(self):
+        code, output = self.check_parent(overrides={"/usr": PermissionError(13, "Permission denied")})
+        self.assertEqual(code, 1)
+        self.assertIn("/usr cannot be inspected: Permission denied", output)
+
+    def test_parent_is_checked_before_system_changes(self):
+        lines = code_lines("install.sh")
+        check = lines.index("require_trusted_install_parent")
+        self.assertLess(check, lines.index("apt-get update"))
+        self.assertLess(check, lines.index("remove_untrusted_install"))
 
 
 class RootBoundaryTests(unittest.TestCase):

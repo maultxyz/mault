@@ -1,6 +1,6 @@
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { useCameraContext } from "@/features/scanner/api/use-camera";
+import { useCameraContext, useCameraPreviewStream } from "@/features/scanner/api/use-camera";
 import { useCollectionLatestCard } from "@/features/scanner/api/use-collection-latest-card";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useSerial } from "@/features/scanner/api/use-serial";
@@ -29,12 +29,13 @@ import { useNavigate } from "react-router-dom";
 
 export function StationOverviewTile() {
   const { t } = useTranslation("scanner");
+  const stream = useCameraPreviewStream();
   const { station, index } = useStation();
   const { setActiveStation } = useStations();
   const navigate = useNavigate();
   const name = useStationName(station, index);
   const device = useDevice();
-  const { stream, cameraSource } = useCameraContext();
+  const { cameraSource } = useCameraContext();
   const {
     isTimerActive,
     pause,
