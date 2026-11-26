@@ -270,7 +270,7 @@ export function ScannerOverlay({
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button onClick={onConnectScanner}>{t("connect")}</Button>
+            <Button onClick={() => onConnectScanner()}>{t("connect")}</Button>
           )}
           <Button variant="secondary" onClick={onEnableHandScan}>
             {t("scannerOverlay.scanByHand")}

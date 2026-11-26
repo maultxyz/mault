@@ -68,6 +68,7 @@
     "piScanBusy": "Un scan tourne sur le Pi, donc ce navigateur ne peut pas prendre le trieur. Arrête d'abord le scan.",
     "bluetoothPermissionBlocked": "L'autorisation Bluetooth est bloquée pour ce navigateur. Vérifie les paramètres du site dans ton navigateur (ou chrome://settings/content/bluetoothDevices) pour autoriser le Bluetooth, puis réessaie.",
     "recentSorterUnreachable": "Vérifie que le trieur est allumé et à proximité, puis réessaie.",
+    "recentSorterUnplugged": "Vérifie que le trieur est branché et allumé, puis réessaie.",
     "connectionLost": {
       "title": "Connexion perdue",
       "description": "Le trieur s'est déconnecté de manière inattendue. Si tu es connecté via USB, vérifie qu'aucune autre application (comme le moniteur série de l'IDE Arduino) n'utilise le port, puis reconnecte-toi."

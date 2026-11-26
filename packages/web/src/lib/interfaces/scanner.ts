@@ -315,6 +315,7 @@ export interface SerialConnectOptions {
   controllerId?: string;
   skipAutoTest?: boolean;
   background?: boolean;
+  recentDeviceGuid?: string;
 }
 
 export type FlashFailureReason =
@@ -501,7 +502,7 @@ export interface ScannerOverlayProps {
   onRetryError: () => void;
   cameraMenu: CameraMenuItemsProps;
   onOpenPhonePairing: () => void;
-  onConnectScanner: () => void;
+  onConnectScanner: (recentDeviceGuid?: string) => void;
   onConnectScannerBluetooth: (bluetoothDevice?: BluetoothDevice) => void;
   onConnectScannerCloud: (deviceGuid: string) => void;
   bluetoothSupported: boolean;
@@ -1326,7 +1327,7 @@ export interface ScannerStatusBarProps {
   onCameraDisconnect: () => void;
   onCameraSelect: (deviceId: string) => void;
   onOpenPhonePairing: () => void;
-  onScannerConnect: () => void;
+  onScannerConnect: (recentDeviceGuid?: string) => void;
   onScannerConnectBluetooth: (bluetoothDevice?: BluetoothDevice) => void;
   onScannerConnectCloud: (deviceGuid: string) => void;
   bluetoothSupported: boolean;
@@ -1874,19 +1875,21 @@ export interface ConnectBluetoothOptions {
   bluetoothDevice?: BluetoothDevice;
 }
 
-export interface RecentBluetoothSorter extends RecentSorter {
+export interface ReconnectableRecentSorter extends RecentSorter {
   bluetoothDevice: BluetoothDevice | null;
+  canReconnectOverUsb: boolean;
 }
 
 export interface RecentSorterMenuItemsProps {
-  onSelect: (bluetoothDevice?: BluetoothDevice) => void;
+  onConnectBluetooth: (bluetoothDevice?: BluetoothDevice) => void;
+  onConnectUsb: (recentDeviceGuid?: string) => void;
   disabled?: boolean;
 }
 
 export interface MobileRecentSortersProps {
   disabled: boolean;
   connectingId: string | null;
-  onConnect: (sorter: RecentBluetoothSorter) => void;
+  onConnect: (sorter: ReconnectableRecentSorter) => void;
 }
 
 export type ScanGiftWrapVariant = "tile" | "thumbnail";

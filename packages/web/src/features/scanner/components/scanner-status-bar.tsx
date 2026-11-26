@@ -334,7 +334,7 @@ export function ScannerStatusBar({
       <NewBoardFlashDialog
         open={flashDialogOpen}
         onOpenChange={setFlashDialogOpen}
-        onConnect={onScannerConnect}
+        onConnect={() => onScannerConnect()}
       />
     </div>
   );

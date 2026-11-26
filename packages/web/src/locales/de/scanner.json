@@ -68,6 +68,7 @@
     "piScanBusy": "Auf dem Pi läuft ein Scan, deshalb kann dieser Browser den Sorter nicht übernehmen. Stoppe zuerst den Scan.",
     "bluetoothPermissionBlocked": "Die Bluetooth-Berechtigung ist für diesen Browser blockiert. Überprüfe die Website-Einstellungen deines Browsers (oder chrome://settings/content/bluetoothDevices), um Bluetooth zuzulassen, und versuche es erneut.",
     "recentSorterUnreachable": "Stelle sicher, dass der Sortierer eingeschaltet und in der Nähe ist, und versuche es erneut.",
+    "recentSorterUnplugged": "Stelle sicher, dass der Sortierer angeschlossen und eingeschaltet ist, und versuche es erneut.",
     "connectionLost": {
       "title": "Verbindung getrennt",
       "description": "Der Sortierer hat die Verbindung unerwartet getrennt. Falls du über USB verbunden bist, stelle sicher, dass keine andere Anwendung (z. B. der serielle Monitor der Arduino IDE) den Port verwendet, und verbinde dich erneut."

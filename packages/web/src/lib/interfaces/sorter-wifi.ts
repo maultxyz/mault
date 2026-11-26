@@ -54,7 +54,7 @@ export interface WifiSorterMenuItemsProps {
 }
 
 export interface ConnectSorterMenuItemsProps {
-  onConnectUsb: () => void;
+  onConnectUsb: (recentDeviceGuid?: string) => void;
   onConnectBluetooth: (bluetoothDevice?: BluetoothDevice) => void;
   onConnectCloud: (deviceGuid: string) => void;
   disabled?: boolean;
