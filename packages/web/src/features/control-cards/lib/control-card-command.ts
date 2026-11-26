@@ -36,5 +36,6 @@ export function toScannerControlCommand(
     pauseScanner: values.pauseScanner || undefined,
     autoFeed: toToggle(values.autoFeed),
     allowDuplicates: toToggle(values.allowDuplicates),
+    endBatch: values.endBatch || undefined,
   };
 }

@@ -24,7 +24,10 @@ import { formatCompactNumber, toReviewGridCard } from "@magic-vault/shared";
 import { CompactCount, CompactPrice } from "@/components/compact-value";
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
 import { ReviewGrid } from "@/features/cards/components/review-grid";
-import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
+import {
+  collectionCardsPageQueryOptions,
+  fetchCollectionReviewCardPage,
+} from "@/features/collections/api/collection-cards";
 import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
 import {
   MONITOR_NEEDS_REVIEW_CARDS_QUERY,
@@ -215,6 +218,14 @@ export function MobileSessionMonitor({
           <ReviewGrid
             cards={reviewGridCards}
             total={reviewGridPage.data?.totalCards ?? 0}
+            loadReviewCardPage={(page) =>
+              fetchCollectionReviewCardPage(
+                queryClient,
+                collectionGuid,
+                MONITOR_NEEDS_REVIEW_CARDS_QUERY,
+                page,
+              )
+            }
             isLoading={reviewGridPage.isPending}
             isError={reviewGridPage.isError}
             onOpenOneByOne={(card) => {

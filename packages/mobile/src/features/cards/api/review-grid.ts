@@ -9,6 +9,7 @@ import {
   type Result,
   type ReviewAcceptRequest,
   type ReviewAcceptResult,
+  type ReviewAutoCheckResult,
   type ReviewGridAttributeUpdate,
   type ReviewGridCard,
   type StorageLocationCardPage,
@@ -17,31 +18,42 @@ import { invalidateCollectionCards, updateCollectionCard } from "@/features/coll
 import { apiGet, apiPost, unwrap } from "@/lib/api/client";
 import type { ReviewGridData } from "@/lib/interfaces/cards";
 
+async function fetchCollectionReviewGridPage(guid: string, page: number): Promise<ReviewGridData> {
+  const params = new URLSearchParams({
+    grouped: "0",
+    page: String(page),
+    unreviewed: "1",
+    filters: JSON.stringify({ ...EMPTY_CARD_FILTERS, needsAttention: true }),
+    [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE,
+  });
+  const result = await unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${params.toString()}`));
+  return { cards: result.items.map((entry) => toReviewGridCard(guid, entry)), total: result.totalEntries };
+}
+
+async function fetchStorageReviewGridPage(guid: string, page: number): Promise<ReviewGridData> {
+  const requestedPage = page + 1;
+  const result = await unwrap(
+    apiGet<Result<StorageLocationCardPage>>(`/api/storage-locations/${guid}/cards/page?page=${requestedPage}&unreviewedOnly=true`),
+  );
+  return { cards: result.page === requestedPage ? result.cards : [], total: result.total };
+}
+
+export const loadCollectionReviewCardPage = (guid: string, page: number) =>
+  fetchCollectionReviewGridPage(guid, page).then((result) => result.cards);
+
+export const loadStorageReviewCardPage = (guid: string, page: number) =>
+  fetchStorageReviewGridPage(guid, page).then((result) => result.cards);
+
 export const collectionReviewGridQueryOptions = (guid: string) =>
   queryOptions({
     queryKey: ["collection-cards", guid, "review-grid"] as const,
-    queryFn: async (): Promise<ReviewGridData> => {
-      const params = new URLSearchParams({
-        grouped: "0",
-        page: "0",
-        unreviewed: "1",
-        filters: JSON.stringify({ ...EMPTY_CARD_FILTERS, needsAttention: true }),
-        [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE,
-      });
-      const page = await unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${params.toString()}`));
-      return { cards: page.items.map((entry) => toReviewGridCard(guid, entry)), total: page.totalEntries };
-    },
+    queryFn: () => fetchCollectionReviewGridPage(guid, 0),
   });
 
 export const storageReviewGridQueryOptions = (guid: string) =>
   queryOptions({
     queryKey: ["storage-locations", "cards", guid, "review-grid"] as const,
-    queryFn: async (): Promise<ReviewGridData> => {
-      const page = await unwrap(
-        apiGet<Result<StorageLocationCardPage>>(`/api/storage-locations/${guid}/cards/page?page=1&unreviewedOnly=true`),
-      );
-      return { cards: page.cards, total: page.total };
-    },
+    queryFn: () => fetchStorageReviewGridPage(guid, 0),
   });
 
 function acceptCollectionCardReviews(guid: string, request: ReviewAcceptRequest): Promise<ReviewAcceptResult> {

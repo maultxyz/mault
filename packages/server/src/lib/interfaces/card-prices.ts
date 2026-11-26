@@ -26,6 +26,15 @@ export interface CardPriceScope {
   lang: string;
 }
 
+export interface CardPriceMoveColumns {
+  gameKey: SQL;
+  lang: SQL;
+  cardId: SQL;
+  isFoil: SQL;
+  condition: SQL;
+  hasCurrentFoilPrice: SQL;
+}
+
 export interface ScannedCardSqlColumns {
   savedPrices: Record<CardPriceKey, SQL | AnyColumn>;
   cardLang: SQL | AnyColumn;

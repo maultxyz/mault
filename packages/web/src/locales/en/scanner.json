@@ -297,7 +297,9 @@
     "lastSearchImageAlt": "Last search image",
     "pausedTabHidden": {
       "title": "Scanning paused",
-      "description": "The scanner tab was hidden, so scanning and auto-feed were paused. The camera preview freezes while the tab isn't visible. Press Resume to continue."
+      "description": "The scanner tab was hidden, so scanning and auto-feed were paused. The camera preview freezes while the tab isn't visible. Press Resume to continue.",
+      "desktopAppHint": "The MAULT desktop app keeps scanning while its window is in the background.",
+      "desktopAppLink": "Get the desktop app"
     }
   },
   "documentTitle": {
@@ -344,15 +346,17 @@
     "retractCardTooltip": "Retract card (runs the feeder backward)",
     "stopPiScan": "Stop scanning and release the sorter",
     "resetToNeutralTooltip": "Reset to neutral (closes every bottom and paddle, centers the pushers)",
-    "foilTooltip": "Foil type for scanned cards: {{type}}",
-    "setTooltip": "Set for scanned cards: {{set}}",
+    "scanOptions": "Scan options",
+    "scanOptionsLabel": "Scan options: {{condition}}, {{foil}}, {{set}}",
+    "conditionMenu": "Condition",
+    "foilMenu": "Foil",
+    "setMenu": "Set",
     "anySet": "Any set",
     "setCount_one": "{{count}} set",
     "setCount_other": "{{count}} sets",
     "setSearchPlaceholder": "Search sets",
     "noSets": "No sets found",
     "setHint": "Scanned cards use their printing from one of these sets when one exists. Pick as many as you need.",
-    "conditionTooltip": "Condition for scanned cards: {{condition}}",
     "start": "Start scanning",
     "sessionSummary_one": "{{count}} card scanned · {{time}}",
     "sessionSummary_other": "{{count}} cards scanned · {{time}}",
@@ -991,6 +995,8 @@
       "retractDescription": "Run the feeder backward to pull a card back into the hopper",
       "neutral": "Reset to neutral",
       "neutralDescription": "Move every servo back to its resting position",
+      "stopSession": "Stop session",
+      "stopSessionDescription": "Stop scanning and release the sorter",
       "sorterDescription": "Connection, self-test and status"
     },
     "condition": "Condition",
@@ -1122,6 +1128,7 @@
   "controlCards": {
     "openPage": "Print control cards",
     "applied": "Control card applied",
+    "batchSeparatorName": "Batch separator",
     "rejected": {
       "title": "Control card not applied"
     },
@@ -1144,6 +1151,7 @@
       "autoFeedOff": "Auto-feed off",
       "duplicatesOn": "Allow duplicates",
       "duplicatesOff": "Skip duplicates",
+      "endBatch": "End of batch",
       "pause": "Pause scanning"
     },
     "form": {
@@ -1164,6 +1172,7 @@
       "autoFeed": "Auto-feed",
       "allowDuplicates": "Allow duplicates",
       "pauseScanner": "Pause scanning after this card",
+      "endBatch": "Batch separator: goes into the last card's bin",
       "add": "Add to sheet",
       "unchanged": "No change",
       "toggle": {
@@ -1185,7 +1194,7 @@
     "page": {
       "back": "Back to scanner",
       "title": "Control cards",
-      "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection.",
+      "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection. A batch separator goes into the same bin as the last sorted card instead, so you can see where each batch ends.",
       "print": "Print",
       "printTip": "Print on Letter cardstock at 100% scale (Actual size) with margins set to None. Each page holds 9 cards. Cut along the corner marks and keep the QR code flat and free of glare."
     },
@@ -1209,6 +1218,7 @@
         "autoFeedOff": "Autofeed Blocker",
         "duplicatesOn": "Angelic Duplicates",
         "duplicatesOff": "Duplicate Blocker",
+        "endBatch": "Line in the Sand",
         "pause": "Sorter's Respite"
       },
       "rules": {
@@ -1223,6 +1233,7 @@
         "autoFeedOff": "Turn auto feed off on target Mault instance.",
         "duplicatesOn": "Target Mault instance allows duplicates.",
         "duplicatesOff": "Target Mault instance loses the ability to scan duplicates.",
+        "endBatch": "Mark the end of a batch. This card follows the last sorted card into its bin.",
         "pause": "Tap target Mault instance. It doesn't untap until you resume scanning."
       }
     }

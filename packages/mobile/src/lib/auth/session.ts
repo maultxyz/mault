@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { localBackend } from "@/lib/auth/local-backend";
 import { neonBackend } from "@/lib/auth/neon-backend";
-import { jwtExpiresAt } from "@/lib/auth/jwt";
 import {
   JWT_REFRESH_MARGIN_MS,
   SESSION_RESTORE_RETRY_MAX_MS,
@@ -23,7 +22,7 @@ import type {
   SignInResult,
   UserOrganization,
 } from "@/lib/interfaces/auth";
-import { NEON_SOCIAL_PROVIDERS, type NeonSocialProvider, type Result } from "@magic-vault/shared";
+import { jwtExpiresAt, NEON_SOCIAL_PROVIDERS, type NeonSocialProvider, type Result } from "@magic-vault/shared";
 import { readKv, readKvJson, writeKv, writeKvJson } from "@/lib/storage/kv";
 import { delay } from "@/lib/delay";
 import { readSecure, writeSecure } from "@/lib/storage/secure";
@@ -121,6 +120,16 @@ export async function getAccessToken(): Promise<string | null> {
       });
   }
   return pendingJwt;
+}
+
+export async function refreshAccessTokenRejectedByApi(rejectedToken: string): Promise<string | null> {
+  if (cachedJwt?.token === rejectedToken) {
+    cachedJwt = null;
+    isCachedJwtFromStorage = false;
+    clearStoredAccessToken();
+  }
+  const refreshedToken = await getAccessToken();
+  return refreshedToken && refreshedToken !== rejectedToken ? refreshedToken : null;
 }
 
 export function getSessionToken(): string | null {

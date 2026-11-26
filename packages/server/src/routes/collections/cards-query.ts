@@ -29,6 +29,7 @@ import { toScannedCard } from "./shared";
 import { matchesEnglishCardNameSql } from "../../lib/english-card-name-search";
 import type {
   CachedGroupedCardRanking,
+  BinCountRow,
   CardsCollection,
   CardSortScope,
   CardsPageEntryRow,
@@ -529,7 +530,7 @@ function rankedCardsCte(
 const CARD_ROW_COLUMNS = sql`
   cc.guid, cc.card, ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
   cc.is_foil, cc.foil_type, cc.stamp, cc.condition, cc.language, cc.is_downloaded,
-  cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
+  cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed, cc.is_auto_reviewed,
   cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name,
       sl.batch_size AS location_batch_size`;
 
@@ -549,6 +550,7 @@ function toCard(row: CollectionCardRow) {
     isCorrected: row.is_corrected,
     lowConfidenceMatch: row.low_confidence_match,
     isReviewed: row.is_reviewed,
+    isAutoReviewed: row.is_auto_reviewed,
     storageLocation: row.location_guid
       ? {
           guid: row.location_guid,
@@ -879,7 +881,7 @@ export async function loadAllCards(
     SELECT cc.guid, (cc.card || COALESCE(${joinedCardPricesJsonSql()}, '{}'::jsonb)) AS card,
       ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
       cc.is_foil, cc.foil_type, cc.stamp, cc.condition, cc.language, cc.is_downloaded,
-      cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
+      cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed, cc.is_auto_reviewed,
       cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name,
       sl.batch_size AS location_batch_size
     FROM collection_cards cc
@@ -1138,13 +1140,41 @@ export async function loadBinCounts(
           AND u.bin_number = b."binNumber"
           AND u.is_deleted = false
           AND u.bin_emptied_at IS NULL
-      )::int AS count
+      )::int AS count,
+      (
+        SELECT array_agg(stack.position ORDER BY stack.position)
+        FROM (
+          SELECT (row_number() OVER (
+              ORDER BY stacked.scanned_at, stacked.kind, stacked.id
+            ) - 1)::int AS position,
+            stacked.starts_storage_batch
+          FROM (
+            SELECT cc.scanned_at, 'card' AS kind, cc.id, cc.starts_storage_batch
+            FROM collection_cards cc
+            WHERE cc.collection_id = ${collectionId}
+              AND cc.bin_number = b."binNumber"
+              AND cc.bin_emptied_at IS NULL
+            UNION ALL
+            SELECT u.scanned_at, 'unmatched' AS kind, u.id, u.starts_storage_batch
+            FROM unmatched_cards u
+            WHERE u.collection_id = ${collectionId}
+              AND u.bin_number = b."binNumber"
+              AND u.is_deleted = false
+              AND u.bin_emptied_at IS NULL
+          ) stacked
+        ) stack
+        WHERE stack.starts_storage_batch
+      ) AS storage_batch_starts
     FROM jsonb_to_recordset(${JSON.stringify(bins)}::jsonb)
       AS b("binNumber" int)
   `);
-  return (
-    result.rows as unknown as { bin_number: number; count: number }[]
-  ).map((row) => ({ binNumber: row.bin_number, count: row.count }));
+  return (result.rows as unknown as BinCountRow[]).map((row) => ({
+    binNumber: row.bin_number,
+    count: row.count,
+    ...(row.storage_batch_starts?.length
+      ? { storageBatchStarts: row.storage_batch_starts }
+      : {}),
+  }));
 }
 
 export async function loadBinContents(

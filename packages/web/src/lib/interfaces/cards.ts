@@ -23,6 +23,7 @@ import type {
   PlayingCardImage,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewAutoCheckOutcome,
   ReviewGridAttributes,
   ReviewGridCard,
   ScannedCard,
@@ -122,6 +123,8 @@ export interface CardRulesSectionProps {
 
 export interface CardPricesSectionProps {
   card: PlayingCard;
+  gameKey?: string | null;
+  lang?: string | null;
   isFoil?: boolean;
   foilType?: string | null;
   stamp?: string | null;
@@ -531,6 +534,7 @@ export interface CardTagsMenuProps {
   scanId: string;
   isDownloaded?: boolean;
   isReviewed?: boolean;
+  isAutoReviewed?: boolean;
   wasCorrected?: boolean;
   useSheet: boolean;
 }
@@ -544,6 +548,7 @@ export interface CardDetailPanelProps {
   lowConfidenceMatch?: boolean;
   wasCorrected?: boolean;
   isReviewed?: boolean;
+  isAutoReviewed?: boolean;
   isDownloaded?: boolean;
   isFoil?: boolean;
   foilType?: string;
@@ -579,6 +584,15 @@ export interface ReviewGridProps {
   onOpenOneByOne: (card: ReviewGridCard) => void;
   onClose: () => void;
   onCorrect?: (card: ReviewGridCard, correctedCard: PlayingCard) => void;
+  loadReviewCardPage?: (page: number) => Promise<ReviewGridCard[]>;
+}
+
+export interface ReviewAutoCheckOptions {
+  cards: ReviewGridCard[];
+  hiddenScanIds: ReadonlySet<string>;
+  remainingTotal: number;
+  loadReviewCardPage?: (page: number) => Promise<ReviewGridCard[]>;
+  onConfirmed: (scanIds: string[]) => void;
 }
 
 export interface ReviewGridTileProps {
@@ -587,6 +601,9 @@ export interface ReviewGridTileProps {
   onAttributesChange: (attributes: ReviewGridAttributes) => void;
   onAccept: () => void;
   onCorrect: () => void;
+  autoCheckOutcome?: ReviewAutoCheckOutcome;
+  isAutoChecking?: boolean;
+  followsAutoCheck?: boolean;
 }
 
 export interface ReviewGridAttributeFieldsProps {
@@ -865,4 +882,25 @@ export interface CardFilterRadioGroupProps<T extends string> {
   options: { key: T; label: string; count?: number }[];
   value: T;
   onChange: (value: T) => void;
+}
+
+export interface CardPriceHistoryRequest {
+  gameKey: string;
+  lang: string;
+  cardId: string;
+}
+
+export interface PriceHistorySparklineProps {
+  values: number[];
+  selectedIndex: number;
+  onSelectedIndexChange: (index: number | null) => void;
+  ariaLabel: string;
+  ariaValueText: string;
+}
+
+export interface CardPriceHistoryProps {
+  card: PlayingCard;
+  gameKey: string;
+  lang: string;
+  isFoil: boolean;
 }

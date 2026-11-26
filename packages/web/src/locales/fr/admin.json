@@ -427,6 +427,10 @@
         "label": "Achat et vente",
         "description": "Entrées de stock avec offres de rachat, import et expédition des commandes, ventes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
       },
+      "reviewAutoCheck": {
+        "label": "Vérification auto",
+        "description": "Le bouton Vérification auto de la grille de revue. Il analyse à nouveau en haute précision les photos des cartes à revoir, valide celles qui correspondent et signale les autres."
+      },
       "repacks": {
         "label": "Repacks",
         "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux qui créent déjà des repacks continuent de fonctionner."

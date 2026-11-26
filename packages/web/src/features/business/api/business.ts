@@ -303,6 +303,17 @@ export const intakeUnreviewedCardsQueryOptions = (
     enabled: !!lotGuid && enabled,
   });
 
+export async function fetchIntakeUnreviewedCardPage(
+  lotGuid: string,
+  page: number,
+): Promise<IntakeReviewCardPage["cards"]> {
+  const result = await apiGet<Result<IntakeReviewCardPage>>(
+    `/api/business/intake/${lotGuid}/cards/unreviewed?page=${page}`,
+  );
+  if (!result.success || !result.data) throw new Error(result.message);
+  return result.data.cards;
+}
+
 export function fetchNextUnreviewedIntakeCard(
   lotGuid: string,
 ): Promise<string | null> {

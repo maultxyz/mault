@@ -66,5 +66,12 @@ export function useBinCardCounts(bins: BinWindow[]): BinCardCounts {
     () => new Map((data ?? []).map((row) => [row.binNumber, row.count])),
     [data],
   );
-  return { counts, updatedAt: dataUpdatedAt };
+  const storageBatchStarts = useMemo(
+    () =>
+      new Map(
+        (data ?? []).map((row) => [row.binNumber, row.storageBatchStarts ?? []]),
+      ),
+    [data],
+  );
+  return { counts, storageBatchStarts, updatedAt: dataUpdatedAt };
 }

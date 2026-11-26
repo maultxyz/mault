@@ -299,6 +299,7 @@
       "storage": "Storage locations: record which box every card is in and where, then search across them",
       "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
       "businessTools": "Buy and sell: buy collections with live buylist offers and receipts, pick online orders from your boxes, and track cost basis and margins",
+      "reviewAutoCheck": "Review auto-check: rescan the photos of cards waiting for review with high accuracy and accept the ones that match",
       "longShareLinks": "Monitor links up to 30 days: share a live view of a collection for days instead of an hour"
     },
     "compare": {
@@ -333,6 +334,7 @@
         "storage": "Storage locations",
         "apiAccess": "API access",
         "businessTools": "Buy and sell",
+        "reviewAutoCheck": "Review auto-check",
         "longShareLinks": "Monitor links up to 30 days"
       }
     }

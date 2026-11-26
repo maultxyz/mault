@@ -242,6 +242,39 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       height: 0.06,
     },
   ],
+  elestrals: [
+    {
+      field: "name",
+      x: 0.17,
+      y: 0.045,
+      width: 0.66,
+      height: 0.125,
+      multiline: true,
+    },
+    {
+      field: "setLine",
+      x: 0.7,
+      y: 0.92,
+      width: 0.24,
+      height: 0.045,
+    },
+  ],
+  unionarena: [
+    {
+      field: "name",
+      x: 0.2,
+      y: 0.045,
+      width: 0.66,
+      height: 0.075,
+    },
+    {
+      field: "setLine",
+      x: 0,
+      y: 0.96,
+      width: 0.3,
+      height: 0.035,
+    },
+  ],
   gundam: [
     {
       field: "name",

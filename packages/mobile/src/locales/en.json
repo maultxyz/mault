@@ -938,6 +938,7 @@
         "autoFeedOff": "Auto-feed off",
         "duplicatesOn": "Allow duplicates",
         "duplicatesOff": "Skip duplicates",
+        "endBatch": "End of batch",
         "pause": "Pause scanning"
       }
     },
@@ -1287,7 +1288,20 @@
     "acceptFailed_one": "Couldn't accept {{count}} card. Try again.",
     "acceptFailed_other": "Couldn't accept {{count}} cards. Try again.",
     "accepted_one": "{{count}} card accepted",
-    "accepted_other": "{{count}} cards accepted"
+    "accepted_other": "{{count}} cards accepted",
+    "autoCheck": "Auto-check",
+    "autoCheckHint": "Rescan the photos with high accuracy and accept the cards that match",
+    "autoChecking": "Checking {{checked}} of {{total}}",
+    "autoCheckComplete_one": "Auto-check done: {{count}} card accepted, {{needsLook}} left to review.",
+    "autoCheckComplete_other": "Auto-check done: {{count}} cards accepted, {{needsLook}} left to review.",
+    "autoCheckFailed": "Auto-check stopped before it finished. Try again.",
+    "autoCheckDifferent": "Auto-check thinks this is {{name}}",
+    "autoCheckUnsure": "Auto-check couldn't confirm this card",
+    "autoCheckPause": "Pause",
+    "autoCheckResume": "Resume auto-check",
+    "autoCheckPausing": "Pausing after the cards being checked",
+    "autoCheckPaused": "Auto-check paused at {{checked}} of {{total}}",
+    "autoCheckCheckingCard": "Checking this card"
   },
   "rules": {
     "title": "Sorting rules",
@@ -2185,6 +2199,7 @@
           "storage": "Storage locations",
           "apiAccess": "API access",
           "businessTools": "Buy and sell",
+          "reviewAutoCheck": "Review auto-check",
           "longShareLinks": "Monitor links up to 30 days"
         },
         "unlimited": "Unlimited",
@@ -2672,6 +2687,13 @@
     "leave": "Leave it in Bin {{bin}}",
     "ok": "OK"
   },
+  "priceHistory": {
+    "title": "{{source}} price history",
+    "titleFoil": "{{source}} foil price history",
+    "unchangedSince": "No price changes since {{date}}.",
+    "empty": "No price history yet.",
+    "loadFailed": "Couldn't load the price history."
+  },
   "priceTable": {
     "heading": "TCGplayer",
     "cardmarketHeading": "Cardmarket",
@@ -2851,7 +2873,8 @@
     "saveFailed": "Couldn't update the tag",
     "names": {
       "downloaded": "Downloaded",
-      "reviewed": "Reviewed",
+      "reviewed": "Reviewed by hand",
+      "autoReviewed": "Auto-reviewed",
       "corrected": "Corrected"
     }
   },
@@ -3167,6 +3190,10 @@
         "businessTools": {
           "label": "Buy and sell",
           "description": "Intakes with buylist offers, order import and fulfilment, cost and margin reports, and spot checks. Existing records stay viewable either way."
+        },
+        "reviewAutoCheck": {
+          "label": "Review auto-check",
+          "description": "The Auto-check button in the review grid. It rescans the photos of cards waiting for review with high accuracy, accepts the ones that match and flags the rest."
         },
         "repacks": {
           "label": "Repacks",

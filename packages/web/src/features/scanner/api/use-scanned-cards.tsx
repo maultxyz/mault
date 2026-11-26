@@ -123,6 +123,7 @@ import type {
   PendingBinCard,
   JamToastOptions,
   ScannedCardsContextValue,
+  SessionStorageBatchStart,
   ScanPlacement,
 } from "@/lib/interfaces/scanner";
 import type { StationAttention } from "@/lib/interfaces/stations";
@@ -255,7 +256,12 @@ export function ScannedCardsProvider({
     activeOrgIdRef.current = activeOrg?.id;
   }, [activeOrg?.id]);
 
-  const { levels: binFillLevels, countsUpdatedAt } = useComputedBinFillLevels();
+  const [sessionStorageBatchStarts, setSessionStorageBatchStarts] = useState<
+    SessionStorageBatchStart[]
+  >([]);
+  const { levels: binFillLevels, countsUpdatedAt } = useComputedBinFillLevels(
+    sessionStorageBatchStarts,
+  );
   const binFillLevelsRef = useRef(binFillLevels);
   binFillLevelsRef.current = binFillLevels;
   const countsUpdatedAtRef = useRef(countsUpdatedAt);
@@ -493,6 +499,27 @@ export function ScannedCardsProvider({
     handScanBinsRef.current = handScanBins;
   }, [handScanBins]);
 
+  const storageBatchStartBinsRef = useRef(new Set<number>());
+
+  const endStorageBatch = useCallback(
+    (binNumber: number) => {
+      storageBatchStartBinsRef.current.add(binNumber);
+      const lastEmptiedAt =
+        binConfigsRef.current.find((bin) => bin.binNumber === binNumber)
+          ?.lastEmptiedAt ?? null;
+      const cardIndex = countCardsLocally(binNumber);
+      setSessionStorageBatchStarts((starts) => [
+        ...starts.filter(
+          (start) =>
+            start.binNumber !== binNumber ||
+            start.lastEmptiedAt === lastEmptiedAt,
+        ),
+        { binNumber, cardIndex, lastEmptiedAt },
+      ]);
+    },
+    [countCardsLocally],
+  );
+
   const scanRoutingContext = useCallback(
     (): ScanRoutingContext => ({
       binSet: selectedSetRef.current,
@@ -506,6 +533,8 @@ export function ScannedCardsProvider({
       isBinFull: isBinFullLocally,
       binRoom: binRoomLocally,
       createRuleId: () => crypto.randomUUID(),
+      startsStorageBatch: (binNumber) =>
+        storageBatchStartBinsRef.current.has(binNumber),
     }),
     [countCardsLocally, isBinFullLocally, binRoomLocally],
   );
@@ -1046,6 +1075,7 @@ export function ScannedCardsProvider({
               : card.name,
           );
           if (record.binNumber != null) {
+            storageBatchStartBinsRef.current.delete(record.binNumber);
             setLastRoutedBin({
               binNumber: record.binNumber,
               at: record.scannedAt,
@@ -1363,6 +1393,7 @@ export function ScannedCardsProvider({
             binNumber: record.binNumber ?? null,
           };
           if (record.binNumber != null) {
+            storageBatchStartBinsRef.current.delete(record.binNumber);
             setLastRoutedBin({
               binNumber: record.binNumber,
               at: record.scannedAt,
@@ -2076,6 +2107,7 @@ export function ScannedCardsProvider({
         promptAddedCardBin,
         sendCatchAllBin,
         sendCardToBin,
+        endStorageBatch,
         binLimitReached: binLimitBin,
         resolveBinLimit,
         dismissBinLimit,
@@ -2145,6 +2177,7 @@ export function ScannedCardsProvider({
       promptAddedCardBin,
       sendCatchAllBin,
       sendCardToBin,
+      endStorageBatch,
       binLimitBin,
       resolveBinLimit,
       dismissBinLimit,

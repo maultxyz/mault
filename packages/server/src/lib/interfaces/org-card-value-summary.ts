@@ -26,6 +26,7 @@ export interface OrgWidgetPicksRow {
   org_biggest_price_rise_scan_id: string | null;
   org_biggest_price_drop_scan_id: string | null;
   org_daily_shuffle_scan_ids: string[];
+  latest_price_update_day?: string | null;
   needs_review_count: number;
   review_scan_ids: string[];
 }

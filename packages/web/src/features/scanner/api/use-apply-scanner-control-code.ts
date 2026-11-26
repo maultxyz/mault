@@ -1,5 +1,6 @@
 import {
   findScannerControlCommandProblem,
+  resolveControlCardBinNumber,
   type ScannerControlCommand,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -22,13 +23,16 @@ export function useApplyScannerControlCode(
   const { activeOrg } = useOrg();
   const { collections, activeCollection, activateCollection } =
     useCollections();
-  const { activateSet } = useBinConfigs();
+  const { activateSet, configs: binConfigs } = useBinConfigs();
   const { data: presets = [] } = useQuery({
     ...binsQueryOptions,
     enabled: !!activeOrg,
   });
   const {
+    endStorageBatch,
+    lastRoutedBin,
     pause,
+    sendCardToBin,
     sendCatchAllBin,
     setAutoFeed,
     setForceFoilType,
@@ -36,6 +40,31 @@ export function useApplyScannerControlCode(
     setForceSetCodesAfterCollectionSwitch,
     setScanCondition,
   } = useScannedCards();
+
+  const routeControlCard = useCallback(
+    (command: ScannerControlCommand | null) => {
+      const binNumber = resolveControlCardBinNumber(
+        binConfigs,
+        command,
+        lastRoutedBin?.binNumber ?? null,
+      );
+      if (binNumber == null) return;
+      if (!command?.endBatch) {
+        sendCatchAllBin();
+        return;
+      }
+      sendCardToBin(binNumber, t("controlCards.batchSeparatorName"));
+      endStorageBatch(binNumber);
+    },
+    [
+      binConfigs,
+      endStorageBatch,
+      lastRoutedBin,
+      sendCardToBin,
+      sendCatchAllBin,
+      t,
+    ],
+  );
 
   return useCallback(
     async (command: ScannerControlCommand | null) => {
@@ -48,7 +77,7 @@ export function useApplyScannerControlCode(
         : "unreadable";
       if (!command || problem) {
         pause();
-        sendCatchAllBin();
+        routeControlCard(null);
         toast.error(t("controlCards.rejected.title"), {
           description: t(`controlCards.problems.${problem ?? "unreadable"}`),
         });
@@ -83,12 +112,12 @@ export function useApplyScannerControlCode(
         const activated = await activateSet(preset.guid).catch(() => false);
         if (!activated) {
           pause();
-          sendCatchAllBin();
+          routeControlCard(null);
           return;
         }
       }
 
-      sendCatchAllBin();
+      routeControlCard(command);
       const actionLines = describeScannerControlCommand(
         command,
         {
@@ -114,7 +143,7 @@ export function useApplyScannerControlCode(
       collections,
       pause,
       presets,
-      sendCatchAllBin,
+      routeControlCard,
       setAllowDuplicates,
       setAutoFeed,
       setForceFoilType,

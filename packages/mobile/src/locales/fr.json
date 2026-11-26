@@ -938,6 +938,7 @@
         "autoFeedOff": "Alimentation auto désactivée",
         "duplicatesOn": "Autoriser les doublons",
         "duplicatesOff": "Ignorer les doublons",
+        "endBatch": "Fin du lot",
         "pause": "Mettre le scan en pause"
       }
     },
@@ -1287,7 +1288,20 @@
     "acceptFailed_one": "Impossible de valider {{count}} carte. Réessayez.",
     "acceptFailed_other": "Impossible de valider {{count}} cartes. Réessayez.",
     "accepted_one": "{{count}} carte validée",
-    "accepted_other": "{{count}} cartes validées"
+    "accepted_other": "{{count}} cartes validées",
+    "autoCheck": "Vérification auto",
+    "autoCheckHint": "Analyse à nouveau les photos en haute précision et valide les cartes qui correspondent",
+    "autoChecking": "Vérification {{checked}} sur {{total}}",
+    "autoCheckComplete_one": "Vérification terminée : {{count}} carte validée, {{needsLook}} à revoir.",
+    "autoCheckComplete_other": "Vérification terminée : {{count}} cartes validées, {{needsLook}} à revoir.",
+    "autoCheckFailed": "La vérification automatique s'est arrêtée avant la fin. Réessayez.",
+    "autoCheckDifferent": "La vérification automatique y voit {{name}}",
+    "autoCheckUnsure": "La vérification automatique n'a pas pu confirmer cette carte",
+    "autoCheckPause": "Pause",
+    "autoCheckResume": "Reprendre la vérification",
+    "autoCheckPausing": "Pause après les cartes en cours de vérification",
+    "autoCheckPaused": "Vérification auto en pause à {{checked}} sur {{total}}",
+    "autoCheckCheckingCard": "Vérification de cette carte"
   },
   "rules": {
     "title": "Règles de tri",
@@ -2185,6 +2199,7 @@
           "storage": "Emplacements de rangement",
           "apiAccess": "Accès API",
           "businessTools": "Achat et vente",
+          "reviewAutoCheck": "Vérification auto",
           "longShareLinks": "Liens de suivi jusqu'à 30 jours"
         },
         "unlimited": "Illimité",
@@ -2672,6 +2687,13 @@
     "leave": "La laisser dans le bac {{bin}}",
     "ok": "OK"
   },
+  "priceHistory": {
+    "title": "Historique des prix {{source}}",
+    "titleFoil": "Historique des prix foil {{source}}",
+    "unchangedSince": "Aucun changement de prix depuis le {{date}}.",
+    "empty": "Aucun historique des prix pour le moment.",
+    "loadFailed": "Impossible de charger l'historique des prix."
+  },
   "priceTable": {
     "heading": "TCGplayer",
     "cardmarketHeading": "Cardmarket",
@@ -2851,7 +2873,8 @@
     "saveFailed": "Impossible de modifier l'étiquette",
     "names": {
       "downloaded": "Téléchargée",
-      "reviewed": "Vérifiée",
+      "reviewed": "Vérifiée à la main",
+      "autoReviewed": "Vérifiée automatiquement",
       "corrected": "Corrigée"
     }
   },
@@ -3167,6 +3190,10 @@
         "businessTools": {
           "label": "Achat et vente",
           "description": "Entrées de stock avec offres de rachat, import et expédition des commandes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
+        },
+        "reviewAutoCheck": {
+          "label": "Vérification auto",
+          "description": "Le bouton Vérification auto de la grille de revue. Il analyse à nouveau en haute précision les photos des cartes à revoir, valide celles qui correspondent et signale les autres."
         },
         "repacks": {
           "label": "Repacks",

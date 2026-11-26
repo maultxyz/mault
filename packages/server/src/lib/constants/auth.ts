@@ -4,6 +4,7 @@ export const STORAGE_SHARE_LINK_ISSUER = "magic-vault-storage-share-link";
 export const CARD_SHARE_LINK_ISSUER = "magic-vault-card-share-link";
 export const SHOP_CATALOG_ISSUER = "magic-vault-shop-catalog";
 export const IMPERSONATION_TTL_SECONDS = 60 * 60;
+export const NEON_JWT_CLOCK_TOLERANCE_SECONDS = 30;
 export const IMPERSONATION_SESSION_CACHE_TTL_MS = 10_000;
 export const IMPERSONATION_SESSION_CACHE_MAX_ENTRIES = 500;
 export const ACCOUNT_CHANGES_BLOCKED_WHILE_IMPERSONATING_MESSAGE =
@@ -21,6 +22,7 @@ export const MONITOR_LINK_GUEST_HIDDEN_KEYS: ReadonlySet<string> = new Set([
   "lowConfidenceMatch",
   "isCorrected",
   "isReviewed",
+  "autoReviewed",
   "wasCorrected",
   "diagnostics",
   "storageLocation",

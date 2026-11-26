@@ -23,6 +23,7 @@ import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import {
   storageLocationPageQueryOptions,
   storageLocationQueryOptions,
+  fetchStorageLocationUnreviewedCardPage,
   storageLocationUnreviewedCardsQueryOptions,
 } from "@/features/storage/api/storage-locations";
 import { ReviewGrid } from "@/features/cards/components/review-grid";
@@ -153,6 +154,11 @@ function DesktopStoragePage() {
   const reviewGridPage = useQuery(
     storageLocationUnreviewedCardsQueryOptions(selected?.guid, isGridReviewing),
   );
+  const selectedLocationGuid = selected?.guid;
+  const loadStorageReviewCardPage = selectedLocationGuid
+    ? (page: number) =>
+        fetchStorageLocationUnreviewedCardPage(selectedLocationGuid, page)
+    : undefined;
 
   const shownLocationGuid = selectedGuid;
   const showSelection = useCallback(
@@ -366,6 +372,7 @@ function DesktopStoragePage() {
             <ReviewGrid
               cards={reviewGridPage.data?.cards ?? []}
               total={reviewGridPage.data?.total ?? 0}
+              loadReviewCardPage={loadStorageReviewCardPage}
               isLoading={reviewGridPage.isPending}
               isError={reviewGridPage.isError}
               onRetry={() => void reviewGridPage.refetch()}

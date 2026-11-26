@@ -169,6 +169,7 @@ export function CardDetailPanel({
   lowConfidenceMatch = false,
   wasCorrected = false,
   isReviewed = false,
+  isAutoReviewed = false,
   isDownloaded = false,
   storageLocation,
   isFoil = false,
@@ -1055,6 +1056,7 @@ export function CardDetailPanel({
                     scanId={scanId}
                     isDownloaded={isDownloaded}
                     isReviewed={isReviewed}
+                    isAutoReviewed={isAutoReviewed}
                     wasCorrected={wasCorrected}
                     useSheet={inCardDrawer}
                   />
@@ -1161,7 +1163,7 @@ export function CardDetailPanel({
                   </div>
                 </div>
               ) : (
-                similarMatches
+                !isMobile && similarMatches
               )}
 
               <div
@@ -1174,6 +1176,8 @@ export function CardDetailPanel({
                   <div className={CARD_DETAIL_IMAGES_CLASS}>{cardImages}</div>
                 )}
 
+                {!reviewMode && isMobile && similarMatches}
+
                 {selectedCard && (
                   <div className={CARD_DETAIL_SECTIONS_CLASS}>
                     <CardRulesSection card={selectedCard} />
@@ -1182,6 +1186,8 @@ export function CardDetailPanel({
 
                     <CardPricesSection
                       card={selectedCard}
+                      gameKey={collection?.game?.key}
+                      lang={collection?.lang}
                       isFoil={draftIsFoil}
                       foilType={currentFoilType}
                       stamp={currentStamp}

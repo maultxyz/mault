@@ -116,6 +116,7 @@ export interface ScannedCard {
   corrected?: boolean;
   lowConfidenceMatch?: boolean;
   reviewed?: boolean;
+  autoReviewed?: boolean;
   storageLocation?: CardStorageLocation;
   vectorizedOn?: ScanVectorizeSource;
   diagnostics?: MatchedScanDiagnostics;
@@ -215,6 +216,7 @@ export interface ScanSaveRequestFields {
   deviceGuid?: string;
   isRetry?: boolean;
   storageLocationGuid?: string;
+  startsStorageBatch?: boolean;
 }
 
 export type ScanDestination =

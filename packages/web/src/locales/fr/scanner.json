@@ -297,7 +297,9 @@
     "lastSearchImageAlt": "Dernière image de recherche",
     "pausedTabHidden": {
       "title": "Numérisation en pause",
-      "description": "L'onglet du scanner a été masqué, la numérisation et l'alimentation automatique ont donc été mises en pause. L'aperçu de la caméra se fige tant que l'onglet n'est pas visible. Appuie sur Reprendre pour continuer."
+      "description": "L'onglet du scanner a été masqué, la numérisation et l'alimentation automatique ont donc été mises en pause. L'aperçu de la caméra se fige tant que l'onglet n'est pas visible. Appuie sur Reprendre pour continuer.",
+      "desktopAppHint": "L'application de bureau MAULT continue la numérisation quand sa fenêtre est en arrière-plan.",
+      "desktopAppLink": "Télécharger l'application de bureau"
     }
   },
   "documentTitle": {
@@ -344,15 +346,17 @@
     "retractCardTooltip": "Retirer la carte (fait tourner l'alimentation à l'envers)",
     "stopPiScan": "Arrêter le tri et libérer le trieur",
     "resetToNeutralTooltip": "Position neutre (ferme toutes les trappes et palettes, centre les poussoirs)",
-    "foilTooltip": "Type de foil des cartes scannées : {{type}}",
-    "setTooltip": "Extension des cartes scannées : {{set}}",
+    "scanOptions": "Options de scan",
+    "scanOptionsLabel": "Options de scan : {{condition}}, {{foil}}, {{set}}",
+    "conditionMenu": "État",
+    "foilMenu": "Foil",
+    "setMenu": "Extension",
     "anySet": "N'importe quelle extension",
     "setCount_one": "{{count}} extension",
     "setCount_other": "{{count}} extensions",
     "setSearchPlaceholder": "Rechercher une extension",
     "noSets": "Aucune extension trouvée",
     "setHint": "Les cartes scannées utilisent leur impression de l'une de ces extensions lorsqu'elle existe. Choisissez-en autant que nécessaire.",
-    "conditionTooltip": "État des cartes scannées : {{condition}}",
     "start": "Démarrer le scan",
     "sessionSummary_one": "{{count}} carte scannée · {{time}}",
     "sessionSummary_other": "{{count}} cartes scannées · {{time}}",
@@ -991,6 +995,8 @@
       "retractDescription": "Faire tourner l'alimentation à l'envers pour ramener une carte dans le bac",
       "neutral": "Remettre au neutre",
       "neutralDescription": "Ramener chaque servo à sa position de repos",
+      "stopSession": "Arrêter la session",
+      "stopSessionDescription": "Arrêter le tri et libérer le trieur",
       "sorterDescription": "Connexion, autotest et état"
     },
     "condition": "État",
@@ -1122,6 +1128,7 @@
   "controlCards": {
     "openPage": "Imprimer des cartes de contrôle",
     "applied": "Carte de contrôle appliquée",
+    "batchSeparatorName": "Séparateur de lot",
     "rejected": {
       "title": "Carte de contrôle non appliquée"
     },
@@ -1144,6 +1151,7 @@
       "autoFeedOff": "Alimentation auto désactivée",
       "duplicatesOn": "Autoriser les doublons",
       "duplicatesOff": "Ignorer les doublons",
+      "endBatch": "Fin du lot",
       "pause": "Mettre le scan en pause"
     },
     "form": {
@@ -1164,6 +1172,7 @@
       "autoFeed": "Alimentation auto",
       "allowDuplicates": "Autoriser les doublons",
       "pauseScanner": "Mettre le scan en pause après cette carte",
+      "endBatch": "Séparateur de lot : va dans le bac de la dernière carte",
       "add": "Ajouter à la planche",
       "unchanged": "Aucun changement",
       "toggle": {
@@ -1185,7 +1194,7 @@
     "page": {
       "back": "Retour au scanner",
       "title": "Cartes de contrôle",
-      "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection.",
+      "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection. Un séparateur de lot va plutôt dans le même bac que la dernière carte triée, pour voir où chaque lot se termine.",
       "print": "Imprimer",
       "printTip": "Imprime sur du papier cartonné au format Letter à l'échelle 100 % (Taille réelle) avec les marges sur Aucune. Chaque page contient 9 cartes. Découpe le long des repères de coupe et garde le QR code bien à plat et sans reflets."
     },
@@ -1209,6 +1218,7 @@
         "autoFeedOff": "Bloqueur d'alimentation",
         "duplicatesOn": "Doublons angéliques",
         "duplicatesOff": "Bloqueur de doublons",
+        "endBatch": "Trait dans le sable",
         "pause": "Répit du trieur"
       },
       "rules": {
@@ -1223,6 +1233,7 @@
         "autoFeedOff": "Désactive l'alimentation auto de l'instance Mault ciblée.",
         "duplicatesOn": "L'instance Mault ciblée autorise les doublons.",
         "duplicatesOff": "L'instance Mault ciblée perd la capacité de scanner les doublons.",
+        "endBatch": "Marque la fin d'un lot. Cette carte suit la dernière carte triée dans son bac.",
         "pause": "Engage l'instance Mault ciblée. Elle ne se dégage pas tant que tu ne reprends pas le scan."
       }
     }

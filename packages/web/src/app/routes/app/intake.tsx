@@ -7,6 +7,7 @@ import { MobileCardDrawer } from "@/features/cards/components/mobile-card-drawer
 import {
   intakeLotQueryOptions,
   intakeLotsQueryOptions,
+  fetchIntakeUnreviewedCardPage,
   intakeUnreviewedCardsQueryOptions,
 } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
@@ -111,6 +112,9 @@ export default function IntakePage() {
   const reviewGridPage = useQuery(
     intakeUnreviewedCardsQueryOptions(selectedGuid, isGridReviewing),
   );
+  const loadIntakeReviewCardPage = selectedGuid
+    ? (page: number) => fetchIntakeUnreviewedCardPage(selectedGuid, page)
+    : undefined;
 
   const select = (guid: string | null) =>
     setSearchParams(guid ? { [INTAKE_LOT_PARAM]: guid } : {}, {
@@ -159,6 +163,7 @@ export default function IntakePage() {
           <ReviewGrid
             cards={reviewGridPage.data?.cards ?? []}
             total={reviewGridPage.data?.total ?? 0}
+            loadReviewCardPage={loadIntakeReviewCardPage}
             isLoading={reviewGridPage.isPending}
             isError={reviewGridPage.isError}
             onOpenOneByOne={(card) => {
@@ -317,6 +322,7 @@ export default function IntakePage() {
             <ReviewGrid
               cards={reviewGridPage.data?.cards ?? []}
               total={reviewGridPage.data?.total ?? 0}
+              loadReviewCardPage={loadIntakeReviewCardPage}
               isLoading={reviewGridPage.isPending}
               isError={reviewGridPage.isError}
               onOpenOneByOne={(card) => {

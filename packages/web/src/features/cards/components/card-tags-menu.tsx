@@ -9,8 +9,13 @@ import {
 import { useCardDetailActions } from "@/features/cards/api/use-card-detail-scope";
 import { CardDetailActionsSheet } from "@/features/cards/components/card-detail-actions-sheet";
 import type { CardTagsMenuProps } from "@/lib/interfaces/cards";
-import { CARD_TAGS, cardTagsSetOn, type CardTag } from "@magic-vault/shared";
-import { IconCheck, IconChevronDown } from "@tabler/icons-react";
+import {
+  CARD_TAGS,
+  cardTagNameKey,
+  cardTagsSetOn,
+  type CardTag,
+} from "@magic-vault/shared";
+import { IconCheck, IconChevronDown, IconSparkles } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -18,17 +23,22 @@ export function CardTagsMenu({
   scanId,
   isDownloaded,
   isReviewed,
+  isAutoReviewed,
   wasCorrected,
   useSheet,
 }: CardTagsMenuProps) {
   const { t } = useTranslation("cards");
   const { setCardTags } = useCardDetailActions();
   const [sheetOpen, setSheetOpen] = useState(false);
-  const tagsSet = cardTagsSetOn({
+  const tagFlags = {
     isDownloaded,
     reviewed: isReviewed,
+    autoReviewed: isAutoReviewed,
     corrected: wasCorrected,
-  });
+  };
+  const tagsSet = cardTagsSetOn(tagFlags);
+  const setTagName = (tag: CardTag) =>
+    t(`cardTags.names.${cardTagNameKey(tag, tagFlags)}`);
   const toggle = (tag: CardTag) =>
     setCardTags(scanId, [tag], !tagsSet.includes(tag));
 
@@ -36,7 +46,7 @@ export function CardTagsMenu({
     tagsSet.length === 0
       ? t("cardTags.edit")
       : t("cardTags.editWithTags", {
-          tags: tagsSet.map((tag) => t(`cardTags.names.${tag}`)).join(", "),
+          tags: tagsSet.map(setTagName).join(", "),
         });
   const triggerContent = (
     <>
@@ -45,12 +55,12 @@ export function CardTagsMenu({
         : tagsSet.map((tag) =>
             tag === "reviewed" ? (
               <Badge key={tag} variant="success">
-                <IconCheck />
-                {t(`cardTags.names.${tag}`)}
+                {isAutoReviewed ? <IconSparkles /> : <IconCheck />}
+                {setTagName(tag)}
               </Badge>
             ) : (
               <Badge key={tag} variant="secondary">
-                {t(`cardTags.names.${tag}`)}
+                {setTagName(tag)}
               </Badge>
             ),
           )}
@@ -75,7 +85,7 @@ export function CardTagsMenu({
           title={t("cardTags.title")}
           actions={CARD_TAGS.map((tag) => ({
             key: tag,
-            label: t(`cardTags.names.${tag}`),
+            label: setTagName(tag),
             icon: tagsSet.includes(tag) ? <IconCheck /> : <span />,
             onSelect: () => toggle(tag),
           }))}
@@ -104,7 +114,7 @@ export function CardTagsMenu({
             checked={tagsSet.includes(tag)}
             onCheckedChange={() => toggle(tag)}
           >
-            {t(`cardTags.names.${tag}`)}
+            {setTagName(tag)}
           </DropdownMenuCheckboxItem>
         ))}
       </DropdownMenuContent>

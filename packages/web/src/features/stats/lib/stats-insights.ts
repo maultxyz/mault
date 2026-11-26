@@ -1,6 +1,5 @@
-import { CARD_REVIEW_SEARCH_PARAM } from "@/lib/constants/cards";
 import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
-import { monitorCollectionCardPath, monitorCollectionReviewPath } from "@/lib/constants/scanner";
+import { collectionReviewPath, monitorCollectionCardPath } from "@/lib/constants/scanner";
 import type { StatsInsight } from "@/lib/interfaces/stats";
 import { buildStatsInsightFacts, type StatsInsightFact, type StatsReport } from "@magic-vault/shared";
 import { IconAlbum, IconCoins, IconCrown, IconFlame, IconHelpCircle } from "@tabler/icons-react";
@@ -56,9 +55,7 @@ function toInsight(
         icon: IconHelpCircle,
         to: !fact.collectionGuidWithMostCardsToReview
           ? undefined
-          : isMobile
-            ? monitorCollectionReviewPath(fact.collectionGuidWithMostCardsToReview)
-            : `${collectionViewPath(fact.collectionGuidWithMostCardsToReview)}?${CARD_REVIEW_SEARCH_PARAM}=1`,
+          : collectionReviewPath(fact.collectionGuidWithMostCardsToReview, isMobile),
         title: t("insights.review.title", { count: fact.count }),
         detail: t("insights.review.detail"),
       };

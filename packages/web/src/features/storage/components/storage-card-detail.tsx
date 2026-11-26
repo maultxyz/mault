@@ -4,6 +4,7 @@ import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { useCardContextNavigation } from "@/features/cards/api/use-card-context-navigation";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
 import {
   storageLocationCardContextQueryOptions,
   storageLocationKeys,
@@ -20,6 +21,7 @@ import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import type { StorageCardDetailProps } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
 import { IconBoxOff, IconTransfer } from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -42,6 +44,7 @@ export function StorageCardDetail({
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const { collections } = useCollections();
+  const queryClient = useQueryClient();
   const navigationQuery = reviewMode ? ALL_CARDS_QUERY : cardsQuery;
   const contextQueryOptionsFor = useCallback(
     (contextScanId: string) =>
@@ -83,6 +86,9 @@ export function StorageCardDetail({
     [stored, location.guid, location.name, location.batchSize],
   );
   const actions = useStoredCardActions(entry);
+  const { moveToCollection, isMovingToCollection } = useMoveCardsToCollection(
+    stored?.collectionGuid,
+  );
   const collection =
     collections.find((c) => c.guid === stored?.collectionGuid) ?? null;
 
@@ -118,6 +124,12 @@ export function StorageCardDetail({
     return moved;
   };
 
+  const moveToOtherCollection = async (targetCollectionGuid: string) => {
+    const moved = await moveToCollection([scanId], targetCollectionGuid);
+    void queryClient.invalidateQueries({ queryKey: storageLocationKeys.root() });
+    return moved;
+  };
+
   return (
     <CardDetailScopeContext value={{ collection, actions }}>
       <CardDetailPanel
@@ -127,6 +139,7 @@ export function StorageCardDetail({
         lowConfidenceMatch={stored.lowConfidenceMatch}
         wasCorrected={stored.corrected}
         isReviewed={stored.reviewed}
+        isAutoReviewed={stored.autoReviewed}
         isDownloaded={scanned.isDownloaded}
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}
@@ -159,7 +172,7 @@ export function StorageCardDetail({
                   key: "move",
                   label: tStorage("cardLocation.move"),
                   icon: <IconTransfer />,
-                  disabled: isMoving,
+                  disabled: isMoving || isMovingToCollection,
                   onSelect: () => setMoveOpen(true),
                 },
                 {
@@ -178,9 +191,11 @@ export function StorageCardDetail({
         open={moveOpen}
         count={1}
         excludedLocationGuid={location.guid}
-        isMoving={isMoving}
+        isMoving={isMoving || isMovingToCollection}
+        sourceCollectionGuid={stored.collectionGuid}
         onOpenChange={setMoveOpen}
         onMove={moveToLocation}
+        onMoveToCollection={moveToOtherCollection}
       />
       <RemoveFromLocationDialog
         open={confirmRemoveOpen}

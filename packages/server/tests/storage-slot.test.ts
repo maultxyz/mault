@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   buildStoragePlanRows,
+  binStackLastSlot,
+  claimStorageBatchStart,
+  storageLocationBinRoom,
+  planBinStackSlots,
   formatStorageSlot,
   moveStoragePlanLocation,
   presetsUsingStorageLocation,
@@ -120,4 +124,51 @@ test("the catch-all and disabled bins never show a storage location", () => {
     ]),
     [{ binNumber: 1, locationName: "A1", remainingSlots: 5 }],
   );
+});
+
+test("a card scanned after a batch separator starts a new storage batch", () => {
+  const stack = (flags: boolean[]) => flags.map((startsStorageBatch) => ({ startsStorageBatch }));
+  assert.deepEqual(planBinStackSlots(stack([false, true, false, false]), 0, 5), [1, 2, 6, 7]);
+  assert.deepEqual(planBinStackSlots(stack([true, false]), 3, 5), [4, 6]);
+  assert.deepEqual(planBinStackSlots(stack([false, false, false, false, true, false]), 0, 5), [1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(planBinStackSlots(stack([true, false]), 0, null), [1, 2]);
+  assert.deepEqual(planBinStackSlots(stack([false, true]), 0, 5), [1, 2]);
+});
+
+test("the last stack slot matches the slot planner for any break layout", () => {
+  let seed = 7;
+  const random = () => {
+    seed = (seed * 1103515245 + 12345) % 2147483648;
+    return seed / 2147483648;
+  };
+  for (let run = 0; run < 500; run++) {
+    const cardCount = 1 + Math.floor(random() * 30);
+    const batchSize = random() < 0.2 ? null : 1 + Math.floor(random() * 8);
+    const usedSlots = Math.floor(random() * 20);
+    const starts = Array.from({ length: cardCount }, (_, index) => index).filter(() => random() < 0.2);
+    const newestFirst = Array.from({ length: cardCount }, (_, position) => ({
+      startsStorageBatch: starts.includes(cardCount - 1 - position),
+    }));
+    const planned = planBinStackSlots(newestFirst, usedSlots, batchSize);
+    assert.equal(binStackLastSlot(cardCount, starts, usedSlots, batchSize), planned[planned.length - 1]);
+  }
+});
+
+test("a bin's storage room leaves space for the slots a batch break skips", () => {
+  const location = { capacity: 100, remainingSlots: 100, batchSize: 10, usedSlots: 0 };
+  assert.equal(storageLocationBinRoom(location, []), 100);
+  assert.equal(storageLocationBinRoom(location, [3]), 93);
+  assert.equal(storageLocationBinRoom({ ...location, batchSize: null }, [3]), 100);
+  assert.equal(storageLocationBinRoom({ capacity: null, remainingSlots: null }, [3]), null);
+  assert.equal(storageLocationBinRoom({ ...location, remainingSlots: 40, usedSlots: 60 }, [3]), 33);
+});
+
+test("claiming a pending batch start records the card's place in the stack once", () => {
+  const awaiting = new Set([2]);
+  const starts = new Map<number, number[]>([[2, [1]]]);
+  claimStorageBatchStart(awaiting, starts, 2, 4);
+  claimStorageBatchStart(awaiting, starts, 2, 5);
+  claimStorageBatchStart(awaiting, starts, 3, 0);
+  assert.deepEqual(starts.get(2), [1, 4]);
+  assert.equal(starts.has(3), false);
 });

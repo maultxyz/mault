@@ -297,7 +297,9 @@
     "lastSearchImageAlt": "Letztes Suchbild",
     "pausedTabHidden": {
       "title": "Scannen pausiert",
-      "description": "Der Scanner-Tab wurde ausgeblendet, daher wurden Scannen und automatisches Zuführen pausiert. Die Kameravorschau friert ein, solange der Tab nicht sichtbar ist. Drücke Fortsetzen, um weiterzumachen."
+      "description": "Der Scanner-Tab wurde ausgeblendet, daher wurden Scannen und automatisches Zuführen pausiert. Die Kameravorschau friert ein, solange der Tab nicht sichtbar ist. Drücke Fortsetzen, um weiterzumachen.",
+      "desktopAppHint": "Die MAULT Desktop-App scannt weiter, während ihr Fenster im Hintergrund ist.",
+      "desktopAppLink": "Desktop-App herunterladen"
     }
   },
   "documentTitle": {
@@ -344,15 +346,17 @@
     "retractCardTooltip": "Karte zurückziehen (Zuführung läuft rückwärts)",
     "stopPiScan": "Sortierung stoppen und den Sorter freigeben",
     "resetToNeutralTooltip": "Grundstellung (schließt alle Klappen und Paddel, zentriert die Schieber)",
-    "foilTooltip": "Foil-Typ für gescannte Karten: {{type}}",
-    "setTooltip": "Set für gescannte Karten: {{set}}",
+    "scanOptions": "Scan-Optionen",
+    "scanOptionsLabel": "Scan-Optionen: {{condition}}, {{foil}}, {{set}}",
+    "conditionMenu": "Zustand",
+    "foilMenu": "Foil",
+    "setMenu": "Set",
     "anySet": "Beliebiges Set",
     "setCount_one": "{{count}} Set",
     "setCount_other": "{{count}} Sets",
     "setSearchPlaceholder": "Sets suchen",
     "noSets": "Keine Sets gefunden",
     "setHint": "Gescannte Karten verwenden ihren Druck aus einem dieser Sets, wenn es einen gibt. Wähle so viele wie nötig.",
-    "conditionTooltip": "Zustand für gescannte Karten: {{condition}}",
     "start": "Scan starten",
     "sessionSummary_one": "{{count}} Karte gescannt · {{time}}",
     "sessionSummary_other": "{{count}} Karten gescannt · {{time}}",
@@ -991,6 +995,8 @@
       "retractDescription": "Die Zuführung rückwärts laufen lassen, um eine Karte zurück in den Kartenschacht zu ziehen",
       "neutral": "Auf neutral zurücksetzen",
       "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
+      "stopSession": "Sitzung beenden",
+      "stopSessionDescription": "Sortierung stoppen und den Sorter freigeben",
       "sorterDescription": "Verbindung, Selbsttest und Status"
     },
     "condition": "Zustand",
@@ -1122,6 +1128,7 @@
   "controlCards": {
     "openPage": "Steuerkarten drucken",
     "applied": "Steuerkarte angewendet",
+    "batchSeparatorName": "Stapeltrenner",
     "rejected": {
       "title": "Steuerkarte nicht angewendet"
     },
@@ -1144,6 +1151,7 @@
       "autoFeedOff": "Automatischer Einzug aus",
       "duplicatesOn": "Duplikate erlauben",
       "duplicatesOff": "Duplikate überspringen",
+      "endBatch": "Ende des Stapels",
       "pause": "Scan pausieren"
     },
     "form": {
@@ -1164,6 +1172,7 @@
       "autoFeed": "Automatischer Einzug",
       "allowDuplicates": "Duplikate erlauben",
       "pauseScanner": "Scan nach dieser Karte pausieren",
+      "endBatch": "Stapeltrenner: landet im Fach der letzten Karte",
       "add": "Zum Bogen hinzufügen",
       "unchanged": "Keine Änderung",
       "toggle": {
@@ -1185,7 +1194,7 @@
     "page": {
       "back": "Zurück zum Scanner",
       "title": "Steuerkarten",
-      "description": "Lass eine dieser Karten durch den Sortierer laufen, um Einstellungen während des Laufs zu ändern. Sie landet dort, wo nicht erkannte Karten landen, und wird nie in einer Sammlung gespeichert.",
+      "description": "Lass eine dieser Karten durch den Sortierer laufen, um Einstellungen während des Laufs zu ändern. Sie landet dort, wo nicht erkannte Karten landen, und wird nie in einer Sammlung gespeichert. Ein Stapeltrenner landet stattdessen im selben Fach wie die zuletzt sortierte Karte, damit du siehst, wo jeder Stapel endet.",
       "print": "Drucken",
       "printTip": "Drucke auf Karton im Format Letter mit 100 % Skalierung (Tatsächliche Größe) und Rändern auf Keine. Auf jede Seite passen 9 Karten. Schneide entlang der Eckmarken und halte den QR-Code flach und frei von Spiegelungen."
     },
@@ -1209,6 +1218,7 @@
         "autoFeedOff": "Einzugsblocker",
         "duplicatesOn": "Engelhafte Duplikate",
         "duplicatesOff": "Duplikatblocker",
+        "endBatch": "Strich im Sand",
         "pause": "Rast des Sortierers"
       },
       "rules": {
@@ -1223,6 +1233,7 @@
         "autoFeedOff": "Schalte den automatischen Einzug der Ziel-Mault-Instanz aus.",
         "duplicatesOn": "Die Ziel-Mault-Instanz erlaubt Duplikate.",
         "duplicatesOff": "Die Ziel-Mault-Instanz verliert die Fähigkeit, Duplikate zu scannen.",
+        "endBatch": "Markiere das Ende eines Stapels. Diese Karte folgt der zuletzt sortierten Karte in ihr Fach.",
         "pause": "Tappe die Ziel-Mault-Instanz. Sie enttappt erst, wenn du das Scannen fortsetzt."
       }
     }

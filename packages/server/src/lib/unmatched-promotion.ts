@@ -94,6 +94,7 @@ export async function promoteUnmatchedScan(
     scannedAt: unmatched.scannedAt,
     binNumber: unmatched.binNumber,
     binEmptiedAt: unmatched.binEmptiedAt,
+    startsStorageBatch: unmatched.startsStorageBatch,
     capturedImageDataUrl: unmatched.capturedImageDataUrl,
     capturedImageKey: unmatched.capturedImageKey,
     capturedBackImageDataUrl: unmatched.capturedBackImageDataUrl,

@@ -86,6 +86,8 @@ export interface ClaimedStorageLocation {
   name: string;
   capacity: number | null;
   remainingSlots: number | null;
+  batchSize?: number | null;
+  usedSlots?: number;
 }
 
 export type BinSizePreset =

@@ -173,10 +173,6 @@ export interface MobileScanBuyRowProps {
   isRemoveModeActive: boolean;
 }
 
-export interface MobileScannerBuyStripProps {
-  collectionGuid: string | undefined;
-}
-
 export interface MobileScannerBuyProps {
   collectionGuid: string | undefined;
   renderTrigger: (context: MobileScannerBuyTriggerContext) => ReactNode;

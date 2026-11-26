@@ -1,0 +1,2 @@
+ALTER TABLE "collection_cards" ADD COLUMN "starts_storage_batch" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "unmatched_cards" ADD COLUMN "starts_storage_batch" boolean DEFAULT false NOT NULL;

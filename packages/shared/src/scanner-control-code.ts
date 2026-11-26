@@ -1,11 +1,14 @@
 import { isCardCondition } from "./card-condition";
 import {
+  SCANNER_CONTROL_CODE_BASE_VERSION,
   SCANNER_CONTROL_CODE_FALSE,
+  SCANNER_CONTROL_CODE_PARAM_MIN_VERSIONS,
   SCANNER_CONTROL_CODE_PARAMS,
   SCANNER_CONTROL_CODE_SCHEME,
   SCANNER_CONTROL_CODE_TRUE,
   SCANNER_CONTROL_CODE_VERSION,
 } from "./constants/scanner-control-code.constant";
+import { resolveRemovalBinNumber } from "./scan-removal";
 import type {
   ScannerControlCommandAction,
   ScannerControlCommand,
@@ -13,8 +16,35 @@ import type {
   ScannerControlCommandProblem,
   ScannerControlTargets,
 } from "./interfaces/scanner-control-code.interface";
+import type { BinConfig } from "./interfaces/sort-bins.interface";
 
-const SCANNER_CONTROL_CODE_PREFIX = `${SCANNER_CONTROL_CODE_SCHEME}${SCANNER_CONTROL_CODE_VERSION}?`;
+function scannerControlCodePrefix(version: number): string {
+  return `${SCANNER_CONTROL_CODE_SCHEME}${version}?`;
+}
+
+function requiredScannerControlCodeVersion(command: ScannerControlCommand): number {
+  let version = SCANNER_CONTROL_CODE_BASE_VERSION;
+  for (const [key, minVersion] of Object.entries(SCANNER_CONTROL_CODE_PARAM_MIN_VERSIONS)) {
+    if (command[key as keyof ScannerControlCommand] !== undefined) {
+      version = Math.max(version, minVersion);
+    }
+  }
+  return version;
+}
+
+function parseScannerControlCodeVersion(
+  text: string,
+): { version: number; query: string } | null {
+  for (
+    let version = SCANNER_CONTROL_CODE_BASE_VERSION;
+    version <= SCANNER_CONTROL_CODE_VERSION;
+    version++
+  ) {
+    const prefix = scannerControlCodePrefix(version);
+    if (text.startsWith(prefix)) return { version, query: text.slice(prefix.length) };
+  }
+  return null;
+}
 
 export function isScannerControlCode(text: string): boolean {
   return text.startsWith(SCANNER_CONTROL_CODE_SCHEME);
@@ -29,7 +59,8 @@ export function hasScannerControlChanges(command: ScannerControlCommand): boolea
     command.condition !== undefined ||
     !!command.pauseScanner ||
     command.autoFeed !== undefined ||
-    command.allowDuplicates !== undefined
+    command.allowDuplicates !== undefined ||
+    !!command.endBatch
   );
 }
 
@@ -60,17 +91,19 @@ export function encodeScannerControlCode(command: ScannerControlCommand): string
   if (command.allowDuplicates !== undefined) {
     pairs.push([params.allowDuplicates, encodeBoolean(command.allowDuplicates)]);
   }
+  if (command.endBatch) pairs.push([params.endBatch, SCANNER_CONTROL_CODE_TRUE]);
   const query = pairs
     .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
     .join("&");
-  return `${SCANNER_CONTROL_CODE_PREFIX}${query}`;
+  return `${scannerControlCodePrefix(requiredScannerControlCodeVersion(command))}${query}`;
 }
 
 export function parseScannerControlCode(text: string): ScannerControlCommand | null {
-  if (!text.startsWith(SCANNER_CONTROL_CODE_PREFIX)) return null;
+  const versioned = parseScannerControlCodeVersion(text);
+  if (!versioned) return null;
   const params = SCANNER_CONTROL_CODE_PARAMS;
   const command: ScannerControlCommand = {};
-  for (const pair of text.slice(SCANNER_CONTROL_CODE_PREFIX.length).split("&")) {
+  for (const pair of versioned.query.split("&")) {
     if (!pair) continue;
     const separatorIndex = pair.indexOf("=");
     if (separatorIndex < 0) return null;
@@ -118,10 +151,17 @@ export function parseScannerControlCode(text: string): ScannerControlCommand | n
         command.allowDuplicates = allowDuplicates;
         break;
       }
+      case params.endBatch: {
+        const endBatch = parseBoolean(value);
+        if (endBatch == null) return null;
+        command.endBatch = endBatch;
+        break;
+      }
       default:
         return null;
     }
   }
+  if (requiredScannerControlCodeVersion(command) > versioned.version) return null;
   return hasScannerControlChanges(command) ? command : null;
 }
 
@@ -184,6 +224,18 @@ export function listScannerControlActions(
   if (command.allowDuplicates !== undefined) {
     actions.push({ key: command.allowDuplicates ? "duplicatesOn" : "duplicatesOff", values: {} });
   }
+  if (command.endBatch) actions.push({ key: "endBatch", values: {} });
   if (command.pauseScanner) actions.push({ key: "pause", values: {} });
   return actions;
+}
+
+export function resolveControlCardBinNumber(
+  binConfigs: BinConfig[],
+  command: ScannerControlCommand | null,
+  lastScannedCardBinNumber: number | null,
+): number | null {
+  return resolveRemovalBinNumber(
+    binConfigs,
+    command?.endBatch ? lastScannedCardBinNumber : null,
+  );
 }

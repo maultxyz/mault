@@ -1,9 +1,10 @@
 import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, FlatList, View } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import {
   CARD_CONDITIONS,
@@ -27,8 +28,11 @@ import { TabStrip } from "@/components/ui/tab-strip";
 import {
   acceptReviewCards,
   collectionReviewGridQueryOptions,
+  loadCollectionReviewCardPage,
+  loadStorageReviewCardPage,
   storageReviewGridQueryOptions,
 } from "@/features/cards/api/review-grid";
+import { useReviewAutoCheck } from "@/features/cards/api/use-review-auto-check";
 import { ReviewGridTile } from "@/features/cards/components/review-grid-tile";
 import { ReviewGridTileSkeleton } from "@/features/cards/components/review-grid-tile-skeleton";
 import { useTheme } from "@/hooks/use-theme";
@@ -54,11 +58,6 @@ export default function ReviewGridScreen() {
   const [attributePicker, setAttributePicker] = useState<ReviewGridAttributePicker | null>(null);
   const savedAttributesOf = (card: ReviewGridCard) => reviewGridAttributesOf(card, t("cardDetail.foil"));
   const attributesOf = (card: ReviewGridCard) => attributeDrafts[card.scanId] ?? savedAttributesOf(card);
-  const cards = review.data?.cards ?? [];
-  const visibleCards = cards.filter((card) => !hiddenScanIds.has(card.scanId));
-  const remaining = Math.max(visibleCards.length, (review.data?.total ?? 0) - (cards.length - visibleCards.length));
-  const isWaitingForMore = visibleCards.length === 0 && remaining > 0;
-
   const updateSet = (setter: typeof setHiddenScanIds, scanIds: string[], included: boolean) =>
     setter((previous) => {
       const next = new Set(previous);
@@ -68,6 +67,32 @@ export default function ReviewGridScreen() {
       }
       return next;
     });
+
+  const autoCheck = useReviewAutoCheck({
+    cards: review.data?.cards ?? [],
+    hiddenScanIds,
+    remainingTotal: review.data?.total ?? 0,
+    loadReviewCardPage: storageGuid
+      ? (page) => loadStorageReviewCardPage(storageGuid, page)
+      : guid
+        ? (page) => loadCollectionReviewCardPage(guid, page)
+        : undefined,
+    onConfirmed: (scanIds) => updateSet(setHiddenScanIds, scanIds, true),
+    onFinished: () => void review.refetch(),
+  });
+  const cards = autoCheck.cards;
+  const visibleCards = cards.filter((card) => !hiddenScanIds.has(card.scanId));
+  const remaining = Math.max(visibleCards.length, (review.data?.total ?? 0) - (cards.length - visibleCards.length));
+  const isWaitingForMore = visibleCards.length === 0 && remaining > 0;
+
+  const listRef = useRef<FlatList<ReviewGridCard>>(null);
+  const reduceMotion = useReducedMotion();
+  const firstCheckingIndex = visibleCards.findIndex((card) => autoCheck.checkingScanIds.has(card.scanId));
+  const firstCheckingRow = firstCheckingIndex === -1 ? -1 : Math.floor(firstCheckingIndex / columns);
+  useEffect(() => {
+    if (firstCheckingRow === -1) return;
+    listRef.current?.scrollToIndex({ index: firstCheckingRow, viewPosition: 0.5, animated: !reduceMotion });
+  }, [firstCheckingRow, reduceMotion]);
 
   const accept = async (cardsToAccept: ReviewGridCard[]) => {
     if (cardsToAccept.length === 0) return;
@@ -156,7 +181,17 @@ export default function ReviewGridScreen() {
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
         title={t("reviewGrid.title")}
-        subtitle={review.data ? t("reviewGrid.remaining", { count: remaining }) : null}
+        subtitle={
+          autoCheck.status === "running" && autoCheck.progress
+            ? t("reviewGrid.autoChecking", autoCheck.progress)
+            : autoCheck.status === "pausing"
+              ? t("reviewGrid.autoCheckPausing")
+              : autoCheck.status === "paused" && autoCheck.progress
+                ? t("reviewGrid.autoCheckPaused", autoCheck.progress)
+                : review.data
+                  ? t("reviewGrid.remaining", { count: remaining })
+                  : null
+        }
         onBack={() => router.back()}
         tabs={
           <TabStrip<ReviewLayout>
@@ -170,7 +205,11 @@ export default function ReviewGridScreen() {
         }
       />
       <FlatList
+        ref={listRef}
         key={columns}
+        onScrollToIndexFailed={({ averageItemLength, index }) =>
+          listRef.current?.scrollToOffset({ offset: averageItemLength * index, animated: !reduceMotion })
+        }
         data={visibleCards}
         keyExtractor={(card) => card.scanId}
         numColumns={columns}
@@ -183,6 +222,25 @@ export default function ReviewGridScreen() {
         }
         ListHeaderComponent={
           <View style={{ gap: SPACING.md }}>
+            {autoCheck.isAvailable && (autoCheck.status === "running" || autoCheck.status === "pausing") ? (
+              <Button
+                variant="secondary"
+                icon="pause"
+                label={t("reviewGrid.autoCheckPause")}
+                loading={autoCheck.status === "pausing"}
+                disabled={autoCheck.status === "pausing"}
+                onPress={autoCheck.pause}
+              />
+            ) : autoCheck.isAvailable && visibleCards.length > 0 ? (
+              <Button
+                variant="secondary"
+                icon={autoCheck.status === "paused" ? "play" : "sparkles"}
+                label={autoCheck.status === "paused" ? t("reviewGrid.autoCheckResume") : t("reviewGrid.autoCheck")}
+                accessibilityHint={t("reviewGrid.autoCheckHint")}
+                disabled={!autoCheck.canRun}
+                onPress={() => void autoCheck.run()}
+              />
+            ) : null}
             {visibleCards.length > 0 ? (
               <Button
                 icon="checkAll"
@@ -224,6 +282,8 @@ export default function ReviewGridScreen() {
               onCorrect={() =>
                 router.push({ pathname: "/card/[scanId]", params: { scanId: item.scanId, guid: item.collectionGuid } })
               }
+              autoCheckOutcome={autoCheck.outcomes.get(item.scanId)}
+              isAutoChecking={autoCheck.checkingScanIds.has(item.scanId)}
             />
           </View>
         )}

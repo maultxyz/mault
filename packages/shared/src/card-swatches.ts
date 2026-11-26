@@ -4,11 +4,13 @@ import {
   SWATCH_FALLBACK_PALETTE,
 } from "./constants/card-colors.constant";
 import {
+  RARITY_ABBREVIATION_MAX_LENGTH,
   RARITY_ABBREVIATION_TIERS,
   RARITY_LABELS,
   RARITY_ORDER,
   RARITY_TIER_ORDER,
   RARITY_TIER_PATTERNS,
+  RARITY_WORD_ABBREVIATIONS,
 } from "./constants/rarity.constant";
 import type {
   CardColorSwatch,
@@ -38,6 +40,20 @@ export function rarityTier(key: string): RarityTier | null {
 
 export function rarityLabel(key: string): string {
   return RARITY_LABELS[key] ?? key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+export function rarityAbbreviation(key: string): string {
+  const words = normalizeSwatchKey(key)
+    .replace(/[^\p{L}\p{N} ]/gu, "")
+    .split(" ")
+    .filter(Boolean);
+  if (words.length === 0) return "";
+  if (words.length === 1 && words[0].length <= RARITY_ABBREVIATION_MAX_LENGTH) {
+    return words[0].toUpperCase();
+  }
+  return words
+    .map((word) => RARITY_WORD_ABBREVIATIONS[word] ?? word.charAt(0).toUpperCase())
+    .join("");
 }
 
 function rarityTierRank(key: string): number {

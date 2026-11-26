@@ -544,12 +544,14 @@ export async function loadIntakeCardContext(
 export async function loadUnreviewedLotCards(
   tx: Transaction,
   lotId: number,
+  page = 0,
 ): Promise<IntakeReviewCardPage> {
   const unreviewed = eq(collectionCards.isReviewed, false);
   const rows = await selectLotReviewCards(tx)
     .where(lotReviewScope(lotId, unreviewed))
     .orderBy(desc(collectionCards.scannedAt), desc(collectionCards.id))
-    .limit(REVIEW_GRID_CARD_LIMIT);
+    .limit(REVIEW_GRID_CARD_LIMIT)
+    .offset(page * REVIEW_GRID_CARD_LIMIT);
   return {
     cards: await toLotReviewCards(rows),
     total: await countLotCards(tx, lotId, unreviewed),

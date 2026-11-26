@@ -10,6 +10,7 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewAutoCheckOutcome,
   ReviewGridAttributes,
   ReviewGridCard,
   ScanImageSide,
@@ -30,6 +31,17 @@ export interface ReviewGridTileProps {
   onAccept: () => void;
   onCorrect: () => void;
   onPickAttribute: (field: ReviewGridAttributeField) => void;
+  autoCheckOutcome?: ReviewAutoCheckOutcome;
+  isAutoChecking?: boolean;
+}
+
+export interface ReviewAutoCheckOptions {
+  cards: ReviewGridCard[];
+  hiddenScanIds: ReadonlySet<string>;
+  remainingTotal: number;
+  loadReviewCardPage?: (page: number) => Promise<ReviewGridCard[]>;
+  onConfirmed: (scanIds: string[]) => void;
+  onFinished: () => void;
 }
 
 export type ReviewGridAttributeField = keyof ReviewGridAttributes;
@@ -179,6 +191,8 @@ export interface CardDetailArtProps {
 
 export interface CardDetailInfoSectionsProps {
   card: PlayingCard;
+  gameKey?: string | null;
+  lang?: string | null;
   binNumber?: number;
   isFoil: boolean;
   foilType?: string | null;
@@ -242,4 +256,25 @@ export interface ScanImageShareRequest {
   scanId: string;
   side: ScanImageSide;
   cardName: string | null | undefined;
+}
+
+export interface CardPriceHistoryRequest {
+  gameKey: string;
+  lang: string;
+  cardId: string;
+}
+
+export interface PriceHistorySparklineProps {
+  values: number[];
+  selectedIndex: number;
+  onSelectedIndexChange: (index: number) => void;
+  accessibilityLabel: string;
+  accessibilityValueText: string;
+}
+
+export interface CardPriceHistoryProps {
+  card: PlayingCard;
+  gameKey: string;
+  lang: string;
+  isFoil: boolean;
 }

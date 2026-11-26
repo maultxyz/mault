@@ -6,7 +6,7 @@
   "hero": {
     "eyebrow": "Bauanleitung für die Hardware",
     "title": "Den Kartensortierer bauen",
-    "modulesIntro": "Jedes Modul hat drei Servos – eine <0>Bodenklappe</0>, ein <1>Paddel</1>-Tor und einen Links/Rechts-<2>Schieber</2> – sowie einen IR-Sensor. Wenn alle Bodenklappen oberhalb des Zielfachs geschlossen bleiben und nur die darunter liegenden geöffnet werden, fällt die Karte bis zum richtigen Modul, bevor der Schieber sie auswirft.",
+    "modulesIntro": "Jedes Modul hat einen IR-Sensor und drei Servos: eine <0>Bodenklappe</0> als Boden, ein seitliches <1>Paddel</1>-Tor und einen Links/Rechts-<2>Schieber</2>. Eine Karte fällt durch alle offenen Bodenklappen, bis sie auf einer geschlossenen landet. Dann schiebt der Schieber dieses Moduls sie ins linke oder rechte Fach. Sind alle Bodenklappen offen, fällt sie ins Sammelfach.",
     "moduleLabel": "Modul {{n}}",
     "binLabel": "Fach {{n}}",
     "catchAllBinNote": "Sammelfach, alle {{modules}} Bodenklappen offen",
@@ -53,11 +53,11 @@
       "label": "ESP32-Montage",
       "breakout": {
         "title": "Auf einer Breakout-Platine",
-        "description": "Der ESP32 steckt auf einer Breakout-Platine. Nutzt die Breakout-Platinenplatte (Platte 8) und eine Basisstütze mit Seitenplatten und panel esp (Platten 10 und 11)."
+        "description": "Der ESP32 steckt auf einer Breakout-Platine. Nutzt Platte 14 \"ESP 32 Breakout\": die ESP32 breakout mount plate und ein hohes base-Teil mit base panel esp."
       },
       "bare": {
         "title": "Blanke Platine",
-        "description": "Verkabelung direkt an den Pins des ESP32. Nutzt die ESP-32-Platinenplatte von Platte 7."
+        "description": "Verkabelung direkt an den Pins des ESP32. Nutzt die ESP32 mount plate von Platte 16."
       }
     },
     "modules": {
@@ -81,7 +81,7 @@
   },
   "bom": {
     "heading": "Stückliste",
-    "description": "Die Mengen richten sich nach der Anzahl der Module, die du baust – {{modules}} Module × 3 Servos, 1 Zuführung, {{irSensors}} IR-Sensoren, {{channelsUsed}} der 16 Kanäle des PCA9685 in Gebrauch. Die restlichen Kanäle stehen für zusätzliche Sortiermodule zur Verfügung (bis zu 5 Module an einem einzelnen PCA9685). Hake jedes Teil ab, sobald du es besorgt hast – die Häkchen werden in diesem Browser gespeichert.",
+    "description": "Die Mengen richten sich nach deiner Modulanzahl: {{modules}} Module × 3 Servos plus 1 Zuführservo und {{irSensors}} IR-Sensoren. Das belegt {{channelsUsed}} der 16 Kanäle des PCA9685, und ein PCA9685 reicht für bis zu 5 Module. Hake jedes Teil ab, sobald du es besorgt hast. Die Häkchen werden in diesem Browser gespeichert.",
     "affiliateDisclaimer": "Einige „Kaufen“-Links sind Amazon-Affiliate-Links – wir erhalten möglicherweise eine kleine Provision auf qualifizierte Käufe, ohne Mehrkosten für dich.",
     "partsListLabel": "Vollständige Teileliste",
     "kitPowerSupplyNote": "Kits enthalten kein Netzteil. Du brauchst ein eigenes geregeltes 6V-Netzteil mit mindestens 3A für die Servos.",
@@ -105,7 +105,7 @@
             "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial"
           },
           "esp32": {
-            "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial - kann später auch direkt aus der App aktualisiert werden, siehe /app nach der Einrichtung"
+            "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial. Nach der Einrichtung kann die App es auch direkt flashen."
           },
           "esp32WithBreakout": {
             "part": "ESP32-S3-WROOM-1 N16R8 Board mit GPIO-Schraubklemmen-Erweiterungsadapter",
@@ -113,7 +113,7 @@
           },
           "pca9685": {
             "part": "Adafruit PCA9685 16-Kanal-12-Bit-PWM-/Servotreiber",
-            "notes": "I²C-Servotreiber – steuert alle 10 Servos an"
+            "notes": "I²C-Servotreiber, steuert alle Servos des Sortierers an"
           },
           "sg90Positional": {
             "part": "SG90 Mikroservo, positionierend (180°)",
@@ -142,7 +142,7 @@
         "items": {
           "psu": {
             "part": "6-V-geregeltes Netzteil, 3 A",
-            "notes": "Eigene Servobus-Versorgung an die V+-Klemme des PCA9685 – versorge nicht 10 Servos über die 5V-Onboard-Versorgung des {{board}}-Boards. Hohlstecker 5,5 mm x 2,5 mm, Innenleiter Plus."
+            "notes": "Eigene Servoversorgung an die V+-Klemme des PCA9685. Versorge die Servos nie über die 5V-Onboard-Versorgung des {{board}}-Boards. Hohlstecker 5,5 mm x 2,5 mm, Innenleiter Plus."
           },
           "usbCable": {
             "part": "USB-A-auf-USB-C-Kabel",
@@ -160,10 +160,6 @@
       "structural": {
         "title": "Strukturteile",
         "items": {
-          "enclosure": {
-            "part": "3D-gedrucktes Gehäuse & Modulgehäuse",
-            "notes": "Drucke aus <mesh>card_sorter.3mf</mesh> (Mesh, slicer-fertig) oder aus <source>Card Sorter.f3d</source> (Fusion-360-Quelldatei)"
-          },
           "filament": {
             "part": "PLA- oder PETG-Filament",
             "notes": "Menge gemäß der Schätzung deines Slicers für das obige Modell"
@@ -174,19 +170,19 @@
           },
           "hopperORing": {
             "part": "O-Ring 9,2mm ID 14mm OD 2,4mm Schnurstärke",
-            "notes": "Wird auf die Trichterrolle gezogen"
+            "notes": "Wird auf die Trichter-Andruckrolle (hopper idler roller) gezogen"
           },
           "servoControllerPlate": {
-            "part": "3D-gedruckte Servo-Controller-Platte (Platte 12)",
+            "part": "3D-gedruckte Servo-Controller-Platte (Platte 7)",
             "notes": "Wird unabhängig von der Modulanzahl nur einmal gedruckt"
           },
           "binsPlate": {
-            "part": "3D-gedruckte Fächer (Platte 16)",
-            "notes": "card_sleeve_lg, card_sleeve_md und card_sleeve_small. Fangen die Karten auf, die der Schieber zu beiden Seiten auswirft"
+            "part": "3D-gedruckte Fächer (Platte 10)",
+            "notes": "card bin large, card bin medium und card bin small. Fangen die Karten auf, die der Schieber zu beiden Seiten auswirft"
           },
           "endBinPlate": {
-            "part": "3D-gedrucktes Endfach (Platte 17)",
-            "notes": "card_sleeve_end. Ergänzt die Fächer zur kompletten Fachanordnung"
+            "part": "3D-gedrucktes Endfach (Platte 11)",
+            "notes": "end card tray. Ergänzt die Fächer zur kompletten Fachanordnung"
           }
         }
       },
@@ -201,17 +197,17 @@
             "part": "M3-Mutter",
             "notes": "Passend zu den M3×6-Schrauben der Bodenplatte"
           },
-          "m10Washer": {
-            "part": "M10-Unterlegscheibe",
-            "notes": "Wird mit den M3×8-Schrauben verwendet, mit denen die Trichterrolle montiert wird"
+          "m3Washer": {
+            "part": "M3-Unterlegscheibe",
+            "notes": "Im M3-Schraubenset enthalten. Wird mit den M3×8-Schrauben verwendet, mit denen die Trichter-Andruckrolle montiert wird"
           },
           "m3x8Screw": {
             "part": "M3×8-Schraube",
-            "notes": "Befestigt die Trichterrolle"
+            "notes": "Befestigt die Trichter-Andruckrolle"
           },
           "m3x25Screw": {
             "part": "M3×25-Schraube",
-            "notes": "Stellt zusammen mit der Feder die Spannung der Trichterrolle ein"
+            "notes": "Stellt zusammen mit der Feder die Spannung der Trichter-Andruckrolle ein"
           },
           "hopperSpring": {
             "part": "Feder 7/32\" x 11/16\"",
@@ -220,7 +216,7 @@
           "m2x6Screw": {
             "part": "M2×6-Schraube",
             "partSpec": "(17 pro Modul, +4 für die Platinenbefestigung, +3 für die Servotreiberplatine, +1 für den Zuführer)",
-            "notes": "17 pro Modul ({{count}} Module): Bodenklappen, Paddel und Schieberarme, plus 6 zum Anschrauben der Bodenklappen und Paddel am Gehäuse; +4 zur Befestigung des {{board}}; +3 zur Befestigung der PCA9685-Servotreiberplatine; +1 für den Zuführer"
+            "notes": "Pro Modul: Klappen- und Schieberarme, plus 6 zum Anschrauben der Bodenklappe und der Seitenklappen am Gehäuse. Der Rest befestigt das {{board}}, den PCA9685 und die Zuführung."
           },
           "m2x8Screw": {
             "part": "M2×8-Schraube",
@@ -228,11 +224,11 @@
           },
           "servoHornScrew": {
             "part": "Servohorn-Schraube (im Lieferumfang der Servos enthalten)",
-            "notes": "Bei jedem Servo enthalten; sichert das Horn auf der Welle"
+            "notes": "Sichert jedes Horn auf seiner Servowelle"
           },
           "hookupWire": {
             "part": "Jumper-Kabel",
-            "notes": "IR-Sensoren/Servos. Damit musst du eventuell einige in Reihe verbinden – umwickle sie einfach mit Isolierband, damit sie sich nicht lösen."
+            "notes": "Für die IR-Sensoren und Servos. Ist eines zu kurz, verbinde zwei und umwickle die Verbindung mit Isolierband, damit sie sich nicht löst."
           },
           "wagoConnectors": {
             "part": "Wago-Verbinder",
@@ -266,13 +262,17 @@
             "part": "Gewichte für den Hopper-Schlitten",
             "notes": "Werden in den beschwerten Hopper-Schlitten gelegt und drücken den Stapel nach unten, damit Karten zuverlässiger einziehen. Bis zu 25 möglich"
           },
+          "m10Washer": {
+            "part": "M10-Unterlegscheibe",
+            "notes": "Optionales Zusatzgewicht für das Hopper-Gewicht"
+          },
           "servoExtensionCables": {
             "part": "Servo-Verlängerungskabel",
             "notes": "Nur bei mehr als 3 Sortiermodulen nötig, wenn die Servokabel ab Werk nicht bis zur Servotreiberplatine reichen"
           },
           "feederBearings": {
             "part": "Kugellager",
-            "notes": "Für feeder base with bearings (Platte 5 \"Feeder With Bearings\"), damit sich die Rolle leichter dreht"
+            "notes": "Für die Zuführbasis mit Kugellagern (Platte 4 \"Alternative Feeder Base\"), damit sich die Rolle leichter dreht"
           },
           "neodymiumMagnets": {
             "part": "Neodym-Magnete (5×2 mm)",
@@ -283,7 +283,7 @@
     }
   },
   "wiring": {
-    "description": "Alles hängt an einem einzigen I²C-Bus (PCA9685) und {{count}} digitalen Eingangspins (IR-Sensoren). Die Logikseite des PCA9685 wird über die Onboard-Versorgung des {{board}} gespeist; seine <pin>V+</pin>-Servoschiene muss von der externen Versorgung kommen, und deren Masse muss mit der Masse des {{board}} verbunden sein – eine schwebende Servomasse ist der häufigste Grund, warum sich ein frisch verkabeltes Gerät nicht bewegt.",
+    "description": "Alles hängt an einem einzigen I²C-Bus (PCA9685) und {{count}} digitalen Eingangspins (IR-Sensoren). Die Onboard-Versorgung des {{board}} speist die Logikseite des PCA9685. Seine <pin>V+</pin>-Servoschiene muss von der externen Versorgung kommen, und deren Masse muss mit der Masse des {{board}} verbunden sein.",
     "wireColorNote": "Kabelfarben unterscheiden sich je nach Bauteil und Hersteller, verlass dich also nicht auf die Farben im Schaltplan oder auf den Fotos. Verfolge jedes Kabel ab seiner Pin-Beschriftung und stelle sicher, dass es an der richtigen Stelle ankommt.",
     "powerSupplyWarning": "Verwende für die Servos ein 6V-3A-Netzteil. Alles darüber kann die Servos oder die Servo-Steuerplatine durchbrennen lassen.",
     "sections": {
@@ -365,7 +365,7 @@
   },
   "assembly": {
     "heading": "Montage",
-    "description": "Acht Phasen, zuerst die Strukturarbeiten. Die Kontrollkästchen werden in diesem Browser gespeichert, sodass du den Tab mitten im Aufbau schließen und später weitermachen kannst.",
+    "description": "Arbeite die Phasen der Reihe nach durch, zuerst die Strukturarbeiten. Die Kontrollkästchen werden in diesem Browser gespeichert, sodass du den Tab mitten im Aufbau schließen und später weitermachen kannst.",
     "helpText": "Bei einem Schritt nicht weiter? <a>Tritt dem Discord bei</a>, wenn du Hilfe brauchst.",
     "hasVideoAria": "Enthält ein Video zur Anleitung",
     "videoTitle": "Montagevideo",
@@ -384,51 +384,51 @@
         "title": "Die Strukturteile drucken",
         "steps": {
           "printSortingModule": {
-            "text": "Drucke Platte 1 \"Sorting Module metric - Print to Need\" {{count}}-mal, einmal pro Sortiermodul, aus dem <mesh>MakerWorld-Modell</mesh> (oder exportiere neu aus <source>Card Sorter.f3d</source>). Jeder Druck ist ein komplettes Modul: module_base, platform, bottom_paddle, left_paddle, right_paddle, bottom_paddle_arm, left_paddle_arm, right_paddle_arm, 2 pusher_arm, pusher left, pusher right, bottom_servo_arm, side paddle horn und pusher horn.",
-            "alternativesNote": "Optionale Alternativen: Platte 2 \"Alternative Sorting Platform\" hat eine weitere platform, pusher left und pusher right als Ersatz für die von Platte 1. Platte 3 \"Alternative Horns\" hat lockere und straffe Versionen der Hörner (bottom paddle horn loose, bottom paddle horn snug, side paddle horn, side paddle horn loose, pusher horn loose, pusher horn snug) für Servos, auf deren Welle die Standardhörner zu fest oder zu locker sitzen."
+            "text": "Drucke Platte 1 \"Sorting Module - Print to Need\" {{count}}-mal, einmal pro Sortiermodul, aus dem <mesh>MakerWorld-Modell</mesh> (oder exportiere neu aus <source>Card Sorter.f3d</source>). Jeder Druck ist ein komplettes Modul: sorting module base, card platform, bottom paddle, left paddle, right paddle, card pusher left, card pusher right, bottom paddle linkage, left paddle linkage, right paddle linkage, 2 pusher linkage, bottom paddle servo horn, side paddles servo horn (no spline) und pusher servo horn.",
+            "alternativesNote": "Optional: Platte 2 \"Alternative Horns\" hat lockere (loose fit) und straffe (snug fit) Versionen aller Servohörner, für Servos, auf deren Welle die Standardhörner zu fest oder zu locker sitzen."
           },
           "printFeederModule": {
-            "text": "Drucke Platte 4 \"Feeder Module\" einmal, egal wie viele Module: feeder_base, roller, roller horn mg90s, hopper, hopper roller, variable hopper wall und feeder riser. Der feeder riser ist für eine zuverlässige Zuführung nötig, drucke ihn also auf jeden Fall mit, auch wenn er ein eigenes Teil ist.",
-            "alternativesNote": "roller horn mg90s passt auf den MG90S-Zuführservo aus der Teileliste. Sitzt es auf deinem Servo zu fest oder zu locker, drucke stattdessen roller horn, roller horn loose oder roller horn snug von Platte 3 \"Alternative Horns\". Kugellager gekauft? Drucke feeder base with bearings von Platte 5 \"Feeder With Bearings\" anstelle von feeder_base."
+            "text": "Drucke Platte 3 \"Feeder Module\" einmal, egal wie viele Module: feeder base (flat), roller, roller servo horn (MG90S), hopper, hopper idler roller (small), hopper adjustable wall (side-print version) und feeder ramp (steep). Die feeder ramp ist für eine zuverlässige Zuführung nötig, drucke sie also auf jeden Fall mit, auch wenn sie ein eigenes Teil ist.",
+            "alternativesNote": "Sitzt roller servo horn (MG90S) auf deinem Zuführservo zu fest oder zu locker, drucke stattdessen roller servo horn, roller servo horn (loose fit) oder roller servo horn (snug fit) von Platte 2 \"Alternative Horns\". Nutzt du die optionalen Kugellager? Drucke Platte 4 \"Alternative Feeder Base\" (feeder base (flat, bearing version) und feed roller (bearing version)) anstelle von Zuführbasis und Rolle."
           },
           "printSortingModuleShroud": {
-            "text": "Drucke Platte 6 \"Sorting Module Shroud\" einmal: die Abdeckung (shroud) über den gestapelten Modulen sowie phone mount und camera_mount. Du brauchst nur die Halterung für die Kamera, die du verwendest."
+            "text": "Drucke Platte 5 \"Sorting Module Shroud\" einmal: die Abdeckung (camera shroud) über den gestapelten Modulen sowie phone mount und zwei camera mount. Du brauchst nur die Halterung für die Kamera, die du verwendest."
           },
           "printPlateBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{threeTall}} hohe base-Teile (3 Einheiten hoch) und {{oneTall}} niedrige base-Teile (1 Einheit hoch) von Platte 9 \"Base Support - Print to Need\". Beide heißen in der Datei base. Die Module werden treppenförmig gestapelt, daher braucht jede zusätzliche Stufe eine Höheneinheit mehr als die darüber. Kombiniere die beiden Höhen, um jede Stufe aufzubauen. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
-            "breakoutText": "Für {{modules}} Sortiermodule drucke {{threeTall}} hohe base-Teile (3 Einheiten hoch) und {{oneTall}} niedrige base-Teile (1 Einheit hoch) von Platte 9 \"Base Support - Print to Need\", dazu Platte 10 \"Alternative Base Support\" anstelle eines weiteren hohen base-Teils. Platte 10 ist ein hohes base-Teil mit Seitenplatten: Setze ein base support panel von Platte 10 und das panel esp von Platte 11 \"Alternative Panels\" ein, das Platz für die Breakout-Platine lässt. Die Module werden treppenförmig gestapelt, daher braucht jede zusätzliche Stufe eine Höheneinheit mehr als die darüber. Kombiniere die beiden Höhen, um jede Stufe aufzubauen. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
-            "alternativeNote": "Optional: Platte 10 \"Alternative Base Support\" ist eine Version des hohen base-Teils mit 2 abnehmbaren base support panel für den Zugang. Platte 11 \"Alternative Panels\" hat ein panel finger hole und ein panel esp, die du gegen eines der beiden Panels tauschen kannst."
+            "text": "Für {{modules}} Sortiermodule drucke {{threeTall}} hohe base-Teile (3 Einheiten hoch) und {{oneTall}} niedrige base-Teile (1 Einheit hoch) von Platte 6 \"Base Support - Print to Need\". Das hohe Teil ist base frame module (tall, open) mit seinen 2 base panel, das niedrige ist base frame module. Jeder Druck enthält eins von beiden, drucke also nur die Teile, die dir noch fehlen. Die Module werden treppenförmig gestapelt, daher braucht jede zusätzliche Stufe eine Höheneinheit mehr als die darüber. Kombiniere die beiden Höhen, um jede Stufe aufzubauen.",
+            "breakoutText": "Für {{modules}} Sortiermodule drucke {{threeTall}} hohe base-Teile (3 Einheiten hoch) und {{oneTall}} niedrige base-Teile (1 Einheit hoch) von Platte 6 \"Base Support - Print to Need\". Das hohe Teil ist base frame module (tall, open) mit seinen 2 base panel, das niedrige ist base frame module. Jeder Druck enthält eins von beiden, drucke also nur die Teile, die dir noch fehlen. Platte 14 \"ESP 32 Breakout\" zählt als ein weiteres hohes base-Teil: Ihr base frame module (tall, open) bekommt ein base panel und das base panel esp, das Platz für die Breakout-Platine lässt. Die Module werden treppenförmig gestapelt, daher braucht jede zusätzliche Stufe eine Höheneinheit mehr als die darüber. Kombiniere die beiden Höhen, um jede Stufe aufzubauen.",
+            "alternativeNote": "Optional: Platte 18 \"Alternative Panel\" hat ein base panel finger hole, das du gegen eines der beiden base panel tauschen kannst."
           },
           "printPlateBaseBottom": {
-            "esp32OrArduino": "Drucke deine Platinenplatte von Platte 7 \"Circuit Boards\". Sie hat zwei Teile, beide heißen in der Datei base arduino: das mit der Prägung Arduino (mit Abstandshaltern) für einen Arduino Uno R4 und das mit der Prägung ESP 32 (mit Schlitzen) für ein ESP32-Board ohne Breakout. Drucke nur das für dein Board.",
-            "esp32Breakout": "Drucke base esp32 breakout von Platte 8 \"DIY Kit - ESP 32 Breakout\" anstelle einer Platinenplatte von Platte 7. Sie hält den ESP32 auf seiner Breakout-Platine."
+            "esp32OrArduino": "Drucke deine Platinenplatte von Platte 16 \"Circuit Boards\": Arduino mount plate (mit Abstandshaltern) für einen Arduino Uno R4 oder ESP32 mount plate (mit Schlitzen) für ein ESP32-Board ohne Breakout. Drucke nur die für dein Board.",
+            "esp32Breakout": "Drucke Platte 14 \"ESP 32 Breakout\" einmal anstelle einer Platinenplatte von Platte 16. Ihre ESP32 breakout mount plate hält den ESP32 auf seiner Breakout-Platine, und derselbe Druck enthält das hohe base-Teil mit Seitenplatten und 10 module alignment pin."
           },
           "printServoControllerPlate": {
-            "text": "Drucke Platte 12 \"Servo Controller Plates\" einmal: pwm servo controller plate sowie folding left bin holder, folding right bin holder, folding left hinge und folding right hinge."
+            "text": "Drucke Platte 7 \"Servo Controller Plates\" einmal: servo controller mount plate sowie folding wing left und folding wing right."
           },
           "printEndBottom": {
-            "text": "Drucke Platte 13 \"End Plate\" einmal: base_end sowie folding left bin holder, folding right bin holder und folding end bin holder mit folding left hinge, folding right hinge und folding end hinge."
+            "text": "Drucke Platte 8 \"End Plate\" einmal: end mount plate sowie folding wing left, folding wing right und folding wing end."
           },
           "printGenericBase": {
-            "text": "Für {{modules}} Sortiermodule drucke Platte 14 \"Generic Plate - Print to Need\" {{count}}-mal. Jeder Druck ist eine generic base mit folding left bin holder, folding right bin holder, folding left hinge und folding right hinge. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
-            "alternativeNote": "Optional: Platte 15 \"Alternative Bin Holders\" hat feste Flügel (generic base wing, generic base wing (1) und card_base_wing_end) als Ersatz für die klappbaren Fachhalter und Scharniere auf den Platten 12, 13 und 14."
+            "text": "Für {{modules}} Sortiermodule drucke Platte 9 \"Generic Plate - Print to Need\" {{count}}-mal. Jeder Druck ist eine blank mount plate mit folding wing left und folding wing right.",
+            "alternativeNote": "Optional: Platte 13 \"Optional - Regular Bin Holders\" hat feste Flügel (bin wing left, bin wing right und bin wing end) als Ersatz für die klappbaren Flügel auf den Platten 7, 8 und 9."
           },
           "printBinsPlate": {
-            "text": "Drucke Platte 16 \"Bins\" zweimal. Jeder Druck hat 3 Fächer: card_sleeve_lg, card_sleeve_md und card_sleeve_small. Platte 19 \"Extra Bins\" hat ein weiteres card_sleeve_lg, falls du noch ein Fach brauchst.",
-            "risersNote": "Wenn du mehr als 3 Module verwendest, brauchst du eventuell Platte 18 \"Bin Riser\" (3 riser-Teile), damit die hinteren beiden Fächer hoch genug stehen."
+            "text": "Drucke Platte 10 \"Bins\" zweimal. Jeder Druck hat 3 Fächer: card bin large, card bin medium und card bin small. Platte 20 \"Additional Bins\" hat ein card bin XL, falls du ein größeres Fach brauchst.",
+            "risersNote": "Wenn du mehr als 3 Module verwendest, brauchst du eventuell den module riser von Platte 15 \"Bin Riser\", damit die hinteren beiden Fächer hoch genug stehen."
           },
           "printEndBinPlate": {
-            "text": "Drucke Platte 17 \"End Bin\" einmal: card_sleeve_end."
+            "text": "Drucke Platte 11 \"End Bin\" einmal: end card tray."
           },
           "printModulePins": {
-            "text": "Drucke {{count}} module_pin-Teile für {{modules}} Sortiermodule: {{top}} für die Oberseiten und {{front}} für die Vorderseiten der base-Teile. Platte 9 \"Base Support - Print to Need\" hat 16 pro Druck, drucke also nur die Pins davon, bis du genug hast. Jedes base-Teil braucht oben 4 Pins, und jede Höheneinheit vorne 2, außer der obersten Einheit jeder Säule. Die Pins verbinden die base-Teile miteinander und halten die Sortiermodule auf dem Sockel. Ändere oben im Setup die Modulanzahl, um das zu aktualisieren.",
-            "glueAlert": "Klebe die Pins in die Stützen. Stecke die base-Teile und Sortiermodule zuerst probeweise mit den Pins zusammen, und wenn alles passt, klebe jeden module_pin mit Sekundenkleber fest."
+            "text": "Drucke {{count}} module alignment pin für {{modules}} Sortiermodule: {{top}} für die Oberseiten und {{front}} für die Vorderseiten der base-Teile. Platte 6 \"Base Support - Print to Need\" hat 16 pro Druck (Platte 14 hat 10 weitere), drucke also nur die Pins davon, bis du genug hast. Jedes base-Teil braucht oben 4 Pins, und jede Höheneinheit vorne 2, außer der obersten Einheit jeder Säule. Die Pins verbinden die base-Teile miteinander und halten die Sortiermodule auf dem Sockel.",
+            "glueAlert": "Klebe die Pins in die Stützen. Stecke die base-Teile und Sortiermodule zuerst probeweise mit den Pins zusammen, und wenn alles passt, klebe jeden module alignment pin mit Sekundenkleber fest."
           },
           "dryFit": {
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
           },
           "printOptionalPlates": {
-            "text": "Optional: Platte 20 \"Optional\" hat 3 back plate, eine front plate, eine hopper extension und zwei Rückplatten für den Netzteilanschluss (back plate power adapter und back plate power adapter alt). Die zweite Platte 21 \"Optional\" hat die Gewichte für den Trichter (weight large washer, weight small washer) und einen tight module pin für Verbindungen, die zu locker sitzen."
+            "text": "Optional: Platte 12 \"Optional Facades\" hat die frame front plate und drei Rückplatten (frame back plate, frame back plate (feeder) und frame back plate (Arduino)). Platte 17 \"Hopper Weights\" hat card weight v2 und card weight (small), die den Kartenstapel nach unten drücken, und Platte 19 \"Hopper Accessories\" hat die hopper extension für einen höheren Stapel."
           }
         }
       },
@@ -439,7 +439,7 @@
             "text": "Einfachste Option: Installiere die Firmware direkt aus diesem Browser.",
             "button": "Im Browser flashen",
             "unsupported": "(Erfordert einen Chromium-basierten Browser wie Chrome oder Edge.)",
-            "note": "Schließe den ESP32-S3 zuerst über seinen linken USB-C-Anschluss (mit USB beschriftet) an deinen Computer an. Funktioniert mit einem brandneuen ESP32-S3. Lieber die Arduino IDE? Überspringe diesen Schritt und folge den manuellen Schritten unten."
+            "note": "Schließe den ESP32-S3 zuerst über seinen linken USB-C-Anschluss (mit USB beschriftet) an deinen Computer an. Funktioniert mit einem brandneuen ESP32-S3. Klappt das Flashen, überspringe den Rest dieser Phase: Die Schritte unten sind der manuelle Weg über die Arduino IDE."
           },
           "downloadCode": {
             "text": "Lade den Code aus dem <repo>GitHub-Repository</repo> herunter (Code → Download ZIP) und entpacke ihn. Öffne dann den firmware-Ordner mit der Arduino-IDE (Datei → Öffnen → firmware/main/main.ino).",
@@ -450,8 +450,7 @@
             "note": "Das lädt einige hundert MB herunter (die komplette Xtensa-Toolchain) und dauert ein paar Minuten."
           },
           "installLibraries": {
-            "text": "Installiere in der Arduino-IDE die Bibliotheken ArduinoJson, Adafruit PWM Servo Driver und Adafruit NeoPixel.",
-            "note": "Bibliotheksverwaltung → jeweils nach Namen suchen."
+            "text": "Installiere in der Arduino-IDE die Bibliotheken ArduinoJson, Adafruit PWM Servo Driver und Adafruit NeoPixel."
           },
           "installLibrariesEsp32": {
             "note": "Bibliotheksverwaltung → jeweils nach Namen suchen. Die Bluetooth-Unterstützung ist bereits im gerade installierten ESP32-Core enthalten, eine zusätzliche Bluetooth-Bibliothek ist also nicht nötig."
@@ -466,7 +465,7 @@
           },
           "uploadSketchEsp32": {
             "text": "Schließe die Platine über ihren linken USB-C-Anschluss (mit USB beschriftet, nicht UART) an deinen Computer an. Wähle das Board „ESP32S3 Dev Module“, stelle unter Tools → USB Mode „Hardware CDC and JTAG“ und USB CDC On Boot „Enabled“ ein, wähle den richtigen Port und lade dann firmware/main/main.ino hoch.",
-            "note": "Verwendet das im Sketch bereits hinterlegte ESP32-S3-Pinlayout (siehe den IR_PINS-Kommentar in main.ino). Hardware-CDC/JTAG-Modus mit aktiviertem CDC On Boot ist nötig, damit das Board überhaupt über seinen nativen USB-Port erreichbar ist, und ermöglicht es dem browserbasierten Flash-Tool in der App, das Board zuverlässig ohne Drücken der BOOT-Taste in den Bootloader-Modus zu versetzen; im Gegenzug meldet sich das Board unter einem generischen Espressif-Namen statt „Mault Card Sorter“."
+            "note": "Beide USB-Einstellungen sind nötig: Ohne sie ist das Board nicht über seinen nativen USB-Port erreichbar, und das browserbasierte Flash-Tool der App kann es nicht zuverlässig ohne Drücken der BOOT-Taste in den Bootloader-Modus versetzen. Im Gegenzug meldet sich das Board unter einem generischen Espressif-Namen statt „Mault Card Sorter“. Der Sketch enthält bereits das ESP32-S3-Pinlayout (siehe den IR_PINS-Kommentar in main.ino)."
           },
           "confirmReady": {
             "text": "Öffne den seriellen Monitor mit 9600 Baud und bestätige, dass nach dem Neustart des Boards {\"status\":\"ready\"} angezeigt wird."
@@ -475,56 +474,50 @@
       },
       "assembleModules": {
         "title": "Die Module zusammenbauen",
+        "intro": {
+          "horns": "Lass in dieser Phase jedes Horn von seiner Servowelle. Du montierst jetzt die Klappen und Schieberarme an ihre Hörner, aber die Hörner kommen erst im Einrichtungsassistenten der App (Verkabeln und kalibrieren) auf die Servos, sobald jeder Servo in die richtige Position gefahren ist.",
+          "linkages": "Die Gestänge sind mit LEFT (links) und RIGHT (rechts) beschriftet, passend zu links und rechts an der Plattform."
+        },
         "steps": {
           "mountModuleServos": {
-            "text": "Setze den Boden-, Klappen- und Schieberservo, alles 180°-Positionsservos vom Typ SG90, in jedes der 3 Modulgehäuse (module_base von Platte 1) ein, insgesamt 9 Servos.",
-            "note": "Montiere die Hörner noch nicht auf die Servowellen – setze die Klappen/den Schieberarm unten auf ihre Hörner, aber lasse das Horn selbst vom Servo, bis jedes Modul über die App kalibriert ist."
-          },
-          "centerServos": {
-            "text": "Verkabele alle {{count}} Modul-Servos mit ihren PCA9685-Kanälen sowie dem I²C-Bus und der externen Servoversorgung (siehe Verkabelung unten). Öffne dann /app/calibrate und klicke auf Verbinden – die App überträgt die Kalibrierung jedes Moduls und zentriert dabei automatisch jeden Servo. Montiere kein Horn auf eine Servowelle, bevor das abgeschlossen ist.",
-            "note": "Noch nicht kalibriert? Dann wird mit sinnvollen Standardwerten zentriert. Kann jederzeit durch erneutes Verbinden wiederholt werden, wenn ein Servo vor der Montage oder Neupositionierung eines Horns neu zentriert werden muss."
+            "text": "Setze den Boden-, Klappen- und Schieberservo, alles 180°-Positionsservos vom Typ SG90, in jedes der {{modules}} Modulgehäuse (sorting module base von Platte 1) ein, insgesamt {{count}} Servos."
           },
           "mountBottomFlapper": {
-            "text": "Baue die Bodenklappe aus den Teilen von Platte 1 zusammen: Schraube bottom_paddle an bottom_paddle_arm (das Gestänge), dann das Gestänge an bottom_servo_arm (das Horn). Schraube die fertige Bodenklappe mit 2 M2×6-Schrauben ins Modulgehäuse. Setze das Horn noch nicht auf den Servo.",
-            "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Dies ist die Bodenklappe, durch die eine Karte fällt, um das nächste Modul zu erreichen, oder das aktuelle bei einem Treffer. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
+            "text": "Baue die Bodenklappe aus den Teilen von Platte 1 zusammen: Schraube bottom paddle an bottom paddle linkage (das Gestänge), dann das Gestänge an bottom paddle servo horn (das Horn). Schraube die fertige Bodenklappe mit 2 M2×6-Schrauben ins Modulgehäuse.",
+            "note": "Diese Klappe ist der Boden des Moduls. Sie öffnet sich, damit eine Karte ins nächste Modul fällt."
           },
           "mountSideFlappers": {
-            "text": "Baue die Seitenklappen aus den Teilen von Platte 1 zusammen: Schraube left_paddle an left_paddle_arm und right_paddle an right_paddle_arm, dann beide Arme an side paddle horn (ein Satz pro Modul). Schraube die fertigen Seitenklappen mit 4 M2×6-Schrauben ins Modulgehäuse. Setze das Horn noch nicht auf den Servo.",
-            "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Ein Paddelservo treibt beide Paddel gemeinsam an – sie öffnen und schließen als Paar, nicht unabhängig voneinander. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
+            "text": "Baue die Seitenklappen aus den Teilen von Platte 1 zusammen: Schraube left paddle an left paddle linkage und right paddle an right paddle linkage, dann beide Gestänge an side paddles servo horn (ein Satz pro Modul). Schraube die fertigen Seitenklappen mit 4 M2×6-Schrauben ins Modulgehäuse.",
+            "note": "Ein Servo treibt beide Seitenklappen an, sie öffnen und schließen also als Paar."
           },
           "mountPusherArm": {
-            "text": "Baue den Schieber aus den Teilen von Platte 1 zusammen: Schraube pusher left und pusher right an die beiden pusher_arm-Gestänge, dann beide Gestänge an pusher horn. Schraube den fertigen Schieber mit zwei M2×8-Schrauben ins Modulgehäuse. Setze das Horn noch nicht auf den Servo.",
-            "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
+            "text": "Baue den Schieber aus den Teilen von Platte 1 zusammen: Schraube card pusher left und card pusher right an die beiden pusher linkage, dann beide Gestänge an pusher servo horn. Schraube den fertigen Schieber mit zwei M2×8-Schrauben ins Modulgehäuse."
           },
           "fitFeederOrings": {
-            "text": "Ziehe 6 G20-O-Ringe auf die roller von Platte 4.",
+            "text": "Ziehe die 6 Zuführ-O-Ringe (20 mm Innendurchmesser) auf die roller von Platte 3.",
             "note": "Diese geben der Rolle Griffigkeit auf der Kartenoberfläche – verteile sie gleichmäßig über die Länge der Rolle."
           },
-          "mountFeederRoller": {
-            "text": "Befestige die roller an feeder_base (beide Platte 4)."
-          },
           "mountRollerHorn": {
-            "text": "Drücke roller horn mg90s (Platte 4) auf die Welle des Dauerdreh-Zuführservos.",
-            "note": "Die Zuführrolle wird in zwei Teilen gedruckt: roller und roller horn mg90s. Auf keinem der beiden steht \"servo\". Das Rollenhorn ist das kleine Teil, das auf die Servowelle passt."
+            "text": "Drücke roller servo horn (MG90S) (Platte 3) auf die Welle des Dauerdreh-Zuführservos und sichere es mit der Hornschraube.",
+            "note": "Das Horn ist das kleine Teil, das auf die Servowelle passt. Auf keinem der beiden Rollenteile steht \"servo\"."
           },
           "mountFeederServo": {
-            "text": "Schiebe den Zuführservo mit dem Rollenhorn auf der Welle in das Ende der Rolle am Fuß des Trichters. Das Rollenhorn sitzt in der Rolle, sodass der Servo sie dreht.",
-            "note": "Hast du die zweiteilige Rolle? Schraube zuerst roller horn mg90s auf die Servowelle, führe das Horn dann durch das Loch in feeder_base und schiebe danach die roller auf das Horn."
+            "text": "Führe das Horn, das jetzt auf dem Servo sitzt, durch das Loch in feeder base (flat) und schiebe dann die roller auf das Horn. Das Horn sitzt in der Rolle, sodass der Servo sie dreht."
           },
           "fitHopperRollerOrings": {
-            "text": "Ziehe O-Ringe auf die hopper roller (Platte 4).",
+            "text": "Ziehe die 4 Trichter-O-Ringe (9,2 mm Innendurchmesser) auf die hopper idler roller (small) (Platte 3).",
             "note": "Wie bei der Zuführrolle geben diese ihr Griffigkeit auf der Kartenoberfläche."
           },
           "mountHopperRoller": {
-            "text": "Montiere die hopper roller mit 2 M3×8-Schrauben und 2 M10-Unterlegscheiben am hopper (beide Platte 4).",
+            "text": "Montiere die hopper idler roller (small) mit 2 M3×8-Schrauben und 2 M3-Unterlegscheiben am hopper (beide Platte 3).",
             "note": "Die Rolle sollte nach der Montage stramm sitzen, sie darf nicht frei durchdrehen."
           },
           "calibrateHopperRoller": {
             "text": "Setze die Feder und die M3×25-Schraube ein und ziehe die Schraube an, bis sie unten am Montagepunkt herausragt. Löse sie dann langsam, bis der Trichter jeweils nur 1 Karte zuführt."
           },
           "mountHopperRiser": {
-            "text": "Montiere den feeder riser (Platte 4) hinten am hopper.",
-            "requiredAlert": "Pflicht: Lass den feeder riser nicht weg. Ohne ihn zieht der Zuführer die Karten nicht zuverlässig ein."
+            "text": "Montiere die feeder ramp (steep) (Platte 3) hinten am hopper.",
+            "requiredAlert": "Pflicht: Lass die feeder ramp nicht weg. Ohne sie zieht der Zuführer die Karten nicht zuverlässig ein."
           },
           "mountModuleIr": {
             "text": "Befestige an jedem Modul (1-{{modules}}) einen IR-Sensor am Tor mit je 1 M2×6-Schraube, ausgerichtet quer zum Kartenweg."
@@ -540,16 +533,16 @@
         "steps": {
           "wireI2c": {
             "text": "Verbinde den PCA9685 mit dem I²C-Bus des {{board}} (SDA/SCL) sowie mit der Logikversorgung/GND.",
-            "note": "Nutze die Tabelle unten. Die Logikspannung ist beim ESP32 3.3V, nicht 5V.",
+            "note": "Nutze die Tabelle unten.",
             "bendPinsNote": "Die Header-Pins des PCA9685 zeigen seitlich nach außen - eventuell müssen sie um 90° nach oben gebogen werden, damit sie das Panel nicht berühren und beim Verkabeln mit dem {{board}} gut erreichbar bleiben."
           },
           "wireServos": {
             "text": "Verkabele alle {{count}} Servos gemäß der Kanalbelegung mit den PCA9685-Kanälen 0–{{lastChannel}} und 15 - die Zuführung belegt immer den letzten Kanal.",
-            "note": "An der Seite der Basis gibt es Kabelkanäle mit Kabelbindern, die alles ordentlich halten."
+            "note": "Kabelkanäle mit Kabelbinderpunkten an der Seite der Basis halten die Kabel ordentlich."
           },
           "wireSensors": {
             "text": "Verkabele die {{count}} IR-Sensoren mit den digitalen Pins aus der Tabelle unten. Modultore und der Trichterhals-Sensor liegen nicht durchgehend auf aufeinanderfolgenden Pins.",
-            "note": "Für Versorgung und Masse musst du {{count}} Leitungen zu einer zusammenführen, entweder mit einem Breadboard oder indem du sie verdrillst und verlötest. Du musst die Sensoren manuell auf eine kürzere Reichweite kalibrieren, um Fehlauslösungen zu vermeiden."
+            "note": "Die Sensoren teilen sich Versorgung und Masse: Führe die {{count}} Versorgungsleitungen zu einer und die {{count}} Masseleitungen zu einer zusammen, mit Wago-Klemmen, einem Breadboard oder durch Löten. Die Reichweite jedes Sensors stellst du in einem späteren Schritt ein."
           },
           "wirePower": {
             "text": "Führe die externe 6V-Versorgung an die V+/GND-Klemme des PCA9685 und verbinde deren Masse mit der Masse des {{board}}.",
@@ -562,39 +555,41 @@
             "text": "Schließe den {{board}} über seinen linken USB-C-Anschluss (mit USB beschriftet, nicht UART) an deinen Computer an, verbinde ihn per Web Serial mit der App und öffne dann /app/calibrate."
           },
           "calibrateModules": {
-            "text": "Modul-Kalibrierungsraster – lege modulweise den Öffnungs-/Schließimpuls für jede Bodenklappe und jedes Paddel sowie links/neutral/rechts für jeden Schieber fest.",
-            "note": "Bei pusherLeft/pusherRight den Arm zur Innenwand schwingen lassen, aber stoppen, bevor er sie berührt, etwa 15-16% von neutral entfernt. Der Schieber muss die Wand nicht treffen, um die Karte hinauszuschleudern, und Druck dagegen belastet den Servo. Über 16% zeigt die App eine Warnung."
+            "text": "Lege Modul für Modul die offene und geschlossene Position der Bodenklappe und der Seitenklappen sowie die linke, neutrale und rechte Position des Schiebers fest.",
+            "note": "Lass den Arm für die linke und rechte Schieberposition zur Innenwand schwingen, aber stoppe, bevor er sie berührt, etwa 15-16% von neutral entfernt. Der Schieber muss die Wand nicht treffen, um die Karte hinauszuschleudern, und Druck dagegen belastet den Servo. Über 16% zeigt die App eine Warnung."
           },
           "installHorns": {
-            "text": "Montiere im Einrichtungsassistenten (Sortierer einrichten, öffnet sich beim ersten Verbinden des Sortierers oder über das Hilfemenü (?) unter /app/calibrate) die Hörner (mit bereits montierter Klappe bzw. Schieberarm) Servo für Servo. Für die Bodenklappe und die Paddel stellst du den Schieberegler auf 90 % und drückst das Horn dann in geschlossener Position auf die Servowelle. Für den Schieber stellst du den Schieberegler auf 50 % und drückst dann das Horn auf die Welle. Sichere jedes Horn mit seiner Hornschraube, für alle {{count}} Modul-Servos.",
-            "note": "Ein außermittig montiertes Horn verzerrt das gesamte Gestänge. Die genauen Öffnungs-/Schließ- und Links-/Rechts-Impulse werden im nächsten Schritt feinjustiert."
+            "text": "Montiere im Einrichtungsassistenten (Sortierer einrichten) die Hörner Servo für Servo, jeweils mit bereits montierter Klappe bzw. montiertem Schieberarm. Bodenklappe und Seitenklappen: Stelle den Schieberegler auf 90 % und drücke das Horn dann mit geschlossener Klappe auf die Servowelle. Schieber: Stelle den Schieberegler auf 50 % und drücke das Horn dann auf die Welle. Sichere jedes Horn mit seiner Hornschraube, für alle {{count}} Modul-Servos.",
+            "note": "Der Assistent öffnet sich beim ersten Verbinden des Sortierers und jederzeit über das Hilfemenü (?) unter /app/calibrate. Ein außermittig montiertes Horn verzerrt das gesamte Gestänge. Die genauen Positionen werden im nächsten Schritt feinjustiert."
           },
           "calibrateFeeder": {
-            "text": "Zuführungs-Kalibrierungsfeld – stimme Zuführgeschwindigkeit, Impuls-/Pausenzeiten und Setzzeit auf deinen tatsächlichen Trichter ab."
+            "text": "Stimme im Bereich Zuführung die Zuführgeschwindigkeit, Impuls-/Pausenzeiten und Setzzeit auf deinen tatsächlichen Trichter ab.",
+            "tip": {
+              "title": "Besser kalibrieren",
+              "steps": {
+                "removeShim": "Entferne den hinteren Shim, falls du einen hast.",
+                "openGap": "Drehe die Schraube im Uhrzeigersinn, bis zwei Karten leicht hineinpassen.",
+                "placeCards": "Lege 2 Karten zwischen die Zuführrolle und die obere Rolle, flach auf dem Trichter aufliegend.",
+                "findContact": "Bewege die obere Karte vor und zurück und drehe dabei die Schraube gegen den Uhrzeigersinn, bis die obere Karte die obere Rolle mitdreht.",
+                "replaceShim": "Setze den hinteren Shim wieder ein.",
+                "loadCards": "Lege einige Karten ein.",
+                "testFeed": "Teste die Zuführung.",
+                "backOff": "Kommt mehr als eine Karte heraus, drehe die Schraube 1/8 Umdrehung gegen den Uhrzeigersinn.",
+                "testMore": "Teste 5-10 Karten.",
+                "repeat": "Kommt weiterhin mehr als eine Karte heraus, wiederhole ab Schritt 6, so oft wie nötig."
+              }
+            }
           },
           "adjustIr": {
-            "text": "Stelle die Erkennungsdistanz aller {{count}} IR-Sensoren so ein, dass jeder eine Karte 2,5 cm (1 Zoll) vor sich erkennt. Drehe bei eingeschaltetem Board mit einem kleinen Schraubendreher an der Schraube im blauen Gehäuse (dem Potentiometer) jedes Sensors: Drehe sie zuerst so weit, bis die Anzeige-LED des Sensors ausgeht, solange nichts vor ihm ist. Halte dann eine Karte 2,5 cm vor den Sensor und drehe die Schraube langsam in die andere Richtung, bis die LED gerade angeht.",
+            "text": "Stelle alle {{count}} IR-Sensoren so ein, dass jeder eine Karte 2,5 cm (1 Zoll) vor sich erkennt. Drehe bei eingeschaltetem Board mit einem kleinen Schraubendreher an der Schraube im blauen Gehäuse (dem Potentiometer) jedes Sensors. Drehe sie zuerst so weit, bis die Anzeige-LED des Sensors ausgeht, solange nichts vor ihm ist. Halte dann eine Karte 2,5 cm vor den Sensor und drehe die Schraube langsam in die andere Richtung, bis die LED gerade angeht.",
             "note": "Zur Kontrolle ziehst du die Karte auf etwa 5 cm zurück: Die LED sollte wieder ausgehen. Bleibt sie an, drehe die Schraube ein kleines Stück zurück. Ein zu weit eingestellter Sensor reicht über den Kartenweg hinaus und meldet Karten, die nicht da sind."
           },
           "checkIr": {
-            "text": "IR-Sensorfeld – prüfe, ob alle {{count}} Sensoren mit einer Karte in der Hand korrekt „vorhanden“/„nicht vorhanden“ melden.",
+            "text": "Halte im Bereich IR-Sensoren eine Karte vor jeden der {{count}} Sensoren und prüfe, dass er die Karte meldet und wieder frei meldet, sobald du sie wegnimmst.",
             "note": "Wenn ein Sensor nicht auslöst oder auslöst, obwohl nichts vor ihm ist, wiederhole den vorherigen Schritt für diesen Sensor."
           },
           "testBins": {
-            "text": "Fachsteuerung: Sende der Reihe nach eine Testkarte an jedes der {{count}} Fächer und bestätige, dass sie korrekt landet."
-          }
-        }
-      },
-      "powerOnTest": {
-        "title": "Erster Einschalttest",
-        "steps": {
-          "runTestCommand": {
-            "text": "Sende bei angeschlossener externer Servoversorgung {\"test\": true} über die serielle Schnittstelle.",
-            "note": "Öffnet nacheinander alle Bodenklappen und Paddel, bewegt alle Schieber links und dann rechts, setzt alles auf neutral zurück und lässt anschließend kurz die Zuführung laufen."
-          },
-          "watchModules": {
-            "text": "Beobachte jedes Modul während des Tests – stelle sicher, dass nichts am Ende seines Wegs klemmt oder schleift.",
-            "note": "Wenn sich ein Servo beim Öffnen oder Schließen anstrengt, muss vermutlich der Gehäuseausschnitt vor der Kalibrierung angepasst werden."
+            "text": "Sende mit Fach-Routing der Reihe nach eine Testkarte an jedes der {{count}} Fächer und bestätige, dass sie korrekt landet."
           }
         }
       },
@@ -627,21 +622,21 @@
       "shroud": "Sorting-Module-Shroud und Kamerahalterung",
       "baseSupportTall": "Hohes base-Teil (3 hoch)",
       "baseSupportShort": "Niedriges base-Teil (1 hoch)",
-      "baseSupportBreakout": "Alternative Base Support mit panel esp",
+      "baseSupportBreakout": "Hohes base-Teil mit base panel esp",
       "circuitBoardPlate": "Circuit-Board-Platte (ESP32 / Arduino)",
-      "circuitBoardPlateBreakout": "Circuit-Board-Platte (ESP32 + Breakout-Platine)",
+      "circuitBoardPlateBreakout": "ESP32 breakout mount plate",
       "servoControllerPlate": "Servo-Controller-Platte",
       "genericPlate": "Generic-Platte",
       "endPlate": "End-Platte und End-Bin-Halter",
       "binsPlate": "Bins",
       "endBinPlate": "End Bin",
-      "optionalPlate": "Back- und Front-Platte (optional)"
+      "optionalPlate": "Front- und Rückblenden (optional)"
     },
     "xray": "Röntgenblick"
   },
   "imageAlt": {
     "printPart": "3D-Modellansicht: {{part}}",
-    "breakoutBaseSupport": "Alternative Base Support",
+    "breakoutBaseSupport": "Hohes base-Teil mit base panel esp",
     "stepPhoto": "Foto zu diesem Bauschritt",
     "photos": {
       "baseModule": "Ein einzelner lila 3D-gedruckter Sortiermodulrahmen: ein offener Kasten mit vier Zapfen oben und Laschen an den Seiten zum Verbinden der Module.",

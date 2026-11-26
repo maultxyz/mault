@@ -789,6 +789,7 @@ export const collectionCards = pgTable(
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
     binEmptiedAt: timestamp("bin_emptied_at"),
+    startsStorageBatch: boolean("starts_storage_batch").notNull().default(false),
     capturedImageDataUrl: text("captured_image_data_url"),
     capturedImageKey: text("captured_image_key"),
     capturedBackImageDataUrl: text("captured_back_image_data_url"),
@@ -807,6 +808,7 @@ export const collectionCards = pgTable(
     isCorrected: boolean("is_corrected").notNull().default(false),
     lowConfidenceMatch: boolean("low_confidence_match").notNull().default(false),
     isReviewed: boolean("is_reviewed").notNull().default(false),
+    isAutoReviewed: boolean("is_auto_reviewed").notNull().default(false),
     diagnostics: jsonb("diagnostics"),
     locationId: integer("location_id").references(() => storageLocations.id, {
       onDelete: "set null",
@@ -1434,6 +1436,7 @@ export const unmatchedCards = pgTable(
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
     binEmptiedAt: timestamp("bin_emptied_at"),
+    startsStorageBatch: boolean("starts_storage_batch").notNull().default(false),
     diagnostics: jsonb("diagnostics"),
     embedding: vector("embedding"),
     scannedByUserId: text("scanned_by_user_id"),
@@ -2281,6 +2284,32 @@ export const cardPrices = pgTable(
       modify: false,
     }),
     apiServiceRead(sql`true`),
+  ],
+).enableRLS();
+
+export const cardPriceHistory = pgTable(
+  "card_price_history",
+  {
+    gameKey: text("game_key").notNull(),
+    lang: text("lang").notNull(),
+    cardId: text("card_id").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    priceCents: integer("price_cents"),
+    priceFoilCents: integer("price_foil_cents"),
+    priceEurCents: integer("price_eur_cents"),
+    priceEurFoilCents: integer("price_eur_foil_cents"),
+    priceCardKingdomCents: integer("price_card_kingdom_cents"),
+    priceCardKingdomFoilCents: integer("price_card_kingdom_foil_cents"),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.gameKey, table.lang, table.cardId, table.day],
+    }),
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
   ],
 ).enableRLS();
 

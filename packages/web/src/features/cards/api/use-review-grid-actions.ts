@@ -89,5 +89,5 @@ export function useReviewGridActions() {
     [refreshReviewedCards],
   );
 
-  return { acceptCards, correctCard };
+  return { acceptCards, correctCard, refreshReviewedCards };
 }

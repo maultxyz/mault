@@ -9,7 +9,12 @@ import { ApiStatusError } from "@/lib/api/api-status-error";
 import { lockOrgForMemberSeatLimit } from "@/lib/api/member-seat-lock";
 import { UpgradeRequiredError } from "@/lib/api/upgrade-required-error";
 import { getPlanPreviewForSignedInAdmin } from "@/lib/auth/plan-preview";
-import { getAccessToken, getActiveOrgId, signOut } from "@/lib/auth/session";
+import {
+  getAccessToken,
+  getActiveOrgId,
+  refreshAccessTokenRejectedByApi,
+  signOut,
+} from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/config";
 import type { ApiRequestOptions, RequestAuth } from "@/lib/interfaces/api";
 
@@ -57,12 +62,21 @@ export async function apiRequest<T>(
   const abortController = timeoutMs != null ? new AbortController() : null;
   const abortTimer = abortController ? setTimeout(() => abortController.abort(), timeoutMs) : null;
   try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      method,
-      headers,
-      body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),
-      signal: abortController?.signal,
-    });
+    const sendRequest = (requestHeaders: Record<string, string>) =>
+      fetch(`${API_BASE}${path}`, {
+        method,
+        headers: requestHeaders,
+        body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),
+        signal: abortController?.signal,
+      });
+    let res = await sendRequest(headers);
+    const rejectedToken = headers.Authorization?.slice("Bearer ".length);
+    if (res.status === 401 && rejectedToken) {
+      const refreshedToken = await refreshAccessTokenRejectedByApi(rejectedToken);
+      if (refreshedToken) {
+        res = await sendRequest({ ...headers, Authorization: `Bearer ${refreshedToken}` });
+      }
+    }
     handleForbidden(res);
     await trackMemberSeatLimit(res, resolveRequestOrgId(orgId));
     if (!res.ok && !acceptStatuses.includes(res.status)) {

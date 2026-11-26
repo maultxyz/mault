@@ -490,6 +490,10 @@
         "label": "Buy and sell",
         "description": "Intakes with buylist offers, order import and fulfilment, sales, cost and margin reports, and spot checks. Existing records stay viewable either way."
       },
+      "reviewAutoCheck": {
+        "label": "Review auto-check",
+        "description": "The Auto-check button in the review grid. It rescans the photos of cards waiting for review with high accuracy, accepts the ones that match and flags the rest."
+      },
       "repacks": {
         "label": "Repacks",
         "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets that already build repacks keep working."

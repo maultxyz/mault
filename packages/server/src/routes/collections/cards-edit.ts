@@ -73,6 +73,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             isCorrected: true,
             lowConfidenceMatch: true,
             isReviewed: true,
+            isAutoReviewed: true,
           },
         });
         if (!existing) return { success: false, message: "Card not found." };
@@ -111,6 +112,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
         const resolvesReview = card !== undefined || !!confirmed || !!reviewed;
         if (resolvesReview) {
           updates.isReviewed = true;
+          updates.isAutoReviewed = false;
           updates.lowConfidenceMatch = false;
         }
         if (isFoil !== undefined) updates.isFoil = isFoil;
@@ -157,6 +159,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
               card !== undefined || confirmed ? true : existing.isCorrected,
             lowConfidenceMatch: resolvesReview ? false : existing.lowConfidenceMatch,
             isReviewed: resolvesReview ? true : existing.isReviewed,
+            isAutoReviewed: resolvesReview ? false : existing.isAutoReviewed,
           }),
         };
       });

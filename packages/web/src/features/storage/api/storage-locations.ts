@@ -210,6 +210,18 @@ export const storageLocationUnreviewedCardsQueryOptions = (
     enabled: !!guid && enabled,
   });
 
+export async function fetchStorageLocationUnreviewedCardPage(
+  guid: string,
+  page: number,
+): Promise<StorageLocationCardPage["cards"]> {
+  const requestedPage = page + 1;
+  const result = await apiGet<Result<StorageLocationCardPage>>(
+    `/api/storage-locations/${guid}/cards/page?page=${requestedPage}&unreviewedOnly=true`,
+  );
+  if (!result.success || !result.data) throw new Error(result.message);
+  return result.data.page === requestedPage ? result.data.cards : [];
+}
+
 export const storageLocationCardContextQueryOptions = (
   guid: string | undefined,
   scanId: string | undefined,

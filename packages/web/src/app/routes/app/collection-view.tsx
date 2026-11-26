@@ -28,11 +28,15 @@ import {
   IconPlayerPlay,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 
 export default function CollectionViewPage() {
   const { t } = useTranslation("collections");
-  const { collectionGuid } = useParams<{ collectionGuid: string }>();
+  const { collectionGuid, scanId } = useParams<{
+    collectionGuid: string;
+    scanId: string;
+  }>();
+  const { search } = useLocation();
   const {
     collections,
     activeCollection,
@@ -45,7 +49,12 @@ export default function CollectionViewPage() {
   const unmatchedView = useUnmatchedView();
 
   if (collectionGuid && collectionGuid === activeCollection?.guid) {
-    return <Navigate to="/app" replace />;
+    return (
+      <Navigate
+        to={{ pathname: scanId ? `/app/cards/${scanId}` : "/app", search }}
+        replace
+      />
+    );
   }
 
   if (isLoading) {

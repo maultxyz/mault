@@ -17,6 +17,7 @@ import {
   type ExportAdapter,
 } from "@/features/cards/lib/export";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { useMoveTargetCollections } from "@/features/collections/api/use-move-target-collections";
 import { useMarkStorageCardsDownloaded } from "@/features/storage/api/use-mark-storage-cards-downloaded";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { SetPricesAction } from "@/features/business/components/set-prices-action";
@@ -64,19 +65,25 @@ export function StorageCardSelectionBar({
     (reference) => reference.scanId,
   );
 
+  const selectedCollectionGuids = useMemo(
+    () => [
+      ...new Set(selectedReferences.map((reference) => reference.collectionGuid)),
+    ],
+    [selectedReferences],
+  );
+  const moveTargetCollections = useMoveTargetCollections(selectedCollectionGuids);
+
   const selectedGames = useMemo(() => {
-    const selectedCollectionGuids = new Set(
-      selectedReferences.map((reference) => reference.collectionGuid),
-    );
+    const selectedCollectionGuidSet = new Set(selectedCollectionGuids);
     const gamesByKey = new Map(
       collections
-        .filter((collection) => selectedCollectionGuids.has(collection.guid))
+        .filter((collection) => selectedCollectionGuidSet.has(collection.guid))
         .flatMap((collection) =>
           collection.game ? [[collection.game.key, collection.game]] : [],
         ),
     );
     return [...gamesByKey.values()];
-  }, [collections, selectedReferences]);
+  }, [collections, selectedCollectionGuids]);
 
   const exportAdapters = useMemo(
     () =>
@@ -113,6 +120,15 @@ export function StorageCardSelectionBar({
     const moved = await bulkActions.moveToLocation(
       selectedReferences,
       targetLocationGuid,
+    );
+    if (moved) onClear();
+    return moved;
+  };
+
+  const moveSelectedToCollection = async (targetCollectionGuid: string) => {
+    const moved = await bulkActions.moveToCollection(
+      selectedReferences,
+      targetCollectionGuid,
     );
     if (moved) onClear();
     return moved;
@@ -262,17 +278,19 @@ export function StorageCardSelectionBar({
           scanIds={selectedScanIds}
           buttonClassName={SELECTION_ACTION_BAR_BUTTON_CLASS}
         />
+        {(!storageLocked || moveTargetCollections.length > 0) && (
+          <Button
+            variant="ghost"
+            disabled={bulkActions.isUpdating}
+            className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+            onClick={() => setMoveOpen(true)}
+          >
+            <IconTransfer />
+            {tStorage("cardLocation.move")}
+          </Button>
+        )}
         {!storageLocked && (
           <>
-            <Button
-              variant="ghost"
-              disabled={bulkActions.isUpdating}
-              className={SELECTION_ACTION_BAR_BUTTON_CLASS}
-              onClick={() => setMoveOpen(true)}
-            >
-              <IconTransfer />
-              {tStorage("cardLocation.move")}
-            </Button>
             <Button
               variant="ghost"
               disabled={bulkActions.isUpdating}
@@ -299,8 +317,11 @@ export function StorageCardSelectionBar({
         count={selectedCount}
         excludedLocationGuid={location.guid}
         isMoving={bulkActions.isUpdating}
+        showLocations={!storageLocked}
+        sourceCollectionGuid={selectedCollectionGuids}
         onOpenChange={setMoveOpen}
         onMove={moveSelected}
+        onMoveToCollection={moveSelectedToCollection}
       />
 
       <DeleteDialog

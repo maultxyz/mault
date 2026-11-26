@@ -10,9 +10,9 @@ import {
   unmatchedCardsPageQueryOptions,
 } from "./collection-cards";
 
-const mocks = vi.hoisted(() => ({ session: vi.fn() }));
+const mocks = vi.hoisted(() => ({ session: vi.fn(), refresh: vi.fn() }));
 vi.mock("@/lib/auth/client", () => ({ neon: { auth: { signOut: vi.fn() } } }));
-vi.mock("@/lib/auth/session", () => ({ getAuthSession: mocks.session, getOrgId: () => "test-org" }));
+vi.mock("@/lib/auth/session", () => ({ getAuthSession: mocks.session, refreshAuthTokenRejectedByApi: mocks.refresh, getOrgId: () => "test-org" }));
 vi.mock("@/lib/auth/impersonation", () => ({ getImpersonationState: () => null, clearImpersonation: vi.fn() }));
 
 const query = { search: "", sort: null, filters: EMPTY_CARD_FILTERS, grouped: false };
@@ -43,6 +43,7 @@ function client() {
 
 beforeEach(() => {
   mocks.session.mockReset().mockResolvedValue({ token: "test-token" });
+  mocks.refresh.mockReset().mockResolvedValue("fresh-token");
 });
 afterEach(() => {
   for (const value of clients.splice(0)) value.clear();
@@ -147,5 +148,31 @@ describe("apiGet abort boundaries", () => {
   it("preserves existing callers without options", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response('{"value":1}')));
     expect(await apiGet("/read")).toEqual({ value: 1 });
+  });
+});
+
+describe("authenticated collection read retries", () => {
+  it("retains cancellation and refreshed authentication on a 401 retry", async () => {
+    const controller = new AbortController();
+    const fetch = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ refreshed: true })));
+    vi.stubGlobal("fetch", fetch);
+    await expect(apiGet("/collections", { signal: controller.signal })).resolves.toEqual({ refreshed: true });
+    expect(mocks.refresh).toHaveBeenCalledWith("test-token");
+    expect(fetch.mock.calls[1][1].signal).toBe(controller.signal);
+    expect(fetch.mock.calls[1][1].headers.Authorization).toBe("Bearer fresh-token");
+  });
+
+  it("does not send a retry when cancelled during token refresh", async () => {
+    const controller = new AbortController();
+    mocks.refresh.mockImplementation(async () => {
+      controller.abort();
+      return "fresh-token";
+    });
+    const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 401 }));
+    vi.stubGlobal("fetch", fetch);
+    await expect(apiGet("/collections", { signal: controller.signal })).rejects.toMatchObject({ name: "AbortError" });
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 });

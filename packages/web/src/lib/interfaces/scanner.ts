@@ -258,6 +258,7 @@ export interface ScannedCardsContextValue {
   ) => Promise<boolean>;
   promptAddedCardBin: (collectionGuid: string, added: ScannedCard) => boolean;
   sendCatchAllBin: () => void;
+  endStorageBatch: (binNumber: number) => void;
   sendCardToBin: (binNumber: number, cardName: string) => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
@@ -561,7 +562,14 @@ export interface BinFillLevel {
 
 export interface BinCardCounts {
   counts: Map<number, number>;
+  storageBatchStarts: Map<number, number[]>;
   updatedAt: number;
+}
+
+export interface SessionStorageBatchStart {
+  binNumber: number;
+  cardIndex: number;
+  lastEmptiedAt: number | null;
 }
 
 export interface ComputedBinFillLevels {
@@ -848,6 +856,7 @@ export interface ScannerChromeContext {
   isResettingSorter: boolean;
   onEmergencyStop: () => void;
   onResetAfterEmergencyStop: () => void;
+  onStopSession: (() => void) | null;
   handScan: boolean;
   handScanActive: boolean;
   lastRoutedBin: LastRoutedBin | null;
@@ -1015,16 +1024,22 @@ export interface UnmatchedCardImageProps {
   showsBackSide?: boolean;
 }
 
-export interface ForcedSetPickerProps {
+export interface ForcedSetSubmenuProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export interface ForcedSetOptionProps {
+export interface ScanOptionsMenuProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  setSubmenuOpen: boolean;
+  onSetSubmenuOpenChange: (open: boolean) => void;
+}
+
+export interface ScanOptionsSubmenuTriggerProps {
+  icon: ReactNode;
   label: string;
-  detail?: string;
-  active: boolean;
-  onSelect: () => void;
+  value: string;
 }
 
 export interface BinCorrection {

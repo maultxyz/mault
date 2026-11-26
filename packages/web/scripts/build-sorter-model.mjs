@@ -19,91 +19,93 @@ const TESSELLATION = {
 const DEFAULT_COLOR = [0.92, 0.92, 0.9];
 
 const FEEDER_EXCLUDED = new Set([
-  "tube",
-  "wall",
-  "roller horn",
-  "feeder base flat with bearing",
-  "roller horn snug",
-  "roller horn loose",
-  "roller horn mg90s",
-  "roller bearings",
+  "card tube",
+  "card tube wall",
+  "roller servo horn",
+  "feeder base (flat, bearing version)",
+  "roller servo horn (MG90S)",
+  "feed roller (bearing version)",
   "hopper extension",
+  "card weight",
+  "card weight (small)",
 ]);
 
-const FEEDER_ROLLER = "roller new";
+const FEEDER_ROLLER = "feed roller v2";
 
 const BASE_EXCLUDED = new Set([
-  "module pin",
+  "module alignment pin",
   "bin riser bottom",
   "bin riser top",
-  "riser",
-  "riser sm",
-  "esp32 base",
-  "esp32 breakout base",
-  "base module tall",
-  "base module tall esp breakout",
-  "servo testing board",
-  "card sleeve xl",
-  "card sleeve xxl",
-  "back plate feeder",
-  "back cover",
-  "back cover bottom",
-  "weight new",
-  "esp32 base module",
-  "esp breakout back plate",
+  "module riser",
+  "module riser (short)",
+  "ESP32 mount plate",
+  "ESP32 breakout mount plate",
+  "base frame module (tall)",
+  "base frame module (tall, ESP32 breakout)",
+  "servo test board mount plate",
+  "card bin XL",
+  "card bin XXL",
+  "frame back plate (feeder)",
+  "base enclosure back cover",
+  "base enclosure back cover (bottom)",
+  "card weight v2",
+  "base frame module (ESP32 breakout)",
+  "frame back plate (ESP32 breakout)",
   "base panel finger hole",
   "base panel esp",
-  "base mault",
-  "all in one board",
+  "all-in-one PCB",
+  "all-in-one board mount plate",
+  "base enclosure front",
+  "base enclosure back",
 ]);
 
 const MODULE_EXCLUDED = new Set([
   "",
-  "phone mount",
-  "wire holder",
-  "left card pusher",
-  "right card pusher",
+  "wire jig",
+  "card pusher left (old)",
+  "card pusher right (old)",
   "camera mount",
-  "sides paddle horn no spline",
-  "shroud slim",
-  "staging platform",
+  "side paddles servo horn (no spline)",
+  "camera shroud (slim)",
+  "card platform (staging version)",
 ]);
-const UNUSED_ASSEMBLIES = new Set(["folding_wings_all_pip_c0.25_detent v1"]);
-const TOP_PARTS = new Set(["shroud", "camera mount"]);
-const PLATFORM_PARTS = new Set(["platform"]);
+const UNUSED_ASSEMBLIES = new Set(["wing_step_export", "bin springs", "tools"]);
+const TOP_PARTS = new Set(["camera shroud", "camera mount"]);
+const PLATFORM_PARTS = new Set(["card platform"]);
+const SERVO_PART = "micro servo";
 
 const BASE_ROLES = {
-  "base module#9": "baseBlock",
-  "base module tall open#0": "baseBlockTall",
+  "base frame module#9": "baseBlock",
+  "base frame module (tall, open)#0": "baseBlockTall",
   "base panel#0": "baseBlockTall",
-  "base arduino#0": "groundFeeder",
-  "back plate#0": "groundFeeder",
-  "arduino back plate#0": "groundFeeder",
-  "base servo controller#0": "groundFirst",
-  "generic base wing right#2": "groundFirst",
-  "generic base wing left#2": "groundFirst",
-  "generic base#0": "groundMiddle",
-  "generic base wing right#1": "groundMiddle",
-  "generic base wing left#1": "groundMiddle",
-  "base end#0": "groundEnd",
-  "generic base wing right#0": "groundEnd",
-  "generic base wing left#0": "groundEnd",
-  "card base wing end#0": "groundEnd",
-  "front plate#0": "groundEnd",
-  "card sleeve end#0": "groundEnd",
-  "card sleeve sm#0": "sleeves",
-  "card sleeve sm#1": "sleeves",
+  "Arduino mount plate#0": "groundFeeder",
+  "frame back plate#0": "groundFeeder",
+  "frame back plate (Arduino)#0": "groundFeeder",
+  "servo controller mount plate#0": "groundFirst",
+  "bin wing right#2": "groundFirst",
+  "bin wing left#2": "groundFirst",
+  "blank mount plate#0": "groundMiddle",
+  "bin wing right#1": "groundMiddle",
+  "bin wing left#1": "groundMiddle",
+  "end mount plate#0": "groundEnd",
+  "bin wing right#0": "groundEnd",
+  "bin wing left#0": "groundEnd",
+  "bin wing end#0": "groundEnd",
+  "frame front plate#0": "groundEnd",
+  "end card tray#0": "groundEnd",
+  "card bin small#0": "sleeves",
+  "card bin small#1": "sleeves",
 };
-const BASE_GENERATED = new Set(["base module", "card sleeve md", "card sleeve lg"]);
+const BASE_GENERATED = new Set(["base frame module", "card bin medium", "card bin large"]);
 
 const PRINT_PARTS = {
-  shroud: "shroud",
+  "camera shroud": "shroud",
   "camera mount": "shroud",
-  "card base wing end": "endPlate",
-  "back plate": "optionalPlate",
-  "arduino back plate": "optionalPlate",
-  "front plate": "optionalPlate",
-  "card sleeve end": "endBinPlate",
+  "bin wing end": "endPlate",
+  "frame back plate": "optionalPlate",
+  "frame back plate (Arduino)": "optionalPlate",
+  "frame front plate": "optionalPlate",
+  "end card tray": "endBinPlate",
 };
 
 const BASE_PRINT_PARTS = {
@@ -117,19 +119,19 @@ const BASE_PRINT_PARTS = {
 };
 
 const MODULE_ROLES = {
-  "sides paddle horn#0": "paddleHorn",
-  "left paddle arm#0": "rightPaddleLink",
-  "right paddle arm#0": "leftPaddleLink",
+  "side paddles servo horn#0": "paddleHorn",
+  "left paddle linkage#0": "rightPaddleLink",
+  "right paddle linkage#0": "leftPaddleLink",
   "right paddle#0": "rightPaddle",
   "left paddle#0": "leftPaddle",
-  "bottom paddle horn#0": "bottomHorn",
-  "bottom paddle arm#0": "bottomLink",
+  "bottom paddle servo horn#0": "bottomHorn",
+  "bottom paddle linkage#0": "bottomLink",
   "bottom paddle#0": "bottomPaddle",
-  "pusher horn#0": "pusherHorn",
-  "pusher arm#0": "leftPusherLink",
-  "pusher arm#1": "rightPusherLink",
-  "new pusher arm left#0": "leftPusher",
-  "new pusher arm right#0": "rightPusher",
+  "pusher servo horn#0": "pusherHorn",
+  "pusher linkage#0": "leftPusherLink",
+  "pusher linkage#1": "rightPusherLink",
+  "card pusher left#0": "leftPusher",
+  "card pusher right#0": "rightPusher",
 };
 
 function srgbToLinear(c) {
@@ -141,7 +143,7 @@ function colorKey(color) {
 }
 
 function isExcluded(name, excluded) {
-  return excluded.has(name) || / (snug|loose)/.test(name);
+  return excluded.has(name) || / \((snug|loose) fit\)$/.test(name);
 }
 
 function boundsMinimum(meshes) {
@@ -362,7 +364,9 @@ const findNode = (name) => {
 };
 
 const feederMeshes = nodeMeshes(findNode("feeder module")).filter((m) => !isExcluded(m.name, FEEDER_EXCLUDED));
-const feeder = feederMeshes.filter((m) => m.name !== FEEDER_ROLLER);
+const feeder = feederMeshes.filter((m) => m.name !== FEEDER_ROLLER && m.name !== SERVO_PART);
+const feederServo = feederMeshes.filter((m) => m.name === SERVO_PART);
+if (!feederServo.length) throw new Error("Missing feeder part: servo");
 const feederRoller = feederMeshes.filter((m) => m.name === FEEDER_ROLLER);
 if (!feederRoller.length) throw new Error("Missing feeder part: roller");
 const baseMeshes = nodeMeshes(findNode("base")).filter((m) => !isExcluded(m.name, BASE_EXCLUDED));
@@ -399,7 +403,7 @@ for (const mesh of templateMeshes) {
   seen.set(mesh.name, occurrence + 1);
   const role = MODULE_ROLES[`${mesh.name}#${occurrence}`];
   if (TOP_PARTS.has(mesh.name)) top.push(mesh);
-  else if (mesh.name === "servo") servos.push(mesh);
+  else if (mesh.name === SERVO_PART) servos.push(mesh);
   else if (PLATFORM_PARTS.has(mesh.name)) platform.push(mesh);
   else if (role) {
     if (!roles.has(role)) roles.set(role, []);
@@ -434,6 +438,7 @@ for (const [role, meshes] of roles) moduleChildren.push(builder.meshNode(role, m
 const glb = builder.write([
   printGroup("feeder", feeder, "feederModule", [
     builder.groupNode("feederRoller", [builder.meshNode("print-feederModule", feederRoller)]),
+    builder.groupNode("feederServo", [builder.meshNode("print-hardware", feederServo)]),
   ]),
   ...(base.length ? [printGroup("base", base, "otherPrinted")] : []),
   ...[...baseRoles].map(([role, meshes]) => printGroup(role, meshes, BASE_PRINT_PARTS[role])),

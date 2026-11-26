@@ -351,7 +351,11 @@ export const accuracyRoute = new Hono<AppEnv>()
       if (result === "correct") {
         await tx
           .update(collectionCards)
-          .set({ isReviewed: true, lowConfidenceMatch: false })
+          .set({
+            isReviewed: true,
+            isAutoReviewed: false,
+            lowConfidenceMatch: false,
+          })
           .where(
             and(
               eq(collectionCards.guid, sample.scanId),

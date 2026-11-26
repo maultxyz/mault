@@ -6,6 +6,8 @@ import {
   isScannerControlCode,
   listScannerControlActions,
   parseScannerControlCode,
+  resolveControlCardBinNumber,
+  type BinConfig,
   type Game,
   type ScannerControlCommand,
   type ScannerControlTargets,
@@ -37,6 +39,7 @@ test("every field survives an encode and parse round trip", () => {
     pauseScanner: true,
     autoFeed: false,
     allowDuplicates: true,
+    endBatch: true,
   };
   const encoded = encodeScannerControlCode(command);
   assert.ok(isScannerControlCode(encoded));
@@ -61,8 +64,29 @@ test("malformed or unsupported control codes are rejected", () => {
   assert.equal(parseScannerControlCode("mault-control:1?autoFeed=yes"), null);
   assert.equal(parseScannerControlCode("mault-control:1?unknownField=1"), null);
   assert.equal(parseScannerControlCode("mault-control:1?"), null);
-  assert.equal(parseScannerControlCode("mault-control:2?condition=NM"), null);
-  assert.equal(isScannerControlCode("mault-control:2?condition=NM"), true);
+  assert.equal(parseScannerControlCode("mault-control:3?condition=NM"), null);
+  assert.equal(isScannerControlCode("mault-control:3?condition=NM"), true);
+});
+
+test("cards without new fields keep the version older apps read", () => {
+  assert.equal(encodeScannerControlCode({ condition: "NM" }), "mault-control:1?condition=NM");
+  assert.equal(encodeScannerControlCode({ endBatch: true }), "mault-control:2?batch=1");
+  assert.deepEqual(parseScannerControlCode("mault-control:2?condition=NM"), { condition: "NM" });
+  assert.equal(parseScannerControlCode("mault-control:1?batch=1"), null);
+});
+
+test("a batch separator goes to the last scanned card's bin, else the catch-all", () => {
+  const configs = [
+    { binNumber: 1, isCatchAll: true },
+    { binNumber: 2 },
+    { binNumber: 3, isDisabled: true },
+  ] as BinConfig[];
+  assert.equal(resolveControlCardBinNumber(configs, { endBatch: true }, 2), 2);
+  assert.equal(resolveControlCardBinNumber(configs, { endBatch: true }, null), 1);
+  assert.equal(resolveControlCardBinNumber(configs, { endBatch: true }, 3), 1);
+  assert.equal(resolveControlCardBinNumber(configs, { endBatch: true }, 9), 1);
+  assert.equal(resolveControlCardBinNumber(configs, { condition: "NM" }, 2), 1);
+  assert.equal(resolveControlCardBinNumber(configs, null, 2), 1);
 });
 
 test("presets must exist and match the target collection's game", () => {
