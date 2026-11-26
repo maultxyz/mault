@@ -1087,10 +1087,7 @@ export function CardScanner({
       )}
     >
       <div
-        className={cn(
-          showStatusStrip ? "flex flex-col gap-1.5" : "contents",
-          showStatusStrip && piRemote && "max-md:flex-1 max-md:min-h-0",
-        )}
+        className={showStatusStrip ? "flex flex-col gap-1.5" : "contents"}
       >
         <div
           className={cn(
@@ -1099,14 +1096,14 @@ export function CardScanner({
               ? "h-full aspect-[2.5/3.5] shrink-0"
               : "w-full h-full max-w-full",
             !compact && !isSideControls && "md:aspect-[2.5/3.5]",
-            piRemote && !isSideControls && "max-md:flex-1 max-md:min-h-0",
+            piRemote && !isSideControls && "max-md:aspect-[2.5/3.5] max-md:h-auto max-md:shrink-0",
             isRemoveModeActive && "ring-2 ring-destructive ring-inset",
           )}
         >
           <video ref={videoRef} className="hidden" playsInline muted />
           {piRemote && isCameraActive && (
             <PiCameraPreview
-            cameraId={selectedCameraId}
+              cameraId={selectedCameraId}
               alt={t("piScan.preview")}
               rotated
               flipped={device?.flipCamera}

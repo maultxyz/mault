@@ -59,7 +59,7 @@ describe("Pi camera preview", () => {
     });
     fireEvent.load(image);
     expect(image).toHaveClass("-rotate-90");
-    expect(fitCanvasesToContainer).toHaveBeenLastCalledWith([image], 1920, 1080, true);
+    expect(fitCanvasesToContainer).toHaveBeenLastCalledWith([image], 1920, 1080, true, "contain");
     expect(observeContainerResize).toHaveBeenCalledWith(image, expect.any(Function));
   });
 

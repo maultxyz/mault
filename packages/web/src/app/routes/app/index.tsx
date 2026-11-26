@@ -75,18 +75,22 @@ function MobileScanner() {
   return (
     <div
       className={cn(
-        "relative min-h-0 flex-1 overflow-hidden",
-        piHost && MOBILE_NAV_SCROLL_PADDING_CLASS,
+        "relative min-h-0 flex-1",
+        piHost ? "overflow-y-auto" : "overflow-hidden",
       )}
     >
       <h1 className="sr-only">{t("common:nav.scanner")}</h1>
-      <div className="p-2 size-full bg-sidebar flex flex-col gap-2">
+      <div className={cn(
+        "p-2 bg-sidebar flex flex-col gap-2",
+        piHost ? "min-h-full" : "size-full",
+        piHost && MOBILE_NAV_SCROLL_PADDING_CLASS,
+      )}>
         {isImpersonating ? (
           <div className="flex-1 min-h-0">
             <ScanningBlockedWhileImpersonating />
           </div>
         ) : (
-          <CardScanner className="flex-1 min-h-0" />
+          <CardScanner className={piHost ? "shrink-0" : "flex-1 min-h-0"} />
         )}
         <ActiveCollectionUnmatchedCardsPanel />
         <MobileScannerBuyStrip collectionGuid={activeCollection?.guid} />

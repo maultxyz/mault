@@ -24,14 +24,14 @@ export function PiCameraPreview({
   const fit = () => {
     const image = imageRef.current;
     if (rotated && image) {
-      fitCanvasesToContainer([image], image.naturalWidth, image.naturalHeight, true);
+      fitCanvasesToContainer([image], image.naturalWidth, image.naturalHeight, true, "contain");
     }
   };
   useEffect(() => {
     if (!rotated) return;
     const image = imageRef.current;
     const resize = () => {
-      if (image) fitCanvasesToContainer([image], image.naturalWidth, image.naturalHeight, true);
+      if (image) fitCanvasesToContainer([image], image.naturalWidth, image.naturalHeight, true, "contain");
     };
     resize();
     return observeContainerResize(image, resize);
