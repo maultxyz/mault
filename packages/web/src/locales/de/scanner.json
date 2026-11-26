@@ -184,7 +184,9 @@
     "cloud": {
       "offline": "Dieser Sortierer ist gerade nicht online. Prüfe, ob er eingeschaltet und mit dem WLAN verbunden ist.",
       "inUse": "Jemand anderes steuert diesen Sortierer bereits über WLAN.",
-      "failed": "Der Sortierer war über den Server nicht erreichbar. Versuche es gleich noch einmal."
+      "failed": "Der Sortierer war über den Server nicht erreichbar. Versuche es gleich noch einmal.",
+      "noReply": "Der Sortierer ist verbunden, hat aber nicht geantwortet. Prüfe, ob er eingeschaltet ist und läuft, und versuche es dann erneut.",
+      "busy": "Der Sortierer ist gerade mit einem Scan beschäftigt. Beende den Scan und versuche es dann erneut."
     },
     "firmwareOutdatedBannerPi": "Der integrierte Controller verwendet {{version}}; diese Mault-Installation enthält {{latest}}. Starte Mault auf dem Pi neu, um die mitgelieferte Controller-Software zu laden."
   },

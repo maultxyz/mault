@@ -72,14 +72,16 @@ test("the Pi bridges its sorter to the relay, and refuses while a scan holds the
   assert.deepEqual(ports[0].written, ['{"getStatus":true,"seq":4}\n']);
   const reply = nextMessage(socket);
   ports[0].emit("data", Buffer.from('{"seq":4,"id":"SORTER-1"}\r\n{"seq":5,'));
-  assert.equal(await reply, '{"seq":4,"id":"SORTER-1"}');
+  assert.equal(await reply, '{"seq":4,"id":"SORTER-1"}\n');
 
   bridge.releaseForScan();
   assert.deepEqual(released, [ports[0]]);
   scanning = true;
   const busy = nextMessage(socket);
   socket.send('{"route":2,"seq":6}');
-  assert.deepEqual(JSON.parse(await busy), { seq: 6, error: "busy" });
+  const busyLine = await busy;
+  assert.ok(busyLine.endsWith("\n"), "relayed lines end with a newline so the browser's line reader completes them");
+  assert.deepEqual(JSON.parse(busyLine), { seq: 6, error: "busy" });
   assert.equal(ports.length, 1);
 
   bridge.stop();

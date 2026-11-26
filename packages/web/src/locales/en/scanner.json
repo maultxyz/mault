@@ -184,7 +184,9 @@
     "cloud": {
       "offline": "That sorter isn't online right now. Check that it's powered on and connected to Wi-Fi.",
       "inUse": "Someone else is already controlling that sorter over Wi-Fi.",
-      "failed": "Couldn't reach the sorter through the server. Try again in a moment."
+      "failed": "Couldn't reach the sorter through the server. Try again in a moment.",
+      "noReply": "The sorter connected but didn't answer. Check that it's powered on and running, then try again.",
+      "busy": "The sorter is busy with a scan right now. Stop the scan, then try again."
     },
     "firmwareOutdatedBannerPi": "The built-in controller is running {{version}}; this Mault installation includes {{latest}}. Restart Mault on the Pi to load its bundled controller software."
   },

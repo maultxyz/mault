@@ -31,6 +31,7 @@ import type {
   StoredPiHostSummary,
 } from "./interfaces/pi-hosts";
 import { createKeyedCache } from "./keyed-cache";
+import { invalidateOrgReadCaches } from "./org-read-cache";
 
 const piHostByTokenHashCache = createKeyedCache<PiHostTokenRecord | null>(
   "piHosts.byTokenHash",
@@ -305,6 +306,7 @@ export async function issuePiSorterBridgeCredential(
     return resolved;
   });
   if (!device) return null;
+  invalidateOrgReadCaches(host.orgId);
   closeDeviceLink(device.guid!, SORTER_LINK_CLOSE_REVOKED);
   return { token, deviceGuid: device.guid! };
 }

@@ -91,7 +91,7 @@ export function createPiSorterBridge(credential: PiLinkDeviceCredential, isScanA
   }
 
   function sendToRelay(text: string) {
-    if (socket?.readyState === WebSocket.OPEN) socket.send(text);
+    if (socket?.readyState === WebSocket.OPEN) socket.send(`${text}\n`);
   }
 
   async function claimPort(): Promise<SorterPort | null> {
@@ -160,6 +160,7 @@ export function createPiSorterBridge(credential: PiLinkDeviceCredential, isScanA
     let bridge: PiSorterBridgeCredential | null = null;
     let identity: { hardwareId: string; firmwareVersion: string | null } | null = null;
     let setupRetryDelay = PI_SORTER_BRIDGE_RETRY_MS;
+    let reportedUnreadableSorter = false;
     const waitBeforeSetupRetry = async () => {
       await piSorterBridgeRuntime.wait(setupRetryDelay);
       setupRetryDelay = Math.min(setupRetryDelay * 2, PI_SORTER_BRIDGE_RETRY_MAX_MS);
@@ -171,9 +172,14 @@ export function createPiSorterBridge(credential: PiLinkDeviceCredential, isScanA
       }
       identity ??= await piSorterBridgeRuntime.readSorterIdentity();
       if (!identity) {
+        if (!reportedUnreadableSorter) {
+          reportedUnreadableSorter = true;
+          console.warn("[pi-link] Couldn't read the sorter's id; retrying. Check that the sorter or controller is connected.");
+        }
         await waitBeforeSetupRetry();
         continue;
       }
+      reportedUnreadableSorter = false;
       bridge ??= await piSorterBridgeRuntime.requestCredential(credential, identity.hardwareId);
       if (!bridge) {
         await waitBeforeSetupRetry();

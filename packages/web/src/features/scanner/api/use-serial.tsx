@@ -63,6 +63,7 @@ import {
   type RouteOptions,
   SELF_TEST_RESPONSE_TIMEOUT_MS,
   SERIAL_ABNORMAL_RESET_REASONS,
+  SERIAL_BUSY_ERROR,
   SERIAL_DEFAULT_RESPONSE_TIMEOUT_MS,
   SERIAL_HEARTBEAT_INTERVAL_MS,
   SERIAL_HEARTBEAT_MAX_MISSES,
@@ -714,6 +715,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         const deadline = Date.now() + SERIAL_IDENTIFY_TIMEOUT_MS;
         let status: Record<string, unknown> | null = null;
         let bootBannerTakenAsStatus: Record<string, unknown> | null = null;
+        let sorterAnsweredBusy = false;
         for (
           let attempt = 0;
           attempt < SERIAL_IDENTIFY_ATTEMPTS && !status;
@@ -728,6 +730,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           if (!sent) break;
           try {
             const parsed = JSON.parse(line);
+            if (parsed?.error === SERIAL_BUSY_ERROR) sorterAnsweredBusy = true;
             if (typeof parsed?.version !== "string") continue;
             if (isBootBanner(parsed) && !bootBannerTakenAsStatus) {
               bootBannerTakenAsStatus = parsed;
@@ -743,6 +746,19 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         }
         const hardwareId =
           typeof status?.id === "string" && status.id ? status.id : null;
+        if (newTransport.kind === "cloud" && !hardwareId) {
+          if (!options?.autoConnect) {
+            toast.error(t("serial.connectionFailed.title"), {
+              description: t(
+                sorterAnsweredBusy
+                  ? "serial.cloud.busy"
+                  : "serial.cloud.noReply",
+              ),
+            });
+          }
+          disconnect();
+          return null;
+        }
         if (
           hardwareId &&
           !stationsRef.current.claimHardware(station.id, hardwareId)
