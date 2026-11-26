@@ -8,6 +8,7 @@ import { publicGamesRoute } from "./games";
 import { healthRoute } from "./health";
 import { publicMetricsRoute } from "./metrics";
 import { publicMonitorLinkRoute } from "./monitor-link";
+import { publicOrgProfileRoute } from "./org-profile";
 import { openGraphImageRoute } from "./open-graph-image";
 import { pricingRoute } from "./pricing";
 import { sharePreviewRoute } from "./share-preview";
@@ -34,6 +35,7 @@ const router = new Hono<AppEnv>()
   .route("/", publicStorageShareLinkRoute)
   .route("/", publicCardShareLinkRoute)
   .route("/", publicShopCatalogRoute)
+  .route("/", publicOrgProfileRoute)
   .route("/", sharePreviewRoute)
   .route("/", openGraphImageRoute)
   .route("/", publicShortLinkRoute)

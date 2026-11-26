@@ -1,0 +1,111 @@
+{
+  "saved": "Page de profil enregistrée.",
+  "managersOnly": "Seuls les propriétaires et les admins peuvent modifier la page de profil. Vous pouvez voir ce qu'elle affiche.",
+  "errors": {
+    "handleTaken": "Cet identifiant est déjà pris. Choisissez-en un autre.",
+    "forbidden": "Seuls les propriétaires et les admins peuvent modifier la page de profil.",
+    "sourcesInvalid": "Certaines cartes ou certains catalogues ne sont plus disponibles. Rechargez la page et réessayez.",
+    "saveFailed": "Impossible d'enregistrer la page de profil. Réessayez.",
+    "loadFailed": "Impossible de charger la page de profil."
+  },
+  "reorder": {
+    "moveUp": "Monter {{name}}",
+    "moveDown": "Descendre {{name}}",
+    "remove": "Retirer {{name}}"
+  },
+  "published": {
+    "heading": "Visibilité",
+    "label": "Publiée",
+    "description": "Toute personne disposant du lien peut voir votre page de profil. Désactivez cette option pour la masquer."
+  },
+  "link": {
+    "heading": "Lien",
+    "description": "Votre identifiant est l'adresse de votre page de profil.",
+    "handleLabel": "Identifiant",
+    "liveNote": "Votre page de profil est en ligne à cette adresse.",
+    "notLiveNote": "Enregistrez avec « Publiée » activé pour mettre cette adresse en ligne.",
+    "urlLabel": "Adresse de la page de profil :",
+    "copy": "Copier le lien",
+    "copied": "Lien copié.",
+    "copyFailed": "Impossible de copier le lien.",
+    "open": "Ouvrir la page",
+    "share": "Partager"
+  },
+  "details": {
+    "heading": "Détails",
+    "description": "Le nom et la courte bio en haut de votre page.",
+    "displayNameLabel": "Nom affiché",
+    "bioLabel": "Bio",
+    "bioPlaceholder": "Ce que vous vendez, où vous jouez, comment vous joindre",
+    "bioCounter": "{{current}} sur {{max}} caractères"
+  },
+  "links": {
+    "heading": "Liens",
+    "description": "Des boutons vers vos boutiques et réseaux sociaux, dans cet ordre. Jusqu'à {{max}}.",
+    "add": "Ajouter un lien",
+    "empty": "Aucun lien pour l'instant.",
+    "position": "Lien {{position}}",
+    "kindLabel": "Type",
+    "urlLabel": "Adresse",
+    "urlPlaceholder": "example.com/boutique",
+    "labelLabel": "Texte du bouton (facultatif)",
+    "labelPlaceholder": "Utilise le type si vide"
+  },
+  "kinds": {
+    "website": "Site web",
+    "tcgplayer": "TCGplayer",
+    "cardmarket": "Cardmarket",
+    "ebay": "eBay",
+    "whatnot": "Whatnot",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "youtube": "YouTube",
+    "x": "X",
+    "bluesky": "Bluesky",
+    "facebook": "Facebook",
+    "twitch": "Twitch",
+    "discord": "Discord",
+    "other": "Lien"
+  },
+  "shopCatalogs": {
+    "heading": "Catalogues de boutique",
+    "description": "Affichez des boutons vers ces catalogues sur votre page. Jusqu'à {{max}}.",
+    "publicBadge": "Public"
+  },
+  "showcase": {
+    "heading": "Vitrine",
+    "description": "Des cartes de votre bibliothèque à mettre en avant, dans cet ordre. {{current}} sur {{max}}.",
+    "add": "Ajouter des cartes",
+    "empty": "Aucune carte dans la vitrine pour l'instant.",
+    "unknownCard": "Carte"
+  },
+  "picker": {
+    "title": "Ajouter des cartes à la vitrine",
+    "description": "Choisissez jusqu'à {{max}} cartes dans vos collections.",
+    "collectionLabel": "Collection",
+    "chooseCollection": "Choisir une collection",
+    "searchPlaceholder": "Rechercher des cartes",
+    "selectedCount": "{{current}} sur {{max}} sélectionnées",
+    "loadFailed": "Impossible de charger les cartes.",
+    "noResults": "Aucune carte ne correspond à votre recherche.",
+    "empty": "Cette collection n'a pas encore de cartes.",
+    "cancel": "Annuler",
+    "done": "Terminé"
+  },
+  "prices": {
+    "heading": "Prix",
+    "label": "Afficher les prix",
+    "description": "Affichez le prix de chaque carte de la vitrine sur votre page."
+  },
+  "public": {
+    "linksHeading": "Liens",
+    "opensInNewTab": "(s'ouvre dans un nouvel onglet)",
+    "showcaseHeading": "Vitrine",
+    "showcaseLoadFailed": "Impossible de charger la vitrine.",
+    "notFoundTitle": "Profil introuvable",
+    "notFoundDescription": "Cette page de profil n'existe pas ou n'est pas publiée.",
+    "shopsHeading": "Boutiques",
+    "catalogCardCount_one": "{{count, compact}} carte",
+    "catalogCardCount_other": "{{count, compact}} cartes"
+  }
+}

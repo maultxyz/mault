@@ -12,6 +12,7 @@ export const PUBLIC_CARDS_SOURCE_PATHS = {
   watch: "monitor-link/browse",
   storage: "storage-share-link/browse",
   card: "card-share-link/browse",
+  profile: "org-profile",
 } as const;
 export const PUBLIC_CARDS_QUERY_KEY = "public-cards";
 export const PUBLIC_TRADE_OFFER_PARAM = "trade";

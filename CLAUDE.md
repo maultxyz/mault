@@ -353,6 +353,12 @@ Install, updates and privileges:
 - Clients share only through shared `buildShareLinkUrl`/`buildShopCatalogLinkUrl`.
 - Custom short links (`is_custom`, staff, web-only) are never touched by app registration (`WHERE NOT is_custom`) and never returned by `GET /public/short-link`.
 - `/s/` stays out of the PWA navigate fallback.
+- Org profile handles are shortener codes (`code` = handle, target `/@handle`), registered only while published. Claiming one checks the shortener and custom links first; custom links refuse handles.
+
+### Org profiles
+
+- One `org_profiles` row per org (every plan), public at `/@handle`; unpublishing hides it (no soft delete). Showcased cards are stored as `collection_card_id`s in owner order and served through `orgProfileScope` (`ordersByCollectionCardIds`).
+- `PUT /org-profile` answers 200 with an `errorCode`, never 403; owner/admin only via `canManageOrgSettings`.
 
 ### Trades
 

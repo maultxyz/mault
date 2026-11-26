@@ -82,7 +82,7 @@ export const openGraphImageRoute = new Hono<AppEnv>()
     if (cached) return imageResponse(c, cached, OPEN_GRAPH_SHARE_IMAGE_CACHE_CONTROL);
     const rejection = rejectWhenShareLinkRateLimited(
       c,
-      request.token ?? `${OPEN_GRAPH_RATE_LIMIT_KEY_PREFIX}${request.subjectGuid}`,
+      request.token ?? `${OPEN_GRAPH_RATE_LIMIT_KEY_PREFIX}${request.subjectKey}`,
     );
     if (rejection) return rejection;
     const image = await renderOpenGraphImage(preview.openGraphImage, theme);

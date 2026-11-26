@@ -7,7 +7,7 @@ import {
   SHORTENER_MAX_LINKS_PER_REQUEST,
   SHORTENER_TARGET_PATH_MAX_LENGTH,
   SHORTENER_TARGET_PATH_PATTERN,
-  SHORT_LINK_CODE_PATTERN,
+  SHORT_LINK_PATH_CODE_PATTERN,
 } from "../constants/monitor-links.constant";
 import { formValidationMessage } from "../form-validation";
 
@@ -48,7 +48,7 @@ export const customShortLinkUpdateSchema = z.object({
   targetUrl: customShortLinkTargetSchema,
 });
 
-const shortLinkCodeSchema = z.string().regex(SHORT_LINK_CODE_PATTERN);
+const shortLinkCodeSchema = z.string().regex(SHORT_LINK_PATH_CODE_PATTERN);
 
 export const shortenerRegisterLinksSchema = z.object({
   links: z

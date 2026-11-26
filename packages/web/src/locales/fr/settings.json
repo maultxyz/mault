@@ -10,7 +10,8 @@
     "notifications": "Discord",
     "integrations": "API et webhooks",
     "pricing": "Prix",
-    "business": "Business"
+    "business": "Business",
+    "profile": "Page de profil"
   },
   "organizations": {
     "heading": "Organisations"
@@ -95,7 +96,8 @@
     "sounds": "Joue un son quand une carte scannée correspond à une règle, par exemple pour les cartes de valeur.",
     "notifications": "Relie ton serveur Discord et choisis quels scans et alertes sont publiés et où.",
     "integrations": "Crée des clés API et des webhooks pour que ta boutique ou d'autres outils sachent où tes cartes sont rangées.",
-    "business": "Choisissez ce que les membres peuvent voir et faire, et partagez vos catalogues."
+    "business": "Choisissez ce que les membres peuvent voir et faire, et partagez vos catalogues.",
+    "profile": "Votre page publique sur mault.xyz/@handle avec vos liens, catalogues de boutique et cartes favorites."
   },
   "invites": {
     "heading": "Invitations"
