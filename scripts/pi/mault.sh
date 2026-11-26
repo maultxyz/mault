@@ -117,7 +117,8 @@ elif data["state"] == "linked":
     print(f"Linked to Mault as \"{name}\" ({connection}).")
 elif data.get("code"):
     code = data["code"]
-    print("Link this sorter to your Mault account: sign in at https://mault.xyz as an owner or admin")
+    print("Link this sorter to your Mault account: open http://mault.local in a browser and follow the steps,")
+    print("or sign in at https://mault.xyz as an owner or admin")
     print(f"and enter the code {code[:4]}-{code[4:]} (a new code appears when it expires).")
 else:
     print("Waiting for a link code from mault.xyz. Check the network, then run: sudo mault link")

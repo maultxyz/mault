@@ -2,6 +2,7 @@ import type {
   PiHostClaimFormValues,
   PiHostScanAction,
   PiHostSummary,
+  PiLinkLocalStatusResponse,
   PiScanSessionSettingsBody,
   PiScanSessionStartBody,
 } from "@magic-vault/shared";
@@ -34,6 +35,23 @@ export interface LinkRaspberryPiDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onLink: (values: PiHostClaimFormValues) => Promise<unknown>;
+  initialCode?: string | null;
+}
+
+export interface PiLinkSetup {
+  status: PiLinkLocalStatusResponse | null;
+  isUnreachable: boolean;
+}
+
+export interface PiLinkSetupStepsProps {
+  code: string;
+  appUrl: string;
+}
+
+export interface PiLinkSetupLinkedProps {
+  hostName: string;
+  connected: boolean;
+  appUrl: string | null;
 }
 
 export type RaspberryPiScanRequest =

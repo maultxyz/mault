@@ -11,8 +11,10 @@ import { RaspberryPiRow } from "@/features/raspberry-pis/components/raspberry-pi
 import { RenameRaspberryPiDialog } from "@/features/raspberry-pis/components/rename-raspberry-pi-dialog";
 import type { PiHostSummary } from "@magic-vault/shared";
 import { IconCpu, IconPlus } from "@tabler/icons-react";
-import { useState } from "react";
+import { RASPBERRY_PI_LINK_CODE_PARAM } from "@/lib/constants/raspberry-pis";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 
 export function RaspberryPisSettings() {
   const { t } = useTranslation("settings");
@@ -20,6 +22,24 @@ export function RaspberryPisSettings() {
   const [isLinking, setIsLinking] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<PiHostSummary | null>(null);
   const [renameTarget, setRenameTarget] = useState<PiHostSummary | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const linkCodeFromBoard = searchParams.get(RASPBERRY_PI_LINK_CODE_PARAM);
+  const [initialLinkCode, setInitialLinkCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!linkCodeFromBoard || isLoading) return;
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.delete(RASPBERRY_PI_LINK_CODE_PARAM);
+        return next;
+      },
+      { replace: true },
+    );
+    if (!canManage) return;
+    setInitialLinkCode(linkCodeFromBoard);
+    setIsLinking(true);
+  }, [linkCodeFromBoard, isLoading, canManage, setSearchParams]);
 
   return (
     <SettingsSections>
@@ -69,6 +89,7 @@ export function RaspberryPisSettings() {
         open={isLinking}
         onOpenChange={setIsLinking}
         onLink={claim.mutateAsync}
+        initialCode={initialLinkCode}
       />
 
       <RenameRaspberryPiDialog

@@ -55,6 +55,10 @@ export function piLinkBaseUrl(): string | null {
   return configured.replace(/\/+$/, "");
 }
 
+export function piLinkAppUrl(): string | null {
+  return piLinkBaseUrl()?.replace(/\/api$/, "") ?? null;
+}
+
 function commandSocketUrl(baseUrl: string): string {
   return `${baseUrl.replace(/^http/i, "ws")}${PI_LINK_DEVICE_PATH}${PI_LINK_COMMANDS_SEGMENT}`;
 }

@@ -27,16 +27,15 @@ function useRaspberryPisQueryOptions() {
   return raspberryPisQueryOptions(activeOrg?.id);
 }
 
-export function useRaspberryPis() {
-  const { t } = useTranslation("settings");
+export function useLiveRaspberryPiList(enabled = true) {
   const queryClient = useQueryClient();
   const options = useRaspberryPisQueryOptions();
-  const { data, isLoading, isError, refetch } = useQuery(options);
+  const query = useQuery({ ...options, enabled: options.enabled !== false && enabled });
   const eventSource = useAppStreamSource();
   const orgId = options.queryKey[1];
 
   useEffect(() => {
-    if (!eventSource) return;
+    if (!eventSource || !enabled) return;
     const queryKey = raspberryPisQueryOptions(orgId).queryKey;
     const applyStatus = (message: Event) => {
       const event = JSON.parse((message as MessageEvent).data) as PiHostStatusEvent;
@@ -46,7 +45,16 @@ export function useRaspberryPis() {
     };
     eventSource.addEventListener(PI_HOST_STATUS_EVENT, applyStatus);
     return () => eventSource.removeEventListener(PI_HOST_STATUS_EVENT, applyStatus);
-  }, [eventSource, orgId, queryClient]);
+  }, [eventSource, orgId, queryClient, enabled]);
+
+  return query;
+}
+
+export function useRaspberryPis() {
+  const { t } = useTranslation("settings");
+  const queryClient = useQueryClient();
+  const options = useRaspberryPisQueryOptions();
+  const { data, isLoading, isError, refetch } = useLiveRaspberryPiList();
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: options.queryKey });
 

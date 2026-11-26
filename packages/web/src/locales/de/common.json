@@ -811,5 +811,23 @@
     "signedInDescription": "Mit einem Konto angemeldet",
     "guestDescription": "Gast ohne Konto"
   },
-  "managersOnlySetting": "Nur Inhaber und Admins der Organisation können das ändern."
+  "managersOnlySetting": "Nur Inhaber und Admins der Organisation können das ändern.",
+  "piLinkSetup": {
+    "title": "Diesen Sortierer mit Mault verbinden",
+    "intro": "Dieser Sortierer speichert seine Karten in deinem Mault-Konto. Verbinde ihn einmal, dann erscheint er in Mault auf all deinen Geräten.",
+    "signInStep": "Melde dich bei Mault als Inhaber oder Admin deiner Organisation an.",
+    "signInButton": "Bei Mault anmelden",
+    "linkStep": "Wähle Diesen Sortierer verbinden. Mault öffnet Einstellungen, Raspberry Pis mit diesem Code bereits ausgefüllt.",
+    "linkButton": "Diesen Sortierer verbinden",
+    "codeLabel": "Verbindungscode",
+    "nameStep": "Gib dem Sortierer einen Namen und wähle dann Verbinden. Diese Seite aktualisiert sich von selbst.",
+    "codeChanges": "Der Code ändert sich alle paar Minuten. Diese Seite zeigt immer den aktuellen.",
+    "waiting": "Wartet darauf, dass du diesen Sortierer verbindest.",
+    "gettingCode": "Verbindungscode wird abgerufen. Prüfe, ob der Sortierer mit dem Internet verbunden ist.",
+    "linkedTitle": "Verbunden als {{name}}",
+    "connected": "Mit Mault verbunden. Du kannst diese Seite schließen und in Mault auf jedem Computer oder Handy scannen.",
+    "disconnected": "Gerade nicht mit Mault verbunden. Prüfe die Netzwerkverbindung des Sortierers.",
+    "openMault": "Mault öffnen",
+    "unreachable": "Die Einrichtung dieses Sortierers ist nicht erreichbar. Prüfe, ob der Sortierer eingeschaltet ist, und lade die Seite neu."
+  }
 }

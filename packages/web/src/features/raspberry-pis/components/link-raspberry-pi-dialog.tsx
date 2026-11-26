@@ -11,15 +11,26 @@ import {
 } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-export function LinkRaspberryPiDialog({ open, onOpenChange, onLink }: LinkRaspberryPiDialogProps) {
+export function LinkRaspberryPiDialog({
+  open,
+  onOpenChange,
+  onLink,
+  initialCode,
+}: LinkRaspberryPiDialogProps) {
   const { t } = useTranslation("settings");
   const form = useForm<PiHostClaimFormInput, unknown, PiHostClaimFormValues>({
     resolver: zodResolver(piHostClaimFormSchema),
     defaultValues: { code: "", name: "" },
   });
+  const { setValue } = form;
+
+  useEffect(() => {
+    if (open && initialCode) setValue("code", initialCode, { shouldDirty: true });
+  }, [open, initialCode, setValue]);
 
   async function link(values: PiHostClaimFormValues) {
     const linked = await onLink(values).then(

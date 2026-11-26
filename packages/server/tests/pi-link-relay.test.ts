@@ -145,7 +145,7 @@ test("the Pi list carries each Pi's live connection and scan state", () => {
   const { socket } = fakeSocket();
   attachPiLinkDevice(host, socket);
   receivePiLinkDeviceMessage(host, socket, JSON.stringify({ type: "state", state: idleState, sessionActive: true }));
-  const stored = { name: "Pi", pairedAt: "2026-11-25T00:00:00.000Z", lastSeenAt: null };
+  const stored = { name: "Pi", pairedAt: "2026-11-25T00:00:00.000Z", lastSeenAt: null, sorterDeviceGuid: null };
   assert.deepEqual(
     withPiHostLiveStatus([{ guid: "host-listed", ...stored }, { guid: "host-unknown", ...stored }]).map(
       ({ guid, connected, scanState }) => ({ guid, connected, scanState }),

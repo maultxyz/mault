@@ -101,7 +101,7 @@ import { useDeployScanPause } from "@/features/scanner/api/use-deploy-pause";
 import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bin-fill-levels";
 import { useJamToast } from "@/features/scanner/api/use-jam-toast";
 import { usePendingScanSaves } from "@/features/scanner/api/use-pending-scan-saves";
-import { usePiHost } from "@/hooks/use-pi-host";
+import { usePiScanMode } from "@/features/scanner/api/use-pi-scan-mode";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
@@ -682,7 +682,7 @@ export function ScannedCardsProvider({
   );
 
   const activeCollectionGuid = activeCollection?.guid;
-  const piHost = usePiHost();
+  const piHost = usePiScanMode().hostMode;
   const piSession = useSessionMonitor(
     piHost ? activeCollectionGuid : undefined,
   );

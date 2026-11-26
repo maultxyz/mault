@@ -8,6 +8,10 @@ import { setPiScanHoldingPort } from "@/features/scanner/lib/pi-scan-hold";
 import type { PiScanSessionState } from "@magic-vault/shared";
 import { loadPiHost } from "@/lib/pi-host";
 import { piScanAnnouncementKey } from "@/features/scanner/lib/pi-scan-status";
+import {
+  linkedPiScanHostGuid,
+  setLinkedPiScanHostGuid,
+} from "@/features/scanner/lib/pi-scan-target";
 
 let scopeOrgId: string | null | undefined;
 let scopeGeneration = 0;
@@ -77,6 +81,16 @@ export function resetPiScanScope(orgId: string | null) {
   publishHold();
   emit();
   if (orgId) void ensurePolling();
+}
+
+export function switchPiScanTarget(linkedHostGuid: string | null) {
+  if (linkedPiScanHostGuid() === linkedHostGuid) return;
+  setLinkedPiScanHostGuid(linkedHostGuid);
+  holdOverride = false;
+  announced = null;
+  state = IDLE_PI_SCAN_SESSION;
+  publishHold();
+  emit();
 }
 
 export function getPiScanState(): PiScanSessionState {

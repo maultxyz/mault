@@ -1,21 +1,25 @@
 import { getAuthHeaders } from "@/lib/api/client";
 import { piCameraUrl } from "@/features/scanner/lib/pi-camera";
+import { useRaspberryPiCamera } from "@/features/raspberry-pis/api/use-raspberry-pi-camera";
 import {
   PI_CAMERA_PREVIEW_INTERVAL_MS,
 } from "@/lib/constants/scanner";
 import { useEffect, useRef, useState } from "react";
-import type { PiCameraPreviewProps } from "@/lib/interfaces/scanner";
+import type {
+  LinkedPiCameraPreviewProps,
+  PiCameraPreviewProps,
+  RotatedCameraImageProps,
+} from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { fitCanvasesToContainer, observeContainerResize } from "@/features/scanner/lib/canvas-fit";
 
-export function PiCameraPreview({
+function RotatedCameraImage({
+  src,
   alt,
-  cameraId,
   className,
   rotated = false,
   flipped = false,
-}: PiCameraPreviewProps) {
-  const [src, setSrc] = useState<string>();
+}: RotatedCameraImageProps) {
   const imageRef = useRef<HTMLImageElement>(null);
   const fit = () => {
     const image = imageRef.current;
@@ -32,6 +36,30 @@ export function PiCameraPreview({
     resize();
     return observeContainerResize(image, resize);
   }, [rotated]);
+  return (
+    <img
+      ref={imageRef}
+      src={src}
+      alt={alt}
+      onLoad={fit}
+      className={cn(
+        className,
+        rotated ? (flipped ? "-rotate-90" : "rotate-90") : flipped && "rotate-180",
+      )}
+    />
+  );
+}
+
+export function PiCameraPreview({ linkedHostGuid, cameraId, ...imageProps }: PiCameraPreviewProps) {
+  if (linkedHostGuid) return <LinkedPiCameraPreview hostGuid={linkedHostGuid} {...imageProps} />;
+  return <SelfHostedPiCameraPreview cameraId={cameraId} {...imageProps} />;
+}
+
+function SelfHostedPiCameraPreview({
+  cameraId,
+  ...imageProps
+}: Omit<PiCameraPreviewProps, "linkedHostGuid">) {
+  const [src, setSrc] = useState<string>();
   useEffect(() => {
     const controller = new AbortController();
     let url: string | undefined;
@@ -61,16 +89,10 @@ export function PiCameraPreview({
       if (url) URL.revokeObjectURL(url);
     };
   }, [cameraId]);
-  return (
-    <img
-      ref={imageRef}
-      src={src}
-      alt={alt}
-      onLoad={fit}
-      className={cn(
-        className,
-        rotated ? (flipped ? "-rotate-90" : "rotate-90") : flipped && "rotate-180",
-      )}
-    />
-  );
+  return <RotatedCameraImage src={src} {...imageProps} />;
+}
+
+function LinkedPiCameraPreview({ hostGuid, ...imageProps }: LinkedPiCameraPreviewProps) {
+  const camera = useRaspberryPiCamera(hostGuid, true);
+  return <RotatedCameraImage src={camera.frame ?? undefined} {...imageProps} />;
 }

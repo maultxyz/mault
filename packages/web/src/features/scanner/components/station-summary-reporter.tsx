@@ -10,6 +10,7 @@ import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { usePiHost } from "@/hooks/use-pi-host";
+import { usePiScanMode } from "@/features/scanner/api/use-pi-scan-mode";
 import {
   pausePiScanSession,
   resumePiScanSession,
@@ -23,11 +24,14 @@ import { useTranslation } from "react-i18next";
 
 export function StationSummaryReporter() {
   const { t } = useTranslation("scanner");
-  const { station } = useStation();
+  const { station, isActive } = useStation();
   const { stations } = useStations();
   const piHost = usePiHost();
+  const { linkedPi } = usePiScanMode();
   const hostState = useSyncExternalStore(subscribePiScan, getPiScanState);
-  const usesHostSession = piHost && station.id === stations[0]?.id;
+  const usesHostSession = linkedPi
+    ? isActive
+    : piHost && station.id === stations[0]?.id;
   const { isTimerActive, pause, resume, attention } = useScannedCards();
   const { isReady } = useSerial();
   const { activeCollection, collections } = useCollections();

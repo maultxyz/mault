@@ -14,7 +14,9 @@ if (!isPiHost() || !piLinkBaseUrl()) {
 }
 
 const app = new Hono()
-  .get("/public/version", (c) => c.json({ success: true, data: serverVersionInfo(false) }))
+  .get("/public/version", (c) =>
+    c.json({ success: true, data: { ...serverVersionInfo(false), piLinked: true } }),
+  )
   .route(PI_LINK_LOCAL_STATUS_PATH, piLinkLocalRouter)
   .notFound((c) => c.json({ success: false, message: "Not found." }, 404))
   .onError((error, c) => {

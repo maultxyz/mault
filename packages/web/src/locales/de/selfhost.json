@@ -326,14 +326,14 @@
     "piInstall": {
       "label": "Installation",
       "title": "Mault auf dem Board installieren",
-      "description": "Auf dem Board wird nichts geklont oder gebaut: Es läuft ein fertiges Release.",
+      "description": "Auf dem Board wird nichts geklont oder gebaut: Es läuft ein fertiges Release. Diese Anleitung behält deine Karten und Konten auf dem Board. Wenn du stattdessen dein Mault-Konto auf mault.xyz nutzen willst, lass die Voreinstellung hosting=mault.xyz stehen und gib den angezeigten Code unter Einstellungen, Raspberry Pis ein.",
       "steps": {
         "flash": {
           "text": "Lade <code>mault-pi.img.xz</code> aus dem neuesten Pi-Release herunter und schreibe es mit dem Raspberry Pi Imager auf die microSD-Karte. Der Imager bietet für dieses Image keine Betriebssystem-Anpassung, überspringe diesen Schritt also.",
           "note": "Ethernet funktioniert ohne Einrichtung. Anmeldung, SSH und WLAN kommen aus der Datei im nächsten Schritt. Das Image wird wöchentlich neu gebaut, aktualisiere Mault also nach dem ersten Start: über Mault aktualisieren in der App oder mit sudo mault update."
         },
         "config": {
-          "text": "Öffne vor dem ersten Start das Laufwerk <code>bootfs</code> der Karte an einem beliebigen Computer und fülle <code>mault-config.txt</code> aus: Benutzername und Passwort für ein Administratorkonto, <code>ssh=yes</code> für Terminalzugriff und deine WLAN-Daten.",
+          "text": "Öffne vor dem ersten Start das Laufwerk <code>bootfs</code> der Karte an einem beliebigen Computer und fülle <code>mault-config.txt</code> aus: <code>hosting=self</code>, damit die Karten auf diesem Board bleiben, Benutzername und Passwort für ein Administratorkonto, <code>ssh=yes</code> für Terminalzugriff und deine WLAN-Daten.",
           "note": "Wähle einen beliebigen Benutzernamen außer mault-service, den Mault für seine eigenen Dienste verwendet. Das Board wendet die Datei bei jedem Start an, löscht die Passwörter daraus und schreibt das Ergebnis in die Status-Zeile. Mit derselben Datei setzt du also auch ein vergessenes Passwort zurück."
         },
         "boot": {
@@ -341,7 +341,7 @@
           "note": "Ändere das später mit sudo mault sorter usb oder sudo mault sorter builtin."
         },
         "installOther": {
-          "text": "Führe auf einem anderen arm64-Board oder einem Raspberry Pi, auf dem bereits Raspberry Pi OS läuft, diesen Befehl per SSH aus. Er installiert die Systempakete und das neueste Release und fragt dann, wie der Sortierer angeschlossen ist.",
+          "text": "Führe auf einem anderen arm64-Board oder einem Raspberry Pi, auf dem bereits Raspberry Pi OS läuft, diesen Befehl per SSH aus. Er installiert die Systempakete und das neueste Release mit einer Datenbank auf diesem Board und fragt dann, wie der Sortierer angeschlossen ist.",
           "note": "Hat das Board einen ~/mault-Checkout vom alten Installer, bleiben Einstellungen, Konten, Karten und Kalibrierung erhalten, und die alten Dienste werden abgeschaltet."
         },
         "services": {
@@ -407,6 +407,10 @@
         },
         "osUpdates": {
           "text": "Sicherheitsupdates des Betriebssystems werden jeden Tag automatisch installiert, ohne das Board neu zu starten, damit kein Scan abbricht. Braucht ein Update einen Neustart, sehen Admins ein Banner in der App; starte dann mit sudo reboot neu, wenn kein Scan läuft. Boards, die vor dieser Funktion installiert wurden, schalten die Updates mit diesem Befehl ein."
+        },
+        "hosting": {
+          "text": "Wenn du dieses Board später mit deinem Mault-Konto auf mault.xyz verbinden willst, führe diesen Befehl aus und gib den angezeigten Code unter Einstellungen, Raspberry Pis ein.",
+          "note": "Bereits gescannte Karten bleiben in der Datenbank dieses Boards und werden nicht in dein Konto übertragen. Mit sudo mault hosting self wechselst du zurück."
         },
         "backup": {
           "text": "Sichere Postgres regelmäßig.",

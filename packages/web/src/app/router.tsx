@@ -53,7 +53,8 @@ import {
   MATCH_VALIDATIONS_PATH,
 } from "@/lib/constants/match-validations";
 import { PublicPageLayout } from "@/components/public-page-layout";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { loadServerVersion } from "@/lib/server-version";
 import { runTasksOneByOneWhenIdle } from "@/lib/idle-tasks";
 import {
   IDLE_ROUTE_PRELOAD_DELAY_MS,
@@ -96,6 +97,8 @@ const RequireCollectionDialog = lazy(() =>
     default: module.RequireCollectionDialog,
   })),
 );
+const PiLinkSetupPage = lazyRoute(() => import("@/app/routes/pi-link-setup"));
+
 const WatchPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/watch"),
@@ -434,6 +437,29 @@ function DesktopOrPiHostGuard() {
   return <Navigate to={HOME_PATH} replace />;
 }
 
+function PiLinkSetupGate() {
+  const { pathname } = useLocation();
+  const [piLinked, setPiLinked] = useState<boolean | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void loadServerVersion().then((serverVersion) => {
+      if (!cancelled) setPiLinked(serverVersion?.piLinked === true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  if (piLinked === null) return null;
+  if (!piLinked) return <Outlet />;
+  if (pathname !== MARKETING_PAGE_PATHS.home)
+    return <Navigate to={MARKETING_PAGE_PATHS.home} replace />;
+  return (
+    <Suspense fallback={null}>
+      <PiLinkSetupPage />
+    </Suspense>
+  );
+}
+
 function MonitorIndexRedirect() {
   const isMobile = useIsMobile();
   return <Navigate to={isMobile ? LIBRARY_PATH : COLLECTIONS_PATH} replace />;
@@ -508,7 +534,7 @@ const piHostHomeRoutes: RouteObject[] = [
 
 export const routes: RouteObject[] = [
   {
-    element: <Outlet />,
+    element: SERVED_FROM_PI_BUNDLE ? <PiLinkSetupGate /> : <Outlet />,
     errorElement: <ErrorPage />,
     children: [
       ...(SERVED_FROM_PI_BUNDLE ? piHostHomeRoutes : marketingPageRoutes),

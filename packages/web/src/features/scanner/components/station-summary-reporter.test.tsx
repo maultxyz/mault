@@ -68,6 +68,13 @@ vi.mock("@/features/scanner/lib/station-summary-store", () => ({
   setStationSummary: mocks.summary,
 }));
 vi.mock("@/hooks/use-pi-host", () => ({ usePiHost: () => mocks.piHost }));
+vi.mock("@/features/scanner/api/use-pi-scan-mode", async () => {
+  const { usePiHost } = await import("@/hooks/use-pi-host");
+  return {
+    usePiScanMode: () => ({ hostMode: usePiHost(), linkedPi: null }),
+    useLinkedPiScanTarget: () => {},
+  };
+});
 vi.mock("@/features/scanner/api/pi-scan-session", () => ({
   pausePiScanSession: mocks.hostPause,
   resumePiScanSession: mocks.hostResume,

@@ -75,7 +75,7 @@ describe("Pi/Linux self-host guide", () => {
       "piMaintain",
     ]);
     expect(container.textContent).toContain("mault-pi.img.xz");
-    expect(container.textContent).toContain("install.sh | sudo bash");
+    expect(container.textContent).toContain("install.sh | sudo MAULT_HOSTING=self bash");
     expect(container.textContent).toContain("sudo mault update");
     expect(container.textContent).toContain("mault-config.txt");
     expect(container.textContent).toContain("wifi_country=US");
@@ -144,7 +144,7 @@ describe("Pi/Linux self-host guide", () => {
       "mault-pi.img.xz",
     );
     expect(container.querySelector("#piInstall")?.textContent).toContain(
-      "install.sh | sudo bash",
+      "install.sh | sudo MAULT_HOSTING=self bash",
     );
     fireEvent.click(radio("ESP32 / Arduino"));
     expect(
@@ -195,7 +195,7 @@ describe("Pi/Linux self-host guide", () => {
         expect(install.textContent).not.toContain("mault-pi.img.xz");
       }
       expect(install.textContent).not.toContain("PI_SORTER=");
-      expect(install.textContent).toContain("install.sh | sudo bash");
+      expect(install.textContent).toContain("install.sh | sudo MAULT_HOSTING=self bash");
       expect(
         within(install as HTMLElement).getAllByRole("checkbox"),
       ).toHaveLength(board === "raspberry-pi" ? 7 : 4);

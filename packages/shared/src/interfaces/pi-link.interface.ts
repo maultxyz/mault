@@ -11,6 +11,7 @@ export interface PiHostSummary {
   name: string;
   pairedAt: string;
   lastSeenAt: string | null;
+  sorterDeviceGuid: string | null;
   connected: boolean;
   scanState: PiScanSessionState | null;
 }
@@ -101,3 +102,5 @@ export type PiLinkLocalStatus =
   | { state: "off" }
   | { state: "pairing"; code: string | null; expiresAt: string | null }
   | { state: "linked"; hostName: string; connected: boolean };
+
+export type PiLinkLocalStatusResponse = PiLinkLocalStatus & { appUrl: string | null };

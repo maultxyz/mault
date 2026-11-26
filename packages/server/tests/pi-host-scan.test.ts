@@ -68,8 +68,8 @@ test("running, paused and stopping scans offer the matching controls", () => {
 
 test("status events update only the matching Pi", () => {
   const hosts: PiHostSummary[] = [
-    { guid: "a", name: "A", pairedAt: "2026-11-25", lastSeenAt: null, connected: false, scanState: null },
-    { guid: "b", name: "B", pairedAt: "2026-11-25", lastSeenAt: null, connected: true, scanState: null },
+    { guid: "a", name: "A", pairedAt: "2026-11-25", lastSeenAt: null, sorterDeviceGuid: null, connected: false, scanState: null },
+    { guid: "b", name: "B", pairedAt: "2026-11-25", lastSeenAt: null, sorterDeviceGuid: null, connected: true, scanState: null },
   ];
   const running = scanState({ phase: "running" });
   const updated = applyPiHostStatusEvent(hosts, { hostGuid: "a", connected: true, scanState: running });

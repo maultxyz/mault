@@ -68,6 +68,7 @@ import {
 } from "@/features/scanner/lib/camera-stream";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePiHost } from "@/hooks/use-pi-host";
+import { usePiScanMode } from "@/features/scanner/api/use-pi-scan-mode";
 import { loadPiHost } from "@/lib/pi-host";
 import type {
   CameraContextValue,
@@ -100,6 +101,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation("scanner");
   const isMobile = useIsMobile();
   const piRemote = usePiHost();
+  const usesLinkedPiCamera = !!usePiScanMode().linkedPi;
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [status, setStatus] = useState<CameraStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -661,7 +663,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    if (!isLive || (isMobile && !piRemote)) return;
+    if (!isLive || (isMobile && !piRemote) || usesLinkedPiCamera) return;
 
     void startCamera(stationCameraIdRef.current ?? undefined);
 
@@ -678,6 +680,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     isMobile,
     isLive,
     piRemote,
+    usesLinkedPiCamera,
     releaseLocalStream,
     closeDocumentScannerSession,
   ]);

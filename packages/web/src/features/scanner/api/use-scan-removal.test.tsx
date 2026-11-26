@@ -16,6 +16,13 @@ const mocks = vi.hoisted(() => ({
   success: vi.fn(),
 }));
 vi.mock("@/hooks/use-pi-host", () => ({ usePiHost: () => true }));
+vi.mock("@/features/scanner/api/use-pi-scan-mode", async () => {
+  const { usePiHost } = await import("@/hooks/use-pi-host");
+  return {
+    usePiScanMode: () => ({ hostMode: usePiHost(), linkedPi: null }),
+    useLinkedPiScanTarget: () => {},
+  };
+});
 vi.mock("@/features/collections/api/use-collections", () => ({
   useCollections: () => ({ activeCollection: { guid: "collection" } }),
 }));

@@ -63,10 +63,10 @@ export const SELF_HOST_PRICE_CRON = `0 4 * * * cd /opt/mault && docker compose e
 
 export const SELF_HOST_PI_RELEASE_URL = `${REPO_URL}/releases/tag/pi-latest`;
 
-export const SELF_HOST_PI_INSTALL_COMMAND = `curl -fsSL ${REPO_URL}/releases/download/pi-latest/install.sh | sudo bash`;
+export const SELF_HOST_PI_INSTALL_COMMAND = `curl -fsSL ${REPO_URL}/releases/download/pi-latest/install.sh | sudo MAULT_HOSTING=self bash`;
 
 export const SELF_HOST_PI_BOOT_CONFIG =
-  "username=\npassword=\nssh=yes\nwifi_name=\nwifi_password=\nwifi_country=US";
+  "hosting=self\nusername=\npassword=\nssh=yes\nwifi_name=\nwifi_password=\nwifi_country=US";
 
 const NEON_MIGRATE = "pnpm --filter @magic-vault/server db:migrate";
 
@@ -258,6 +258,7 @@ export const SELF_HOST_SECTIONS: SelfHostSection[] = [
         hasNote: true,
       },
       { key: "osUpdates", code: "sudo mault os-updates" },
+      { key: "hosting", code: "sudo mault hosting mault.xyz", hasNote: true },
       {
         key: "backup",
         code: "sudo -u postgres pg_dump mault > mault-backup.sql",

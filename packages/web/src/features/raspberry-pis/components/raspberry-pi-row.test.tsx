@@ -45,6 +45,7 @@ function host(overrides: Partial<PiHostSummary>): PiHostSummary {
     guid: "pi-1",
     name: "Bench Pi",
     pairedAt: "2026-11-25T00:00:00.000Z",
+    sorterDeviceGuid: null,
     lastSeenAt: null,
     connected: true,
     scanState: null,

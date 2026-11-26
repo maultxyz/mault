@@ -811,5 +811,23 @@
     "signedInDescription": "Connecté avec un compte",
     "guestDescription": "Invité sans compte"
   },
-  "managersOnlySetting": "Seuls les propriétaires et les administrateurs de l’organisation peuvent modifier ce réglage."
+  "managersOnlySetting": "Seuls les propriétaires et les administrateurs de l’organisation peuvent modifier ce réglage.",
+  "piLinkSetup": {
+    "title": "Relier cette trieuse à Mault",
+    "intro": "Cette trieuse garde ses cartes dans ton compte Mault. Relie-la une fois et elle apparaît dans Mault sur tous tes appareils.",
+    "signInStep": "Connecte-toi à Mault en tant que propriétaire ou admin de ton organisation.",
+    "signInButton": "Se connecter à Mault",
+    "linkStep": "Choisis Relier cette trieuse. Mault ouvre Paramètres, Raspberry Pis avec ce code déjà rempli.",
+    "linkButton": "Relier cette trieuse",
+    "codeLabel": "Code de liaison",
+    "nameStep": "Donne un nom à la trieuse, puis choisis Relier. Cette page se met à jour toute seule.",
+    "codeChanges": "Le code change toutes les quelques minutes. Cette page affiche toujours le code actuel.",
+    "waiting": "En attente de la liaison de cette trieuse.",
+    "gettingCode": "Récupération d'un code de liaison. Vérifie que la trieuse est connectée à Internet.",
+    "linkedTitle": "Reliée en tant que {{name}}",
+    "connected": "Connectée à Mault. Tu peux fermer cette page et scanner depuis Mault sur n'importe quel ordinateur ou téléphone.",
+    "disconnected": "Pas connectée à Mault pour le moment. Vérifie la connexion réseau de la trieuse.",
+    "openMault": "Ouvrir Mault",
+    "unreachable": "Impossible de joindre la configuration de cette trieuse. Vérifie qu'elle est allumée, puis actualise cette page."
+  }
 }

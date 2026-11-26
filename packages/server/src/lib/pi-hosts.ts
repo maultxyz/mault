@@ -162,8 +162,17 @@ export async function listPiHosts(tx: Transaction, orgId: string): Promise<Store
       name: piHosts.name,
       pairedAt: piHosts.pairedAt,
       lastSeenAt: piHosts.lastSeenAt,
+      sorterDeviceGuid: devices.guid,
     })
     .from(piHosts)
+    .leftJoin(
+      devices,
+      and(
+        eq(devices.orgId, piHosts.orgId),
+        eq(devices.hardwareId, piHosts.sorterHardwareId),
+        eq(devices.isDeleted, false),
+      ),
+    )
     .where(and(eq(piHosts.orgId, orgId), isNull(piHosts.revokedAt)))
     .orderBy(desc(piHosts.pairedAt));
   return rows.map((row) => ({
@@ -171,6 +180,7 @@ export async function listPiHosts(tx: Transaction, orgId: string): Promise<Store
     name: row.name,
     pairedAt: row.pairedAt.toISOString(),
     lastSeenAt: row.lastSeenAt?.toISOString() ?? null,
+    sorterDeviceGuid: row.sorterDeviceGuid ?? null,
   }));
 }
 

@@ -19,6 +19,10 @@ import { FlatbedPlacementDialog } from "@/features/scanner/components/flatbed-pl
 import { FeederCardSetupDialog } from "@/features/scanner/components/feeder-card-setup-dialog";
 import { documentScanErrorMessage } from "@/features/scanner/lib/document-scan-errors";
 import { usePiScanSession } from "@/features/scanner/api/use-pi-scan-session";
+import {
+  useLinkedPiScanTarget,
+  usePiScanMode,
+} from "@/features/scanner/api/use-pi-scan-mode";
 import { piScanStatusText } from "@/features/scanner/lib/pi-scan-status";
 import { useDesktopScannerControls } from "@/features/scanner/api/use-desktop-scanner-controls";
 import { useFoilNudgeCheck } from "@/features/scanner/api/use-foil-nudge-check";
@@ -91,7 +95,9 @@ export function CardScanner({
   const { isAdmin } = useRole();
   const isMobile = useIsMobile();
   const piHost = usePiHost();
-  const piRemote = piHost;
+  const piScanMode = usePiScanMode();
+  const piRemote = piScanMode.hostMode;
+  const linkedPiGuid = piScanMode.linkedPi?.guid ?? null;
   const previewRotated = !isMobile || piHost;
   const {
     addCard,
@@ -131,6 +137,7 @@ export function CardScanner({
       (level) => level.binNumber === binLimitReached?.binNumber,
     )?.capacity ?? null;
   const { station, isActive } = useStation();
+  useLinkedPiScanTarget(piScanMode, isActive);
   const {
     setActiveStation,
     connectAnotherSorter,
@@ -970,6 +977,7 @@ export function CardScanner({
         <video ref={videoRef} className="hidden" playsInline muted />
         {piRemote && isCameraActive && (
           <PiCameraPreview
+            linkedHostGuid={linkedPiGuid}
             cameraId={selectedCameraId}
             alt={t("piScan.preview")}
             rotated
@@ -1134,6 +1142,7 @@ export function CardScanner({
           <video ref={videoRef} className="hidden" playsInline muted />
           {piRemote && isCameraActive && (
             <PiCameraPreview
+              linkedHostGuid={linkedPiGuid}
             cameraId={selectedCameraId}
               alt={t("piScan.preview")}
               rotated
