@@ -29,6 +29,7 @@ import {
   takePiScanAnnouncement,
 } from "@/features/scanner/lib/pi-scan-store";
 import { piScanStatusText } from "@/features/scanner/lib/pi-scan-status";
+import { linkedPiScanHostGuid } from "@/features/scanner/lib/pi-scan-target";
 import { useAppStreamSource, useCollectionStream } from "@/lib/app-stream";
 import { PI_SCAN_CARD_EVENTS } from "@/lib/constants/scanner";
 import { toast } from "@/lib/toast";
@@ -151,7 +152,7 @@ export function PiScanStatusBar() {
     };
   }, [eventSource, watchGuid, queryClient]);
 
-  if (!sessionLive) return null;
+  if (!sessionLive || linkedPiScanHostGuid()) return null;
 
   const collection = collections.find(
     (item) => item.guid === state.collectionGuid,

@@ -1,4 +1,5 @@
 import type { OrgRole } from "@magic-vault/shared";
+import type { PiLinkLocalSubnet } from "../interfaces/pi-hosts";
 
 export const PI_HOST_TOKEN_PREFIX = "mvpi_";
 export const PI_HOST_TOKEN_BYTES = 32;
@@ -73,3 +74,17 @@ export const PI_LINK_LOCAL_HOST_PATTERN =
 export const PI_LINK_UPDATE_STATUS_INTERVAL_MS = 60_000;
 export const PI_LINK_UPDATE_REQUEST_GRACE_MS = 60_000;
 export const PI_LINK_UPDATE_FAILED_MESSAGE = "The Pi could not start the update.";
+
+export const PI_LINK_LOCAL_TRUSTED_SUBNETS: PiLinkLocalSubnet[] = [
+  { network: "127.0.0.0", prefix: 8, type: "ipv4" },
+  { network: "10.0.0.0", prefix: 8, type: "ipv4" },
+  { network: "172.16.0.0", prefix: 12, type: "ipv4" },
+  { network: "192.168.0.0", prefix: 16, type: "ipv4" },
+  { network: "169.254.0.0", prefix: 16, type: "ipv4" },
+  { network: "::1", prefix: 128, type: "ipv6" },
+  { network: "fc00::", prefix: 7, type: "ipv6" },
+  { network: "fe80::", prefix: 10, type: "ipv6" },
+];
+export const PI_LINK_LOCAL_MIN_INTERFACE_PREFIX = { ipv4: 8, ipv6: 48 } as const;
+export const PI_LINK_LOCAL_CLIENT_ADDRESS_HEADER = "x-real-ip";
+export const PI_LINK_LOCAL_FORBIDDEN_MESSAGE = "The link code is only shown on the sorter's own network.";

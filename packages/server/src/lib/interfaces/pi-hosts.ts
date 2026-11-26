@@ -58,3 +58,9 @@ export interface PiSorterBridgeCredential {
   token: string;
   deviceGuid: string;
 }
+
+export interface PiLinkLocalSubnet {
+  network: string;
+  prefix: number;
+  type: "ipv4" | "ipv6";
+}
