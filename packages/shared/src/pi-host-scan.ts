@@ -5,6 +5,7 @@ import {
   PI_HOST_CAMERA_RECONNECT_MIN_MS,
   PI_HOST_CAMERA_SEGMENT,
   PI_HOST_SCAN_SESSION_SEGMENT,
+  PI_HOST_UPDATE_SEGMENT,
   PI_HOSTS_PATH,
 } from "./constants/pi-link.constant";
 import type { PiHostScanStartFormValues } from "./schemas/forms.schema";
@@ -12,6 +13,7 @@ import type { PiScanSessionStartBody } from "./interfaces/pi-scan.interface";
 import type {
   PiHostScanSessionSubpath,
   PiHostScanControls,
+  PiHostUpdateControls,
   PiHostStatusEvent,
   PiHostSummary,
 } from "./interfaces/pi-link.interface";
@@ -62,7 +64,7 @@ export function applyPiHostStatusEvent(
 ): PiHostSummary[] {
   return hosts.map((host) =>
     host.guid === event.hostGuid
-      ? { ...host, connected: event.connected, scanState: event.scanState }
+      ? { ...host, connected: event.connected, scanState: event.scanState, update: event.update }
       : host,
   );
 }
@@ -91,5 +93,33 @@ export function piHostScanControls(host: Pick<PiHostSummary, "connected" | "scan
     canResume: state?.phase === "paused" && !state.stopping,
     canStop: isActive && !state?.stopping,
     canEmergencyStop: isActive,
+  };
+}
+
+export function piHostUpdatePath(hostGuid: string): string {
+  return `${PI_HOSTS_PATH}/${encodeURIComponent(hostGuid)}${PI_HOST_UPDATE_SEGMENT}`;
+}
+
+export function piHostUpdateControls(
+  host: Pick<PiHostSummary, "connected" | "scanState" | "update">,
+): PiHostUpdateControls {
+  const update = host.update;
+  const installedVersion = update?.installedVersion ?? null;
+  const latestVersion = update?.latestVersion ?? null;
+  if (!update) return { statusKey: null, installedVersion, latestVersion, canUpdate: false };
+  if (update.state.phase === "running")
+    return { statusKey: "updating", installedVersion, latestVersion, canUpdate: false };
+  const scanning =
+    host.scanState?.phase === "running" ||
+    host.scanState?.phase === "paused" ||
+    host.scanState?.stopping === true;
+  const canUpdate = update.available && host.connected && !scanning;
+  if (update.state.phase === "failed" && update.available)
+    return { statusKey: "failed", installedVersion, latestVersion, canUpdate };
+  return {
+    statusKey: update.available ? "available" : null,
+    installedVersion,
+    latestVersion,
+    canUpdate,
   };
 }

@@ -253,3 +253,28 @@ test("unlinking closes the Pi's connection as revoked", () => {
   assert.deepEqual(closed, [PI_LINK_CLOSE_REVOKED]);
   assert.equal(piHostScanStatus(host.hostGuid).connected, false);
 });
+
+test("the Pi's update status is published and kept while it restarts offline", () => {
+  const updates: (string | null)[] = [];
+  piLinkRelayRuntime.emitStatus = (_orgId, event) => updates.push(event.update?.state.phase ?? null);
+  trackClears();
+  const host = fakeHost("host-update");
+  const { socket } = fakeSocket();
+  attachPiLinkDevice(host, socket);
+  const update = {
+    state: { phase: "running", startedAt: 1, message: null },
+    available: true,
+    installedVersion: "1.0.210",
+    latestVersion: "1.0.214",
+    rebootRequired: false,
+    bootId: null,
+  };
+  receivePiLinkDeviceMessage(host, socket, JSON.stringify({ type: "update", update }));
+  detachPiLinkDevice(host.hostGuid, socket);
+  assert.deepEqual(updates, [null, "running", "running"]);
+  const [listed] = withPiHostLiveStatus([
+    { guid: "host-update", name: "Pi", pairedAt: "2026-11-25T00:00:00.000Z", lastSeenAt: null, sorterDeviceGuid: null },
+  ]);
+  assert.equal(listed.connected, false);
+  assert.equal(listed.update?.latestVersion, "1.0.214");
+});

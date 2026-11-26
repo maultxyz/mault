@@ -18,8 +18,11 @@ vi.mock("@/features/raspberry-pis/api/use-raspberry-pi-camera", () => ({
   useRaspberryPiCamera: () => ({ frame: null, isUnavailable: false }),
 }));
 
+const updateMutate = vi.fn();
+
 vi.mock("@/features/raspberry-pis/api/use-raspberry-pis", () => ({
   useRaspberryPiScan: () => ({ mutate, isPending: false }),
+  useRaspberryPiUpdate: () => ({ mutate: updateMutate, isPending: false }),
 }));
 
 function scanState(overrides: Partial<PiScanSessionState>): PiScanSessionState {
@@ -46,6 +49,7 @@ function host(overrides: Partial<PiHostSummary>): PiHostSummary {
     name: "Bench Pi",
     pairedAt: "2026-11-25T00:00:00.000Z",
     sorterDeviceGuid: null,
+    update: null,
     lastSeenAt: null,
     connected: true,
     scanState: null,
@@ -54,7 +58,10 @@ function host(overrides: Partial<PiHostSummary>): PiHostSummary {
 }
 
 describe("RaspberryPiRow", () => {
-  beforeEach(() => mutate.mockReset());
+  beforeEach(() => {
+    mutate.mockReset();
+    updateMutate.mockReset();
+  });
 
   it("starts a scan with the chosen options when the Pi is ready", async () => {
     render(<RaspberryPiRow host={host({})} canManage={false} onRemove={vi.fn()} onRename={vi.fn()} />);
@@ -127,5 +134,23 @@ describe("RaspberryPiRow", () => {
     expect(screen.getByRole("status")).toHaveTextContent("raspberryPis.status.offline");
     expect(screen.getByText("raspberryPis.offlineHint")).toBeInTheDocument();
     expect(screen.queryAllByRole("button")).toHaveLength(0);
+  });
+
+  it("lets owners and admins update a Pi when an update is available", () => {
+    const update = {
+      state: { phase: "idle" as const, startedAt: null, message: null },
+      available: true,
+      installedVersion: "1.0.210",
+      latestVersion: "1.0.214",
+      rebootRequired: false,
+      bootId: null,
+    };
+    const { rerender } = render(
+      <RaspberryPiRow host={host({ update })} canManage onRemove={vi.fn()} onRename={vi.fn()} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "raspberryPis.update.button" }));
+    expect(updateMutate).toHaveBeenCalledTimes(1);
+    rerender(<RaspberryPiRow host={host({ update })} canManage={false} onRemove={vi.fn()} onRename={vi.fn()} />);
+    expect(screen.queryByRole("button", { name: "raspberryPis.update.button" })).not.toBeInTheDocument();
   });
 });

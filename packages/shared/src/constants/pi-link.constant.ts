@@ -29,6 +29,10 @@ export const PI_LINK_SCAN_ACTIONS = [
   "removal",
 ] as const;
 
+export const PI_LINK_DEVICE_ACTIONS = ["update"] as const;
+
+export const PI_HOST_UPDATE_SEGMENT = "/update";
+
 export const PI_HOST_STATUS_EVENT = "pi_host_status";
 export const PI_HOST_SCAN_SESSION_SEGMENT = "/scan-session";
 export const PI_HOST_CAMERA_SEGMENT = "/camera";

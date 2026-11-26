@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import {
   PI_HOSTS_PATH,
   piHostScanSessionPath,
+  piHostUpdatePath,
   type PiHostClaimFormValues,
   type PiHostScanAction,
   type PiHostSummary,
@@ -54,4 +55,8 @@ export function runRaspberryPiScanAction(guid: string, action: PiHostScanAction)
 
 export function stopRaspberryPiScan(guid: string) {
   return sendPiHostRequest<PiScanSessionResult>("DELETE", piHostScanSessionPath(guid));
+}
+
+export function updateRaspberryPi(guid: string) {
+  return sendPiHostRequest<Result<null>>("POST", piHostUpdatePath(guid), {});
 }

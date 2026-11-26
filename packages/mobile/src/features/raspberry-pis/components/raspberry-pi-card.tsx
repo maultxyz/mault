@@ -13,6 +13,7 @@ import { SwitchRow } from "@/components/ui/switch-row";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useRaspberryPiCamera } from "@/features/raspberry-pis/api/use-raspberry-pi-camera";
 import { useRaspberryPiScan } from "@/features/raspberry-pis/api/use-raspberry-pis";
+import { RaspberryPiUpdateStatus } from "@/features/raspberry-pis/components/raspberry-pi-update-status";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import {
@@ -59,6 +60,9 @@ export function RaspberryPiCard({ host, canManage, onRemove }: RaspberryPiCardPr
                 host.lastSeenAt
                   ? t("settings.raspberryPis.lastSeen", { date: formatShortDate(host.lastSeenAt, i18n.language) })
                   : null,
+                host.update?.installedVersion
+                  ? t("settings.raspberryPis.version", { version: host.update.installedVersion })
+                  : null,
               ]
                 .filter(Boolean)
                 .join(" · ")}
@@ -74,6 +78,8 @@ export function RaspberryPiCard({ host, canManage, onRemove }: RaspberryPiCardPr
             {t("settings.raspberryPis.offlineHint")}
           </AppText>
         ) : null}
+
+        <RaspberryPiUpdateStatus host={host} canManage={canManage} />
 
         {showsProgress ? (
           <View style={{ gap: SPACING.xs }}>

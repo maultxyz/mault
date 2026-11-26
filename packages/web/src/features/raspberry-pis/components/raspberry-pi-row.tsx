@@ -7,6 +7,7 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { useRaspberryPiCamera } from "@/features/raspberry-pis/api/use-raspberry-pi-camera";
 import { useRaspberryPiScan } from "@/features/raspberry-pis/api/use-raspberry-pis";
 import { RaspberryPiStartDialog } from "@/features/raspberry-pis/components/raspberry-pi-start-dialog";
+import { RaspberryPiUpdateStatus } from "@/features/raspberry-pis/components/raspberry-pi-update-status";
 import { formatShortDate } from "@/lib/format";
 import { RASPBERRY_PI_STATUS_BADGE_VARIANTS } from "@/lib/constants/raspberry-pis";
 import type { RaspberryPiRowProps } from "@/lib/interfaces/raspberry-pis";
@@ -50,6 +51,8 @@ export function RaspberryPiRow({ host, canManage, onRemove, onRename }: Raspberr
             {t("raspberryPis.linkedOn", { date: formatShortDate(host.pairedAt) })}
             {host.lastSeenAt &&
               ` · ${t("raspberryPis.lastSeen", { date: formatShortDate(host.lastSeenAt) })}`}
+            {host.update?.installedVersion &&
+              ` · ${t("raspberryPis.version", { version: host.update.installedVersion })}`}
           </p>
         </div>
         <span role="status">
@@ -62,6 +65,8 @@ export function RaspberryPiRow({ host, canManage, onRemove, onRename }: Raspberr
       {controls.statusKey === "offline" && (
         <p className="text-xs text-foreground/70">{t("raspberryPis.offlineHint")}</p>
       )}
+
+      <RaspberryPiUpdateStatus host={host} canManage={canManage} />
 
       {showsProgress && (
         <div className="flex flex-col gap-0.5 text-xs text-foreground/70">

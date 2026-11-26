@@ -9,8 +9,9 @@ import {
   type PiLinkCameraMessage,
   type PiLinkCommandMessage,
   type PiLinkDeviceMessage,
-  type PiLinkScanAction,
+  type PiLinkCommandAction,
   type PiLinkScanActionResult,
+  type PiUpdateStatus,
 } from "@magic-vault/shared";
 import {
   PI_CAMERA_MAX_BUFFERED_BYTES,
@@ -48,10 +49,12 @@ function publishStatus(orgId: string, hostGuid: string, scanState: PiScanSession
     hostGuid,
     connected: connections.has(hostGuid),
     scanState,
+    update: updateStatuses.get(hostGuid) ?? null,
   });
 }
 
 const connections = new Map<string, PiLinkDeviceConnection>();
+const updateStatuses = new Map<string, PiUpdateStatus>();
 const startingHosts = new Set<string>();
 const scanCollections = new Map<string, { orgId: string; collectionGuid: string }>();
 const offlineLockTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -201,6 +204,12 @@ export function receivePiLinkDeviceMessage(host: PiHostTokenRecord, socket: PiLi
     if (isFirstState && !message.sessionActive) clearActiveScanUser(host);
     return;
   }
+  if (message.type === "update") {
+    if (!message.update || typeof message.update !== "object") return;
+    updateStatuses.set(host.hostGuid, message.update);
+    publishStatus(host.orgId, host.hostGuid, connection.state);
+    return;
+  }
   if (message.type === "frame") {
     if (typeof message.image === "string") forwardCameraFrame(host.hostGuid, message.image);
     return;
@@ -211,7 +220,7 @@ export function receivePiLinkDeviceMessage(host: PiHostTokenRecord, socket: PiLi
 export function sendPiLinkCommand(
   hostGuid: string,
   userId: string,
-  action: PiLinkScanAction,
+  action: PiLinkCommandAction,
   body?: unknown,
 ): Promise<PiLinkScanActionResult> {
   const connection = connections.get(hostGuid);
@@ -246,7 +255,12 @@ export function piHostScanStatus(hostGuid: string): PiHostScanStatus {
 export function withPiHostLiveStatus(hosts: StoredPiHostSummary[]): PiHostSummary[] {
   return hosts.map((host) => {
     const connection = connections.get(host.guid);
-    return { ...host, connected: !!connection, scanState: connection?.state ?? null };
+    return {
+      ...host,
+      connected: !!connection,
+      scanState: connection?.state ?? null,
+      update: updateStatuses.get(host.guid) ?? null,
+    };
   });
 }
 
@@ -254,6 +268,7 @@ export function disconnectPiLinkDevice(hostGuid: string) {
   const connection = connections.get(hostGuid);
   if (!connection) return;
   connections.delete(hostGuid);
+  updateStatuses.delete(hostGuid);
   settleCommandsOfHost(hostGuid);
   connection.socket.close(PI_LINK_CLOSE_REVOKED, "Pi unlinked");
   publishStatus(connection.orgId, hostGuid, null);

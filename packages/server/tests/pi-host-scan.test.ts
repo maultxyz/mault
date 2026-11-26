@@ -5,6 +5,8 @@ import {
   piHostCameraReconnectDelayMs,
   piHostScanControls,
   piHostScanSessionPath,
+  piHostUpdateControls,
+  type PiUpdateStatus,
   type PiHostSummary,
   type PiScanSessionState,
 } from "@magic-vault/shared";
@@ -68,11 +70,11 @@ test("running, paused and stopping scans offer the matching controls", () => {
 
 test("status events update only the matching Pi", () => {
   const hosts: PiHostSummary[] = [
-    { guid: "a", name: "A", pairedAt: "2026-11-25", lastSeenAt: null, sorterDeviceGuid: null, connected: false, scanState: null },
-    { guid: "b", name: "B", pairedAt: "2026-11-25", lastSeenAt: null, sorterDeviceGuid: null, connected: true, scanState: null },
+    { guid: "a", name: "A", pairedAt: "2026-11-25", lastSeenAt: null, sorterDeviceGuid: null, connected: false, scanState: null, update: null },
+    { guid: "b", name: "B", pairedAt: "2026-11-25", lastSeenAt: null, sorterDeviceGuid: null, connected: true, scanState: null, update: null },
   ];
   const running = scanState({ phase: "running" });
-  const updated = applyPiHostStatusEvent(hosts, { hostGuid: "a", connected: true, scanState: running });
+  const updated = applyPiHostStatusEvent(hosts, { hostGuid: "a", connected: true, scanState: running, update: null });
   assert.deepEqual(updated[0], { ...hosts[0], connected: true, scanState: running });
   assert.equal(updated[1], hosts[1]);
 });
@@ -112,4 +114,38 @@ test("pending save events keep only known fields and the caller's org", () => {
 test("scan session paths are built under the Pi", () => {
   assert.equal(piHostScanSessionPath("abc"), "/pi-hosts/abc/scan-session");
   assert.equal(piHostScanSessionPath("abc", "emergency-stop"), "/pi-hosts/abc/scan-session/emergency-stop");
+});
+
+function updateStatus(overrides: Partial<PiUpdateStatus>): PiUpdateStatus {
+  return {
+    state: { phase: "idle", startedAt: null, message: null },
+    available: false,
+    installedVersion: "1.0.210",
+    latestVersion: "1.0.210",
+    rebootRequired: false,
+    bootId: null,
+    ...overrides,
+  };
+}
+
+test("update controls offer an update only when one is available, the Pi is online and not scanning", () => {
+  const available = updateStatus({ available: true, latestVersion: "1.0.214" });
+  const idle = piHostUpdateControls({ connected: true, scanState: null, update: available });
+  assert.deepEqual([idle.statusKey, idle.canUpdate, idle.latestVersion], ["available", true, "1.0.214"]);
+  assert.equal(piHostUpdateControls({ connected: false, scanState: null, update: available }).canUpdate, false);
+  assert.equal(
+    piHostUpdateControls({ connected: true, scanState: scanState({ phase: "paused" }), update: available }).canUpdate,
+    false,
+  );
+  assert.equal(piHostUpdateControls({ connected: true, scanState: null, update: updateStatus({}) }).statusKey, null);
+  assert.equal(piHostUpdateControls({ connected: true, scanState: null, update: null }).statusKey, null);
+});
+
+test("a running update shows as updating, even while the Pi restarts offline, and a failed one can be retried", () => {
+  const running = updateStatus({ available: true, state: { phase: "running", startedAt: 1, message: null } });
+  const updating = piHostUpdateControls({ connected: false, scanState: null, update: running });
+  assert.deepEqual([updating.statusKey, updating.canUpdate], ["updating", false]);
+  const failed = updateStatus({ available: true, state: { phase: "failed", startedAt: 1, message: "Update failed." } });
+  const retry = piHostUpdateControls({ connected: true, scanState: null, update: failed });
+  assert.deepEqual([retry.statusKey, retry.canUpdate], ["failed", true]);
 });

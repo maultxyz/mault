@@ -2740,7 +2740,18 @@
       "renameSave": "Speichern",
       "cameraShow": "Kamera anzeigen",
       "cameraHide": "Kamera ausblenden",
-      "cameraUnavailable": "Die Kamera konnte nicht erreicht werden. Schließe sie und versuche es erneut."
+      "cameraUnavailable": "Die Kamera konnte nicht erreicht werden. Schließe sie und versuche es erneut.",
+      "version": "Version {{version}}",
+      "update": {
+        "available": "Update verfügbar: Version {{version}}",
+        "updating": "Wird aktualisiert. Der Pi startet neu und ist in ein paar Minuten wieder online.",
+        "failed": "Das letzte Update wurde nicht abgeschlossen, daher bleibt der Pi auf Version {{version}}.",
+        "stopScanFirst": "Beende den Scan, um zu aktualisieren.",
+        "button": "Aktualisieren",
+        "retry": "Erneut versuchen",
+        "started": "Update gestartet",
+        "failedToStart": "Das Update konnte nicht gestartet werden."
+      }
     }
   },
   "binCorrection": {

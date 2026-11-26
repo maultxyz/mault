@@ -69,3 +69,7 @@ export const PI_SORTER_BRIDGE_RETRY_MAX_MS = 10 * 60_000;
 export const PI_SORTER_BRIDGE_IDENTITY_ATTEMPTS = 3;
 export const PI_LINK_LOCAL_HOST_PATTERN =
   /^(localhost|127\.[0-9.]+|10\.[0-9.]+|192\.168\.[0-9.]+|172\.(1[6-9]|2[0-9]|3[01])\.[0-9.]+|[a-z0-9-]+\.local)$/i;
+
+export const PI_LINK_UPDATE_STATUS_INTERVAL_MS = 60_000;
+export const PI_LINK_UPDATE_REQUEST_GRACE_MS = 60_000;
+export const PI_LINK_UPDATE_FAILED_MESSAGE = "The Pi could not start the update.";

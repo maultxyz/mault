@@ -19,6 +19,11 @@ export interface RaspberryPiRowProps {
   onRename: (host: PiHostSummary) => void;
 }
 
+export interface RaspberryPiUpdateStatusProps {
+  host: PiHostSummary;
+  canManage: boolean;
+}
+
 export interface RaspberryPiStartDialogProps {
   host: PiHostSummary;
   open: boolean;

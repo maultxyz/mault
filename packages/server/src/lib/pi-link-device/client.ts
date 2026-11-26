@@ -1,13 +1,17 @@
 import { hostname } from "node:os";
 import {
   PI_LINK_COMMANDS_SEGMENT,
+  PI_LINK_DEVICE_ACTIONS,
   PI_LINK_DEVICE_PATH,
   PI_LINK_SCAN_ACTIONS,
+  type PiLinkCommandAction,
   type PiLinkCommandMessage,
   type PiLinkDeviceMessage,
   type PiLinkServerMessage,
   type PiLinkLocalStatus,
   type PiLinkScanActionResult,
+  type PiUpdateState,
+  type PiUpdateStatus,
 } from "@magic-vault/shared";
 import WebSocket from "ws";
 import {
@@ -18,9 +22,13 @@ import {
   PI_LINK_DEVICE_STATE_INTERVAL_MS,
   PI_LINK_DEVICE_URL_ENV,
   PI_LINK_MAX_MESSAGE_BYTES,
+  PI_LINK_UPDATE_FAILED_MESSAGE,
+  PI_LINK_UPDATE_REQUEST_GRACE_MS,
+  PI_LINK_UPDATE_STATUS_INTERVAL_MS,
 } from "../constants/pi-hosts";
 import type { PiLinkDeviceCredential } from "../interfaces/pi-hosts";
 import { isPiHost } from "../pi-host";
+import { getPiUpdateStatus, startPiUpdate } from "../pi-update";
 import { runPiScanAction } from "../pi-scan/actions";
 import { setPiScanApi } from "../pi-scan/api";
 import { createRemotePiScanApi } from "../pi-scan/remote-api";
@@ -40,6 +48,7 @@ let sessionActive = false;
 let scanStarting = false;
 let currentSocket: WebSocket | null = null;
 let sorterBridge: ReturnType<typeof createPiSorterBridge> | null = null;
+let requestedUpdate: { state: PiUpdateState; at: number } | null = null;
 
 export function piLinkLocalStatus(): PiLinkLocalStatus {
   return localStatus;
@@ -76,7 +85,7 @@ function isCommand(message: Partial<PiLinkCommandMessage>): message is PiLinkCom
     message.type === "command" &&
     typeof message.id === "string" &&
     typeof message.userId === "string" &&
-    PI_LINK_SCAN_ACTIONS.includes(message.action!)
+    ([...PI_LINK_SCAN_ACTIONS, ...PI_LINK_DEVICE_ACTIONS] as PiLinkCommandAction[]).includes(message.action!)
   );
 }
 
@@ -102,10 +111,37 @@ function followSession(orgId: string) {
   });
 }
 
+async function currentPiUpdateStatus(): Promise<PiUpdateStatus | null> {
+  const status = await getPiUpdateStatus().catch(() => null);
+  if (!status) return null;
+  const requested =
+    requestedUpdate && Date.now() - requestedUpdate.at < PI_LINK_UPDATE_REQUEST_GRACE_MS
+      ? requestedUpdate.state
+      : null;
+  return requested && status.state.phase !== "running" ? { ...status, state: requested } : status;
+}
+
+async function runUpdateCommand(): Promise<PiLinkScanActionResult> {
+  try {
+    const state = await startPiUpdate(sessionActive || scanStarting ? 1 : 0);
+    requestedUpdate = { state, at: Date.now() };
+    return { status: 202, body: { success: true } };
+  } catch (error) {
+    return {
+      status: 409,
+      body: {
+        success: false,
+        message: error instanceof Error ? error.message : PI_LINK_UPDATE_FAILED_MESSAGE,
+      },
+    };
+  }
+}
+
 async function runCommand(
   credential: PiLinkDeviceCredential,
   command: PiLinkCommandMessage,
 ): Promise<PiLinkScanActionResult> {
+  if (command.action === "update") return runUpdateCommand();
   const isStart = command.action === "start";
   if (isStart) {
     scanStarting = true;
@@ -148,6 +184,16 @@ function connectCommandSocket(credential: PiLinkDeviceCredential): Promise<"revo
         },
       );
       let lastSentState = "";
+      let lastSentUpdate = "";
+      let updateTimer: ReturnType<typeof setInterval> | null = null;
+      const sendUpdate = async (force: boolean) => {
+        const update = await currentPiUpdateStatus();
+        if (!update) return;
+        const serialized = JSON.stringify(update);
+        if (!force && serialized === lastSentUpdate) return;
+        lastSentUpdate = serialized;
+        sendToServer(socket, { type: "update", update });
+      };
       let finished = false;
       const sendState = (force: boolean) => {
         const state = getPiScanSession(credential.orgId);
@@ -160,6 +206,7 @@ function connectCommandSocket(credential: PiLinkDeviceCredential): Promise<"revo
         if (finished) return;
         finished = true;
         if (stateTimer) clearInterval(stateTimer);
+        if (updateTimer) clearInterval(updateTimer);
         cameraFeed.stop();
         if (currentSocket === socket) currentSocket = null;
         if (localStatus.state === "linked") localStatus = { ...localStatus, connected: false };
@@ -180,6 +227,8 @@ function connectCommandSocket(credential: PiLinkDeviceCredential): Promise<"revo
         if (localStatus.state === "linked") localStatus = { ...localStatus, connected: true };
         sendState(true);
         stateTimer = setInterval(() => sendState(false), PI_LINK_DEVICE_STATE_INTERVAL_MS);
+        void sendUpdate(true);
+        updateTimer = setInterval(() => void sendUpdate(false), PI_LINK_UPDATE_STATUS_INTERVAL_MS);
       });
       socket.on("message", (data) => {
         const message = parseServerMessage(data.toString());
@@ -192,6 +241,7 @@ function connectCommandSocket(credential: PiLinkDeviceCredential): Promise<"revo
         void runCommand(credential, command).then((result) => {
           sendToServer(socket, { type: "reply", id: command.id, ...result });
           sendState(false);
+          if (command.action === "update") void sendUpdate(true);
         });
       });
       socket.on("close", (code) => finish(code === PI_LINK_CLOSE_REVOKED));

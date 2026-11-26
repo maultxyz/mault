@@ -2740,7 +2740,18 @@
       "renameSave": "Save",
       "cameraShow": "Show camera",
       "cameraHide": "Hide camera",
-      "cameraUnavailable": "The camera could not be reached. Close it and try again."
+      "cameraUnavailable": "The camera could not be reached. Close it and try again.",
+      "version": "Version {{version}}",
+      "update": {
+        "available": "Update available: version {{version}}",
+        "updating": "Updating. The Pi restarts and is back online in a few minutes.",
+        "failed": "The last update didn't finish, so the Pi stayed on version {{version}}.",
+        "stopScanFirst": "Stop the scan to update.",
+        "button": "Update",
+        "retry": "Try again",
+        "started": "Update started",
+        "failedToStart": "Couldn't start the update."
+      }
     }
   },
   "binCorrection": {

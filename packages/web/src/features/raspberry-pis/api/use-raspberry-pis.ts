@@ -20,6 +20,7 @@ import {
   updateRaspberryPiScanSettings,
   startRaspberryPiScan,
   stopRaspberryPiScan,
+  updateRaspberryPi,
 } from "./raspberry-pis";
 
 function useRaspberryPisQueryOptions() {
@@ -129,6 +130,41 @@ export function useRaspberryPiScan(hostGuid: string) {
               ...current,
               hosts: current.hosts.map((host) =>
                 host.guid === hostGuid ? { ...host, scanState } : host,
+              ),
+            }
+          : current,
+      );
+    },
+    onError: (error) => toast.error(error.message),
+  });
+}
+
+export function useRaspberryPiUpdate(hostGuid: string) {
+  const { t } = useTranslation("settings");
+  const queryClient = useQueryClient();
+  const options = useRaspberryPisQueryOptions();
+
+  return useMutation({
+    mutationFn: async () => {
+      const result = await updateRaspberryPi(hostGuid);
+      if (!result.success) throw new Error(result.message || t("raspberryPis.update.failedToStart"));
+    },
+    onSuccess: () => {
+      toast.success(t("raspberryPis.update.started"));
+      queryClient.setQueryData<RaspberryPiList>(options.queryKey, (current) =>
+        current
+          ? {
+              ...current,
+              hosts: current.hosts.map((host) =>
+                host.guid === hostGuid && host.update
+                  ? {
+                      ...host,
+                      update: {
+                        ...host.update,
+                        state: { phase: "running", startedAt: Date.now(), message: null },
+                      },
+                    }
+                  : host,
               ),
             }
           : current,

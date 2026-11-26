@@ -173,6 +173,17 @@
     "rename": "Renommer",
     "renameTitle": "Renommer le Raspberry Pi",
     "renameFailed": "Impossible de renommer le Raspberry Pi.",
-    "cameraUnavailable": "Impossible de joindre la caméra. Fermez-la et réessayez."
+    "cameraUnavailable": "Impossible de joindre la caméra. Fermez-la et réessayez.",
+    "version": "Version {{version}}",
+    "update": {
+      "available": "Mise à jour disponible : version {{version}}",
+      "updating": "Mise à jour en cours. Le Pi redémarre et revient en ligne dans quelques minutes.",
+      "failed": "La dernière mise à jour n'a pas abouti, le Pi reste donc en version {{version}}.",
+      "stopScanFirst": "Arrête le scan pour mettre à jour.",
+      "button": "Mettre à jour",
+      "retry": "Réessayer",
+      "started": "Mise à jour lancée",
+      "failedToStart": "Impossible de lancer la mise à jour."
+    }
   }
 }

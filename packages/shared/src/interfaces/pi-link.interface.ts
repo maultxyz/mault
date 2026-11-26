@@ -1,7 +1,9 @@
 import type {
+  PI_LINK_DEVICE_ACTIONS,
   PI_LINK_PAIRING_STATUSES,
   PI_LINK_SCAN_ACTIONS,
 } from "../constants/pi-link.constant";
+import type { PiUpdateStatus } from "./pi-update.interface";
 import type { PiScanSessionState } from "./pi-scan.interface";
 
 export type PiLinkPairingStatus = (typeof PI_LINK_PAIRING_STATUSES)[number];
@@ -14,12 +16,23 @@ export interface PiHostSummary {
   sorterDeviceGuid: string | null;
   connected: boolean;
   scanState: PiScanSessionState | null;
+  update: PiUpdateStatus | null;
 }
 
 export interface PiHostStatusEvent {
   hostGuid: string;
   connected: boolean;
   scanState: PiScanSessionState | null;
+  update: PiUpdateStatus | null;
+}
+
+export type PiHostUpdateStatusKey = "updating" | "available" | "failed";
+
+export interface PiHostUpdateControls {
+  statusKey: PiHostUpdateStatusKey | null;
+  installedVersion: string | null;
+  latestVersion: string | null;
+  canUpdate: boolean;
 }
 
 export type PiHostScanStatusKey = "offline" | "idle" | "running" | "paused" | "stopping" | "error";
@@ -62,6 +75,10 @@ export interface PiLinkDeviceIdentity {
 
 export type PiLinkScanAction = (typeof PI_LINK_SCAN_ACTIONS)[number];
 
+export type PiLinkDeviceAction = (typeof PI_LINK_DEVICE_ACTIONS)[number];
+
+export type PiLinkCommandAction = PiLinkScanAction | PiLinkDeviceAction;
+
 export interface PiLinkScanActionResult {
   status: number;
   body: {
@@ -76,7 +93,7 @@ export interface PiLinkCommandMessage {
   type: "command";
   id: string;
   userId: string;
-  action: PiLinkScanAction;
+  action: PiLinkCommandAction;
   body?: unknown;
 }
 
@@ -91,7 +108,8 @@ export type PiLinkDeviceMessage =
   | ({ type: "reply"; id: string } & PiLinkScanActionResult)
   | { type: "state"; state: PiScanSessionState; sessionActive: boolean }
   | { type: "ended" }
-  | { type: "frame"; image: string };
+  | { type: "frame"; image: string }
+  | { type: "update"; update: PiUpdateStatus };
 
 export interface PiHostScanStatus {
   connected: boolean;

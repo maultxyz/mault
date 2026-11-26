@@ -13,7 +13,7 @@ export interface PiHostTokenRecord extends PiLinkDeviceIdentity {
   activeScanUserId: string | null;
 }
 
-export type StoredPiHostSummary = Omit<PiHostSummary, "connected" | "scanState">;
+export type StoredPiHostSummary = Omit<PiHostSummary, "connected" | "scanState" | "update">;
 
 export type PiLinkEnv = { Variables: { piHost: PiHostTokenRecord } };
 
