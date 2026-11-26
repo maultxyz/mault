@@ -1,11 +1,11 @@
 import type { PublicCardGame } from "@magic-vault/shared";
 import type { OpenGraphImageContent } from "./open-graph-image";
 
-export type SharePreviewLinkKind = "collection" | "storage" | "card" | "shopCatalog";
+export type SharePreviewLinkKind = "collection" | "storage" | "card" | "shopCatalog" | "profile";
 
 export interface SharePreviewRequest {
   kind: SharePreviewLinkKind;
-  subjectGuid: string;
+  subjectKey: string;
   token: string | null;
   pathWithQuery: string;
 }

@@ -15,6 +15,7 @@ import { db } from "../../db";
 import { shareLinks, shopCatalogs } from "../../db/schema";
 import { CUSTOM_SHORT_LINK_FAILURE_MESSAGES } from "../../lib/constants/short-links";
 import { getShortLinkBaseUrl } from "../../lib/constants/urls";
+import { isHandleUsedByAnyOrgProfile } from "../../lib/org-profiles";
 import {
   createCustomShortLink,
   deleteCustomShortLink,
@@ -48,7 +49,8 @@ async function isUsedByAppLink(code: string): Promise<boolean> {
     .from(shopCatalogs)
     .where(eq(shopCatalogs.shortCode, code))
     .limit(1);
-  return !!catalog;
+  if (catalog) return true;
+  return isHandleUsedByAnyOrgProfile(code);
 }
 
 export const shortLinksRoute = new Hono<AppEnv>()

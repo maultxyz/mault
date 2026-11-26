@@ -20,12 +20,14 @@ import type {
   SharePreviewRequest,
 } from "./interfaces/share-preview";
 import { verifyMonitorLink } from "./monitor-links";
+import { loadPublishedOrgProfile } from "./org-profiles";
 import { orgHasFeature } from "./plan-config";
 import { loadOrgPricing } from "./price-source";
 import { loadPublicCardGames, loadPublicCardPage } from "./public-card-browse";
 import {
   cardShareLinkScope,
   collectionShareLinkScope,
+  orgProfileScope,
   shopCatalogScope,
   storageShareLinkScope,
 } from "./share-link-scopes";
@@ -34,6 +36,7 @@ import {
   cardSharePreviewText,
   listOpenGraphImage,
   collectionSharePreviewText,
+  profileSharePreviewText,
   shopCatalogSharePreviewText,
   storageSharePreviewText,
   unavailableSharePreview,
@@ -112,7 +115,7 @@ async function loadCollectionPreview(
   request: SharePreviewRequest,
 ): Promise<SharePreview | null> {
   const claims = request.token ? await verifyMonitorLink(request.token) : null;
-  if (!claims || claims.collectionGuid !== request.subjectGuid) return null;
+  if (!claims || claims.collectionGuid !== request.subjectKey) return null;
   const scope = collectionShareLinkScope(claims);
   return db.transaction(async (tx) => {
     const summary = await loadListSummary(
@@ -137,7 +140,7 @@ async function loadStoragePreview(
   request: SharePreviewRequest,
 ): Promise<SharePreview | null> {
   const claims = request.token ? await verifyStorageShareLink(request.token) : null;
-  if (!claims || claims.locationGuid !== request.subjectGuid) return null;
+  if (!claims || claims.locationGuid !== request.subjectKey) return null;
   const scope = storageShareLinkScope(claims);
   return db.transaction(async (tx) => {
     const summary = await loadListSummary(
@@ -162,7 +165,7 @@ async function loadCardPreview(
   request: SharePreviewRequest,
 ): Promise<SharePreview | null> {
   const claims = request.token ? await verifyCardShareLink(request.token) : null;
-  if (!claims || claims.scanId !== request.subjectGuid) return null;
+  if (!claims || claims.scanId !== request.subjectKey) return null;
   const scope = cardShareLinkScope(claims);
   return db.transaction(async (tx) => {
     const { cards, leadingCardPrice } = await loadLeadingCards(tx, scope, 1);
@@ -194,8 +197,8 @@ async function loadShopCatalogPreview(
   const isPublicCatalogLink = !request.token;
   const claims = request.token
     ? await verifyShopCatalogLink(request.token)
-    : await verifyPublicShopCatalog(request.subjectGuid);
-  if (!claims || claims.catalogGuid !== request.subjectGuid) return null;
+    : await verifyPublicShopCatalog(request.subjectKey);
+  if (!claims || claims.catalogGuid !== request.subjectKey) return null;
   const scope = shopCatalogScope(claims);
   return db.transaction(async (tx) => {
     const summary = await loadListSummary(tx, scope, claims.name, false);
@@ -216,22 +219,51 @@ async function loadShopCatalogPreview(
   });
 }
 
+async function loadProfilePreview(
+  request: SharePreviewRequest,
+): Promise<SharePreview | null> {
+  const profile = await loadPublishedOrgProfile(request.subjectKey);
+  if (!profile) return null;
+  const scope = orgProfileScope(profile);
+  return db.transaction(async (tx) => {
+    const summary = await loadListSummary(tx, scope, profile.displayName, false);
+    const { cards } = await loadLeadingCards(tx, scope, OPEN_GRAPH_CARDS_SHOWN_MAX);
+    return {
+      ...profileSharePreviewText(summary, profile.bio),
+      pathWithQuery: request.pathWithQuery,
+      isIndexable: true,
+      openGraphImage: listOpenGraphImage(
+        "profile",
+        summary,
+        cardArtOf(cards),
+        await shopPhotoOrgId(tx, profile.orgId),
+      ),
+      itemCount: summary.cardCount,
+      topics: summary.games.map((game) => game.name),
+    };
+  });
+}
+
+const SHARE_PREVIEW_LOADERS: Record<
+  SharePreviewRequest["kind"],
+  (request: SharePreviewRequest) => Promise<SharePreview | null>
+> = {
+  collection: loadCollectionPreview,
+  storage: loadStoragePreview,
+  card: loadCardPreview,
+  shopCatalog: loadShopCatalogPreview,
+  profile: loadProfilePreview,
+};
+
 async function loadSharePreviewUncached(
   request: SharePreviewRequest,
 ): Promise<SharePreview> {
-  const preview =
-    request.kind === "collection"
-      ? await loadCollectionPreview(request)
-      : request.kind === "storage"
-        ? await loadStoragePreview(request)
-        : request.kind === "card"
-          ? await loadCardPreview(request)
-          : await loadShopCatalogPreview(request);
+  const preview = await SHARE_PREVIEW_LOADERS[request.kind](request);
   return preview ?? unavailableSharePreview(request.pathWithQuery);
 }
 
 export function sharePreviewCacheKey(request: SharePreviewRequest): string {
-  return `${request.kind}|${request.subjectGuid}|${request.token ?? ""}`;
+  return `${request.kind}|${request.subjectKey}|${request.token ?? ""}`;
 }
 
 export async function loadSharePreview(

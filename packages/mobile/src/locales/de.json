@@ -2018,6 +2018,10 @@
       "business": {
         "title": "Business",
         "description": "Ankaufsangebote, Rechte für Mitglieder und Shop-Kataloge"
+      },
+      "profilePage": {
+        "title": "Profilseite",
+        "description": "Öffentliche Seite mit deinen Links, Shops und Vitrinenkarten"
       }
     },
     "appearance": {
@@ -2602,6 +2606,105 @@
       "reservationsRequireAccount": "Konto zum Reservieren verlangen",
       "reservationsRequireAccountDescription": "Nur angemeldete Kunden können Karten reservieren. Sie bekommen Updates und sehen ihre Reservierungen auf jedem Gerät."
     },
+    "orgProfile": {
+      "description": "Eine öffentliche Link-in-Bio-Seite für deine Organisation mit deinen Links, Shop-Katalogen und einer Vitrine mit Karten.",
+      "managersOnly": "Nur Inhaber und Admins können die Profilseite bearbeiten.",
+      "handleTaken": "Dieser Handle ist bereits vergeben. Versuche einen anderen.",
+      "saveErrors": {
+        "handleTaken": "Dieser Handle ist bereits vergeben. Versuche einen anderen.",
+        "forbidden": "Nur Inhaber und Admins können die Profilseite bearbeiten.",
+        "sourcesInvalid": "Einige Vitrinenkarten oder Shop-Kataloge existieren nicht mehr. Entferne sie und versuche es erneut.",
+        "invalid": "Einige Profilangaben sind ungültig. Prüfe die Felder und versuche es erneut."
+      },
+      "linkCopied": "Profillink kopiert",
+      "moveUp": "{{name}} nach oben verschieben",
+      "moveDown": "{{name}} nach unten verschieben",
+      "remove": "{{name}} entfernen",
+      "handleLabel": "Handle",
+      "handlePlaceholder": "dein-shop",
+      "displayNameLabel": "Anzeigename",
+      "bioLabel": "Bio",
+      "bioPlaceholder": "Erzähle Besuchern, was du sammelst oder verkaufst",
+      "bioCount": "{{length}}/{{max}}",
+      "published": {
+        "heading": "Veröffentlicht",
+        "toggle": "Profilseite veröffentlichen",
+        "description": "Alle mit dem Link können deine Profilseite sehen."
+      },
+      "link": {
+        "heading": "Link",
+        "description": "Dein Handle ist Teil der Seitenadresse.",
+        "liveUrl": "Deine Profilseite",
+        "previewUrl": "Adressvorschau",
+        "handleChangeNote": "Speichere, um deine Seite auf den neuen Handle umzuziehen.",
+        "unpublishedNote": "Veröffentliche und speichere, damit diese Adresse live geht.",
+        "copy": "Link kopieren",
+        "share": "Teilen",
+        "open": "Öffnen",
+        "openHint": "Öffnet deine Profilseite im Browser"
+      },
+      "details": {
+        "heading": "Details"
+      },
+      "links": {
+        "heading": "Links",
+        "description": "Buttons zu deinen Shops und sozialen Netzwerken, bis zu {{max}}.",
+        "empty": "Noch keine Links.",
+        "itemLabel": "Link {{number}}",
+        "kindLabel": "Typ",
+        "urlLabel": "URL",
+        "urlPlaceholder": "example.com/dein-shop",
+        "labelLabel": "Beschriftung (optional)",
+        "labelPlaceholder": "Wird statt des Typnamens angezeigt",
+        "add": "Link hinzufügen",
+        "limitReached": "Du kannst bis zu {{max}} Links hinzufügen."
+      },
+      "linkKinds": {
+        "website": "Website",
+        "tcgplayer": "TCGplayer",
+        "cardmarket": "Cardmarket",
+        "ebay": "eBay",
+        "whatnot": "Whatnot",
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "x": "X",
+        "bluesky": "Bluesky",
+        "facebook": "Facebook",
+        "twitch": "Twitch",
+        "discord": "Discord",
+        "other": "Sonstiges"
+      },
+      "shopCatalogs": {
+        "heading": "Shop-Kataloge",
+        "description": "Kataloge, die in deinem Profil aufgeführt werden, bis zu {{max}}.",
+        "publicCatalog": "Öffentlicher Katalog",
+        "privateCatalog": "Katalog nur per Link. Profilbesucher können ihn öffnen."
+      },
+      "showcase": {
+        "heading": "Vitrine",
+        "description": "Karten, die in dieser Reihenfolge in deinem Profil erscheinen, bis zu {{max}}.",
+        "count": "{{selected}}/{{max}}",
+        "empty": "Noch keine Vitrinenkarten.",
+        "unknownCard": "Karte",
+        "add": "Karten hinzufügen",
+        "pickerTitle": "Vitrinenkarten hinzufügen",
+        "collectionLabel": "Sammlung",
+        "search": "Diese Sammlung durchsuchen",
+        "noCollections": "Noch keine Sammlungen.",
+        "noCards": "Keine Karten gefunden.",
+        "cardsLoadFailed": "Karten konnten nicht geladen werden.",
+        "loadMore": "Mehr laden",
+        "limitReached": "Die Vitrine ist voll ({{max}} Karten). Entferne eine, um eine andere hinzuzufügen.",
+        "added": "{{name}} zur Vitrine hinzugefügt",
+        "removed": "{{name}} aus der Vitrine entfernt"
+      },
+      "prices": {
+        "heading": "Preise",
+        "toggle": "Preise anzeigen",
+        "description": "Kartenpreise auf deiner Profilseite anzeigen."
+      }
+    },
     "statsSync": {
       "key": {
         "heading": "Statistik-Sync für Selbsthoster",
@@ -2855,6 +2958,8 @@
     "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte.",
     "orderBinDuplicate": "Jede Bestellung braucht ein eigenes Fach.",
     "shortLinkCodeInvalid": "Verwende bis zu {{max}} Kleinbuchstaben, Ziffern und Bindestriche, mit einem Buchstaben oder einer Ziffer am Anfang und Ende.",
+    "profileHandleInvalid": "Verwende {{min}} bis {{max}} Kleinbuchstaben, Ziffern und Bindestriche, mit einem Buchstaben oder einer Ziffer am Anfang und Ende.",
+    "profileHandleReserved": "Dieser Handle ist reserviert. Wähle einen anderen.",
     "shortLinkCodeReserved": "Dieser Code ist reserviert. Wähle einen anderen.",
     "shortLinkTargetInvalid": "Gib eine vollständige http://- oder https://-URL ein.",
     "orderBinCatchAll": "Das letzte Fach nimmt alle übrigen Karten auf, wähle ein anderes.",

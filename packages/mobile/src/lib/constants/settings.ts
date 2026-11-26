@@ -33,4 +33,5 @@ export const SETTINGS_SECTION_LINKS: SettingsSectionLink[] = [
   { path: "/settings/integrations", key: "integrations", icon: "connection" },
   { path: "/settings/webhooks", key: "webhooks", icon: "external" },
   { path: "/settings/business", key: "business", icon: "store" },
+  { path: "/settings/profile-page", key: "profilePage", icon: "share" },
 ];

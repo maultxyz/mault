@@ -1,0 +1,111 @@
+{
+  "saved": "Profile page saved.",
+  "managersOnly": "Only owners and admins can edit the profile page. You can see what it shows.",
+  "errors": {
+    "handleTaken": "That handle is taken. Pick another.",
+    "forbidden": "Only owners and admins can edit the profile page.",
+    "sourcesInvalid": "Some cards or shop catalogs are no longer available. Reload the page and try again.",
+    "saveFailed": "Couldn't save the profile page. Try again.",
+    "loadFailed": "Couldn't load the profile page."
+  },
+  "reorder": {
+    "moveUp": "Move {{name}} up",
+    "moveDown": "Move {{name}} down",
+    "remove": "Remove {{name}}"
+  },
+  "published": {
+    "heading": "Visibility",
+    "label": "Published",
+    "description": "Anyone with the link can see your profile page. Turn this off to hide it."
+  },
+  "link": {
+    "heading": "Link",
+    "description": "Your handle is the address of your profile page.",
+    "handleLabel": "Handle",
+    "liveNote": "Your profile page is live at this address.",
+    "notLiveNote": "Save with Published on to make this address live.",
+    "urlLabel": "Profile page address:",
+    "copy": "Copy link",
+    "copied": "Link copied.",
+    "copyFailed": "Couldn't copy the link.",
+    "open": "Open page",
+    "share": "Share"
+  },
+  "details": {
+    "heading": "Details",
+    "description": "The name and short bio at the top of your page.",
+    "displayNameLabel": "Display name",
+    "bioLabel": "Bio",
+    "bioPlaceholder": "What you sell, where you play, how to reach you",
+    "bioCounter": "{{current}} of {{max}} characters"
+  },
+  "links": {
+    "heading": "Links",
+    "description": "Buttons for your shops and socials, in this order. Up to {{max}}.",
+    "add": "Add link",
+    "empty": "No links yet.",
+    "position": "Link {{position}}",
+    "kindLabel": "Type",
+    "urlLabel": "Address",
+    "urlPlaceholder": "example.com/shop",
+    "labelLabel": "Button text (optional)",
+    "labelPlaceholder": "Uses the type when empty"
+  },
+  "kinds": {
+    "website": "Website",
+    "tcgplayer": "TCGplayer",
+    "cardmarket": "Cardmarket",
+    "ebay": "eBay",
+    "whatnot": "Whatnot",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "youtube": "YouTube",
+    "x": "X",
+    "bluesky": "Bluesky",
+    "facebook": "Facebook",
+    "twitch": "Twitch",
+    "discord": "Discord",
+    "other": "Link"
+  },
+  "shopCatalogs": {
+    "heading": "Shop catalogs",
+    "description": "Show buttons for these catalogs on your page. Up to {{max}}.",
+    "publicBadge": "Public"
+  },
+  "showcase": {
+    "heading": "Showcase",
+    "description": "Cards from your library to show off, in this order. {{current}} of {{max}}.",
+    "add": "Add cards",
+    "empty": "No cards in the showcase yet.",
+    "unknownCard": "Card"
+  },
+  "picker": {
+    "title": "Add cards to the showcase",
+    "description": "Pick up to {{max}} cards from your collections.",
+    "collectionLabel": "Collection",
+    "chooseCollection": "Choose a collection",
+    "searchPlaceholder": "Search cards",
+    "selectedCount": "{{current}} of {{max}} selected",
+    "loadFailed": "Couldn't load cards.",
+    "noResults": "No cards match your search.",
+    "empty": "This collection has no cards yet.",
+    "cancel": "Cancel",
+    "done": "Done"
+  },
+  "prices": {
+    "heading": "Prices",
+    "label": "Show prices",
+    "description": "Show the price of each showcase card on your page."
+  },
+  "public": {
+    "linksHeading": "Links",
+    "opensInNewTab": "(opens in a new tab)",
+    "showcaseHeading": "Showcase",
+    "showcaseLoadFailed": "Couldn't load the showcase.",
+    "notFoundTitle": "Profile not found",
+    "notFoundDescription": "This profile page doesn't exist or isn't published.",
+    "shopsHeading": "Shops",
+    "catalogCardCount_one": "{{count, compact}} card",
+    "catalogCardCount_other": "{{count, compact}} cards"
+  }
+}

@@ -22,6 +22,7 @@ import {
   feederConfigs,
   fulfilmentOrders,
   shopCatalogs,
+  orgProfiles,
   tradeOffers,
   shareLinks,
   intakeLots,
@@ -106,11 +107,16 @@ export async function purgeOrgData(
     .delete(storageLocations)
     .where(eq(storageLocations.orgId, orgId))
     .returning({ shortCode: storageLocations.labelShortCode });
-  await deleteShortLinks(
-    [...purgedShareLinks, ...purgedCatalogs, ...purgedStorageLabels].map(
+  const purgedProfiles = await tx
+    .delete(orgProfiles)
+    .where(eq(orgProfiles.orgId, orgId))
+    .returning({ handle: orgProfiles.handle, isPublished: orgProfiles.isPublished });
+  await deleteShortLinks([
+    ...[...purgedShareLinks, ...purgedCatalogs, ...purgedStorageLabels].map(
       (row) => row.shortCode,
     ),
-  );
+    ...purgedProfiles.filter((row) => row.isPublished).map((row) => row.handle),
+  ]);
   await tx.delete(orgActivityLog).where(eq(orgActivityLog.orgId, orgId));
   await tx.delete(apiKeyUsageDaily).where(eq(apiKeyUsageDaily.orgId, orgId));
   await tx.delete(orgApiKeys).where(eq(orgApiKeys.orgId, orgId));

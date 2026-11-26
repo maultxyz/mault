@@ -2018,6 +2018,10 @@
       "business": {
         "title": "Business",
         "description": "Offres de rachat, droits des membres et catalogues boutique"
+      },
+      "profilePage": {
+        "title": "Page de profil",
+        "description": "Page publique avec vos liens, boutiques et cartes en vitrine"
       }
     },
     "appearance": {
@@ -2602,6 +2606,105 @@
       "reservationsRequireAccount": "Exiger un compte pour réserver",
       "reservationsRequireAccountDescription": "Seuls les clients connectés peuvent réserver des cartes. Ils reçoivent des mises à jour et voient leurs réservations sur tous leurs appareils."
     },
+    "orgProfile": {
+      "description": "Une page publique de type lien en bio pour votre organisation, avec vos liens, vos catalogues de boutique et une vitrine de cartes.",
+      "managersOnly": "Seuls les propriétaires et les administrateurs peuvent modifier la page de profil.",
+      "handleTaken": "Cet identifiant est déjà pris. Essayez-en un autre.",
+      "saveErrors": {
+        "handleTaken": "Cet identifiant est déjà pris. Essayez-en un autre.",
+        "forbidden": "Seuls les propriétaires et les administrateurs peuvent modifier la page de profil.",
+        "sourcesInvalid": "Certaines cartes en vitrine ou certains catalogues n'existent plus. Retirez-les et réessayez.",
+        "invalid": "Certaines informations du profil ne sont pas valides. Vérifiez les champs et réessayez."
+      },
+      "linkCopied": "Lien du profil copié",
+      "moveUp": "Monter {{name}}",
+      "moveDown": "Descendre {{name}}",
+      "remove": "Retirer {{name}}",
+      "handleLabel": "Identifiant",
+      "handlePlaceholder": "votre-boutique",
+      "displayNameLabel": "Nom affiché",
+      "bioLabel": "Bio",
+      "bioPlaceholder": "Dites aux visiteurs ce que vous collectionnez ou vendez",
+      "bioCount": "{{length}}/{{max}}",
+      "published": {
+        "heading": "Publication",
+        "toggle": "Publier la page de profil",
+        "description": "Toute personne disposant du lien peut voir votre page de profil."
+      },
+      "link": {
+        "heading": "Lien",
+        "description": "Votre identifiant fait partie de l'adresse de la page.",
+        "liveUrl": "Votre page de profil",
+        "previewUrl": "Aperçu de l'adresse",
+        "handleChangeNote": "Enregistrez pour déplacer votre page vers le nouvel identifiant.",
+        "unpublishedNote": "Publiez et enregistrez pour mettre cette adresse en ligne.",
+        "copy": "Copier le lien",
+        "share": "Partager",
+        "open": "Ouvrir",
+        "openHint": "Ouvre votre page de profil dans le navigateur"
+      },
+      "details": {
+        "heading": "Détails"
+      },
+      "links": {
+        "heading": "Liens",
+        "description": "Boutons vers vos boutiques et réseaux sociaux, jusqu'à {{max}}.",
+        "empty": "Aucun lien pour l'instant.",
+        "itemLabel": "Lien {{number}}",
+        "kindLabel": "Type",
+        "urlLabel": "URL",
+        "urlPlaceholder": "example.com/votre-boutique",
+        "labelLabel": "Libellé (facultatif)",
+        "labelPlaceholder": "Affiché à la place du nom du type",
+        "add": "Ajouter un lien",
+        "limitReached": "Vous pouvez ajouter jusqu'à {{max}} liens."
+      },
+      "linkKinds": {
+        "website": "Site web",
+        "tcgplayer": "TCGplayer",
+        "cardmarket": "Cardmarket",
+        "ebay": "eBay",
+        "whatnot": "Whatnot",
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "x": "X",
+        "bluesky": "Bluesky",
+        "facebook": "Facebook",
+        "twitch": "Twitch",
+        "discord": "Discord",
+        "other": "Autre"
+      },
+      "shopCatalogs": {
+        "heading": "Catalogues de boutique",
+        "description": "Catalogues affichés sur votre profil, jusqu'à {{max}}.",
+        "publicCatalog": "Catalogue public",
+        "privateCatalog": "Catalogue accessible par lien. Les visiteurs du profil peuvent l'ouvrir."
+      },
+      "showcase": {
+        "heading": "Vitrine",
+        "description": "Cartes affichées sur votre profil dans cet ordre, jusqu'à {{max}}.",
+        "count": "{{selected}}/{{max}}",
+        "empty": "Aucune carte en vitrine pour l'instant.",
+        "unknownCard": "Carte",
+        "add": "Ajouter des cartes",
+        "pickerTitle": "Ajouter des cartes en vitrine",
+        "collectionLabel": "Collection",
+        "search": "Rechercher dans cette collection",
+        "noCollections": "Aucune collection pour l'instant.",
+        "noCards": "Aucune carte trouvée.",
+        "cardsLoadFailed": "Impossible de charger les cartes.",
+        "loadMore": "Charger plus",
+        "limitReached": "La vitrine est pleine ({{max}} cartes). Retirez-en une pour en ajouter une autre.",
+        "added": "{{name}} ajoutée à la vitrine",
+        "removed": "{{name}} retirée de la vitrine"
+      },
+      "prices": {
+        "heading": "Prix",
+        "toggle": "Afficher les prix",
+        "description": "Afficher les prix des cartes sur votre page de profil."
+      }
+    },
     "statsSync": {
       "key": {
         "heading": "Synchronisation des statistiques auto-hébergées",
@@ -2855,6 +2958,8 @@
     "controlCardActionRequired": "Choisis au moins une chose que la carte modifie.",
     "orderBinDuplicate": "Chaque commande a besoin de son propre bac.",
     "shortLinkCodeInvalid": "Utilisez jusqu'à {{max}} lettres minuscules, chiffres et tirets, en commençant et en finissant par une lettre ou un chiffre.",
+    "profileHandleInvalid": "Utilisez de {{min}} à {{max}} lettres minuscules, chiffres et tirets, en commençant et en finissant par une lettre ou un chiffre.",
+    "profileHandleReserved": "Cet identifiant est réservé. Choisissez-en un autre.",
     "shortLinkCodeReserved": "Ce code est réservé. Choisissez-en un autre.",
     "shortLinkTargetInvalid": "Saisissez une URL complète en http:// ou https://.",
     "orderBinCatchAll": "Le dernier bac reçoit toutes les autres cartes, choisis-en un autre.",

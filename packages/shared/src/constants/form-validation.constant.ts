@@ -55,6 +55,8 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "expiryDaysInvalid",
   "expiryDaysTooMany",
   "organizationIdInvalid",
+  "profileHandleInvalid",
+  "profileHandleReserved",
 ] as const;
 
 export const ORGANIZATION_NAME_MAX_LENGTH = 100;

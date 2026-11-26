@@ -28,6 +28,7 @@ export const MOBILE_NAV_SPACE_CLASS =
   "[--mobile-nav-space:calc(3.5rem+1px+env(safe-area-inset-bottom))]";
 export const MOBILE_NAV_SCROLL_PADDING_CLASS =
   "pb-[var(--mobile-nav-space,0px)]";
+export const SAVE_BAR_CLEARANCE_CLASS = "pb-24";
 export const MOBILE_SAVE_BAR_CLASS =
   "bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom)+0.5rem)]";
 export const MOBILE_NAV_TAB_ACTIVE_CLASS = "text-primary font-semibold";

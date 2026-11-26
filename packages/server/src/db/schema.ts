@@ -6,6 +6,7 @@ import {
   type CardStatsAggregate,
   type PrintingMarkGroups,
   type CsvImportMapping,
+  type OrgProfileLink,
 } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
@@ -1167,6 +1168,36 @@ export const shopCatalogs = pgTable(
     unique("shop_catalogs_guid_idx").on(table.guid),
     unique("shop_catalogs_short_code_idx").on(table.shortCode),
     index("shop_catalogs_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const orgProfiles = pgTable(
+  "org_profiles",
+  {
+    id: serial().primaryKey(),
+    orgId: text("org_id").notNull(),
+    handle: text("handle").notNull(),
+    displayName: text("display_name").notNull(),
+    bio: text("bio").notNull().default(""),
+    links: jsonb("links").$type<OrgProfileLink[]>().notNull().default(sql`'[]'::jsonb`),
+    showcaseCollectionCardIds: integer("showcase_collection_card_ids")
+      .array()
+      .notNull()
+      .default(sql`'{}'::integer[]`),
+    shopCatalogIds: integer("shop_catalog_ids").array().notNull().default(sql`'{}'::integer[]`),
+    showsPrices: boolean("shows_prices").notNull().default(false),
+    isPublished: boolean("is_published").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("org_profiles_org_idx").on(table.orgId),
+    unique("org_profiles_handle_idx").on(table.handle),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

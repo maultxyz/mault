@@ -14,6 +14,7 @@ export const ROUTE_LOADED_NAMESPACES: readonly string[] = [
   "machines",
   "matchValidations",
   "notifications",
+  "org-profile",
   "selfhost",
   "sounds",
   "stats",
