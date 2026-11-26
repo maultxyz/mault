@@ -2921,6 +2921,7 @@
     "orderTextRequired": "Paste an order or choose a file.",
     "orderLinesRequired": "Keep at least one card on the pick.",
     "decklistRequired": "Enter at least one card, one per line.",
+    "deckLinkInvalid": "Enter a Moxfield or Archidekt deck link.",
     "cardCountRequired": "Enter a number of cards.",
     "storageLocationRequired": "Choose where the cards went.",
     "commandRequired": "Enter a command.",

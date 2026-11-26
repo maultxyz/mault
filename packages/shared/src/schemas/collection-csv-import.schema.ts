@@ -27,4 +27,5 @@ export const collectionCsvImportRowSchema = z.object({
 
 export const collectionCsvImportRequestSchema = z.object({
   rows: z.array(collectionCsvImportRowSchema).min(1).max(COLLECTION_CSV_IMPORT_MAX_ROWS),
+  includeMatchedRows: z.boolean().optional(),
 });

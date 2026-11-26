@@ -14,7 +14,11 @@ import type {
   CardSetOption,
   Collection,
   CollectionCardsQuery,
+  CollectionCsvImportRow,
+  CollectionCsvMatchedRow,
   CollectionCsvParseResult,
+  DeckLinkImport,
+  DeckLinkSource,
   FieldMeta,
   GroupedScannedCard,
   OcrOverlayRegion,
@@ -33,6 +37,7 @@ import type {
   MatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import type { KeyboardEvent, MouseEvent, ReactNode, Ref } from "react";
+import type { TFunction } from "i18next";
 import type { ScanStats } from "@/lib/interfaces/scanner";
 
 export interface CardSearchPickerProps {
@@ -220,6 +225,45 @@ export interface AddCardDialogProps {
   collectionGuid?: string;
   locationGuid?: string;
   addsToIntakeLot?: boolean;
+  initialQuery?: string;
+}
+
+export interface ExternalCardDropData {
+  uriList: string;
+  html: string;
+  plainText: string;
+}
+
+export interface ExternalCardReference {
+  scryfallId?: string;
+  setCode?: string;
+  collectorNumber?: string;
+  name?: string;
+}
+
+export interface ExternalCardSourceHost {
+  hostname: string;
+  pathPrefix?: string;
+}
+
+export interface UseExternalCardDropOptions {
+  collectionGuid: string | undefined;
+  isEnabled: boolean;
+  onNeedsPrintingChoice: (cardName: string) => void;
+  onDeckLinkDrop: (deckLink: string) => void;
+}
+
+export interface ExternalCardDropContext
+  extends Pick<
+    UseExternalCardDropOptions,
+    "collectionGuid" | "onNeedsPrintingChoice" | "onDeckLinkDrop"
+  > {
+  addCard: (input: AddManualCardInput) => Promise<boolean>;
+  t: TFunction<"cards">;
+}
+
+export interface ExternalCardDropOverlayProps {
+  collectionName: string;
 }
 
 export interface AddManualCardInput {
@@ -855,11 +899,24 @@ export interface CollectionCsvImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   collectionGuid: string;
+  initialDeckLink?: string;
 }
 
 export interface CollectionCsvImportFile {
   fileName: string;
   parsed: CollectionCsvParseResult;
+  deckLinkSource?: DeckLinkSource;
+}
+
+export interface DeckImportPreviewTableProps {
+  rows: CollectionCsvImportRow[];
+  matchedRows: CollectionCsvMatchedRow[];
+}
+
+export interface DeckLinkImportFormProps {
+  initialDeckLink?: string;
+  disabled?: boolean;
+  onDeckLoaded: (deck: DeckLinkImport) => void;
 }
 
 export interface CardFilterOption {

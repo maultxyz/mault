@@ -21,6 +21,7 @@ export function AddCardDialog({
   collectionGuid,
   locationGuid,
   addsToIntakeLot,
+  initialQuery = "",
 }: AddCardDialogProps) {
   const { t } = useTranslation("cards");
   const { collections, activeCollection } = useCollections();
@@ -55,6 +56,11 @@ export function AddCardDialog({
       className="sm:max-w-2xl data-[vaul-drawer-direction=bottom]:max-h-[90dvh]"
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3">
+        {collectionGuid && !locationGuid && !addsToIntakeLot && (
+          <p className="text-xs text-foreground/70 max-md:hidden">
+            {t("externalCardDrop.hint")}
+          </p>
+        )}
         {!collectionGuid && (
           <div className="flex flex-col gap-1.5">
             <Label htmlFor={collectionSelectId}>{t("addCard.collection")}</Label>
@@ -76,8 +82,9 @@ export function AddCardDialog({
           </div>
         )}
         <CardSearchPicker
-          key={targetGuid}
+          key={`${targetGuid}:${initialQuery}`}
           collectionGuid={targetGuid}
+          initialQuery={initialQuery}
           disabled={isAdding || !targetGuid}
           onSelect={(card) => void handleSelect(card)}
         />

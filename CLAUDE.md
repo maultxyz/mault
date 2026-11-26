@@ -158,6 +158,8 @@ Neon scales to zero after ~5 idle minutes, so nothing may poll the DB on a timer
 
 - CSV exports are built on the server (`lib/card-export.ts`); exports never call TCGTracking. Imports: shared `parseCollectionCsv` detects the format, `lib/collection-csv-import.ts` matches by id, then set plus number, then name.
 - Moving cards between collections is same-game only, clears `bin_number`.
+- Deck links (Moxfield, Archidekt) are fetched only by the server (`lib/deck-links/`, `POST /cards/deck-link`) and turned into CSV import rows, so they reuse the CSV preview and import; Moxfield's API refuses unapproved user agents (`failure: "unavailable"`).
+- Dropped Scryfall/Moxfield/Archidekt cards and deck links are handled by the web `useExternalCardDrop` (desktop collection grid only); the keyboard alternatives are Add card and the import dialog's deck link field.
 - Grids and storage lists filter through `CardFilters`/`cardFilterSql`; price filters use `scannedCardPriceSql`, so they throw without pricing.
 
 ### Prices
@@ -344,6 +346,7 @@ Neon scales to zero after ~5 idle minutes, so nothing may poll the DB on a timer
 - Linked Pi camera: viewers open `/pi-hosts/:guid/camera` (WebSocket, `?token=&orgId=`); the relay asks the Pi for frames only while someone watches, and the Pi sends sharp-downscaled JPEGs as base64 over the command socket. Linked Pi sorter: the Pi registers its sorter as a sorter-link device (`POST /pi-link/device/sorter-link`) and bridges relay lines to the port (`sorter-bridge.ts`), so calibration uses the ordinary cloud transport; the bridge claims the port only on use, releases it before a scan starts and answers `busy` during scans.
 - Linked Pi safety rules: `/api/pi-link/local` (pairing code) is loopback-only in `nginx-mault.conf`; a Pi is bound to the first sorter id it registers (`pi_hosts.sorter_hardware_id`, reset by re-linking); scan starts are serialized per Pi (`beginPiHostScanStart`); the relay releases a Pi's host-held collection lock when it returns without a session or stays offline 10 minutes; camera viewers are closed every 10 minutes with `PI_HOST_CAMERA_CLOSE_REFRESH` so they re-authenticate; frames are dropped, never queued, when a socket is backed up; every WebSocket route shares `WEBSOCKET_MAX_MESSAGE_BYTES`.
 - Pi saves persist under the Mault state directory before API submission; internal route calls use `SERVER_SCAN_ACTOR` and still run membership/RLS/plan checks, never persisted bearer tokens.
+- The GPIO controller starts without a PCA9685 (or I2C bus) and reports `servoDriver: "missing"`; driver setup runs lazily and again after a power loss (MODE1 sleep bit), so never initialize it unconditionally at startup.
 - `PI_SORTER=1` selects the built-in GPIO/I2C controller (one station, other connections blocked); USB stays on `/pi-serial` with exclusive per-port claims (`lib/pi-serial-port.ts`). A missing selection never falls back to another device. One host session per org.
 - Automatic browser attachment must never move servos or run the self-test.
 - Host Bluetooth uses BlueZ/Bleak through the system Python helper; keep NUS UUIDs in shared.

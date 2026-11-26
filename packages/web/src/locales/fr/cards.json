@@ -519,6 +519,15 @@
     "added": "{{name}} ajoutée",
     "failed": "Impossible d'ajouter la carte."
   },
+  "externalCardDrop": {
+    "overlayTitle": "Déposez pour ajouter des cartes",
+    "overlayDescription": "Les cartes et liens de deck de Scryfall, Moxfield ou Archidekt sont ajoutés à {{collection}}.",
+    "hint": "Vous pouvez aussi glisser une carte depuis Scryfall, Moxfield ou Archidekt sur la collection pour l'ajouter. Déposez un lien de deck pour importer tout le deck.",
+    "finding_one": "Recherche de la carte...",
+    "finding_other": "Recherche de {{count}} cartes...",
+    "unrecognized": "Déposez une carte de Scryfall, Moxfield ou Archidekt pour l'ajouter.",
+    "notFound": "Impossible de trouver cette carte dans le catalogue."
+  },
   "importScans": {
     "button": "Importer des scans",
     "title": "Importer des images scannées",
@@ -576,6 +585,28 @@
     }
   },
   "importCsv": {
+    "deckLink": {
+      "label": "Lien du deck",
+      "placeholder": "https://moxfield.com/decks/...",
+      "load": "Charger le deck",
+      "loading": "Chargement du deck...",
+      "loaded": "Deck de {{source}}.",
+      "table": {
+        "quantity": "Qté",
+        "card": "Carte",
+        "set": "Édition",
+        "status": "Statut",
+        "foil": "Foil",
+        "anySet": "Toute impression",
+        "matched": "Trouvée",
+        "notFound": "Introuvable"
+      },
+      "failure": {
+        "notFound": "Ce deck est introuvable. Vérifiez le lien et que le deck est public.",
+        "unavailable": "Impossible de charger le deck pour le moment. Réessayez, ou exportez-le en CSV et importez ce fichier.",
+        "empty": "Ce deck ne contient aucune carte à importer."
+      }
+    },
     "button": "Importer un CSV",
     "title": "Importer des cartes depuis un CSV",
     "description": "Importez un export de collection Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer ou tout CSV avec une colonne de nom de carte.",

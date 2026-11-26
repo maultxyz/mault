@@ -55,6 +55,16 @@ export interface CollectionCsvParseResult {
 
 export interface CollectionCsvImportRequest {
   rows: CollectionCsvImportRow[];
+  includeMatchedRows?: boolean;
+}
+
+export interface CollectionCsvMatchedRow {
+  lineNumber: number;
+  quantity: number;
+  name: string;
+  setCode: string;
+  setName: string;
+  collectorNumber: string;
 }
 
 export type CollectionCsvUnmatchedRow = Pick<
@@ -67,4 +77,5 @@ export interface CollectionCsvImportResult {
   importedCopies: number;
   unmatchedRowCount: number;
   unmatchedRows: CollectionCsvUnmatchedRow[];
+  matchedRows?: CollectionCsvMatchedRow[];
 }

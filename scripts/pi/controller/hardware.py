@@ -35,6 +35,7 @@ class Hardware:
         self.close_gpio = None
         self.bus = None
         self.address = address
+        self.driver_ready = False
         try:
             if board == "orange-pi-zero4":
                 require_zero4()
@@ -50,17 +51,33 @@ class Hardware:
                     bus = 1
             else:
                 raise ValueError(f"Unsupported sorter board: {board}")
-            self.bus = SMBus(bus)
-            self.release()
-            self.bus.write_byte_data(address, 0x00, 0x10)
-            self.bus.write_byte_data(address, 0xFE, 121)
-            self.bus.write_byte_data(address, 0x01, 0x04)
-            self.bus.write_byte_data(address, 0x00, 0x20)
-            time.sleep(0.005)
-            self.bus.write_byte_data(address, 0x00, 0xA0)
+            try:
+                self.bus = SMBus(bus)
+            except OSError as error:
+                print(f"I2C bus {bus} is unavailable ({error}); enable I2C and reboot", flush=True)
+            if not self.present_driver():
+                print(f"PCA9685 servo driver is not answering at 0x{address:02x}; "
+                      "check its SDA/SCL and VCC/GND wiring and power", flush=True)
         except BaseException:
             self.close()
             raise
+
+    def initialize_driver(self):
+        if self.bus is None:
+            raise OSError("I2C bus is unavailable")
+        self.driver_ready = False
+        self.release_channels()
+        self.bus.write_byte_data(self.address, 0x00, 0x10)
+        self.bus.write_byte_data(self.address, 0xFE, 121)
+        self.bus.write_byte_data(self.address, 0x01, 0x04)
+        self.bus.write_byte_data(self.address, 0x00, 0x20)
+        time.sleep(0.005)
+        self.bus.write_byte_data(self.address, 0x00, 0xA0)
+        self.driver_ready = True
+
+    def release_channels(self):
+        for channel in range(16):
+            self.bus.write_byte_data(self.address, 0x09 + channel * 4, 0x10)
 
     def open_raspberry_pi_gpio(self, chip):
         import lgpio
@@ -126,12 +143,25 @@ class Hardware:
         self.set_input_bias = set_bias
 
     def pwm(self, channel, pulse):
-        self.bus.write_i2c_block_data(self.address, 0x06 + channel * 4,
-                                     [0, 0, pulse & 255, pulse >> 8 if pulse else 0x10])
+        if not self.driver_ready:
+            if not pulse:
+                return
+            self.initialize_driver()
+        try:
+            self.bus.write_i2c_block_data(self.address, 0x06 + channel * 4,
+                                         [0, 0, pulse & 255, pulse >> 8 if pulse else 0x10])
+        except OSError:
+            self.driver_ready = False
+            if pulse:
+                raise
 
     def release(self):
-        for channel in range(16):
-            self.bus.write_byte_data(self.address, 0x09 + channel * 4, 0x10)
+        if not self.driver_ready:
+            return
+        try:
+            self.release_channels()
+        except OSError:
+            self.driver_ready = False
 
     def present(self, module):
         return self.active(self.ir_pins[module - 1])
@@ -152,10 +182,15 @@ class Hardware:
         return self.active(self.hopper_pin)
 
     def present_driver(self):
+        if self.bus is None:
+            return False
         try:
-            self.bus.read_byte_data(self.address, 0x00)
+            mode = self.bus.read_byte_data(self.address, 0x00)
+            if not self.driver_ready or mode & 0x10:
+                self.initialize_driver()
             return True
         except OSError:
+            self.driver_ready = False
             return False
 
     def close(self):

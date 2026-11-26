@@ -8,11 +8,16 @@ import type {
   CollectionCsvImportDialogProps,
   CollectionCsvImportFile,
 } from "@/lib/interfaces/cards";
+import { DeckImportPreviewTable } from "@/features/cards/components/deck-import-preview-table";
+import { DeckLinkImportForm } from "@/features/cards/components/deck-link-import-form";
 import {
   collectionCsvFormatLabel,
+  DECK_LINK_SOURCE_LABELS,
   parseCollectionCsv,
+  type DeckLinkImport,
 } from "@magic-vault/shared";
 import { IconAlertTriangle, IconFileSpreadsheet } from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -20,6 +25,7 @@ export function CollectionCsvImportDialog({
   open,
   onOpenChange,
   collectionGuid,
+  initialDeckLink,
 }: CollectionCsvImportDialogProps) {
   const { t } = useTranslation("cards");
   const { preview, importRows } = useCollectionCsvImport(collectionGuid);
@@ -47,7 +53,22 @@ export function CollectionCsvImportDialog({
     const parsed = parseCollectionCsv(text);
     preview.reset();
     setFile({ fileName, parsed });
-    if (parsed.hasNameColumn && parsed.rows.length > 0) preview.mutate(parsed.rows);
+    if (parsed.hasNameColumn && parsed.rows.length > 0) preview.mutate({ rows: parsed.rows });
+  };
+
+  const handleDeckLoaded = (deck: DeckLinkImport) => {
+    preview.reset();
+    setFile({
+      fileName: deck.deckName || DECK_LINK_SOURCE_LABELS[deck.source],
+      deckLinkSource: deck.source,
+      parsed: {
+        format: deck.source,
+        rows: deck.rows,
+        skippedRows: 0,
+        hasNameColumn: true,
+      },
+    });
+    preview.mutate({ rows: deck.rows, includeMatchedRows: true });
   };
 
   const handleImport = async () => {
@@ -61,7 +82,10 @@ export function CollectionCsvImportDialog({
       onOpenChange={handleOpenChange}
       title={t("importCsv.title")}
       description={t("importCsv.description")}
-      className="sm:max-w-lg data-[vaul-drawer-direction=bottom]:max-h-[90dvh]"
+      className={cn(
+        "data-[vaul-drawer-direction=bottom]:max-h-[90dvh]",
+        file?.deckLinkSource ? "sm:max-w-2xl" : "sm:max-w-lg",
+      )}
       footer={
         <Button
           type="button"
@@ -74,6 +98,13 @@ export function CollectionCsvImportDialog({
       }
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3">
+        <div className="max-md:hidden">
+          <DeckLinkImportForm
+            initialDeckLink={initialDeckLink}
+            disabled={importRows.isPending}
+            onDeckLoaded={handleDeckLoaded}
+          />
+        </div>
         <div className="flex flex-wrap items-center gap-1.5">
           <CardListFileButton onFileRead={handleFileRead} />
           {file && (
@@ -97,11 +128,15 @@ export function CollectionCsvImportDialog({
             ) : (
               <>
                 <p className="text-control text-foreground/70">
-                  {t("importCsv.detectedFormat", {
-                    format:
-                      collectionCsvFormatLabel(file.parsed.format) ??
-                      t("importCsv.genericFormat"),
-                  })}
+                  {file.deckLinkSource
+                    ? t("importCsv.deckLink.loaded", {
+                        source: DECK_LINK_SOURCE_LABELS[file.deckLinkSource],
+                      })
+                    : t("importCsv.detectedFormat", {
+                        format:
+                          collectionCsvFormatLabel(file.parsed.format) ??
+                          t("importCsv.genericFormat"),
+                      })}
                   {file.parsed.skippedRows > 0 &&
                     ` ${t("importCsv.skipped", { count: file.parsed.skippedRows })}`}
                 </p>
@@ -124,7 +159,13 @@ export function CollectionCsvImportDialog({
                     <p className="text-sm font-medium">
                       {t("importCsv.matched", { count: previewResult.matchedCopies })}
                     </p>
-                    {previewResult.unmatchedRowCount > 0 && (
+                    {file.deckLinkSource && previewResult.matchedRows && (
+                      <DeckImportPreviewTable
+                        rows={rows}
+                        matchedRows={previewResult.matchedRows}
+                      />
+                    )}
+                    {!file.deckLinkSource && previewResult.unmatchedRowCount > 0 && (
                       <Callout
                         variant="warning"
                         icon={IconAlertTriangle}

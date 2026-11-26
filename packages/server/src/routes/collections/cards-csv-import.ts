@@ -38,7 +38,7 @@ async function resolveImport(
   if (!parsed.success) {
     return c.json({ success: false, message: "Invalid import rows." }, 400);
   }
-  const rows = parsed.data.rows;
+  const { rows, includeMatchedRows } = parsed.data;
   const [collection] = await authQuery(c.get("jwtClaims"), (tx) =>
     tx
       .select({ id: collections.id, lang: collections.lang, gameKey: games.key })
@@ -103,6 +103,16 @@ async function resolveImport(
       importedCopies: 0,
       unmatchedRowCount,
       unmatchedRows,
+      ...(includeMatchedRows && {
+        matchedRows: matched.map(({ row, card }) => ({
+          lineNumber: row.lineNumber,
+          quantity: row.quantity,
+          name: card.name,
+          setCode: card.set,
+          setName: card.setName,
+          collectorNumber: card.collectorNumber,
+        })),
+      }),
     },
   };
 }

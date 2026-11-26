@@ -1,5 +1,8 @@
 import type { CardReviewStatus } from "@magic-vault/shared";
-import type { WrappedStorySlide } from "@/lib/interfaces/cards";
+import type {
+  ExternalCardSourceHost,
+  WrappedStorySlide,
+} from "@/lib/interfaces/cards";
 
 export const WRAPPED_SLIDE_DURATION_MS = 5000;
 
@@ -120,3 +123,16 @@ export const CARD_PRICE_HISTORY_QUERY_KEY = "card-price-history";
 export const CARD_PRICE_HISTORY_STALE_MS = 60 * 60 * 1000;
 
 export const CARD_PRICE_HISTORY_SPARKLINE = { width: 192, height: 48, verticalPadding: 6, strokeWidth: 1.5 } as const;
+
+export const EXTERNAL_CARD_SOURCE_HOSTS: ExternalCardSourceHost[] = [
+  { hostname: "scryfall.com" },
+  { hostname: "scryfall.io" },
+  { hostname: "moxfield.com" },
+  { hostname: "moxfield.net" },
+  { hostname: "archidekt.com" },
+  { hostname: "storage.googleapis.com", pathPrefix: "/archidekt-card-images/" },
+];
+
+export const EXTERNAL_CARD_DROP_DATA_TYPES = ["text/uri-list", "text/html"];
+
+export const EXTERNAL_CARD_NAME_MAX_LENGTH = 200;
