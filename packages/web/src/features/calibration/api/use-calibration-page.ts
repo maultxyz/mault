@@ -810,6 +810,19 @@ export function useCalibrationPage() {
     feederSpeedAnchorRef.current = null;
     setFeederDraft({});
     setFeederStopDraft(undefined);
+    setSliderValues((prev) => {
+      const next = { ...prev };
+      for (const [key, position] of Object.entries(activeRef.current)) {
+        if (!position) continue;
+        const [moduleNumber, servo] = key.split(":");
+        const calKey = getCalibrationKey(servo as ServoName, position);
+        const saved = configsRef.current.find(
+          (config) => config.moduleNumber === Number(moduleNumber),
+        )?.calibration;
+        if (calKey && saved) next[key as SliderKey] = saved[calKey];
+      }
+      return next;
+    });
     void restoreSavedOnDevice();
   }, [restoreSavedOnDevice]);
 
