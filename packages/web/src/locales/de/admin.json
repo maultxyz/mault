@@ -23,6 +23,7 @@
       "connect": "Verbinden",
       "connectUsb": "USB",
       "connectBluetooth": "Bluetooth",
+      "connectWifi": "WLAN",
       "disconnect": "Trennen",
       "flash": "Firmware flashen",
       "notConnected": "Keine Platine verbunden.",

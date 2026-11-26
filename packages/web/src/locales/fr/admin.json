@@ -23,6 +23,7 @@
       "connect": "Connecter",
       "connectUsb": "USB",
       "connectBluetooth": "Bluetooth",
+      "connectWifi": "Wi-Fi",
       "disconnect": "Déconnecter",
       "flash": "Flasher le firmware",
       "notConnected": "Aucune carte connectée.",

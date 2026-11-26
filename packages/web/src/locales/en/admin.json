@@ -23,6 +23,7 @@
       "connect": "Connect",
       "connectUsb": "USB",
       "connectBluetooth": "Bluetooth",
+      "connectWifi": "Wi-Fi",
       "disconnect": "Disconnect",
       "flash": "Flash firmware",
       "notConnected": "No board connected.",

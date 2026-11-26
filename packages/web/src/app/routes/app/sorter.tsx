@@ -34,7 +34,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
 import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
-import type { RecentBluetoothSorter } from "@/lib/interfaces/scanner";
+import type { ReconnectableRecentSorter } from "@/lib/interfaces/scanner";
 
 export default function SorterPage() {
   const { t } = useTranslation("scanner");
@@ -77,13 +77,19 @@ export default function SorterPage() {
     }
   };
 
-  const connectRecent = async (sorter: RecentBluetoothSorter) => {
+  const connectRecent = async (sorter: ReconnectableRecentSorter) => {
     setConnectingRecentId(sorter.id);
     try {
       await run("connect", () =>
-        serial.connectBluetooth({
-          bluetoothDevice: sorter.bluetoothDevice ?? undefined,
-        }),
+        sorter.transport === "usb"
+          ? serial.connect({
+              recentDeviceGuid: sorter.canReconnectOverUsb
+                ? sorter.deviceGuid
+                : undefined,
+            })
+          : serial.connectBluetooth({
+              bluetoothDevice: sorter.bluetoothDevice ?? undefined,
+            }),
       );
     } finally {
       setConnectingRecentId(null);

@@ -14,7 +14,12 @@ import { refreshPiScanHold } from "@/features/scanner/api/pi-scan-session";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { rememberBleDevice } from "@/features/scanner/lib/ble-device-map";
-import { rememberRecentBluetoothSorter } from "@/features/scanner/lib/recent-sorters";
+import { rememberRecentSorterForOrg } from "@/features/scanner/lib/recent-sorters";
+import {
+  grantedPortsToTryForDevice,
+  rememberSerialPortDevice,
+  rememberSessionBluetoothDevice,
+} from "@/features/scanner/lib/session-sorter-handles";
 import { claimBootNotice } from "@/features/scanner/lib/sorter-boot-notice";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
@@ -528,17 +533,23 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     return current ? claimForStation(current) : current;
   }, [activeOrg?.id, queryClient, claimForStation, toast, t]);
 
-  const findAutoConnectDevice = useCallback(
+  const findDeviceByHardwareId = useCallback(
     async (hardwareId: string): Promise<Device | undefined> => {
       if (!activeOrg?.id) return undefined;
       const devices = await queryClient
         .ensureQueryData(devicesQueryOptions(activeOrg.id))
         .catch(() => []);
-      return devices.find(
-        (device) => device.hardwareId === hardwareId && device.autoConnect,
-      );
+      return devices.find((device) => device.hardwareId === hardwareId);
     },
     [activeOrg?.id, queryClient],
+  );
+
+  const findAutoConnectDevice = useCallback(
+    async (hardwareId: string): Promise<Device | undefined> => {
+      const device = await findDeviceByHardwareId(hardwareId);
+      return device?.autoConnect ? device : undefined;
+    },
+    [findDeviceByHardwareId],
   );
 
   const notifyBoardInUse = useCallback(
@@ -681,8 +692,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const openTransport = useCallback(
     async (
       newTransport: ByteTransport,
-      options?: { skipAutoTest?: boolean; autoConnect?: boolean },
+      options?: {
+        skipAutoTest?: boolean;
+        autoConnect?: boolean;
+        expectedDeviceGuid?: string;
+      },
     ): Promise<{ identified: Promise<unknown> }> => {
+      const connectsOnlyKnownDevice =
+        !!options?.autoConnect || !!options?.expectedDeviceGuid;
       session.pushCommLog("connected", newTransport.kind);
       resetWatchArmedRef.current = false;
       lastUptimeMsRef.current = null;
@@ -705,7 +722,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         setIsConnected(true);
         setTransport(newTransport.kind);
       };
-      if (!options?.autoConnect) markConnected();
+      if (!connectsOnlyKnownDevice) markConnected();
 
       const identify = async (): Promise<{
         device?: Device;
@@ -747,7 +764,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           hardwareId &&
           !stationsRef.current.claimHardware(station.id, hardwareId)
         ) {
-          if (!options?.autoConnect) notifyBoardInUse(hardwareId);
+          if (!connectsOnlyKnownDevice) notifyBoardInUse(hardwareId);
           disconnect();
           return null;
         }
@@ -757,6 +774,17 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
             : undefined;
           if (session.transport !== newTransport) return null;
           if (!known) {
+            disconnect();
+            return null;
+          }
+          markConnected();
+        }
+        if (options?.expectedDeviceGuid) {
+          const known = hardwareId
+            ? await findDeviceByHardwareId(hardwareId)
+            : undefined;
+          if (session.transport !== newTransport) return null;
+          if (known?.guid !== options.expectedDeviceGuid) {
             disconnect();
             return null;
           }
@@ -825,15 +853,27 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           if (advertisedName) advertisedNameRef.current = advertisedName;
           leasedDeviceGuidRef.current = boundDevice.guid;
           setLeasedDeviceGuid(boundDevice.guid);
-          if (newTransport.kind === "bluetooth") {
-            const bluetoothDeviceId = (newTransport as BluetoothTransport)
-              .bluetoothDevice.id;
-            rememberBleDevice(bluetoothDeviceId, boundDevice.guid);
+          if (newTransport instanceof BluetoothTransport) {
+            const bluetoothDevice = newTransport.bluetoothDevice;
+            rememberBleDevice(bluetoothDevice.id, boundDevice.guid);
+            rememberSessionBluetoothDevice(bluetoothDevice);
             if (activeOrg?.id) {
-              rememberRecentBluetoothSorter(activeOrg.id, {
-                id: bluetoothDeviceId,
+              rememberRecentSorterForOrg(activeOrg.id, {
+                id: bluetoothDevice.id,
                 deviceGuid: boundDevice.guid,
                 name: boundDevice.name,
+                transport: "bluetooth",
+              });
+            }
+          }
+          if (newTransport instanceof SerialTransport) {
+            rememberSerialPortDevice(newTransport.port, boundDevice.guid);
+            if (activeOrg?.id) {
+              rememberRecentSorterForOrg(activeOrg.id, {
+                id: `usb:${boundDevice.guid}`,
+                deviceGuid: boundDevice.guid,
+                name: boundDevice.name,
+                transport: "usb",
               });
             }
           }
@@ -882,6 +922,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       bindBoard,
       bindUnidentifiedBoard,
       findAutoConnectDevice,
+      findDeviceByHardwareId,
       notifyBoardInUse,
       station.id,
       runConnectTest,
@@ -923,6 +964,30 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (impersonationActive && session.transport) disconnect();
   }, [impersonationActive, session, disconnect]);
+
+  const connectGrantedPortOfDevice = useCallback(
+    async (deviceGuid: string, options?: SerialConnectOptions) => {
+      const grantedPorts = await navigator.serial.getPorts().catch(() => []);
+      for (const port of grantedPortsToTryForDevice(grantedPorts, deviceGuid)) {
+        if (disconnectingRef.current) {
+          await disconnectingRef.current;
+        }
+        if (session.transport) return;
+        const portTransport = await SerialTransport.openGranted(port);
+        if (!portTransport) continue;
+        const { identified } = await openTransport(portTransport, {
+          skipAutoTest: options?.skipAutoTest,
+          expectedDeviceGuid: deviceGuid,
+        });
+        await identified;
+        if (session.transport === portTransport) return;
+      }
+      toast.error(t("serial.connectionFailed.title"), {
+        description: t("serial.recentSorterUnplugged"),
+      });
+    },
+    [toast, openTransport, t, session],
+  );
 
   const connect = useCallback(
     async (options?: SerialConnectOptions) => {
@@ -971,6 +1036,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       if (!navigator.serial) return;
+      if (options?.recentDeviceGuid) {
+        await connectGrantedPortOfDevice(options.recentDeviceGuid, options);
+        return;
+      }
 
       const result = await SerialTransport.requestAndOpen();
       if (!result.ok) {
@@ -998,6 +1067,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [
       toast,
       openTransport,
+      connectGrantedPortOfDevice,
       disconnect,
       refusePiScanPort,
       refuseWhileImpersonating,
@@ -1264,7 +1334,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   useEffect(
     () =>
       stationsRef.current.registerConnector(station.id, {
-        connect: (controllerId?: string) => connect({ controllerId }),
+        connect: (controllerId?: string, recentDeviceGuid?: string) =>
+          connect({ controllerId, recentDeviceGuid }),
         connectBluetooth: (bluetoothDevice?: BluetoothDevice) =>
           connectBluetooth({ bluetoothDevice }),
         connectCloud: (deviceGuid: string) => connectCloud(deviceGuid),

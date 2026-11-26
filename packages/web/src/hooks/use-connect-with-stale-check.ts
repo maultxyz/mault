@@ -30,7 +30,7 @@ export function useConnectWithStaleCheck() {
         kind === "cloud" && deviceGuid
           ? connectCloud(deviceGuid, options)
           : kind === "usb"
-            ? connect(options)
+            ? connect({ ...options, recentDeviceGuid: deviceGuid })
             : connectBluetooth({ ...options, bluetoothDevice });
       if (isStale) {
         setPending(kind);
@@ -55,7 +55,8 @@ export function useConnectWithStaleCheck() {
   }, [navigate, location.pathname]);
 
   return {
-    connect: () => guardedConnect("usb"),
+    connect: (recentDeviceGuid?: string) =>
+      guardedConnect("usb", recentDeviceGuid),
     connectBluetooth: (bluetoothDevice?: BluetoothDevice) =>
       guardedConnect("bluetooth", undefined, bluetoothDevice),
     connectCloud: (deviceGuid: string) => guardedConnect("cloud", deviceGuid),

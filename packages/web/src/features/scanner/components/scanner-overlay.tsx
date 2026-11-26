@@ -95,7 +95,7 @@ export function ScannerOverlay({
   region = "all",
 }: ScannerOverlayProps) {
   const { t } = useTranslation("scanner");
-  const hasWifiSorters = useWifiSorters(false).length > 0;
+  const hasWifiSorters = useWifiSorters(false).sorters.length > 0;
   const isPhoneMode = cameraSource === "phone";
   const pillPlacement = region === "status-strip" ? "strip" : "overlay";
   const fullOverlay = renderFullOverlay();
@@ -270,7 +270,7 @@ export function ScannerOverlay({
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button onClick={onConnectScanner}>{t("connect")}</Button>
+            <Button onClick={() => onConnectScanner()}>{t("connect")}</Button>
           )}
           <Button variant="secondary" onClick={onEnableHandScan}>
             {t("scannerOverlay.scanByHand")}

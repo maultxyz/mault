@@ -1,9 +1,9 @@
 import { MobileListRow } from "@/components/mobile-list-row";
 import { MobileSection } from "@/components/mobile-section";
-import { useRecentBluetoothSorters } from "@/features/scanner/api/use-recent-bluetooth-sorters";
+import { useRecentSorters } from "@/features/scanner/api/use-recent-sorters";
 import { MOBILE_LIST_CLASS } from "@/lib/constants/nav";
 import type { MobileRecentSortersProps } from "@/lib/interfaces/scanner";
-import { IconBluetooth, IconLoader2 } from "@tabler/icons-react";
+import { IconBluetooth, IconLoader2, IconUsb } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function MobileRecentSorters({
@@ -12,7 +12,7 @@ export function MobileRecentSorters({
   onConnect,
 }: MobileRecentSortersProps) {
   const { t } = useTranslation("scanner");
-  const recentSorters = useRecentBluetoothSorters();
+  const recentSorters = useRecentSorters();
   if (recentSorters.length === 0) return null;
 
   return (
@@ -24,6 +24,8 @@ export function MobileRecentSorters({
             icon={
               connectingId === sorter.id ? (
                 <IconLoader2 className="animate-spin" />
+              ) : sorter.transport === "usb" ? (
+                <IconUsb />
               ) : (
                 <IconBluetooth />
               )

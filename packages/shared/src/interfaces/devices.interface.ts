@@ -39,11 +39,14 @@ export interface Device {
   updatedAt: string;
 }
 
+export type RecentSorterTransport = "bluetooth" | "usb";
+
 export interface RecentSorter {
   id: string;
   deviceGuid: string;
   name: string;
   connectedAt: string;
+  transport?: RecentSorterTransport;
 }
 
 export interface SorterNameSyncLink {

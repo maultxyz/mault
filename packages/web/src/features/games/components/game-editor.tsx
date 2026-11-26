@@ -1,5 +1,6 @@
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { SaveBar } from "@/components/save-bar";
+import { cn } from "@/lib/utils";
 import {
   SettingsSection,
   SettingsSections,
@@ -107,7 +108,7 @@ export function GameEditor({ game }: GameEditorProps) {
   }
 
   return (
-    <div className="flex flex-col gap-6 md:gap-2">
+    <div className={cn("flex flex-col gap-6 md:gap-2", isDirty && "pb-24")}>
       <div className="flex flex-col items-start gap-1">
         <Button
           variant="ghost"

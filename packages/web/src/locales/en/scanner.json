@@ -68,6 +68,7 @@
     "piScanBusy": "A scan is running on the Pi, so this browser cannot take the sorter. Stop the scan first.",
     "bluetoothPermissionBlocked": "Bluetooth permission is blocked for this browser. Check your browser's site settings (or chrome://settings/content/bluetoothDevices) to allow Bluetooth, then try again.",
     "recentSorterUnreachable": "Make sure the sorter is turned on and nearby, then try again.",
+    "recentSorterUnplugged": "Make sure the sorter is plugged in and turned on, then try again.",
     "connectionLost": {
       "title": "Connection lost",
       "description": "The sorter disconnected unexpectedly. If you're connected over USB, make sure no other application (like the Arduino IDE's Serial Monitor) is using the port, then reconnect."
@@ -388,6 +389,7 @@
     "cameraInUseElsewhere": "In use by another station",
     "connectUsb": "Connect via USB",
     "connectBluetooth": "Connect via Bluetooth",
+    "connectWifi": "Connect via Wi-Fi",
     "autoFeed": "Auto-feed",
     "allowDuplicates": "Allow duplicates",
     "scanWithoutSorter": "Scan without sorter",
@@ -397,6 +399,7 @@
     "phoneCameraConnected": "Phone Camera Connected",
     "connectAnotherUsb": "Connect another sorter (USB)",
     "connectAnotherBluetooth": "Connect another sorter (Bluetooth)",
+    "connectAnotherWifi": "Connect another sorter (Wi-Fi)",
     "flashNewBoard": "Flash a new board",
     "connectAnotherUpgrade": "Connect more sorters with a bigger plan",
     "clearDevice": "Clear device",
@@ -1086,7 +1089,8 @@
     "connected": "Connected"
   },
   "wifiConnect": {
-    "item": "Wi-Fi: {{name}}",
+    "loading": "Looking for Wi-Fi sorters…",
+    "empty": "No sorters set up for Wi-Fi yet",
     "offline": "Offline",
     "inUse": "In use",
     "connectedHere": "Connected"
