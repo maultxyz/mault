@@ -679,7 +679,7 @@ export default function CardDetailScreen() {
                       router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } });
                     }}
                   />
-                ) : entry.binNumber != null ? (
+                ) : entry.binNumber != null && !entry.isBinEmptied ? (
                   <Pill icon="sorter" label={t("cards.bin", { number: entry.binNumber })} />
                 ) : null}
                 {scanAttributePills}

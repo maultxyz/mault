@@ -10,6 +10,7 @@ import {
   type PiScanSessionStartBody,
   type PiScanSessionState,
 } from "@magic-vault/shared";
+import { piScanSessionApiPath } from "@/features/scanner/lib/pi-scan-target";
 import {
   isPiScanHoldingPort,
   setPiScanHoldingPort,
@@ -72,41 +73,41 @@ export async function refreshPiScanHold(): Promise<boolean> {
 export function startPiScanSession(
   body: PiScanSessionStartBody,
 ): Promise<PiScanSessionResult> {
-  return send("POST", PI_SCAN_SESSION_API, body);
+  return send("POST", piScanSessionApiPath(), body);
 }
 
 export function pausePiScanSession(): Promise<PiScanSessionResult> {
-  return send("POST", `${PI_SCAN_SESSION_API}/pause`);
+  return send("POST", piScanSessionApiPath("pause"));
 }
 
 export function resumePiScanSession(): Promise<PiScanSessionResult> {
-  return send("POST", `${PI_SCAN_SESSION_API}/resume`);
+  return send("POST", piScanSessionApiPath("resume"));
 }
 
 export function emergencyStopPiScanSession(): Promise<PiScanSessionResult> {
-  return send("POST", `${PI_SCAN_SESSION_API}/emergency-stop`);
+  return send("POST", piScanSessionApiPath("emergency-stop"));
 }
 
 export function stopPiScanSession(): Promise<PiScanSessionResult> {
-  return send("DELETE", PI_SCAN_SESSION_API);
+  return send("DELETE", piScanSessionApiPath());
 }
 
 export function updatePiScanSettings(
   body: PiScanSessionSettingsBody,
 ): Promise<PiScanSessionResult> {
-  return send("POST", `${PI_SCAN_SESSION_API}/settings`, body);
+  return send("POST", piScanSessionApiPath("settings"), body);
 }
 
 export function resetPiScanSessionStats(): Promise<PiScanSessionResult> {
-  return send("POST", `${PI_SCAN_SESSION_API}/reset-stats`);
+  return send("POST", piScanSessionApiPath("reset-stats"));
 }
 
 export function feedPiScanSession(): Promise<PiScanSessionResult> {
-  return send("POST", `${PI_SCAN_SESSION_API}/feed`);
+  return send("POST", piScanSessionApiPath("feed"));
 }
 
 export function updatePiScanRemoval(
   body: PiScanRemovalAction,
 ): Promise<PiScanSessionResult> {
-  return send("POST", `${PI_SCAN_SESSION_API}/removal`, body);
+  return send("POST", piScanSessionApiPath("removal"), body);
 }

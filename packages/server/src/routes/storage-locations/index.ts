@@ -740,12 +740,12 @@ const router = new Hono<AppEnv>()
             columns: { key: true, name: true, fieldDefinitions: true },
           })
         : undefined;
-      return { location, cards, gameKeys, game };
+      return { location, cards, gameKeys, game, pricing: await loadOrgPricing(tx, orgId) };
     });
     if (!loaded) {
       return c.json({ success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE }, 404);
     }
-    const { location, cards, gameKeys, game } = loaded;
+    const { location, cards, gameKeys, game, pricing } = loaded;
     const result = await buildCardExport({
       format: input.data.format,
       combineDuplicates: input.data.combineDuplicates,
@@ -753,6 +753,7 @@ const router = new Hono<AppEnv>()
         card: card.card,
         isFoil: card.isFoil,
         foilType: card.foilType ?? undefined,
+        stamp: card.stamp ?? undefined,
         condition: card.condition,
         language: card.language ?? undefined,
       })),
@@ -765,6 +766,7 @@ const router = new Hono<AppEnv>()
           }
         : null,
       exportName: location.name,
+      pricing,
     });
     if (!result.success) return c.json(result, 400);
     return csvResponse(c, result.csv, result.filename);
@@ -945,7 +947,11 @@ const router = new Hono<AppEnv>()
       }
       const updated = await tx
         .update(collectionCards)
-        .set({ locationId: null, locationPosition: null })
+        .set({
+          locationId: null,
+          locationPosition: null,
+          binEmptiedAt: sql`coalesce(${collectionCards.binEmptiedAt}, now())`,
+        })
         .where(
           and(
             eq(collectionCards.guid, scanId),

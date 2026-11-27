@@ -1,19 +1,24 @@
 {
   "meta": {
     "title": "Self-hosting guide | Mault",
-    "description": "Run Mault with Docker Compose, Coolify, or directly on a Pi/Linux host. Prerequisites, installation and updates, step by step."
+    "description": "Link a Raspberry Pi sorter to your Mault account, or run Mault yourself with Docker Compose, Coolify or a Pi/Linux host. Step by step."
   },
   "hero": {
     "eyebrow": "Self-hosting guide",
     "title": "Run Mault on your own server",
-    "description": "Run Mault on your own hardware. Pick your setup and the guide shows only the steps you need. Progress is saved in this browser."
+    "description": "The easiest setup is a Raspberry Pi linked to your Mault account: the board runs the camera and sorter, and mault.xyz keeps your cards. To run everything yourself, choose another setup. The guide shows only the steps you need, and progress is saved in this browser."
   },
   "setup": {
     "label": "Your setup",
     "title": "Choose your setup",
     "description": "Your choices are saved in the URL, so you can bookmark or share this guide.",
+    "recommended": "Recommended",
     "host": {
       "label": "Where are you hosting?",
+      "linked": {
+        "title": "Pi linked to mault.xyz",
+        "description": "Flash the Raspberry Pi image and link it to your Mault account. The Pi runs the camera, scanning and sorter; your cards, card data and prices stay at mault.xyz. No server or database to look after."
+      },
       "compose": {
         "title": "Docker Compose",
         "description": "Any server you manage. Builds the stack from the repo."
@@ -29,7 +34,6 @@
     },
     "auth": {
       "label": "Accounts and database",
-      "recommended": "Recommended",
       "local": {
         "title": "Built-in",
         "description": "Postgres and accounts run inside the stack. No outside services, but backups are up to you."
@@ -69,6 +73,9 @@
       "title": "Before you start",
       "description": "What to have ready.",
       "steps": {
+        "maultAccount": {
+          "text": "A Mault account at <code>mault.xyz</code> where you're an owner or admin of the organization the sorter scans into."
+        },
         "docker": {
           "text": "Docker with Compose v2. This should print a version."
         },
@@ -323,17 +330,104 @@
         }
       }
     },
+    "linkedInstall": {
+      "label": "Installation",
+      "title": "Install Mault on the board",
+      "description": "The board runs a prebuilt release and keeps no database. Cards, accounts and prices live in your Mault account.",
+      "steps": {
+        "flash": {
+          "text": "Download <code>mault-pi.img.xz</code> from the latest Pi release and flash it to the microSD card with Raspberry Pi Imager. Imager offers no OS customisation for this image, so skip that screen.",
+          "note": "Ethernet works without any setup. The login, SSH and Wi-Fi come from the file in the next step."
+        },
+        "config": {
+          "text": "Before the first boot, open the card's <code>bootfs</code> drive on any computer and fill in <code>mault-config.txt</code>. Keep <code>hosting=mault.xyz</code>, then add your Wi-Fi details, and optionally a username and password with <code>ssh=yes</code> for terminal access.",
+          "note": "On Ethernet you can skip this step: linking needs only a browser. Choose any username except mault-service. The board applies the file on every boot and erases the passwords from it."
+        },
+        "boot": {
+          "text": "Put the card in the Pi and power it on. The first boot takes a few minutes. If a PCA9685 servo driver answers on the I2C header, Mault controls the sorter directly (GPIO); otherwise it waits for a USB or Bluetooth sorter.",
+          "note": "Change this later with sudo mault sorter usb or sudo mault sorter builtin."
+        },
+        "installOther": {
+          "text": "On another arm64 board, or a Raspberry Pi that already runs Raspberry Pi OS, run this command over SSH. It installs the latest release linked to mault.xyz, then asks how the sorter is connected.",
+          "note": "A board that already keeps cards in its own database stays that way when you reinstall. Switch it with sudo mault hosting mault.xyz."
+        }
+      }
+    },
+    "linkedLink": {
+      "label": "Link",
+      "title": "Link the board to your account",
+      "description": "Linking takes a minute in any browser on the same network. No commands needed.",
+      "steps": {
+        "open": {
+          "text": "Open <code>http://mault.local</code> on a phone or computer on the same network. It shows the board's link code and walks you through the steps below.",
+          "note": "If mault.local doesn't load, use the board's IP address from your router. The code is only shown on your own network, and only until the board is linked."
+        },
+        "signIn": {
+          "text": "Select Sign in to Mault and sign in as an owner or admin of your organization."
+        },
+        "enterCode": {
+          "text": "Back on the board's page, select Link this sorter. Mault opens Settings, Raspberry Pis with the code filled in. Name the sorter and select Link.",
+          "note": "The code changes every few minutes. You can also type it in yourself under Settings, Raspberry Pis, Link a Raspberry Pi."
+        },
+        "terminal": {
+          "text": "Over SSH, this command shows the link code or, once linked, the link status."
+        }
+      }
+    },
+    "linkedScan": {
+      "label": "First scan",
+      "title": "Scan from Mault",
+      "description": "Scan from any computer or phone signed in to Mault. Your games, card data and prices are already there.",
+      "steps": {
+        "select": {
+          "text": "Open the scanner and pick the linked Pi in the sorter menu. The scanner shows the Pi's webcam, and cards appear in the card grid as the Pi saves them."
+        },
+        "calibrate": {
+          "text": "Calibrate the sorter from the scanner or the calibration pages, as with any other sorter.",
+          "note": "The Pi lends its sorter to the calibration pages only while no scan is running."
+        },
+        "scan": {
+          "text": "Choose a collection and start the scan. The Pi feeds, photographs, identifies and routes each card itself.",
+          "note": "The scan keeps running on the Pi when you close the browser. Stop it from the scanner or from Settings, Raspberry Pis."
+        }
+      }
+    },
+    "linkedMaintain": {
+      "label": "Maintenance",
+      "title": "Update and look after the board",
+      "description": "Owners and admins update the board from Mault. The mault command covers the rest over SSH.",
+      "steps": {
+        "update": {
+          "text": "When Settings, Raspberry Pis shows an update for the board, stop its scan and select Update. Over SSH, this command does the same.",
+          "note": "The board restarts and is back online in a few minutes. If the new version doesn't start, it goes back to the previous one automatically."
+        },
+        "osUpdates": {
+          "text": "Operating system security updates install automatically every day without restarting the board, so a scan is never cut off. Boards installed before this was added turn them on with this command."
+        },
+        "relink": {
+          "text": "To move the board to another organization, remove it under Settings, Raspberry Pis. It shows a new link code on mault.local, and this command shows it too.",
+          "note": "Cards it already scanned stay in the old organization."
+        },
+        "selfHost": {
+          "text": "To keep cards and accounts on the board instead, switch it to self-hosting.",
+          "note": "Cards already in your Mault account stay there. sudo mault hosting mault.xyz switches back."
+        },
+        "logs": {
+          "text": "For startup, link or scan failures, inspect the log."
+        }
+      }
+    },
     "piInstall": {
       "label": "Installation",
       "title": "Install Mault on the board",
-      "description": "Nothing is cloned or built on the board: it runs a prebuilt release.",
+      "description": "Nothing is cloned or built on the board: it runs a prebuilt release. This setup keeps your cards and accounts on the board. To keep them in your Mault account instead, choose Pi linked to mault.xyz above.",
       "steps": {
         "flash": {
           "text": "Download <code>mault-pi.img.xz</code> from the latest Pi release and flash it to the microSD card with Raspberry Pi Imager. Imager offers no OS customisation for this image, so skip that screen.",
           "note": "Ethernet works without any setup. The login, SSH and Wi-Fi come from the file in the next step. The image is rebuilt weekly, so update Mault after the first boot: use Update Mault in the app, or run sudo mault update."
         },
         "config": {
-          "text": "Before the first boot, open the card's <code>bootfs</code> drive on any computer and fill in <code>mault-config.txt</code>: a username and password for an administrator account, <code>ssh=yes</code> for terminal access, and your Wi-Fi details.",
+          "text": "Before the first boot, open the card's <code>bootfs</code> drive on any computer and fill in <code>mault-config.txt</code>: <code>hosting=self</code> to keep cards on this board, a username and password for an administrator account, <code>ssh=yes</code> for terminal access, and your Wi-Fi details.",
           "note": "Choose any username except mault-service, which Mault uses for its own services. The board applies the file on every boot, erases the passwords from it and writes the result on its Status line, so the same file also resets a forgotten password."
         },
         "boot": {
@@ -341,7 +435,7 @@
           "note": "Change this later with sudo mault sorter usb or sudo mault sorter builtin."
         },
         "installOther": {
-          "text": "On another arm64 board, or a Raspberry Pi that already runs Raspberry Pi OS, run this command over SSH. It installs the system packages and the latest release, then asks how the sorter is connected.",
+          "text": "On another arm64 board, or a Raspberry Pi that already runs Raspberry Pi OS, run this command over SSH. It installs the system packages and the latest release with a database on this board, then asks how the sorter is connected.",
           "note": "If the board has a ~/mault checkout from the old installer, its settings, accounts, cards and calibration are kept and its old services are turned off."
         },
         "services": {
@@ -407,6 +501,10 @@
         },
         "osUpdates": {
           "text": "Operating system security updates install automatically every day without restarting the board, so a scan is never cut off. When one needs a restart, admins see a banner in the app; restart with sudo reboot when no scan is running. Boards installed before this was added turn the updates on with this command."
+        },
+        "hosting": {
+          "text": "To move this board to your Mault account at mault.xyz later, run this command and enter the code it shows under Settings, Raspberry Pis.",
+          "note": "Cards already scanned stay in this board's database and don't move to your account. sudo mault hosting self switches back."
         },
         "backup": {
           "text": "Back up Postgres regularly.",

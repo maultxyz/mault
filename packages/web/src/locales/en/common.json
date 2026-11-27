@@ -376,6 +376,7 @@
     "orderTextRequired": "Paste an order or choose a file.",
     "orderLinesRequired": "Keep at least one card on the pick.",
     "decklistRequired": "Enter at least one card, one per line.",
+    "deckLinkInvalid": "Enter a Moxfield or Archidekt deck link.",
     "cardCountRequired": "Enter a number of cards.",
     "storageLocationRequired": "Choose where the cards went.",
     "commandRequired": "Enter a command.",
@@ -396,7 +397,8 @@
     "statsSyncKeyInvalid": "Paste the whole key. It starts with mvstats_.",
     "expiryDaysInvalid": "Enter whole numbers of days from 1 to {{max}}, separated by commas.",
     "expiryDaysTooMany": "Enter no more than {{max}} lengths.",
-    "organizationIdInvalid": "Enter an organization id (letters, numbers, - or _, at least 8 characters)."
+    "organizationIdInvalid": "Enter an organization id (letters, numbers, - or _, at least 8 characters).",
+    "piPairingCodeInvalid": "Enter the 8-character code shown on the Pi."
   },
   "memberSeatLock": {
     "title": "This organization is over its member limit",
@@ -811,5 +813,23 @@
     "signedInDescription": "Signed in with an account",
     "guestDescription": "Guest without an account"
   },
-  "managersOnlySetting": "Only organization owners and admins can change this."
+  "managersOnlySetting": "Only organization owners and admins can change this.",
+  "piLinkSetup": {
+    "title": "Link this sorter to Mault",
+    "intro": "This sorter keeps its cards in your Mault account. Link it once and it shows up in Mault on all your devices.",
+    "signInStep": "Sign in to Mault as an owner or admin of your organization.",
+    "signInButton": "Sign in to Mault",
+    "linkStep": "Select Link this sorter. Mault opens Settings, Raspberry Pis with this code filled in.",
+    "linkButton": "Link this sorter",
+    "codeLabel": "Link code",
+    "nameStep": "Give the sorter a name, then select Link. This page updates on its own.",
+    "codeChanges": "The code changes every few minutes. This page always shows the current one.",
+    "waiting": "Waiting for you to link this sorter.",
+    "gettingCode": "Getting a link code. Check that the sorter is connected to the internet.",
+    "linkedTitle": "Linked as {{name}}",
+    "connected": "Connected to Mault. You can close this page and scan from Mault on any computer or phone.",
+    "disconnected": "Not connected to Mault right now. Check the sorter's network connection.",
+    "openMault": "Open Mault",
+    "unreachable": "Can't reach this sorter's setup. Check that the sorter is on, then refresh this page."
+  }
 }

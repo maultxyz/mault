@@ -5,7 +5,7 @@ import type {
 } from "@magic-vault/shared";
 import { useCallback, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
-import { usePiHost } from "@/hooks/use-pi-host";
+import { usePiScanMode } from "@/features/scanner/api/use-pi-scan-mode";
 import { toast } from "@/lib/toast";
 import { piScanHoldsPort, updatePiScanSettings } from "./pi-scan-session";
 import {
@@ -17,7 +17,7 @@ import {
 import type { PiScanSettingsOptions } from "@/lib/interfaces/scanner";
 
 export function usePiScanSettings(options: PiScanSettingsOptions) {
-  const piHost = usePiHost();
+  const piHost = usePiScanMode().hostMode;
   const { t } = useTranslation("scanner");
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
   const { collectionGuid, setFoilType, setPreferredSetCodes, setCondition } =

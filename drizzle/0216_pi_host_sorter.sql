@@ -1,0 +1,1 @@
+ALTER TABLE "pi_hosts" ADD COLUMN "sorter_hardware_id" text;

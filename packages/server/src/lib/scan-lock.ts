@@ -94,6 +94,13 @@ export function releaseHostScanLock(guid: string, userId: string): boolean {
   return releaseLock(guid, userId);
 }
 
+export function releaseHostScanLockOfOrg(guid: string, orgId: string): boolean {
+  const entry = locks.get(guid);
+  if (!entry || entry.orgId !== orgId || !hostHeldLocks.has(guid)) return false;
+  hostHeldLocks.delete(guid);
+  return releaseLock(guid, entry.userId);
+}
+
 export function getLocksForGuids(guids: string[]): Record<string, ScanLock> {
   const result: Record<string, ScanLock> = {};
   for (const guid of guids) {

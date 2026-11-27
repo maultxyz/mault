@@ -43,6 +43,13 @@ vi.mock("./use-stations", () => ({
 }));
 vi.mock("@/hooks/use-is-mobile", () => ({ useIsMobile: mocks.isMobile }));
 vi.mock("@/hooks/use-pi-host", () => ({ usePiHost: () => true }));
+vi.mock("@/features/scanner/api/use-pi-scan-mode", async () => {
+  const { usePiHost } = await import("@/hooks/use-pi-host");
+  return {
+    usePiScanMode: () => ({ hostMode: usePiHost(), linkedPi: null }),
+    useLinkedPiScanTarget: () => {},
+  };
+});
 vi.mock("@/lib/host", () => ({ usesHostHardware: () => true }));
 vi.mock("@/lib/pi-host", () => ({ loadPiHost: async () => {} }));
 vi.mock("../lib/camera-focus", () => ({

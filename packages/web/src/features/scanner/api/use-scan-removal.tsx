@@ -1,4 +1,4 @@
-import { usePiHost } from "@/hooks/use-pi-host";
+import { usePiScanMode } from "@/features/scanner/api/use-pi-scan-mode";
 import {
   applyPiScanState,
   getPiScanState,
@@ -61,7 +61,7 @@ export function ScanRemovalProvider({
   const [queueCollectionGuid, setQueueCollectionGuid] = useState(
     activeCollection?.guid,
   );
-  const piHost = usePiHost();
+  const piHost = usePiScanMode().hostMode;
   const host = useSyncExternalStore(subscribePiScan, getPiScanState);
   const hostQueue = piHost && host.collectionGuid === activeCollection?.guid;
   const hostLive = hostQueue && piScanHoldsPort(host);

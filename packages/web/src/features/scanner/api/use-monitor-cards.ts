@@ -134,8 +134,8 @@ export function useMonitorCards(
   }, [page, clampedPage]);
 
   const stats = useMemo(
-    () => (summary ? toScanStats(summary.all) : null),
-    [summary],
+    () => (summary ? toScanStats(summary.all, collection?.game?.key) : null),
+    [summary, collection?.game?.key],
   );
 
   const [searchParams, setSearchParams] = useSearchParams();

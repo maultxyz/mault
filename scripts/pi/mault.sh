@@ -28,6 +28,8 @@ Usage: sudo mault <command>
                          Show recent log output
   sorter usb|builtin [raspberry-pi|orange-pi-zero4]
                          Choose how the sorter is connected
+  hosting mault.xyz|self Keep cards in your Mault account or on this board
+  link [--wait]          Show the code that links this board to mault.xyz
   prices                 Refresh card prices now (also runs daily)
   urls                   Show the addresses to open Mault from
   version                Show the installed version
@@ -78,6 +80,49 @@ all_services() {
     services+=(mault-controller.service)
   fi
   echo "${services[@]}"
+}
+
+print_link_status() {
+  local attempts=1
+  local response
+  local status_code
+  local status=""
+  [[ "${1:-}" == --wait ]] && attempts=30
+  for _ in $(seq 1 "$attempts"); do
+    response="$(curl -s -w '\n%{http_code}' http://127.0.0.1:8080/api/pi-link/local 2>/dev/null || true)"
+    status_code="${response##*$'\n'}"
+    case "$status_code" in
+      200) status="${response%$'\n'*}" ;;
+      404) status='{"data":{"state":"off"}}' ;;
+      *) status="" ;;
+    esac
+    if [[ -n "$status" ]] && python3 -I -c 'import json, sys; data = json.loads(sys.argv[1])["data"]; sys.exit(1 if data["state"] == "pairing" and not data.get("code") else 0)' "$status" 2>/dev/null; then
+      break
+    fi
+    [[ "$attempts" -gt 1 ]] && sleep 1
+  done
+  python3 -I -c '
+import json, sys
+try:
+    data = json.loads(sys.argv[1])["data"]
+except (ValueError, KeyError, TypeError):
+    data = {"state": "unreachable"}
+if data["state"] == "unreachable":
+    print("Mault is not answering yet. Check it with: sudo mault status")
+elif data["state"] == "off":
+    print("This board keeps cards in its own database. Use your Mault account with: sudo mault hosting mault.xyz")
+elif data["state"] == "linked":
+    connection = "connected" if data.get("connected") else "not connected right now, check the network"
+    name = data.get("hostName", "")
+    print(f"Linked to Mault as \"{name}\" ({connection}).")
+elif data.get("code"):
+    code = data["code"]
+    print("Link this sorter to your Mault account: open http://mault.local in a browser and follow the steps,")
+    print("or sign in at https://mault.xyz as an owner or admin")
+    print(f"and enter the code {code[:4]}-{code[4:]} (a new code appears when it expires).")
+else:
+    print("Waiting for a link code from mault.xyz. Check the network, then run: sudo mault link")
+' "${status:-}"
 }
 
 print_urls() {
@@ -147,6 +192,21 @@ case "$command" in
     require_trusted_release
     as_service_user sed -i -E '/^\s*(export\s+)?PI_SORTER(_BOARD)?=/d' "$MAULT_DATA/.env"
     PI_SORTER="$mode" PI_SORTER_BOARD="$board" run_release_script setup.sh
+    ;;
+  hosting)
+    require_root "$command"
+    case "${1:-}" in
+      mault.xyz|hosted) hosting=hosted ;;
+      self) hosting=self ;;
+      *) usage; exit 1 ;;
+    esac
+    require_trusted_release
+    echo "Cards already scanned stay where they are: they don't move between this board and mault.xyz."
+    as_service_user sed -i -E '/^\s*(export\s+)?MAULT_(HOSTING|LINK_URL)=/d' "$MAULT_DATA/.env"
+    MAULT_HOSTING="$hosting" run_release_script setup.sh
+    ;;
+  link)
+    print_link_status "${1:-}"
     ;;
   prices)
     require_root "$command"

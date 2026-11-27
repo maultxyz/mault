@@ -8,7 +8,6 @@ import {
   unlink,
   writeFile,
 } from "node:fs/promises";
-import { homedir } from "node:os";
 import { join } from "node:path";
 import {
   isRetryableScanSaveStatus,
@@ -22,6 +21,7 @@ import {
   PI_SCAN_POLL_MS,
   PI_SCAN_RECOVERY_MAX_ATTEMPTS,
 } from "../constants/pi-scan";
+import { maultStateDirectory } from "../mault-state-directory";
 import type {
   PendingPiScanSave,
   PiScanSaveResult,
@@ -29,12 +29,7 @@ import type {
 } from "../interfaces/pi-scan";
 
 export const piScanSaveRuntime = {
-  directory: () =>
-    join(
-      process.env.XDG_STATE_HOME || join(homedir(), ".local/state"),
-      "mault",
-      PI_SCAN_PENDING_DIRECTORY,
-    ),
+  directory: () => join(maultStateDirectory(), PI_SCAN_PENDING_DIRECTORY),
   wait: (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
 };
 

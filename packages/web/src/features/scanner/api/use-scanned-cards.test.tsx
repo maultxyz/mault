@@ -142,6 +142,13 @@ vi.mock("./use-pending-scan-saves", () => ({
   }),
 }));
 vi.mock("@/hooks/use-pi-host", () => ({ usePiHost: () => false }));
+vi.mock("@/features/scanner/api/use-pi-scan-mode", async () => {
+  const { usePiHost } = await import("@/hooks/use-pi-host");
+  return {
+    usePiScanMode: () => ({ hostMode: usePiHost(), linkedPi: null }),
+    useLinkedPiScanTarget: () => {},
+  };
+});
 vi.mock("./use-session-monitor", () => ({ useSessionMonitor: () => ({}) }));
 vi.mock("./use-scan-timer", () => ({
   useScanTimer: () => ({

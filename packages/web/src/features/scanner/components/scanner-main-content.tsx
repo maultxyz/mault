@@ -7,6 +7,7 @@ import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { ScanRemovalPanel } from "@/features/scanner/components/scan-removal-panel";
 import { useUnmatchedView } from "@/features/scanner/api/use-unmatched-view";
 import { UnmatchedCardsBrowser } from "@/features/scanner/components/unmatched-cards-browser";
+import { RarityGameKeyContext } from "@/lib/rarity-game-key-context";
 
 export function ScannerMainContent() {
   const { isOpen, openIndex, setOpenIndex, close } = useUnmatchedView();
@@ -30,9 +31,9 @@ export function ScannerMainContent() {
     );
   }
   return (
-    <>
+    <RarityGameKeyContext value={activeCollection?.game?.key ?? null}>
       <ScannerBuyPanel />
       <CardGrid toolbarLeading={<ScannerBuyShowButton />} />
-    </>
+    </RarityGameKeyContext>
   );
 }

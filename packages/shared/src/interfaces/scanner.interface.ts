@@ -104,6 +104,7 @@ export interface ScannedCard {
   card: PlayingCardWithDistance;
   scannedAt: number;
   binNumber?: number;
+  isBinEmptied?: boolean;
   capturedImageUrl?: string;
   capturedBackImageUrl?: string;
   alternativeMatches?: PlayingCardWithDistance[];

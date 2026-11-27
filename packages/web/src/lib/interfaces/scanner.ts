@@ -48,6 +48,7 @@ import type {
   DesktopDocumentScannerSheetSide,
   DesktopDocumentScanRequest,
   CardTextSearchResult,
+  PiHostSummary,
 } from "@magic-vault/shared";
 import type { ComponentProps, ReactNode, RefObject } from "react";
 import type {
@@ -1475,8 +1476,30 @@ export interface OutlineAnimator {
 
 export type PiScanListener = () => void;
 
+export interface PiScanMode {
+  hostMode: boolean;
+  linkedPi: PiHostSummary | null;
+}
+
+export interface LinkedPiCameraPreviewProps {
+  hostGuid: string;
+  alt: string;
+  className?: string;
+  rotated?: boolean;
+  flipped?: boolean;
+}
+
+export interface RotatedCameraImageProps {
+  src: string | undefined;
+  alt: string;
+  className?: string;
+  rotated?: boolean;
+  flipped?: boolean;
+}
+
 export interface PiCameraPreviewProps {
   cameraId?: string | null;
+  linkedHostGuid?: string | null;
   alt: string;
   className?: string;
   rotated?: boolean;

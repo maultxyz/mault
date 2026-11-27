@@ -27,7 +27,6 @@ import type {
   PiRebootStatus,
   PiUpdateCheck,
 } from "./interfaces/pi-update";
-import { getActiveScanLockStats } from "./scan-lock";
 import { suspendSortersForUpdate } from "./pi-serial-port";
 import { getStatus as syncStatus } from "./sync-job/state";
 
@@ -291,7 +290,7 @@ export async function getPiUpdateStatus(): Promise<PiUpdateStatus> {
   };
 }
 
-export async function startPiUpdate(): Promise<PiUpdateState> {
+export async function startPiUpdate(activeScanSessions: number): Promise<PiUpdateState> {
   if (launching) throw new Error("An update is already running.");
   launching = true;
   let resumeSorters: (() => void) | undefined;
@@ -299,7 +298,7 @@ export async function startPiUpdate(): Promise<PiUpdateState> {
     if ((await readPiUpdateState()).phase === "running")
       throw new Error("An update is already running.");
     if (
-      getActiveScanLockStats().sessions > 0 ||
+      activeScanSessions > 0 ||
       syncStatus().status === "running"
     ) {
       throw new Error(

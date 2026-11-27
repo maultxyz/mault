@@ -458,10 +458,10 @@ export function BinConfigsProvider({
         void queryClient.invalidateQueries({
           queryKey: storageLocationKeys.root(),
         });
-        void queryClient.invalidateQueries({
-          queryKey: collectionCardsKeys.root(),
-        });
       }
+      void queryClient.invalidateQueries({
+        queryKey: collectionCardsKeys.root(),
+      });
       if (result.data) {
         const confirmedBins = result.data;
         const nextClaim = confirmedBins.find(
@@ -514,10 +514,10 @@ export function BinConfigsProvider({
           void queryClient.invalidateQueries({
             queryKey: storageLocationKeys.root(),
           });
-          void queryClient.invalidateQueries({
-            queryKey: collectionCardsKeys.root(),
-          });
         }
+        void queryClient.invalidateQueries({
+          queryKey: collectionCardsKeys.root(),
+        });
       } else {
         toast.error(
           result.message ?? t("useBinConfigs.toasts.emptyAllBinsFailed"),

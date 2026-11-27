@@ -27,6 +27,7 @@ export interface SettingsSectionLink {
   path:
     | "/settings/general"
     | "/settings/scanning"
+    | "/settings/raspberry-pis"
     | "/settings/pricing"
     | "/settings/organization"
     | "/settings/billing"

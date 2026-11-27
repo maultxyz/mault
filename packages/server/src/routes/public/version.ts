@@ -1,22 +1,8 @@
 import { Hono } from "hono";
-import pkg from "../../../package.json";
-import { getShortLinkBaseUrl } from "../../lib/constants/urls";
-import { getLatestFirmwareVersion } from "../../lib/firmware-releases";
-import { isPiHost, isPiSorter } from "../../lib/pi-host";
+import { serverVersionInfo } from "../../lib/server-version";
 import { isBillingEnabled } from "../../lib/stripe";
 import type { AppEnv } from "../../middleware/auth";
 
-export const versionRoute = new Hono<AppEnv>().get("/version", (c) => {
-  return c.json({
-    success: true,
-    data: {
-      version: pkg.version,
-      piHost: isPiHost(),
-      latestFirmwareVersion: getLatestFirmwareVersion(),
-      piSorter: isPiSorter(),
-      piController: isPiSorter(),
-      shortLinkBaseUrl: getShortLinkBaseUrl(),
-      billingEnabled: isBillingEnabled(),
-    },
-  });
-});
+export const versionRoute = new Hono<AppEnv>().get("/version", (c) =>
+  c.json({ success: true, data: serverVersionInfo(isBillingEnabled()) }),
+);

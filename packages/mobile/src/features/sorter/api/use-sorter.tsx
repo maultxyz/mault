@@ -30,6 +30,7 @@ import {
   statusUptimeMs,
   SERIAL_HEARTBEAT_MAX_MISSES,
   SERIAL_IDENTIFY_ATTEMPTS,
+  SERIAL_STOPPED_ERROR,
   type BinRoute,
   type RouteOptions,
   STORE_CONFIG_TIMEOUT_MS,
@@ -114,6 +115,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   const [notice, setNotice] = useState<SorterNotice | null>(null);
   const [sensorNote, setSensorNote] = useState<SensorNote | null>(null);
   const [clearingSensor, setClearingSensor] = useState(false);
+  const [resettingEmergencyStop, setResettingEmergencyStop] = useState(false);
   const [discovered, setDiscovered] = useState<DiscoveredSorter[]>([]);
   const [storedRecentSorters, setStoredRecentSorters] = useState<RecentSorter[]>([]);
   const { data: orgDevices } = useQuery(devicesQueryOptions(orgId));
@@ -264,6 +266,8 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       fail({ code: "sensor-blocked", module: outcome.blockedModule });
     } else if (outcome.servoDriverMissing) {
       fail({ code: "servo-driver-missing" });
+    } else if (outcome.error === SERIAL_STOPPED_ERROR) {
+      fail({ code: "emergency-stopped" });
     } else {
       fail({ code: "test-failed", detail: outcome.error ?? undefined });
     }
@@ -624,6 +628,20 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     }
   }, [clearingSensor, fail, runSelfTest]);
 
+  const resetEmergencyStop = useCallback(async () => {
+    if (resettingEmergencyStop) return;
+    setResettingEmergencyStop(true);
+    try {
+      if (!(await link.sendNeutral())) {
+        fail({ code: "emergency-stop-reset-failed" });
+        return;
+      }
+      await runSelfTest();
+    } finally {
+      setResettingEmergencyStop(false);
+    }
+  }, [resettingEmergencyStop, fail, runSelfTest]);
+
   useEffect(() => {
     setStoredRecentSorters(
       orgId ? readKvJson<RecentSorter[]>(`${RECENT_SORTERS_KEY_PREFIX}${orgId}`, []) : [],
@@ -656,6 +674,8 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       clearingSensor,
       dropBlockedCard,
       markSensorCleared,
+      resettingEmergencyStop,
+      resetEmergencyStop,
       discovered,
       recentSorters,
       device,
@@ -692,6 +712,8 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       clearingSensor,
       dropBlockedCard,
       markSensorCleared,
+      resettingEmergencyStop,
+      resetEmergencyStop,
       discovered,
       recentSorters,
       device,

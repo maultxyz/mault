@@ -563,6 +563,7 @@
     "unnamed": "Unbenannter Sortierer",
     "signal": "Signal {{rssi}} dBm",
     "runSelfTest": "Selbsttest ausführen",
+    "resetEmergencyStop": "Sortierer zurücksetzen",
     "neutral": "Zurück in Neutralstellung",
     "dropCard": "Gehaltene Karte fallen lassen",
     "retractCard": "Karte zurückziehen",
@@ -611,6 +612,14 @@
       "sensor-blocked": {
         "title": "Karte auf einem Sensor",
         "description": "Der Sensor von Modul {{module}} erkennt eine Karte, daher wurde der Selbsttest nicht ausgeführt. Wirf die Karte ab oder entferne sie von Hand und markiere sie dann als behoben, um den Test erneut zu starten."
+      },
+      "emergency-stopped": {
+        "title": "Sortierer im Notstopp",
+        "description": "Der Sortierer ist noch durch einen Notstopp gesperrt, daher wurde der Selbsttest nicht ausgeführt. Entferne alle Karten, die noch darin liegen, und setze den Sortierer dann zurück."
+      },
+      "emergency-stop-reset-failed": {
+        "title": "Sortierer konnte nicht zurückgesetzt werden",
+        "description": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe, ob er eingeschaltet ist, und versuche es erneut."
       },
       "connection-lost": {
         "title": "Verbindung getrennt",
@@ -2019,6 +2028,10 @@
         "title": "Business",
         "description": "Ankaufsangebote, Rechte für Mitglieder und Shop-Kataloge"
       },
+      "raspberryPis": {
+        "title": "Raspberry Pis",
+        "description": "Pi verbinden und Scans steuern"
+      },
       "profilePage": {
         "title": "Profilseite",
         "description": "Öffentliche Seite mit deinen Links, Shops und Vitrinenkarten"
@@ -2770,6 +2783,87 @@
         "connected": "Statistik-Sync verbunden."
       },
       "cancel": "Abbrechen"
+    },
+    "raspberryPis": {
+      "heading": "Verbundene Raspberry Pis",
+      "description": "Ein verbundener Pi speichert die gescannten Karten in dieser Organisation. Starte hier einen Scan, und er läuft auf dem Pi.",
+      "link": "Raspberry Pi verbinden",
+      "linkTitle": "Raspberry Pi verbinden",
+      "linkDescription": "Schalte den Pi ein und richte ihn mit Mault ein. Er zeigt einen Code mit 8 Zeichen an: Gib ihn hier ein.",
+      "codeLabel": "Code vom Pi",
+      "codePlaceholder": "ABCD-2345",
+      "codeDescription": "Führe sudo mault link auf dem Pi aus, um den Code erneut anzuzeigen.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Sortierer in der Werkstatt",
+      "linked": "Raspberry Pi verbunden",
+      "linkFailed": "Der Raspberry Pi konnte nicht verbunden werden.",
+      "managersOnly": "Nur Inhaber und Admins können einen Raspberry Pi verbinden oder entfernen. Alle in der Organisation können einen Scan starten.",
+      "loadFailed": "Deine Raspberry Pis konnten nicht geladen werden.",
+      "empty": "Noch keine Raspberry Pis verbunden",
+      "emptyDescription": "Richte einen Pi mit dem Mault-Image oder -Installer ein und wähle dein Mault-Konto.",
+      "linkedOn": "Verbunden am {{date}}",
+      "lastSeen": "zuletzt gesehen am {{date}}",
+      "remove": "Entfernen",
+      "removeConfirmTitle": "{{name}} entfernen?",
+      "removeConfirmDescription": "Der Pi scannt nicht mehr für diese Organisation und braucht einen neuen Code, um sich wieder zu verbinden. Bereits gespeicherte Karten bleiben erhalten.",
+      "removed": "Raspberry Pi entfernt",
+      "removeFailed": "Der Raspberry Pi konnte nicht entfernt werden.",
+      "offlineHint": "Prüfe, ob der Pi eingeschaltet und mit dem Internet verbunden ist.",
+      "collectionLabel": "Sammlung",
+      "collectionPlaceholder": "Sammlung auswählen",
+      "start": "Scannen starten",
+      "pause": "Pausieren",
+      "resume": "Fortsetzen",
+      "stop": "Stoppen",
+      "emergencyStop": "Notstopp",
+      "scanFailed": "Der Raspberry Pi konnte das nicht ausführen.",
+      "progress_one": "{{count}} Karte in {{collection}} gescannt",
+      "progress_other": "{{count}} Karten in {{collection}} gescannt",
+      "lastCard": "Letzte Karte: {{name}}",
+      "status": {
+        "offline": "Offline",
+        "idle": "Bereit",
+        "running": "Scannt",
+        "paused": "Pausiert",
+        "stopping": "Wird gestoppt",
+        "error": "Mit Fehler gestoppt"
+      },
+      "cancel": "Abbrechen",
+      "startTitle": "Scannen auf {{name}} starten",
+      "startDescription": "Der Pi zieht die Karten ein und sortiert sie in die gewählte Sammlung.",
+      "foilLabel": "Foil-Art",
+      "foilAuto": "Keine Foil-Art erzwingen",
+      "foilDescription": "Speichert jede Karte mit dieser Foil-Art.",
+      "setsLabel": "Bevorzugte Sets",
+      "setsPlaceholder": "MKM, OTJ",
+      "setsDescription": "Set-Codes, die bevorzugt werden, wenn eine Karte zu mehreren Drucken passt. Trenne sie mit Kommas.",
+      "autoFeedLabel": "Karten automatisch einziehen",
+      "autoFeedDescription": "Ausschalten, um mit Nächste Karte einziehen jeweils eine Karte einzuziehen.",
+      "duplicatesLabel": "Duplikate speichern",
+      "duplicatesDescription": "Eine Karte erneut speichern, wenn dasselbe Exemplar zweimal hintereinander gescannt wird.",
+      "feed": "Nächste Karte einziehen",
+      "camera": "Kamera",
+      "cameraAlt": "Live-Kamera von {{name}}",
+      "cameraWaiting": "Warte auf die Kamera",
+      "rename": "Umbenennen",
+      "renameTitle": "Raspberry Pi umbenennen",
+      "renameFailed": "Der Raspberry Pi konnte nicht umbenannt werden.",
+      "conditionLabel": "Zustand",
+      "renameSave": "Speichern",
+      "cameraShow": "Kamera anzeigen",
+      "cameraHide": "Kamera ausblenden",
+      "cameraUnavailable": "Die Kamera konnte nicht erreicht werden. Schließe sie und versuche es erneut.",
+      "version": "Version {{version}}",
+      "update": {
+        "available": "Update verfügbar: Version {{version}}",
+        "updating": "Wird aktualisiert. Der Pi startet neu und ist in ein paar Minuten wieder online.",
+        "failed": "Das letzte Update wurde nicht abgeschlossen, daher bleibt der Pi auf Version {{version}}.",
+        "stopScanFirst": "Beende den Scan, um zu aktualisieren.",
+        "button": "Aktualisieren",
+        "retry": "Erneut versuchen",
+        "started": "Update gestartet",
+        "failedToStart": "Das Update konnte nicht gestartet werden."
+      }
     }
   },
   "binCorrection": {
@@ -2950,6 +3044,7 @@
     "orderTextRequired": "Füge eine Bestellung ein oder wähle eine Datei.",
     "orderLinesRequired": "Lass mindestens eine Karte in der Pickliste.",
     "decklistRequired": "Gib mindestens eine Karte ein, eine pro Zeile.",
+    "deckLinkInvalid": "Gib einen Deck-Link von Moxfield oder Archidekt ein.",
     "cardCountRequired": "Gib eine Kartenanzahl ein.",
     "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
     "commandRequired": "Gib einen Befehl ein.",
@@ -2970,7 +3065,8 @@
     "statsSyncKeyInvalid": "Füge den ganzen Schlüssel ein. Er beginnt mit mvstats_.",
     "expiryDaysInvalid": "Gib ganze Tage von 1 bis {{max}} ein, durch Kommas getrennt.",
     "expiryDaysTooMany": "Gib höchstens {{max}} Laufzeiten ein.",
-    "organizationIdInvalid": "Gib eine Organisations-ID ein (Buchstaben, Ziffern, - oder _, mindestens 8 Zeichen)."
+    "organizationIdInvalid": "Gib eine Organisations-ID ein (Buchstaben, Ziffern, - oder _, mindestens 8 Zeichen).",
+    "piPairingCodeInvalid": "Gib den 8-stelligen Code ein, den der Pi anzeigt."
   },
   "cardTags": {
     "title": "Markierungen",

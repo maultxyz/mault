@@ -67,3 +67,19 @@ if [[ -d /run/systemd/system ]]; then
   systemctl daemon-reload
   systemctl start mault-update.path
 fi
+
+refresh_nginx_site() {
+  local site=/etc/nginx/sites-available/mault
+  [[ -f "$site" ]] || return 0
+  cmp -s "$SCRIPTS/nginx-mault.conf" "$site" && return 0
+  cp -p "$site" "$site.previous"
+  install_root_file "$SCRIPTS/nginx-mault.conf" "$site" 644
+  if nginx -t >/dev/null 2>&1; then
+    rm -f "$site.previous"
+    systemctl reload nginx || true
+  else
+    mv -f "$site.previous" "$site"
+    echo "[secure-layout] The new web server config failed its check, so the previous one stays." >&2
+  fi
+}
+refresh_nginx_site

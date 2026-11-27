@@ -82,6 +82,13 @@
       "stillBlocked": "Module {{module}} still sees a card. Clear it, then mark it cleared.",
       "noResponse": "The sorter didn't respond. Reconnect it and try again."
     },
+    "emergencyStopped": {
+      "title": "Sorter is emergency-stopped",
+      "description": "The sorter is still locked by an emergency stop, so the self-test didn't run. Remove any card left in it, then reset the sorter.",
+      "reset": "Reset sorter",
+      "resetFailedTitle": "Couldn't reset the sorter",
+      "resetFailedDescription": "The sorter didn't confirm the reset. Check that it's powered on, then try again."
+    },
     "deviceTestFailed": {
       "title": "Device test failed",
       "description": "Connected but got no response. Try reconnecting."
@@ -185,7 +192,9 @@
     "cloud": {
       "offline": "That sorter isn't online right now. Check that it's powered on and connected to Wi-Fi.",
       "inUse": "Someone else is already controlling that sorter over Wi-Fi.",
-      "failed": "Couldn't reach the sorter through the server. Try again in a moment."
+      "failed": "Couldn't reach the sorter through the server. Try again in a moment.",
+      "noReply": "The sorter connected but didn't answer. Check that it's powered on and running, then try again.",
+      "busy": "The sorter is busy with a scan right now. Stop the scan, then try again."
     },
     "firmwareOutdatedBannerPi": "The built-in controller is running {{version}}; this Mault installation includes {{latest}}. Restart Mault on the Pi to load its bundled controller software."
   },
@@ -707,7 +716,6 @@
       "openStation": "Switch to {{name}}",
       "offline": "Not connected",
       "noCamera": "No camera",
-      "noCards": "No cards scanned yet",
       "emptyTitle": "No sorters yet",
       "emptyDescription": "Connect a sorter to see it here.",
       "stats": {

@@ -18,6 +18,7 @@ export async function buildCardExport({
   gameKeys,
   game,
   exportName,
+  pricing,
 }: CardExportInput): Promise<CardExportResult> {
   const adapter = allExportAdapters.find((candidate) => candidate.key === format);
   if (!adapter) return { success: false, message: "Unknown export format." };
@@ -29,6 +30,7 @@ export async function buildCardExport({
     fieldDefinitions: game?.fieldDefinitions ?? [],
     gameKey: game?.key,
     gameName: game?.name,
+    pricing,
   };
   if (adapter.usesTcgplayerSkus) {
     const entries = groupExportCards(cards, adapter.groupBy, combineDuplicates);

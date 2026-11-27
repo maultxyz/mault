@@ -519,6 +519,15 @@
     "added": "Added {{name}}",
     "failed": "Couldn't add the card."
   },
+  "externalCardDrop": {
+    "overlayTitle": "Drop to add cards",
+    "overlayDescription": "Cards and deck links from Scryfall, Moxfield or Archidekt are added to {{collection}}.",
+    "hint": "You can also drag a card from Scryfall, Moxfield or Archidekt onto the collection to add it. Drop a deck link to import the whole deck.",
+    "finding_one": "Finding the card...",
+    "finding_other": "Finding {{count}} cards...",
+    "unrecognized": "Drop a card from Scryfall, Moxfield or Archidekt to add it.",
+    "notFound": "Couldn't find that card in the catalog."
+  },
   "importScans": {
     "button": "Import scans",
     "title": "Import scanned images",
@@ -576,6 +585,28 @@
     }
   },
   "importCsv": {
+    "deckLink": {
+      "label": "Deck link",
+      "placeholder": "https://moxfield.com/decks/...",
+      "load": "Load deck",
+      "loading": "Loading the deck...",
+      "loaded": "Deck from {{source}}.",
+      "table": {
+        "quantity": "Qty",
+        "card": "Card",
+        "set": "Set",
+        "status": "Status",
+        "foil": "Foil",
+        "anySet": "Any printing",
+        "matched": "Matched",
+        "notFound": "Not found"
+      },
+      "failure": {
+        "notFound": "That deck wasn't found. Check that the link is right and the deck is public.",
+        "unavailable": "Couldn't load the deck right now. Try again, or export it as a CSV and upload that instead.",
+        "empty": "That deck has no cards to import."
+      }
+    },
     "button": "Import CSV",
     "title": "Import cards from a CSV",
     "description": "Upload a collection export from Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer or any CSV with a card name column.",

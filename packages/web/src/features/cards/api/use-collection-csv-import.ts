@@ -4,7 +4,10 @@ import {
 } from "@/features/collections/api/collections";
 import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
 import { toast } from "@/lib/toast";
-import type { CollectionCsvImportRow } from "@magic-vault/shared";
+import type {
+  CollectionCsvImportRequest,
+  CollectionCsvImportRow,
+} from "@magic-vault/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
@@ -13,8 +16,8 @@ export function useCollectionCsvImport(collectionGuid: string) {
   const queryClient = useQueryClient();
 
   const preview = useMutation({
-    mutationFn: async (rows: CollectionCsvImportRow[]) => {
-      const result = await previewCollectionCsvImport(collectionGuid, { rows });
+    mutationFn: async (request: CollectionCsvImportRequest) => {
+      const result = await previewCollectionCsvImport(collectionGuid, request);
       if (!result.success || !result.data) {
         throw new Error(result.message ?? t("importCsv.previewFailed"));
       }

@@ -18,6 +18,7 @@ export function useCollectionCardsSummary(
   query: CollectionCardsQuery = ALL_CARDS_QUERY,
 ) {
   const { collection: activeCollection } = useViewedCollection();
+  const gameKey = activeCollection?.game?.key;
   const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
   const summaryQueryOptions = collectionCardsSummaryQueryOptions(
     activeCollection?.guid,
@@ -34,12 +35,12 @@ export function useCollectionCardsSummary(
   });
 
   const allStats = useMemo(
-    () => (summary ? toScanStats(summary.all) : null),
-    [summary],
+    () => (summary ? toScanStats(summary.all, gameKey) : null),
+    [summary, gameKey],
   );
   const displayStats = useMemo(
-    () => (summary ? toDisplayStats(summary.all, summary.filtered) : null),
-    [summary],
+    () => (summary ? toDisplayStats(summary.all, summary.filtered, gameKey) : null),
+    [summary, gameKey],
   );
 
   return {

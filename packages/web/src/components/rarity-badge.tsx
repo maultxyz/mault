@@ -1,3 +1,4 @@
+import { useRarityGameKey } from "@/hooks/use-rarity-game-key";
 import { raritySwatch } from "@/lib/card-swatches";
 import { cn } from "@/lib/utils";
 import { rarityAbbreviation, rarityLabel } from "@magic-vault/shared";
@@ -11,9 +12,10 @@ export function RarityBadge({
   decorative?: boolean;
   className?: string;
 }) {
+  const gameKey = useRarityGameKey();
   const abbreviation = rarityAbbreviation(rarity);
   if (!abbreviation) return null;
-  const swatch = raritySwatch(rarity);
+  const swatch = raritySwatch(rarity, gameKey);
   const label = rarityLabel(rarity);
   return (
     <span

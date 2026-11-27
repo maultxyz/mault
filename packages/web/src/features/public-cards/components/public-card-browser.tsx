@@ -75,6 +75,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { RarityGameKeyContext } from "@/lib/rarity-game-key-context";
 
 export function PublicCardBrowser({
   source,
@@ -484,9 +485,15 @@ export function PublicCardBrowser({
     </main>
   );
 
+  const rarityGameKey =
+    selectedGameKey ?? (info.games.length === 1 ? info.games[0].key : null);
+  const pageWithRarityGame = (
+    <RarityGameKeyContext value={rarityGameKey}>{page}</RarityGameKeyContext>
+  );
+
   const pageWithReservations =
     reservationHoldDays === null ? (
-      page
+      pageWithRarityGame
     ) : (
       <CardReservationsProvider
         source={source}
@@ -494,7 +501,7 @@ export function PublicCardBrowser({
         requiresAccount={reservationsRequireAccount}
         onOpenComposer={openReservationComposer}
       >
-        {page}
+        {pageWithRarityGame}
       </CardReservationsProvider>
     );
 

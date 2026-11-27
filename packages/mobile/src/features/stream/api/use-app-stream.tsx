@@ -17,11 +17,16 @@ import {
   CARD_RESERVATIONS_CHANGED_EVENT,
   MY_CARD_RESERVATIONS_CHANGED_EVENT,
   MY_TRADE_OFFERS_CHANGED_EVENT,
+  PI_HOST_STATUS_EVENT,
+  applyPiHostStatusEvent,
   type DeployNotice,
+  type PiHostStatusEvent,
 } from "@magic-vault/shared";
 import { BUSINESS_ORDERS_QUERY_KEY, BUSINESS_RESERVATIONS_QUERY_KEY } from "@/lib/constants/business";
 import { OUTGOING_TRADE_OFFERS_QUERY_KEY, TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
 import { MY_CARD_RESERVATIONS_QUERY_KEY } from "@/lib/constants/card-reservations";
+import { RASPBERRY_PIS_QUERY_KEY } from "@/lib/constants/raspberry-pis";
+import type { RaspberryPiList } from "@/lib/interfaces/raspberry-pis";
 import { getRequestAuth } from "@/lib/api/client";
 import { useSession } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/config";
@@ -75,6 +80,7 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
       void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] });
       void queryClient.invalidateQueries({ queryKey: [OUTGOING_TRADE_OFFERS_QUERY_KEY] });
       void queryClient.invalidateQueries({ queryKey: [MY_CARD_RESERVATIONS_QUERY_KEY] });
+      void queryClient.invalidateQueries({ queryKey: [RASPBERRY_PIS_QUERY_KEY] });
     };
 
     const connect = async () => {
@@ -123,6 +129,13 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
         () => void queryClient.invalidateQueries({ queryKey: [MY_CARD_RESERVATIONS_QUERY_KEY] }),
       );
       on(DEPLOY_STATUS_EVENT, (data) => setDeployNotice(parse<DeployNotice | null>(data)));
+      on(PI_HOST_STATUS_EVENT, (data) => {
+        const event = parse<PiHostStatusEvent>(data);
+        if (!event) return;
+        queryClient.setQueryData<RaspberryPiList>([RASPBERRY_PIS_QUERY_KEY, activeOrgId], (current) =>
+          current ? { ...current, hosts: applyPiHostStatusEvent(current.hosts, event) } : current,
+        );
+      });
       on(MACHINES_INIT_EVENT, (data) =>
         setMachines(sortMachinesForDisplay(parse<{ machines: MachineStatus[] }>(data)?.machines ?? [])),
       );

@@ -9,6 +9,7 @@ import {
 } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { ViewedCollectionContext } from "@/features/collections/api/use-viewed-collection";
+import { RarityGameKeyContext } from "@/lib/rarity-game-key-context";
 import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { useUnmatchedView } from "@/features/scanner/api/use-unmatched-view";
 import { UnmatchedCardsBrowser } from "@/features/scanner/components/unmatched-cards-browser";
@@ -170,7 +171,9 @@ export default function CollectionViewPage() {
               className="min-h-full"
             />
           ) : (
-            <CardGrid />
+            <RarityGameKeyContext value={collection.game?.key ?? null}>
+              <CardGrid />
+            </RarityGameKeyContext>
           )}
         </ViewedCollectionContext>
       </section>

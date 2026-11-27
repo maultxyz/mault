@@ -82,6 +82,13 @@
       "stillBlocked": "Modul {{module}} erkennt noch eine Karte. Entferne sie und markiere den Fehler dann als behoben.",
       "noResponse": "Der Sortierer hat nicht reagiert. Verbinde ihn erneut und versuche es noch einmal."
     },
+    "emergencyStopped": {
+      "title": "Sortierer im Notstopp",
+      "description": "Der Sortierer ist noch durch einen Notstopp gesperrt, daher wurde der Selbsttest nicht ausgeführt. Entferne alle Karten, die noch darin liegen, und setze den Sortierer dann zurück.",
+      "reset": "Sortierer zurücksetzen",
+      "resetFailedTitle": "Sortierer konnte nicht zurückgesetzt werden",
+      "resetFailedDescription": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe, ob er eingeschaltet ist, und versuche es erneut."
+    },
     "deviceTestFailed": {
       "title": "Gerätetest fehlgeschlagen",
       "description": "Verbunden, aber keine Antwort erhalten. Versuche eine erneute Verbindung."
@@ -185,7 +192,9 @@
     "cloud": {
       "offline": "Dieser Sortierer ist gerade nicht online. Prüfe, ob er eingeschaltet und mit dem WLAN verbunden ist.",
       "inUse": "Jemand anderes steuert diesen Sortierer bereits über WLAN.",
-      "failed": "Der Sortierer war über den Server nicht erreichbar. Versuche es gleich noch einmal."
+      "failed": "Der Sortierer war über den Server nicht erreichbar. Versuche es gleich noch einmal.",
+      "noReply": "Der Sortierer ist verbunden, hat aber nicht geantwortet. Prüfe, ob er eingeschaltet ist und läuft, und versuche es dann erneut.",
+      "busy": "Der Sortierer ist gerade mit einem Scan beschäftigt. Beende den Scan und versuche es dann erneut."
     },
     "firmwareOutdatedBannerPi": "Der integrierte Controller verwendet {{version}}; diese Mault-Installation enthält {{latest}}. Starte Mault auf dem Pi neu, um die mitgelieferte Controller-Software zu laden."
   },
@@ -707,7 +716,6 @@
       "openStation": "Zu {{name}} wechseln",
       "offline": "Nicht verbunden",
       "noCamera": "Keine Kamera",
-      "noCards": "Noch keine Karten gescannt",
       "emptyTitle": "Noch keine Sortierer",
       "emptyDescription": "Verbinde einen Sortierer, um ihn hier zu sehen.",
       "stats": {

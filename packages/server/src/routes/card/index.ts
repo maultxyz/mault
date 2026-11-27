@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
 import { imageProxyRoute } from "./image-proxy";
 import { netdeckImageRoute } from "./netdeck-image";
+import { deckLinkImportRoute } from "./deck-link";
 import { searchByImageRoute } from "./search-by-image";
 import { searchByTextRoute } from "./search-by-text";
 import { printingScoreRoute } from "./printing-score";
@@ -29,6 +30,7 @@ const router = new Hono<AppEnv>()
   .route("/", cardPrintingsRoute)
   .route("/", cardPriceHistoryRoute)
   .route("/", imageProxyRoute)
-  .route("/", netdeckImageRoute);
+  .route("/", netdeckImageRoute)
+  .route("/", deckLinkImportRoute);
 
 export { router as cardRouter };

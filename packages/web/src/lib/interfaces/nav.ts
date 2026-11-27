@@ -119,6 +119,7 @@ export interface AppVersionResponse {
     piHost?: boolean;
     piSorter?: boolean;
     piController?: boolean;
+    piLinked?: boolean;
     latestFirmwareVersion?: string | null;
     billingEnabled?: boolean;
   };

@@ -6,7 +6,10 @@ import {
   sortRarities,
 } from "@magic-vault/shared";
 
-export function toScanStats(aggregate: CardStatsAggregate): ScanStats | null {
+export function toScanStats(
+  aggregate: CardStatsAggregate,
+  gameKey?: string | null,
+): ScanStats | null {
   if (aggregate.totalCount === 0) return null;
 
   return {
@@ -24,7 +27,7 @@ export function toScanStats(aggregate: CardStatsAggregate): ScanStats | null {
     ),
     rarities: sortRarities(
       aggregate.rarities.map(({ key, count }) => {
-        const { bg, textClass } = raritySwatch(key);
+        const { bg, textClass } = raritySwatch(key, gameKey);
         return {
           key,
           label: rarityLabel(key),
@@ -50,11 +53,12 @@ export function toScanStats(aggregate: CardStatsAggregate): ScanStats | null {
 export function toDisplayStats(
   all: CardStatsAggregate,
   visible: CardStatsAggregate,
+  gameKey?: string | null,
 ): ScanStats | null {
-  const allStats = toScanStats(all);
+  const allStats = toScanStats(all, gameKey);
   if (!allStats) return null;
 
-  const visibleStats = toScanStats(visible);
+  const visibleStats = toScanStats(visible, gameKey);
 
   return {
     totalCount: visibleStats?.totalCount ?? 0,

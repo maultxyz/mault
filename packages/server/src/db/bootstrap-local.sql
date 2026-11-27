@@ -47,7 +47,7 @@ DECLARE
     'bin_set_audit', 'bin_route_audit', 'bin_height_audit', 'module_config_audit', 'feeder_config_audit',
     'devices', 'sound_clips', 'sound_rules', 'notification_rules',
     'storage_locations', 'org_api_keys', 'stats_sync_keys', 'webhook_endpoints',
-    'intake_lots', 'fulfilment_orders', 'card_sales', 'org_activity_log', 'accuracy_checks', 'shop_catalogs', 'trade_offers', 'card_reservations', 'share_links', 'import_templates', 'org_profiles'
+    'intake_lots', 'fulfilment_orders', 'card_sales', 'org_activity_log', 'accuracy_checks', 'shop_catalogs', 'trade_offers', 'card_reservations', 'share_links', 'import_templates', 'pi_hosts', 'org_profiles'
   ];
   user_scoped_tables text[] := ARRAY['feature_highlight_views'];
   tbl text;
@@ -87,12 +87,12 @@ $$;
 -- platform_match_validations, api_key_usage_daily, public_route_usage_daily,
 -- platform_stats_settings, platform_billing_settings, platform_share_link_settings,
 -- platform_discord_channels, platform_discord_roles,
--- webhook_deliveries, discord_user_links and customer_status_messages are intentionally not granted here - the app only ever
+-- webhook_deliveries, discord_user_links, customer_status_messages and pi_host_pairings are intentionally not granted here - the app only ever
 -- touches them via `db` directly (see auth/local.ts, routes/impersonation.ts,
 -- lib/sync-api-keys.ts, routes/admin/foil-labels.ts, routes/match-validations,
 -- lib/scan-stats.ts, lib/platform-stats.ts, lib/pricing-mode.ts, lib/share-link-lengths.ts,
 -- lib/platform-discord-channels.ts, lib/webhooks/queue.ts,
--- lib/platform-discord-roles.ts, lib/discord/user-links.ts, lib/customer-status-messages.ts),
+-- lib/platform-discord-roles.ts, lib/discord/user-links.ts, lib/customer-status-messages.ts, lib/pi-hosts.ts),
 -- never through an authQuery()/authenticated
 -- session, so authenticated has no need to read or write them.
 

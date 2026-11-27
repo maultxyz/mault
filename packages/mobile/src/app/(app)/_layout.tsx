@@ -83,6 +83,9 @@ export default function AppLayout() {
           <Stack.Screen name="settings/invite-member" options={sheetOptions} />
           <Stack.Screen name="settings/webhook-edit" options={sheetOptions} />
           <Stack.Screen name="settings/api-key-new" options={sheetOptions} />
+          <Stack.Screen name="settings/raspberry-pi-link" options={sheetOptions} />
+          <Stack.Screen name="settings/raspberry-pi-scan" options={sheetOptions} />
+          <Stack.Screen name="settings/raspberry-pi-rename" options={sheetOptions} />
           <Stack.Screen name="settings/stats-sync-key-new" options={sheetOptions} />
           <Stack.Screen name="settings/stats-sync-connect" options={sheetOptions} />
           <Stack.Screen name="settings/shop-catalog-edit" options={sheetOptions} />

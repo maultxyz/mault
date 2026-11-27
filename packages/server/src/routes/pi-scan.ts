@@ -1,164 +1,59 @@
-import {
-  PI_SCAN_SESSION_PATH,
-  type PiScanRemovalAction,
-  type PiScanSessionSettingsBody,
-  type PiScanSessionStartBody,
-} from "@magic-vault/shared";
-import { Hono } from "hono";
-import {
-  getPiScanSession,
-  emergencyStopPiScanSession,
-  pausePiScanSession,
-  resumePiScanSession,
-  startPiScanSession,
-  stopPiScanSession,
-  requestPiScanFeed,
-  resetPiScanSessionStats,
-  updatePiScanSettings,
-  updatePiScanRemoval,
-} from "../lib/pi-scan/session";
+import { PI_SCAN_SESSION_PATH, type PiLinkScanAction } from "@magic-vault/shared";
+import { Hono, type Context } from "hono";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
+import { isPiHost } from "../lib/pi-host";
+import { runPiScanAction } from "../lib/pi-scan/actions";
 import {
   rejectWhileImpersonating,
   requireAuth,
   requireOrg,
   type AppEnv,
 } from "../middleware/auth";
-import { piUpdateRunning } from "../lib/pi-update";
 
 export { PI_SCAN_SESSION_PATH };
 
-import { isPiHost } from "../lib/pi-host";
+async function respondWithPiScanAction(
+  c: Context<AppEnv>,
+  action: PiLinkScanAction,
+  body?: unknown,
+) {
+  const result = await runPiScanAction(
+    { orgId: c.get("orgId"), userId: c.get("userId"), jwtClaims: c.get("jwtClaims") },
+    action,
+    body,
+  );
+  return c.json(result.body, result.status as ContentfulStatusCode);
+}
+
+const readBody = (c: Context<AppEnv>) => c.req.json<unknown>();
 
 export const piScanRouter = new Hono<AppEnv>()
   .use("*", async (c, next) => (isPiHost() ? next() : c.notFound()))
-  .get("/", requireAuth, requireOrg, (c) => {
-    return c.json({ success: true, data: getPiScanSession(c.get("orgId")) });
-  })
-  .post("/", requireAuth, requireOrg, rejectWhileImpersonating, async (c) => {
-    if (await piUpdateRunning())
-      return c.json(
-        { success: false, message: "A system update is running." },
-        409,
-      );
-    const body = await c.req.json<PiScanSessionStartBody>();
-    const result = await startPiScanSession({
-      orgId: c.get("orgId"),
-      userId: c.get("userId"),
-      jwtClaims: c.get("jwtClaims"),
-      body,
-    });
-    if (!result.ok) {
-      return c.json(
-        { success: false, message: result.message, code: result.code },
-        result.status,
-      );
-    }
-    return c.json({ success: true, data: result.state });
-  })
-  .post("/pause", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
-    const state = pausePiScanSession(c.get("orgId"));
-    if (!state) {
-      return c.json({ success: false, message: "No scan is running." }, 409);
-    }
-    return c.json({ success: true, data: state });
-  })
-  .post(
-    "/emergency-stop",
-    requireAuth,
-    requireOrg,
-    rejectWhileImpersonating,
-    async (c) => {
-      const state = await emergencyStopPiScanSession(c.get("orgId"));
-      if (!state) {
-        return c.json({ success: false, message: "No scan is running." }, 409);
-      }
-      return c.json({ success: true, data: state });
-    },
+  .get("/", requireAuth, requireOrg, (c) => respondWithPiScanAction(c, "state"))
+  .post("/", requireAuth, requireOrg, rejectWhileImpersonating, async (c) =>
+    respondWithPiScanAction(c, "start", await readBody(c)),
   )
-  .post("/resume", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
-    const state = resumePiScanSession(c.get("orgId"));
-    if (!state) {
-      return c.json({ success: false, message: "No scan is paused." }, 409);
-    }
-    return c.json({ success: true, data: state });
-  })
-  .post(
-    "/settings",
-    requireAuth,
-    requireOrg,
-    rejectWhileImpersonating,
-    async (c) => {
-      const body = await c.req.json<PiScanSessionSettingsBody>();
-      const state = updatePiScanSettings(
-        c.get("orgId"),
-        body.foilType,
-        body.preferredSetCodes,
-        body.autoFeed,
-        body.condition,
-        body,
-      );
-      if (!state) {
-        return c.json({ success: false, message: "No scan is running." }, 409);
-      }
-      return c.json({ success: true, data: state });
-    },
+  .post("/pause", requireAuth, requireOrg, rejectWhileImpersonating, (c) =>
+    respondWithPiScanAction(c, "pause"),
   )
-  .post(
-    "/removal",
-    requireAuth,
-    requireOrg,
-    rejectWhileImpersonating,
-    async (c) => {
-      const body = await c.req.json<PiScanRemovalAction>();
-      if (
-        !body ||
-        !["select", "drop", "clear", "remove"].includes(body.action)
-      ) {
-        return c.json(
-          { success: false, message: "Invalid removal action." },
-          400,
-        );
-      }
-      const state = await updatePiScanRemoval(
-        c.get("orgId"),
-        c.get("userId"),
-        body,
-      );
-      if (!state)
-        return c.json(
-          {
-            success: false,
-            message:
-              "The removal queue is busy or the selection is unavailable.",
-          },
-          409,
-        );
-      return c.json({ success: true, data: state });
-    },
+  .post("/emergency-stop", requireAuth, requireOrg, rejectWhileImpersonating, (c) =>
+    respondWithPiScanAction(c, "emergencyStop"),
   )
-  .post("/feed", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
-    const state = requestPiScanFeed(c.get("orgId"));
-    if (!state) {
-      return c.json({ success: false, message: "No scan is running." }, 409);
-    }
-    return c.json({ success: true, data: state });
-  })
-  .post(
-    "/reset-stats",
-    requireAuth,
-    requireOrg,
-    rejectWhileImpersonating,
-    (c) => {
-      const state = resetPiScanSessionStats(c.get("orgId"));
-      if (!state) {
-        return c.json(
-          { success: false, message: "No scan session to reset." },
-          409,
-        );
-      }
-      return c.json({ success: true, data: state });
-    },
+  .post("/resume", requireAuth, requireOrg, rejectWhileImpersonating, (c) =>
+    respondWithPiScanAction(c, "resume"),
   )
-  .delete("/", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
-    return c.json({ success: true, data: stopPiScanSession(c.get("orgId")) });
-  });
+  .post("/settings", requireAuth, requireOrg, rejectWhileImpersonating, async (c) =>
+    respondWithPiScanAction(c, "settings", await readBody(c)),
+  )
+  .post("/removal", requireAuth, requireOrg, rejectWhileImpersonating, async (c) =>
+    respondWithPiScanAction(c, "removal", await readBody(c)),
+  )
+  .post("/feed", requireAuth, requireOrg, rejectWhileImpersonating, (c) =>
+    respondWithPiScanAction(c, "feed"),
+  )
+  .post("/reset-stats", requireAuth, requireOrg, rejectWhileImpersonating, (c) =>
+    respondWithPiScanAction(c, "resetStats"),
+  )
+  .delete("/", requireAuth, requireOrg, rejectWhileImpersonating, (c) =>
+    respondWithPiScanAction(c, "stop"),
+  );

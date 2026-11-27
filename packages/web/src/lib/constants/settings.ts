@@ -3,6 +3,7 @@ import {
   IconBrandDiscord,
   IconBuilding,
   IconBuildingStore,
+  IconCpu,
   IconCreditCard,
   IconCurrencyDollar,
   IconPlug,
@@ -23,6 +24,7 @@ export const SETTINGS_PATHS = {
   sounds: "/app/settings/sounds",
   notifications: "/app/settings/notifications",
   integrations: "/app/settings/integrations",
+  "raspberry-pis": "/app/settings/raspberry-pis",
 } as const;
 
 export const SETTINGS_SECTIONS = [
@@ -39,6 +41,12 @@ export const SETTINGS_SECTIONS = [
     hostedOnly: true,
   },
   { path: "scanning", icon: IconScan, labelKey: "sections.scanning" },
+  {
+    path: "raspberry-pis",
+    icon: IconCpu,
+    labelKey: "sections.raspberryPis",
+    hostedOnly: true,
+  },
   { path: "pricing", icon: IconCurrencyDollar, labelKey: "sections.pricing" },
   { path: "business", icon: IconBuildingStore, labelKey: "sections.business" },
   { path: "profile", icon: IconUserCircle, labelKey: "sections.profile" },

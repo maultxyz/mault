@@ -1,5 +1,5 @@
 {
-  "id": "9ec4c5a2-8525-4e2d-87c7-77b0c4ff53c4",
+  "id": "9c7b2a07-b631-4183-a850-e0e6502401f3",
   "prevId": "73109b05-6d82-451c-a581-bc3b650d05ed",
   "version": "7",
   "dialect": "postgresql",
@@ -7632,152 +7632,6 @@
       "checkConstraints": {},
       "isRLSEnabled": true
     },
-    "public.org_profiles": {
-      "name": "org_profiles",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "org_id": {
-          "name": "org_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "handle": {
-          "name": "handle",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "display_name": {
-          "name": "display_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "''"
-        },
-        "links": {
-          "name": "links",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "showcase_collection_card_ids": {
-          "name": "showcase_collection_card_ids",
-          "type": "integer[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::integer[]"
-        },
-        "shop_catalog_ids": {
-          "name": "shop_catalog_ids",
-          "type": "integer[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::integer[]"
-        },
-        "shows_prices": {
-          "name": "shows_prices",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "is_published": {
-          "name": "is_published",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "org_profiles_org_idx": {
-          "name": "org_profiles_org_idx",
-          "nullsNotDistinct": false,
-          "columns": [
-            "org_id"
-          ]
-        },
-        "org_profiles_handle_idx": {
-          "name": "org_profiles_handle_idx",
-          "nullsNotDistinct": false,
-          "columns": [
-            "handle"
-          ]
-        }
-      },
-      "policies": {
-        "crud-authenticated-policy-select": {
-          "name": "crud-authenticated-policy-select",
-          "as": "PERMISSIVE",
-          "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
-          "using": "(\"org_profiles\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))"
-        },
-        "crud-authenticated-policy-insert": {
-          "name": "crud-authenticated-policy-insert",
-          "as": "PERMISSIVE",
-          "for": "INSERT",
-          "to": [
-            "authenticated"
-          ],
-          "withCheck": "(\"org_profiles\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))"
-        },
-        "crud-authenticated-policy-update": {
-          "name": "crud-authenticated-policy-update",
-          "as": "PERMISSIVE",
-          "for": "UPDATE",
-          "to": [
-            "authenticated"
-          ],
-          "using": "(\"org_profiles\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))",
-          "withCheck": "(\"org_profiles\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))"
-        },
-        "crud-authenticated-policy-delete": {
-          "name": "crud-authenticated-policy-delete",
-          "as": "PERMISSIVE",
-          "for": "DELETE",
-          "to": [
-            "authenticated"
-          ],
-          "using": "(\"org_profiles\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))"
-        }
-      },
-      "checkConstraints": {},
-      "isRLSEnabled": true
-    },
     "public.org_settings": {
       "name": "org_settings",
       "schema": "",
@@ -8078,6 +7932,270 @@
             "api_service"
           ],
           "using": "\"org_settings\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.pi_host_pairings": {
+      "name": "pi_host_pairings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "poll_secret_hash": {
+          "name": "poll_secret_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "host_name": {
+          "name": "host_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pi_host_id": {
+          "name": "pi_host_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "claimed_at": {
+          "name": "claimed_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "token_delivered_at": {
+          "name": "token_delivered_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "pi_host_pairings_code_idx": {
+          "name": "pi_host_pairings_code_idx",
+          "columns": [
+            {
+              "expression": "code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.pi_hosts": {
+      "name": "pi_hosts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "guid": {
+          "name": "guid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paired_by": {
+          "name": "paired_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "paired_at": {
+          "name": "paired_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "last_seen_at": {
+          "name": "last_seen_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "active_scan_user_id": {
+          "name": "active_scan_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "active_scan_started_at": {
+          "name": "active_scan_started_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revoked_at": {
+          "name": "revoked_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "pi_hosts_guid_idx": {
+          "name": "pi_hosts_guid_idx",
+          "columns": [
+            {
+              "expression": "guid",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "pi_hosts_token_hash_idx": {
+          "name": "pi_hosts_token_hash_idx",
+          "columns": [
+            {
+              "expression": "token_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"pi_hosts\".\"token_hash\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "pi_hosts_org_idx": {
+          "name": "pi_hosts_org_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "crud-authenticated-policy-select": {
+          "name": "crud-authenticated-policy-select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(\"pi_hosts\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))"
+        },
+        "crud-authenticated-policy-insert": {
+          "name": "crud-authenticated-policy-insert",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(\"pi_hosts\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))"
+        },
+        "crud-authenticated-policy-update": {
+          "name": "crud-authenticated-policy-update",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(\"pi_hosts\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))",
+          "withCheck": "(\"pi_hosts\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))"
+        },
+        "crud-authenticated-policy-delete": {
+          "name": "crud-authenticated-policy-delete",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(\"pi_hosts\".\"org_id\" = (SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))"
         }
       },
       "checkConstraints": {},

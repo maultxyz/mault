@@ -55,6 +55,7 @@ export async function findFullBin(
         WHERE c.collection_id = ${collectionId}
           AND c.bin_number = ${binNumber}
           AND c.bin_emptied_at IS NULL
+          AND c.location_id IS NULL
       ) + (
         SELECT count(*)::int FROM ${unmatchedCards} u
         WHERE u.collection_id = ${collectionId}

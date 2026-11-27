@@ -2,7 +2,7 @@ import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { useDeleteDevice } from "@/features/calibration/api/use-delete-device";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { useCollectionLatestCard } from "@/features/scanner/api/use-collection-latest-card";
+import { useCollectionCardCount } from "@/features/scanner/api/use-collection-card-count";
 import { useSorterSelection } from "@/features/scanner/api/use-sorter-selection";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { RenameDeviceButton } from "@/features/scanner/components/rename-device-button";
@@ -18,7 +18,7 @@ export function OfflineDeviceTile({ device }: OfflineDeviceTileProps) {
   const { collections } = useCollections();
   const lastCollectionGuid = getDevicePrefs(device.guid)?.collectionGuid;
   const collection = collections.find((c) => c.guid === lastCollectionGuid);
-  const { latestCard, totalCount } = useCollectionLatestCard(collection?.guid);
+  const totalCount = useCollectionCardCount(collection?.guid);
   const deleteDevice = useDeleteDevice();
   const { selectedKeys, toggleSelected } = useSorterSelection();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -29,7 +29,6 @@ export function OfflineDeviceTile({ device }: OfflineDeviceTileProps) {
       <StationOverviewCard
         name={device.name}
         status="offline"
-        latestCard={latestCard}
         collectionName={collection?.name}
         totalCount={totalCount}
         selected={selectedKeys.has(device.guid)}

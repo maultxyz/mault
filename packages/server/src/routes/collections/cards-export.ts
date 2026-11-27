@@ -2,6 +2,7 @@ import { collectionCsvExportRequestSchema } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { buildCardExport, csvResponse } from "../../lib/card-export";
+import { loadOrgPricing } from "../../lib/price-source";
 import {
   markRequestAsReadOnly,
   requireAuth,
@@ -33,12 +34,13 @@ export const exportCollectionCardsRoute = new Hono<AppEnv>()
       return {
         collection,
         cards: await loadAllCards(tx, collection, input.data.scanIds),
+        pricing: await loadOrgPricing(tx, c.get("orgId")),
       };
     });
     if (!loaded) {
       return c.json({ success: false, message: "Collection not found." }, 404);
     }
-    const { collection, cards } = loaded;
+    const { collection, cards, pricing } = loaded;
     const result = await buildCardExport({
       format: input.data.format,
       combineDuplicates: input.data.combineDuplicates,
@@ -52,6 +54,7 @@ export const exportCollectionCardsRoute = new Hono<AppEnv>()
           }
         : null,
       exportName: collection.name,
+      pricing,
     });
     if (!result.success) return c.json(result, 400);
     return csvResponse(c, result.csv, result.filename);

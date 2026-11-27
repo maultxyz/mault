@@ -82,6 +82,13 @@
       "stillBlocked": "Le module {{module}} détecte encore une carte. Retirez-la, puis marquez le problème comme résolu.",
       "noResponse": "Le trieur n'a pas répondu. Reconnectez-le et réessayez."
     },
+    "emergencyStopped": {
+      "title": "Trieuse en arrêt d'urgence",
+      "description": "La trieuse est encore bloquée par un arrêt d'urgence, le test automatique n'a donc pas été lancé. Retirez toute carte restée à l'intérieur, puis réinitialisez la trieuse.",
+      "reset": "Réinitialiser la trieuse",
+      "resetFailedTitle": "Impossible de réinitialiser la trieuse",
+      "resetFailedDescription": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez qu'elle est allumée, puis réessayez."
+    },
     "deviceTestFailed": {
       "title": "Échec du test de l'appareil",
       "description": "Connecté, mais aucune réponse reçue. Essaie de te reconnecter."
@@ -185,7 +192,9 @@
     "cloud": {
       "offline": "Cette trieuse n'est pas en ligne pour le moment. Vérifie qu'elle est allumée et connectée au Wi-Fi.",
       "inUse": "Quelqu'un d'autre contrôle déjà cette trieuse en Wi-Fi.",
-      "failed": "Impossible de joindre la trieuse via le serveur. Réessaie dans un instant."
+      "failed": "Impossible de joindre la trieuse via le serveur. Réessaie dans un instant.",
+      "noReply": "La trieuse est connectée mais n'a pas répondu. Vérifie qu'elle est allumée et en marche, puis réessaie.",
+      "busy": "La trieuse est occupée par un scan. Arrête le scan, puis réessaie."
     },
     "firmwareOutdatedBannerPi": "Le contrôleur intégré utilise {{version}} ; cette installation de Mault inclut {{latest}}. Redémarre Mault sur le Pi pour charger le logiciel du contrôleur inclus."
   },
@@ -707,7 +716,6 @@
       "openStation": "Basculer vers {{name}}",
       "offline": "Non connecté",
       "noCamera": "Aucune caméra",
-      "noCards": "Aucune carte scannée pour l'instant",
       "emptyTitle": "Aucun trieur pour l'instant",
       "emptyDescription": "Connectez un trieur pour le voir ici.",
       "stats": {

@@ -9,7 +9,7 @@ import {
   type WifiLinkState,
 } from "@magic-vault/shared";
 
-function toWebSocketUrl(path: string): URL {
+export function toWebSocketUrl(path: string): URL {
   const url = new URL(`${API_BASE}/api${path}`, window.location.origin);
   url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
   return url;

@@ -519,6 +519,15 @@
     "added": "{{name}} hinzugefügt",
     "failed": "Die Karte konnte nicht hinzugefügt werden."
   },
+  "externalCardDrop": {
+    "overlayTitle": "Ablegen, um Karten hinzuzufügen",
+    "overlayDescription": "Karten und Deck-Links von Scryfall, Moxfield oder Archidekt werden zu {{collection}} hinzugefügt.",
+    "hint": "Du kannst auch eine Karte aus Scryfall, Moxfield oder Archidekt auf die Sammlung ziehen, um sie hinzuzufügen. Lege einen Deck-Link ab, um das ganze Deck zu importieren.",
+    "finding_one": "Karte wird gesucht...",
+    "finding_other": "{{count}} Karten werden gesucht...",
+    "unrecognized": "Ziehe eine Karte aus Scryfall, Moxfield oder Archidekt hierher, um sie hinzuzufügen.",
+    "notFound": "Diese Karte wurde im Katalog nicht gefunden."
+  },
   "importScans": {
     "button": "Scans importieren",
     "title": "Gescannte Bilder importieren",
@@ -576,6 +585,28 @@
     }
   },
   "importCsv": {
+    "deckLink": {
+      "label": "Deck-Link",
+      "placeholder": "https://moxfield.com/decks/...",
+      "load": "Deck laden",
+      "loading": "Deck wird geladen...",
+      "loaded": "Deck von {{source}}.",
+      "table": {
+        "quantity": "Anz.",
+        "card": "Karte",
+        "set": "Edition",
+        "status": "Status",
+        "foil": "Foil",
+        "anySet": "Beliebiger Druck",
+        "matched": "Gefunden",
+        "notFound": "Nicht gefunden"
+      },
+      "failure": {
+        "notFound": "Dieses Deck wurde nicht gefunden. Prüfe, ob der Link stimmt und das Deck öffentlich ist.",
+        "unavailable": "Das Deck konnte gerade nicht geladen werden. Versuche es erneut oder exportiere es als CSV und lade diese hoch.",
+        "empty": "Dieses Deck enthält keine Karten zum Importieren."
+      }
+    },
     "button": "CSV importieren",
     "title": "Karten aus einer CSV importieren",
     "description": "Lade einen Sammlungsexport von Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer oder eine beliebige CSV mit einer Spalte für den Kartennamen hoch.",

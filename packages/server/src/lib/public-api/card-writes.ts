@@ -32,7 +32,8 @@ export async function removePublicApiCardFromLocation(
 ): Promise<PublicApiCardWriteResult> {
   const result = await tx.execute(sql`
     UPDATE collection_cards cc
-    SET location_id = NULL, location_position = NULL
+    SET location_id = NULL, location_position = NULL,
+      bin_emptied_at = coalesce(cc.bin_emptied_at, now())
     WHERE ${liveCardSql(orgId, scanId)}
     RETURNING cc.id
   `);

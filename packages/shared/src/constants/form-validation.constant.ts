@@ -55,6 +55,8 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "expiryDaysInvalid",
   "expiryDaysTooMany",
   "organizationIdInvalid",
+  "piPairingCodeInvalid",
+  "deckLinkInvalid",
   "profileHandleInvalid",
   "profileHandleReserved",
 ] as const;

@@ -4,7 +4,11 @@ import { sorterLinksQueryOptions } from "@/features/scanner/api/sorter-link";
 import { useStations } from "@/features/scanner/api/use-stations";
 import type { WifiSorters } from "@/lib/interfaces/sorter-wifi";
 import { useQuery } from "@tanstack/react-query";
-import { SORTER_LINKS_REFETCH_MS } from "@magic-vault/shared";
+import { useEffect } from "react";
+import {
+  linkedSorterGuidsMissingFromDevices,
+  SORTER_LINKS_REFETCH_MS,
+} from "@magic-vault/shared";
 
 export function useWifiSorters(poll: boolean): WifiSorters {
   const { activeOrg } = useOrg();
@@ -14,6 +18,17 @@ export function useWifiSorters(poll: boolean): WifiSorters {
     ...sorterLinksQueryOptions(activeOrg?.id),
     refetchInterval: poll ? SORTER_LINKS_REFETCH_MS : false,
   });
+
+  const linkedGuidsMissingFromDevices = linkedSorterGuidsMissingFromDevices(
+    links.data,
+    devices.data,
+  );
+  const devicesLoaded = devices.isSuccess;
+  const refetchDevices = devices.refetch;
+
+  useEffect(() => {
+    if (devicesLoaded && linkedGuidsMissingFromDevices) void refetchDevices();
+  }, [devicesLoaded, linkedGuidsMissingFromDevices, refetchDevices]);
 
   const sorters = (links.data ?? [])
     .filter((link) => link.linked)

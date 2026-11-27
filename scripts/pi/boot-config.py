@@ -5,6 +5,7 @@
 # Raspberry Pi Imager doesn't offer OS customisation for custom images, so this
 # file is how an image owner gets a login. Applied passwords are erased from
 # the file and a Status line records the result, readable from any computer.
+# hosting= is read once by setup.sh on first boot (--print-hosting).
 import datetime
 import re
 import subprocess
@@ -21,6 +22,7 @@ LOGIN_GROUPS = ("sudo", "adm", "video", "dialout", "gpio", "i2c", "plugdev", "ne
 WIFI_CONNECTION_NAME = "mault-wifi"
 STATUS_PREFIX = "# Status:"
 SETTING = re.compile(r"\s*([a-z_]+)\s*=(.*)")
+HOSTING_CHOICES = {"mault.xyz": "hosted", "hosted": "hosted", "self": "self", "self-hosted": "self"}
 
 
 def read_settings(text):
@@ -30,6 +32,11 @@ def read_settings(text):
         if match:
             settings[match[1]] = match[2].strip()
     return settings
+
+
+def hosting_choice(settings):
+    value = settings.get("hosting", "").strip().lower()
+    return HOSTING_CHOICES.get(value) if value else None
 
 
 def rewrite(text, status):
@@ -81,6 +88,8 @@ def validate(settings, uid_of=user_uid):
             uid = uid_of(username)
             if uid is not None and uid < FIRST_REGULAR_UID:
                 errors.append(f"username {username!r} is a system account")
+    if settings.get("hosting", "").strip() and hosting_choice(settings) is None:
+        errors.append("hosting must be mault.xyz or self")
     if settings.get("ssh", "no").lower() not in ("yes", "no", ""):
         errors.append("ssh must be yes or no")
     wifi_name = settings.get("wifi_name", "")
@@ -161,5 +170,13 @@ def main(path, run=system_run, uid_of=user_uid, groups_of=existing_groups):
     return 1 if result.startswith("error") else 0
 
 
+def print_hosting(path):
+    if path.is_file():
+        print(hosting_choice(read_settings(path.read_text(encoding="utf-8-sig"))) or "")
+    return 0
+
+
 if __name__ == "__main__":
+    if sys.argv[1:2] == ["--print-hosting"]:
+        sys.exit(print_hosting(Path(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_PATH))
     sys.exit(main(Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PATH))

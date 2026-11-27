@@ -204,7 +204,11 @@ export default function CollectionScreen() {
     [scanTimelineRows],
   );
   const stats = summary.data?.all;
-  const breakdown = useMemo(() => (stats && stats.totalCount > 0 ? toStatsBreakdown(stats) : null), [stats]);
+  const rarityGameKey = collection?.game?.key;
+  const breakdown = useMemo(
+    () => (stats && stats.totalCount > 0 ? toStatsBreakdown(stats, rarityGameKey) : null),
+    [stats, rarityGameKey],
+  );
   const binCount = computeBinCount(sorter.device?.moduleCount ?? DEFAULT_MODULE_COUNT);
   const foilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
   const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), sort, pricing.source, t);

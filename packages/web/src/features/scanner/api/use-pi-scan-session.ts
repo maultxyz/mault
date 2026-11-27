@@ -16,6 +16,7 @@ import { useStation } from "@/features/scanner/api/use-stations";
 import { PI_CAMERA_DEVICE_ID } from "@/lib/constants/scanner";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { usePiHostState } from "@/hooks/use-pi-host";
+import { usePiScanMode } from "@/features/scanner/api/use-pi-scan-mode";
 import { readPiCameraHealth } from "@/features/scanner/lib/pi-camera";
 import {
   applyPiScanState,
@@ -40,7 +41,9 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
   const { piHost } = usePiHostState();
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
   const { isRemoveModeEnabled, removalBinNumber } = useScanRemoval();
-  const [cameraReady, setCameraReady] = useState(false);
+  const { linkedPi } = usePiScanMode();
+  const [selfHostedCameraReady, setCameraReady] = useState(false);
+  const cameraReady = linkedPi ? linkedPi.connected : selfHostedCameraReady;
   const [starting, setStarting] = useState(false);
   const collectionGuid = activeCollection?.guid;
 

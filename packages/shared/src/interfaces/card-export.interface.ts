@@ -1,4 +1,4 @@
-import type { CardCondition } from "./card-condition.interface";
+import type { CardCondition, OrgPricing } from "./card-condition.interface";
 import type { FieldMeta } from "./sort-bins.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
 import type { ScannedCard } from "./scanner.interface";
@@ -24,6 +24,7 @@ export interface ExportContext {
   gameKey?: string;
   gameName?: string;
   tcgplayerSkusByEntryKey?: Record<string, TcgplayerSkuMatch>;
+  pricing?: OrgPricing;
 }
 
 export interface GroupedEntry {

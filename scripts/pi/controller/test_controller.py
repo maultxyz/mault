@@ -55,6 +55,9 @@ class HardwareTests(unittest.TestCase):
             def __init__(self, number):
                 self.number = number
 
+            def read_byte_data(self, address, register):
+                return 0x11
+
             def write_byte_data(self, address, register, value):
                 writes.append((register, value))
 
@@ -94,6 +97,73 @@ class HardwareTests(unittest.TestCase):
             self.assertEqual(writes[-1], (0x42, [0, 0, 0, 16]))
             hardware.close()
             self.assertEqual(closed, [0, 4])
+
+    def raspberry_hardware(self, bus_factory):
+        gpio = types.SimpleNamespace(
+            SET_PULL_UP=32, gpiochip_open=lambda chip: chip,
+            gpio_get_chip_info=lambda chip: [0, 54, "gpiochip", "pinctrl-rp1"],
+            gpiochip_close=lambda handle: None,
+            gpio_claim_input=lambda handle, pin, flags: None,
+            gpio_read=lambda handle, pin: 1,
+        )
+        with patch.dict("sys.modules", {"lgpio": gpio, "smbus": types.SimpleNamespace(SMBus=bus_factory)}), \
+                patch("scripts.pi.controller.hardware.glob.glob", return_value=["/dev/gpiochip4"]), \
+                patch("builtins.print"):
+            return Hardware()
+
+    def test_starts_without_servo_driver_and_initializes_it_once_it_answers(self):
+        writes = []
+        answering = [False]
+
+        class Bus:
+            def __init__(self, number):
+                pass
+
+            def read_byte_data(self, address, register):
+                if not answering[0]:
+                    raise OSError(121, "Remote I/O error")
+                return 0x11
+
+            def write_byte_data(self, address, register, value):
+                if not answering[0]:
+                    raise OSError(121, "Remote I/O error")
+                writes.append((register, value))
+
+            def write_i2c_block_data(self, address, register, values):
+                if not answering[0]:
+                    raise OSError(121, "Remote I/O error")
+                writes.append((register, values))
+
+            def close(self):
+                pass
+
+        hardware = self.raspberry_hardware(Bus)
+        self.assertFalse(hardware.present_driver())
+        hardware.pwm(15, 0)
+        hardware.release()
+        with self.assertRaises(OSError):
+            hardware.pwm(15, 315)
+        self.assertEqual(writes, [])
+        answering[0] = True
+        self.assertTrue(hardware.present_driver())
+        self.assertIn((0xFE, 121), writes)
+        hardware.pwm(15, 315)
+        self.assertEqual(writes[-1], (0x42, [0, 0, 59, 1]))
+        answering[0] = False
+        hardware.pwm(15, 0)
+        self.assertFalse(hardware.driver_ready)
+        hardware.close()
+
+    def test_starts_without_i2c_bus(self):
+        def missing_bus(number):
+            raise FileNotFoundError(2, "No such file or directory", "/dev/i2c-1")
+
+        hardware = self.raspberry_hardware(missing_bus)
+        self.assertFalse(hardware.present_driver())
+        hardware.pwm(15, 0)
+        with self.assertRaises(OSError):
+            hardware.pwm(15, 315)
+        hardware.close()
 
 
 class ControllerTests(unittest.IsolatedAsyncioTestCase):

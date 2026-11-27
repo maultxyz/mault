@@ -10,6 +10,8 @@ unset BASH_ENV ENV
 MAULT_HOME=/opt/mault
 MAULT_DATA=/var/lib/mault
 MAULT_SYSTEM_STATE=/var/lib/mault-system
+MAULT_LIB=/usr/local/lib/mault
+BOOT_CONFIG=/boot/firmware/mault-config.txt
 MAULT_USER=mault-service
 ROOT="$MAULT_HOME/current"
 SCRIPTS="$ROOT/scripts/pi"
@@ -40,6 +42,15 @@ as_service_user() {
 interactive() {
   [[ "$FIRST_BOOT" -eq 0 ]] && { : </dev/tty; } 2>/dev/null
 }
+
+install_mode_arguments=(--env "$ENV_FILE")
+if [[ -f "$MAULT_SYSTEM_STATE/setup-complete" || -n "$MIGRATE_FROM" ]]; then
+  install_mode_arguments+=(--existing-install)
+fi
+if [[ "$FIRST_BOOT" -eq 1 && -z "${MAULT_HOSTING:-}" && -f "$MAULT_LIB/boot-config.py" ]]; then
+  MAULT_HOSTING="$(python3 -I "$MAULT_LIB/boot-config.py" --print-hosting "$BOOT_CONFIG")"
+  export MAULT_HOSTING="${MAULT_HOSTING:-hosted}"
+fi
 
 if [[ -f "$ENV_FILE" ]]; then
   bash "$SCRIPTS/install.sh" --read-postgres-password "$ENV_FILE" >/dev/null
@@ -105,10 +116,11 @@ if ! as_service_user grep -q -E '^\s*(export\s+)?PI_SORTER=' "$ENV_FILE" && ! in
   fi
 fi
 if interactive; then
-  as_service_user python3 "$SCRIPTS/install-mode.py" --env "$ENV_FILE" </dev/tty
+  as_service_user python3 "$SCRIPTS/install-mode.py" "${install_mode_arguments[@]}" </dev/tty
 else
-  as_service_user python3 "$SCRIPTS/install-mode.py" --env "$ENV_FILE"
+  as_service_user python3 "$SCRIPTS/install-mode.py" "${install_mode_arguments[@]}"
 fi
+hosting_mode="$(as_service_user python3 "$SCRIPTS/install-mode.py" --env "$ENV_FILE" --print-hosting)"
 if [[ -z "${CARD_API_USER_AGENT:-}" ]]; then
   CARD_API_USER_AGENT="Mault-$(hostname | tr -c 'A-Za-z0-9._\n-' '-')-$(python3 -I -c 'import secrets; print(secrets.token_hex(4))')/1.0"
 fi
@@ -140,11 +152,15 @@ RULES
   udevadm settle
 fi
 
-password="$(bash "$SCRIPTS/install.sh" --read-postgres-password "$ENV_FILE")"
+if [[ "$hosting_mode" == hosted ]]; then
+  echo "[setup] Cards are kept in your Mault account at mault.xyz: the local database stays off."
+  systemctl disable --now postgresql 2>/dev/null || true
+else
+  password="$(bash "$SCRIPTS/install.sh" --read-postgres-password "$ENV_FILE")"
 
-echo "[setup] Preparing the database"
-systemctl enable --now postgresql
-runuser -u postgres -- psql -v ON_ERROR_STOP=1 <<SQL
+  echo "[setup] Preparing the database"
+  systemctl enable --now postgresql
+  runuser -u postgres -- psql -v ON_ERROR_STOP=1 <<SQL
 DO \$\$
 BEGIN
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'mault') THEN
@@ -157,7 +173,8 @@ END
 SELECT 'CREATE DATABASE mault OWNER mault'
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'mault')\\gexec
 SQL
-runuser -u postgres -- psql -d mault -v ON_ERROR_STOP=1 -c "CREATE EXTENSION IF NOT EXISTS vector;"
+  runuser -u postgres -- psql -d mault -v ON_ERROR_STOP=1 -c "CREATE EXTENSION IF NOT EXISTS vector;"
+fi
 
 echo "[setup] Starting Mault"
 loginctl enable-linger "$MAULT_USER"
@@ -174,15 +191,22 @@ if [[ "$sorter_mode" == gpio ]]; then
 elif as_service_user systemctl --user cat mault-controller.service >/dev/null 2>&1; then
   as_service_user systemctl --user disable --now mault-controller.service
 fi
-as_service_user systemctl --user enable mault-prices.timer "${services[@]}"
+as_service_user systemctl --user enable "${services[@]}"
 as_service_user systemctl --user restart "${services[@]}"
-as_service_user systemctl --user start mault-prices.timer
+if [[ "$hosting_mode" == hosted ]]; then
+  as_service_user systemctl --user disable --now mault-prices.timer 2>/dev/null || true
+else
+  as_service_user systemctl --user enable --now mault-prices.timer
+fi
 systemctl reload-or-restart nginx
 
 for _ in $(seq 1 120); do
   if curl -sf http://127.0.0.1:8080/api/public/version >/dev/null; then
     touch "$MAULT_SYSTEM_STATE/setup-complete"
     bash "$SCRIPTS/mault.sh" urls
+    if [[ "$hosting_mode" == hosted ]]; then
+      bash "$SCRIPTS/mault.sh" link --wait
+    fi
     exit 0
   fi
   sleep 1

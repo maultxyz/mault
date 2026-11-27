@@ -1,19 +1,24 @@
 {
   "meta": {
     "title": "Anleitung zum Selbsthosten | Mault",
-    "description": "Betreibe Mault mit Docker Compose, Coolify oder direkt auf einem Pi/Linux-Host. Voraussetzungen, Installation und Updates Schritt für Schritt."
+    "description": "Verbinde einen Raspberry-Pi-Sortierer mit deinem Mault-Konto oder betreibe Mault selbst mit Docker Compose, Coolify oder einem Pi/Linux-Host. Schritt für Schritt."
   },
   "hero": {
     "eyebrow": "Anleitung zum Selbsthosten",
     "title": "Mault auf deinem eigenen Server",
-    "description": "Betreibe Mault auf deiner eigenen Hardware. Wähle dein Setup, und die Anleitung zeigt nur die Schritte, die du brauchst. Dein Fortschritt wird in diesem Browser gespeichert."
+    "description": "Am einfachsten ist ein Raspberry Pi, der mit deinem Mault-Konto verbunden ist: Das Board steuert Kamera und Sortierer, und mault.xyz speichert deine Karten. Wenn du alles selbst betreiben möchtest, wähle ein anderes Setup. Die Anleitung zeigt nur die nötigen Schritte, und dein Fortschritt wird in diesem Browser gespeichert."
   },
   "setup": {
     "label": "Dein Setup",
     "title": "Wähle dein Setup",
     "description": "Deine Auswahl steht in der URL, du kannst diese Anleitung also als Lesezeichen speichern oder teilen.",
+    "recommended": "Empfohlen",
     "host": {
       "label": "Wo hostest du?",
+      "linked": {
+        "title": "Pi mit mault.xyz verbunden",
+        "description": "Spiele das Raspberry-Pi-Image auf und verbinde es mit deinem Mault-Konto. Der Pi übernimmt Kamera, Scannen und Sortierer; Karten, Kartendaten und Preise bleiben auf mault.xyz. Kein Server und keine Datenbank zu betreuen."
+      },
       "compose": {
         "title": "Docker Compose",
         "description": "Jeder Server, den du selbst verwaltest. Baut den Stack aus dem Repository."
@@ -29,7 +34,6 @@
     },
     "auth": {
       "label": "Konten und Datenbank",
-      "recommended": "Empfohlen",
       "local": {
         "title": "Integriert",
         "description": "Postgres und Konten laufen im Stack. Keine externen Dienste, aber um Backups kümmerst du dich selbst."
@@ -69,6 +73,9 @@
       "title": "Bevor du anfängst",
       "description": "Was du bereithalten solltest.",
       "steps": {
+        "maultAccount": {
+          "text": "Ein Mault-Konto auf <code>mault.xyz</code>, in dem du Owner oder Admin der Organisation bist, in die der Sortierer scannt."
+        },
         "docker": {
           "text": "Docker mit Compose v2. Dieser Befehl sollte eine Version ausgeben."
         },
@@ -323,17 +330,104 @@
         }
       }
     },
+    "linkedInstall": {
+      "label": "Installation",
+      "title": "Mault auf dem Board installieren",
+      "description": "Das Board nutzt ein fertiges Release und hat keine Datenbank. Karten, Konten und Preise liegen in deinem Mault-Konto.",
+      "steps": {
+        "flash": {
+          "text": "Lade <code>mault-pi.img.xz</code> aus dem neuesten Pi-Release herunter und spiele es mit dem Raspberry Pi Imager auf die microSD-Karte. Der Imager bietet für dieses Image keine OS-Anpassung, überspringe diesen Bildschirm.",
+          "note": "Ethernet funktioniert ohne Einrichtung. Login, SSH und WLAN kommen aus der Datei im nächsten Schritt."
+        },
+        "config": {
+          "text": "Öffne vor dem ersten Start das Laufwerk <code>bootfs</code> der Karte an einem beliebigen Computer und fülle <code>mault-config.txt</code> aus. Lass <code>hosting=mault.xyz</code> stehen und trage deine WLAN-Daten ein, optional auch Benutzername und Passwort mit <code>ssh=yes</code> für den Terminalzugang.",
+          "note": "Mit Ethernet kannst du diesen Schritt überspringen: Zum Verbinden genügt ein Browser. Wähle einen beliebigen Benutzernamen außer mault-service. Das Board übernimmt die Datei bei jedem Start und löscht die Passwörter daraus."
+        },
+        "boot": {
+          "text": "Steck die Karte in den Pi und schalte ihn ein. Der erste Start dauert ein paar Minuten. Antwortet ein PCA9685-Servotreiber am I2C-Anschluss, steuert Mault den Sortierer direkt (GPIO); sonst wartet es auf einen USB- oder Bluetooth-Sortierer.",
+          "note": "Ändere das später mit sudo mault sorter usb oder sudo mault sorter builtin."
+        },
+        "installOther": {
+          "text": "Führe auf einem anderen arm64-Board oder einem Raspberry Pi mit Raspberry Pi OS diesen Befehl per SSH aus. Er installiert das neueste Release verbunden mit mault.xyz und fragt dann, wie der Sortierer angeschlossen ist.",
+          "note": "Ein Board, das Karten bereits in einer eigenen Datenbank speichert, bleibt bei einer Neuinstallation dabei. Stelle es mit sudo mault hosting mault.xyz um."
+        }
+      }
+    },
+    "linkedLink": {
+      "label": "Verbinden",
+      "title": "Board mit deinem Konto verbinden",
+      "description": "Das Verbinden dauert eine Minute in einem beliebigen Browser im selben Netzwerk. Keine Befehle nötig.",
+      "steps": {
+        "open": {
+          "text": "Öffne <code>http://mault.local</code> auf einem Handy oder Computer im selben Netzwerk. Die Seite zeigt den Verbindungscode des Boards und führt dich durch die folgenden Schritte.",
+          "note": "Lädt mault.local nicht, nutze die IP-Adresse des Boards aus deinem Router. Der Code wird nur in deinem eigenen Netzwerk angezeigt und nur, bis das Board verbunden ist."
+        },
+        "signIn": {
+          "text": "Wähle Bei Mault anmelden und melde dich als Owner oder Admin deiner Organisation an."
+        },
+        "enterCode": {
+          "text": "Wähle zurück auf der Seite des Boards Diesen Sortierer verbinden. Mault öffnet Einstellungen, Raspberry Pis mit eingetragenem Code. Gib dem Sortierer einen Namen und wähle Verbinden.",
+          "note": "Der Code ändert sich alle paar Minuten. Du kannst ihn auch selbst unter Einstellungen, Raspberry Pis, Raspberry Pi verbinden eingeben."
+        },
+        "terminal": {
+          "text": "Per SSH zeigt dieser Befehl den Verbindungscode oder, nach dem Verbinden, den Status."
+        }
+      }
+    },
+    "linkedScan": {
+      "label": "Erster Scan",
+      "title": "Mit Mault scannen",
+      "description": "Scanne von jedem Computer oder Handy, das bei Mault angemeldet ist. Deine Spiele, Kartendaten und Preise sind schon da.",
+      "steps": {
+        "select": {
+          "text": "Öffne den Scanner und wähle den verbundenen Pi im Sortierer-Menü. Der Scanner zeigt die Webcam des Pi, und Karten erscheinen im Kartenraster, sobald der Pi sie speichert."
+        },
+        "calibrate": {
+          "text": "Kalibriere den Sortierer im Scanner oder auf den Kalibrierungsseiten wie jeden anderen Sortierer.",
+          "note": "Der Pi überlässt den Kalibrierungsseiten seinen Sortierer nur, solange kein Scan läuft."
+        },
+        "scan": {
+          "text": "Wähle eine Sammlung und starte den Scan. Der Pi zieht jede Karte ein, fotografiert, erkennt und sortiert sie selbst.",
+          "note": "Der Scan läuft auf dem Pi weiter, wenn du den Browser schließt. Beende ihn im Scanner oder unter Einstellungen, Raspberry Pis."
+        }
+      }
+    },
+    "linkedMaintain": {
+      "label": "Wartung",
+      "title": "Board aktualisieren und pflegen",
+      "description": "Owner und Admins aktualisieren das Board in Mault. Alles andere erledigt der mault-Befehl per SSH.",
+      "steps": {
+        "update": {
+          "text": "Wenn unter Einstellungen, Raspberry Pis ein Update für das Board angezeigt wird, beende seinen Scan und wähle Aktualisieren. Per SSH macht dieser Befehl dasselbe.",
+          "note": "Das Board startet neu und ist in ein paar Minuten wieder online. Startet die neue Version nicht, kehrt es automatisch zur vorherigen zurück."
+        },
+        "osUpdates": {
+          "text": "Sicherheitsupdates des Betriebssystems werden täglich automatisch ohne Neustart installiert, sodass kein Scan unterbrochen wird. Boards, die vor dieser Änderung installiert wurden, schalten sie mit diesem Befehl ein."
+        },
+        "relink": {
+          "text": "Um das Board in eine andere Organisation zu verschieben, entferne es unter Einstellungen, Raspberry Pis. Es zeigt dann auf mault.local einen neuen Verbindungscode, ebenso dieser Befehl.",
+          "note": "Bereits gescannte Karten bleiben in der alten Organisation."
+        },
+        "selfHost": {
+          "text": "Um Karten und Konten stattdessen auf dem Board zu speichern, stelle es auf Selbsthosting um.",
+          "note": "Karten in deinem Mault-Konto bleiben dort. sudo mault hosting mault.xyz stellt wieder zurück."
+        },
+        "logs": {
+          "text": "Bei Fehlern beim Starten, Verbinden oder Scannen sieh dir das Log an."
+        }
+      }
+    },
     "piInstall": {
       "label": "Installation",
       "title": "Mault auf dem Board installieren",
-      "description": "Auf dem Board wird nichts geklont oder gebaut: Es läuft ein fertiges Release.",
+      "description": "Auf dem Board wird nichts geklont oder gebaut: Es nutzt ein fertiges Release. Bei diesem Setup bleiben Karten und Konten auf dem Board. Um sie stattdessen in deinem Mault-Konto zu speichern, wähle oben Pi mit mault.xyz verbunden.",
       "steps": {
         "flash": {
           "text": "Lade <code>mault-pi.img.xz</code> aus dem neuesten Pi-Release herunter und schreibe es mit dem Raspberry Pi Imager auf die microSD-Karte. Der Imager bietet für dieses Image keine Betriebssystem-Anpassung, überspringe diesen Schritt also.",
           "note": "Ethernet funktioniert ohne Einrichtung. Anmeldung, SSH und WLAN kommen aus der Datei im nächsten Schritt. Das Image wird wöchentlich neu gebaut, aktualisiere Mault also nach dem ersten Start: über Mault aktualisieren in der App oder mit sudo mault update."
         },
         "config": {
-          "text": "Öffne vor dem ersten Start das Laufwerk <code>bootfs</code> der Karte an einem beliebigen Computer und fülle <code>mault-config.txt</code> aus: Benutzername und Passwort für ein Administratorkonto, <code>ssh=yes</code> für Terminalzugriff und deine WLAN-Daten.",
+          "text": "Öffne vor dem ersten Start das Laufwerk <code>bootfs</code> der Karte an einem beliebigen Computer und fülle <code>mault-config.txt</code> aus: <code>hosting=self</code>, damit die Karten auf diesem Board bleiben, Benutzername und Passwort für ein Administratorkonto, <code>ssh=yes</code> für Terminalzugriff und deine WLAN-Daten.",
           "note": "Wähle einen beliebigen Benutzernamen außer mault-service, den Mault für seine eigenen Dienste verwendet. Das Board wendet die Datei bei jedem Start an, löscht die Passwörter daraus und schreibt das Ergebnis in die Status-Zeile. Mit derselben Datei setzt du also auch ein vergessenes Passwort zurück."
         },
         "boot": {
@@ -341,7 +435,7 @@
           "note": "Ändere das später mit sudo mault sorter usb oder sudo mault sorter builtin."
         },
         "installOther": {
-          "text": "Führe auf einem anderen arm64-Board oder einem Raspberry Pi, auf dem bereits Raspberry Pi OS läuft, diesen Befehl per SSH aus. Er installiert die Systempakete und das neueste Release und fragt dann, wie der Sortierer angeschlossen ist.",
+          "text": "Führe auf einem anderen arm64-Board oder einem Raspberry Pi, auf dem bereits Raspberry Pi OS läuft, diesen Befehl per SSH aus. Er installiert die Systempakete und das neueste Release mit einer Datenbank auf diesem Board und fragt dann, wie der Sortierer angeschlossen ist.",
           "note": "Hat das Board einen ~/mault-Checkout vom alten Installer, bleiben Einstellungen, Konten, Karten und Kalibrierung erhalten, und die alten Dienste werden abgeschaltet."
         },
         "services": {
@@ -407,6 +501,10 @@
         },
         "osUpdates": {
           "text": "Sicherheitsupdates des Betriebssystems werden jeden Tag automatisch installiert, ohne das Board neu zu starten, damit kein Scan abbricht. Braucht ein Update einen Neustart, sehen Admins ein Banner in der App; starte dann mit sudo reboot neu, wenn kein Scan läuft. Boards, die vor dieser Funktion installiert wurden, schalten die Updates mit diesem Befehl ein."
+        },
+        "hosting": {
+          "text": "Wenn du dieses Board später mit deinem Mault-Konto auf mault.xyz verbinden willst, führe diesen Befehl aus und gib den angezeigten Code unter Einstellungen, Raspberry Pis ein.",
+          "note": "Bereits gescannte Karten bleiben in der Datenbank dieses Boards und werden nicht in dein Konto übertragen. Mit sudo mault hosting self wechselst du zurück."
         },
         "backup": {
           "text": "Sichere Postgres regelmäßig.",

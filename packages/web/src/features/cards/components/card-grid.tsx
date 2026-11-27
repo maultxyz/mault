@@ -32,6 +32,8 @@ import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { ScannedCardGridSkeleton } from "@/features/cards/components/scanned-card-grid-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { ExternalCardDropOverlay } from "@/features/cards/components/external-card-drop-overlay";
+import { useExternalCardDrop } from "@/features/cards/api/use-external-card-drop";
 import { CollectionCsvImportDialog } from "@/features/cards/components/collection-csv-import-dialog";
 import { PendingScanCardItem } from "@/features/cards/components/pending-scan-card-item";
 import { usePendingScanCards } from "@/features/cards/api/use-pending-scan-cards";
@@ -161,6 +163,7 @@ import { useReviewSession } from "@/hooks/use-review-session";
 import { useReviewQueueSession } from "@/features/cards/api/use-review-queue";
 import { reviewQueueStore } from "@/features/cards/lib/review-queue-store";
 import { toast } from "@/lib/toast";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   CARD_GRID_PAGE_PARAM,
   CARD_REVIEW_GRID_PARAM_VALUE,
@@ -194,8 +197,10 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
   const collectionGuid = viewedCollection?.guid;
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [addCardOpen, setAddCardOpen] = useState(false);
+  const [addCardInitialQuery, setAddCardInitialQuery] = useState("");
   const [importScansOpen, setImportScansOpen] = useState(false);
   const [importCsvOpen, setImportCsvOpen] = useState(false);
+  const [importDeckLink, setImportDeckLink] = useState("");
   const scanImageImport = useScanImageImport(collectionGuid);
   const documentScan = useDocumentScan(
     scanImageImport,
@@ -256,6 +261,19 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
   const isReviewing = reviewParam === "1";
   const isGridReviewing =
     !openScanId && reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
+  const isMobile = useIsMobile();
+  const { isDraggingCard } = useExternalCardDrop({
+    collectionGuid: viewedCollection?.guid,
+    isEnabled: !!viewedCollection && !readOnly && !isMobile && !isGridReviewing,
+    onNeedsPrintingChoice: (cardName) => {
+      setAddCardInitialQuery(cardName);
+      setAddCardOpen(true);
+    },
+    onDeckLinkDrop: (deckLink) => {
+      setImportDeckLink(deckLink);
+      setImportCsvOpen(true);
+    },
+  });
   const [reviewLayout, setReviewLayout] = useReviewLayout();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -873,13 +891,24 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
     <>
       <AddCardDialog
         open={addCardOpen}
-        onOpenChange={setAddCardOpen}
+        onOpenChange={(open) => {
+          setAddCardOpen(open);
+          if (!open) setAddCardInitialQuery("");
+        }}
         collectionGuid={viewedCollection.guid}
+        initialQuery={addCardInitialQuery}
       />
+      {isDraggingCard && (
+        <ExternalCardDropOverlay collectionName={viewedCollection.name} />
+      )}
       <CollectionCsvImportDialog
         open={importCsvOpen}
-        onOpenChange={setImportCsvOpen}
+        onOpenChange={(open) => {
+          setImportCsvOpen(open);
+          if (!open) setImportDeckLink("");
+        }}
         collectionGuid={viewedCollection.guid}
+        initialDeckLink={importDeckLink}
       />
       <ScanImageImportDialog
         open={importScansOpen}
@@ -1050,7 +1079,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
     scanId: entry.scanId,
     scanIds: entry.scanIds,
     card: entry.card,
-    binNumber: entry.binNumber,
+    binNumber: entry.isBinEmptied ? undefined : entry.binNumber,
     quantity: entry.quantity,
     isFoil: entry.isFoil,
     foilType: entry.foilType,
@@ -1071,7 +1100,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
         card={entry.card}
         scannedAt={entry.scannedAt}
         onOpen={() => setOpenScanId(entry.scanId)}
-        binNumber={entry.binNumber}
+        binNumber={entry.isBinEmptied ? undefined : entry.binNumber}
         isSelected={isItemSelected(entry)}
         onToggleSelect={(options) =>
           handleSelect(entry.scanId, options)
