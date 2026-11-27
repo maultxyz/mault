@@ -82,6 +82,13 @@
       "stillBlocked": "Module {{module}} still sees a card. Clear it, then mark it cleared.",
       "noResponse": "The sorter didn't respond. Reconnect it and try again."
     },
+    "emergencyStopped": {
+      "title": "Sorter is emergency-stopped",
+      "description": "The sorter is still locked by an emergency stop, so the self-test didn't run. Remove any card left in it, then reset the sorter.",
+      "reset": "Reset sorter",
+      "resetFailedTitle": "Couldn't reset the sorter",
+      "resetFailedDescription": "The sorter didn't confirm the reset. Check that it's powered on, then try again."
+    },
     "deviceTestFailed": {
       "title": "Device test failed",
       "description": "Connected but got no response. Try reconnecting."

@@ -563,6 +563,7 @@
     "unnamed": "Unnamed sorter",
     "signal": "Signal {{rssi}} dBm",
     "runSelfTest": "Run self-test",
+    "resetEmergencyStop": "Reset sorter",
     "neutral": "Return to neutral",
     "dropCard": "Drop held card",
     "retractCard": "Retract card",
@@ -611,6 +612,14 @@
       "sensor-blocked": {
         "title": "Card on a sensor",
         "description": "Module {{module}}'s sensor sees a card, so the self-test didn't run. Drop the card or clear it by hand, then mark it cleared to rerun the test."
+      },
+      "emergency-stopped": {
+        "title": "Sorter is emergency-stopped",
+        "description": "The sorter is still locked by an emergency stop, so the self-test didn't run. Remove any card left in it, then reset the sorter."
+      },
+      "emergency-stop-reset-failed": {
+        "title": "Couldn't reset the sorter",
+        "description": "The sorter didn't confirm the reset. Check that it's powered on, then try again."
       },
       "connection-lost": {
         "title": "Connection lost",

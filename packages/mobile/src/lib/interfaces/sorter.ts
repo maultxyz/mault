@@ -56,6 +56,8 @@ export type SorterErrorCode =
   | "servo-driver-missing"
   | "test-failed"
   | "sensor-blocked"
+  | "emergency-stopped"
+  | "emergency-stop-reset-failed"
   | "connection-lost"
   | "heartbeat-lost"
   | "setup-incomplete"
@@ -93,6 +95,8 @@ export interface SorterContextValue {
   clearingSensor: boolean;
   dropBlockedCard: () => Promise<void>;
   markSensorCleared: () => Promise<void>;
+  resettingEmergencyStop: boolean;
+  resetEmergencyStop: () => Promise<void>;
   discovered: DiscoveredSorter[];
   recentSorters: RecentSorter[];
   device: Device | null;

@@ -563,6 +563,7 @@
     "unnamed": "Trieur sans nom",
     "signal": "Signal {{rssi}} dBm",
     "runSelfTest": "Lancer l'autotest",
+    "resetEmergencyStop": "Réinitialiser la trieuse",
     "neutral": "Retour en position neutre",
     "dropCard": "Lâcher la carte retenue",
     "retractCard": "Retirer la carte",
@@ -611,6 +612,14 @@
       "sensor-blocked": {
         "title": "Carte sur un capteur",
         "description": "Le capteur du module {{module}} détecte une carte, le test automatique n'a donc pas été lancé. Éjectez la carte ou retirez-la à la main, puis marquez le problème comme résolu pour relancer le test."
+      },
+      "emergency-stopped": {
+        "title": "Trieuse en arrêt d'urgence",
+        "description": "La trieuse est encore bloquée par un arrêt d'urgence, le test automatique n'a donc pas été lancé. Retirez toute carte restée à l'intérieur, puis réinitialisez la trieuse."
+      },
+      "emergency-stop-reset-failed": {
+        "title": "Impossible de réinitialiser la trieuse",
+        "description": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez qu'elle est allumée, puis réessayez."
       },
       "connection-lost": {
         "title": "Connexion perdue",

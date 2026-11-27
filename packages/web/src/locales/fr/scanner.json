@@ -82,6 +82,13 @@
       "stillBlocked": "Le module {{module}} détecte encore une carte. Retirez-la, puis marquez le problème comme résolu.",
       "noResponse": "Le trieur n'a pas répondu. Reconnectez-le et réessayez."
     },
+    "emergencyStopped": {
+      "title": "Trieuse en arrêt d'urgence",
+      "description": "La trieuse est encore bloquée par un arrêt d'urgence, le test automatique n'a donc pas été lancé. Retirez toute carte restée à l'intérieur, puis réinitialisez la trieuse.",
+      "reset": "Réinitialiser la trieuse",
+      "resetFailedTitle": "Impossible de réinitialiser la trieuse",
+      "resetFailedDescription": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez qu'elle est allumée, puis réessayez."
+    },
     "deviceTestFailed": {
       "title": "Échec du test de l'appareil",
       "description": "Connecté, mais aucune réponse reçue. Essaie de te reconnecter."

@@ -138,6 +138,7 @@ export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
   unreviewed: true,
 };
 export const SENSOR_BLOCKED_TOAST_ID = "test-sensor-blocked";
+export const EMERGENCY_STOPPED_TOAST_ID = "test-emergency-stopped";
 export const SESSION_LOCK_ALERT_ID = "session-lock";
 
 export const PARKED_PANELS_ROOT_CLASS =

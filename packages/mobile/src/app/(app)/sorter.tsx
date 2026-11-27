@@ -88,6 +88,15 @@ export default function SorterScreen() {
           />
         </View>
       ) : null}
+      {(sorter.error?.code === "emergency-stopped" || sorter.error?.code === "emergency-stop-reset-failed") &&
+      connected ? (
+        <Button
+          icon="refresh"
+          label={t("sorter.resetEmergencyStop")}
+          loading={sorter.resettingEmergencyStop}
+          onPress={() => void sorter.resetEmergencyStop()}
+        />
+      ) : null}
 
       {sorter.notice ? (
         <Callout

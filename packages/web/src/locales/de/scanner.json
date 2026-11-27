@@ -82,6 +82,13 @@
       "stillBlocked": "Modul {{module}} erkennt noch eine Karte. Entferne sie und markiere den Fehler dann als behoben.",
       "noResponse": "Der Sortierer hat nicht reagiert. Verbinde ihn erneut und versuche es noch einmal."
     },
+    "emergencyStopped": {
+      "title": "Sortierer im Notstopp",
+      "description": "Der Sortierer ist noch durch einen Notstopp gesperrt, daher wurde der Selbsttest nicht ausgeführt. Entferne alle Karten, die noch darin liegen, und setze den Sortierer dann zurück.",
+      "reset": "Sortierer zurücksetzen",
+      "resetFailedTitle": "Sortierer konnte nicht zurückgesetzt werden",
+      "resetFailedDescription": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe, ob er eingeschaltet ist, und versuche es erneut."
+    },
     "deviceTestFailed": {
       "title": "Gerätetest fehlgeschlagen",
       "description": "Verbunden, aber keine Antwort erhalten. Versuche eine erneute Verbindung."

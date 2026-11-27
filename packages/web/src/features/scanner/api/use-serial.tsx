@@ -34,6 +34,7 @@ import { isImpersonating } from "@/lib/auth/impersonation";
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { usePiHostState } from "@/hooks/use-pi-host";
 import {
+  EMERGENCY_STOPPED_TOAST_ID,
   SENSOR_BLOCKED_TOAST_ID,
   PI_SORTER_RECONNECT_INTERVAL_MS,
 } from "@/lib/constants/scanner";
@@ -69,6 +70,7 @@ import {
   SELF_TEST_RESPONSE_TIMEOUT_MS,
   SERIAL_ABNORMAL_RESET_REASONS,
   SERIAL_BUSY_ERROR,
+  SERIAL_STOPPED_ERROR,
   SERIAL_DEFAULT_RESPONSE_TIMEOUT_MS,
   SERIAL_HEARTBEAT_INTERVAL_MS,
   SERIAL_HEARTBEAT_MAX_MISSES,
@@ -320,6 +322,51 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [toast, sendRequest, clearSensorBlocked, t, session],
   );
 
+  const showEmergencyStoppedToast = useCallback(
+    (forTransport: ByteTransport, forDevice: Device | undefined) => {
+      let resetting = false;
+      const resetSorter = async () => {
+        if (resetting || session.transport !== forTransport) return;
+        resetting = true;
+        try {
+          const { line } = await sendRequest(
+            { neutral: true },
+            NEUTRAL_RESPONSE_TIMEOUT_MS,
+          );
+          if (session.transport !== forTransport) return;
+          if (parseSerialReply(line)?.status !== "ok") {
+            toast.error(t("serial.emergencyStopped.resetFailedTitle"), {
+              id: EMERGENCY_STOPPED_TOAST_ID,
+              description: t("serial.emergencyStopped.resetFailedDescription"),
+              duration: Infinity,
+              dismissible: true,
+              action: {
+                label: t("serial.emergencyStopped.reset"),
+                onClick: () => void resetSorter(),
+              },
+            });
+            return;
+          }
+          toast.dismiss(EMERGENCY_STOPPED_TOAST_ID);
+          await runConnectTestRef.current?.(forTransport, forDevice);
+        } finally {
+          resetting = false;
+        }
+      };
+      toast.error(t("serial.emergencyStopped.title"), {
+        id: EMERGENCY_STOPPED_TOAST_ID,
+        description: t("serial.emergencyStopped.description"),
+        duration: Infinity,
+        dismissible: true,
+        action: {
+          label: t("serial.emergencyStopped.reset"),
+          onClick: () => void resetSorter(),
+        },
+      });
+    },
+    [toast, sendRequest, t, session],
+  );
+
   const disconnect = useCallback(() => {
     const activeTransport = session.transport;
     if (activeTransport) {
@@ -417,6 +464,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       };
       if (ok) {
         toast.dismiss(SENSOR_BLOCKED_TOAST_ID);
+        toast.dismiss(EMERGENCY_STOPPED_TOAST_ID);
         toast.success(t("serial.deviceReady"), {
           cancel: copyAction,
           action: {
@@ -433,6 +481,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           action: copyAction,
         });
         disconnect();
+      } else if (testError === SERIAL_STOPPED_ERROR) {
+        showEmergencyStoppedToast(forTransport, forDevice);
       } else {
         toast.error(t("serial.deviceTestFailed.title"), {
           description: testError ?? t("serial.deviceTestFailed.description"),
@@ -456,6 +506,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       t,
       copyCommLog,
       showSensorBlockedToast,
+      showEmergencyStoppedToast,
       session,
     ],
   );

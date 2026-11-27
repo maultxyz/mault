@@ -563,6 +563,7 @@
     "unnamed": "Unbenannter Sortierer",
     "signal": "Signal {{rssi}} dBm",
     "runSelfTest": "Selbsttest ausführen",
+    "resetEmergencyStop": "Sortierer zurücksetzen",
     "neutral": "Zurück in Neutralstellung",
     "dropCard": "Gehaltene Karte fallen lassen",
     "retractCard": "Karte zurückziehen",
@@ -611,6 +612,14 @@
       "sensor-blocked": {
         "title": "Karte auf einem Sensor",
         "description": "Der Sensor von Modul {{module}} erkennt eine Karte, daher wurde der Selbsttest nicht ausgeführt. Wirf die Karte ab oder entferne sie von Hand und markiere sie dann als behoben, um den Test erneut zu starten."
+      },
+      "emergency-stopped": {
+        "title": "Sortierer im Notstopp",
+        "description": "Der Sortierer ist noch durch einen Notstopp gesperrt, daher wurde der Selbsttest nicht ausgeführt. Entferne alle Karten, die noch darin liegen, und setze den Sortierer dann zurück."
+      },
+      "emergency-stop-reset-failed": {
+        "title": "Sortierer konnte nicht zurückgesetzt werden",
+        "description": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe, ob er eingeschaltet ist, und versuche es erneut."
       },
       "connection-lost": {
         "title": "Verbindung getrennt",
