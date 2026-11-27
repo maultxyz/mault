@@ -1,7 +1,8 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -14,6 +15,10 @@ import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
 import { LoadingLogo } from "@/components/ui/loading-logo";
 import { LOADING_LOGO_INLINE_SIZE } from "@/lib/constants/loading";
+import { IconButton } from "@/components/ui/icon-button";
+import { useToast } from "@/components/ui/toast-provider";
+import { deleteDevice, devicesQueryOptions } from "@/features/devices/api/devices";
+import { useActiveOrgId } from "@/hooks/use-org";
 import { useRetractCard } from "@/features/sorter/api/use-retract-card";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useWifiSorters } from "@/features/sorter/api/use-wifi-sorters";
@@ -31,6 +36,21 @@ export default function SorterScreen() {
   const wifiSorters = useWifiSorters(!connected);
   const recentIds = new Set(sorter.recentSorters.map((recent) => recent.id));
   const nearbySorters = sorter.discovered.filter((found) => !recentIds.has(found.id));
+  const orgId = useActiveOrgId();
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const savedSorters = useQuery(devicesQueryOptions(orgId));
+  const removeSorter = useMutation({
+    mutationFn: deleteDevice,
+    onSuccess: () => showToast({ message: t("sorter.saved.deleted"), tone: "success" }),
+    onError: () => showToast({ message: t("sorter.saved.deleteFailed"), tone: "destructive" }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["devices"] }),
+  });
+  const confirmRemoveSorter = (guid: string, name: string) =>
+    Alert.alert(t("sorter.saved.deleteTitle", { name }), t("sorter.saved.deleteDescription"), [
+      { text: t("common.cancel"), style: "cancel" },
+      { text: t("sorter.saved.delete"), style: "destructive", onPress: () => removeSorter.mutate(guid) },
+    ]);
 
   return (
     <Screen
@@ -127,6 +147,11 @@ export default function SorterScreen() {
             />
             <ListRow icon="rules" title={t("rules.title")} onPress={() => router.push("/rules")} />
             <ListRow
+              icon="edit"
+              title={t("sorter.rename.title")}
+              onPress={() => router.push({ pathname: "/sorter-name", params: { guid: sorter.device?.guid ?? "" } })}
+            />
+            <ListRow
               icon="refresh"
               title={t("sorter.neutral")}
               disabled={!sorter.isReady}
@@ -201,6 +226,31 @@ export default function SorterScreen() {
                   ))}
                 </ListGroup>
               )}
+            </View>
+          ) : null}
+          {(savedSorters.data ?? []).length > 0 ? (
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("sorter.saved.title")} />
+              <ListGroup>
+                {(savedSorters.data ?? []).map((saved) => (
+                  <ListRow
+                    key={saved.guid}
+                    icon="sorter"
+                    title={saved.name}
+                    subtitle={t("sorter.saved.renameHint")}
+                    onPress={() => router.push({ pathname: "/sorter-name", params: { guid: saved.guid } })}
+                    rightIsInteractive
+                    right={
+                      <IconButton
+                        icon="trash"
+                        accessibilityLabel={t("sorter.saved.deleteTitle", { name: saved.name })}
+                        disabled={removeSorter.isPending}
+                        onPress={() => confirmRemoveSorter(saved.guid, saved.name)}
+                      />
+                    }
+                  />
+                ))}
+              </ListGroup>
             </View>
           ) : null}
           {wifiSorters.length > 0 ? (

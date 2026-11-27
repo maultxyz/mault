@@ -67,6 +67,7 @@ export default function AppLayout() {
           <Stack.Screen name="rules/mode" />
           <Stack.Screen name="rules/repack" />
           <Stack.Screen name="rules/stages" />
+          <Stack.Screen name="rules/history" />
           <Stack.Screen name="stats" />
           <Stack.Screen name="machines" />
           <Stack.Screen name="whats-new" />
@@ -79,6 +80,7 @@ export default function AppLayout() {
           <Stack.Screen name="storage-plan" options={sheetOptions} />
           <Stack.Screen name="storage-bulk-size" options={sheetOptions} />
           <Stack.Screen name="preset-description" options={sheetOptions} />
+          <Stack.Screen name="sorter-name" options={sheetOptions} />
           <Stack.Screen name="share-link" options={sheetOptions} />
           <Stack.Screen name="settings/invite-member" options={sheetOptions} />
           <Stack.Screen name="settings/webhook-edit" options={sheetOptions} />

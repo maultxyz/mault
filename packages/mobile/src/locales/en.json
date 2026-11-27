@@ -550,6 +550,21 @@
     "manageSection": "Manage"
   },
   "sorter": {
+    "rename": {
+      "title": "Rename sorter",
+      "nameLabel": "Name",
+      "save": "Save",
+      "failed": "Couldn't rename the sorter"
+    },
+    "saved": {
+      "title": "Saved sorters",
+      "renameHint": "Tap to rename",
+      "delete": "Delete",
+      "deleteTitle": "Delete {{name}}?",
+      "deleteDescription": "Its calibration and settings are removed. A sorter that is connected right now can't be deleted.",
+      "deleted": "Sorter deleted",
+      "deleteFailed": "Couldn't delete the sorter. Disconnect it first."
+    },
     "noSorter": "No sorter connected",
     "connectHint": "Turn on your sorter, then find it below.",
     "firmware": "Firmware {{version}} on {{board}}",
@@ -1313,6 +1328,57 @@
     "autoCheckCheckingCard": "Checking this card"
   },
   "rules": {
+    "advanced": {
+      "overrideLabel": "Override rules",
+      "overrideDescription": "When these rules match, this bin takes priority over ordinary bins. If several override bins match, priority 1 wins over 2, and so on. Override bins on the same priority send the card to whichever is emptiest. For example, use Price ≥ 1 here to override color bins for cards worth $1 or more.",
+      "priorityLabel": "Priority level",
+      "priorityPlaceholder": "None",
+      "priorityDescription": "1 is the highest priority. When several overrides match a card, the lowest number wins, and overrides on the same level send it to the emptiest of their bins. Overrides without a level come last, in bin order.",
+      "copiesLabel": "Duplicates in this bin",
+      "copiesAllow": "Allow duplicates",
+      "copiesByPrinting": "Limit copies of each printing",
+      "copiesByName": "Limit copies of each name",
+      "copiesByField": "Limit copies of each {{field}}",
+      "maxCopiesCountLabel": "Copies allowed",
+      "maxCopiesDescription": "Once this bin holds this many cards that share the chosen value (since it was last emptied), more of them skip it and go to the next bin whose rules match, or the catch-all. Limiting by name also counts different printings of the same card together.",
+      "lowMatchLabel": "Send low matches here",
+      "lowMatchDescription": "Scans below this match percent come here even when another bin's rules match them, override bins included.",
+      "lowMatchPlaceholder": "None"
+    },
+    "presetMenu": {
+      "title": "Preset actions",
+      "new": "New preset",
+      "duplicate": "Duplicate preset",
+      "rename": "Rename preset",
+      "history": "Rule history",
+      "delete": "Delete preset",
+      "deleteDescription": "Delete \"{{name}}\"? Its rules are removed for everyone in the organization.",
+      "deleteConfirm": "Delete",
+      "deleteFailed": "Couldn't delete the preset"
+    },
+    "presetDetails": {
+      "newTitle": "New preset",
+      "copyTitle": "Duplicate preset",
+      "editTitle": "Preset details",
+      "create": "Create preset",
+      "nameLabel": "Name",
+      "namePlaceholder": "Rares and mythics",
+      "nameTaken": "A preset with this name already exists.",
+      "saveFailed": "Couldn't save the preset."
+    },
+    "history": {
+      "title": "Rule history",
+      "description": "Earlier versions of this preset's rules. Tap one to go back to it.",
+      "emptyTitle": "No earlier versions",
+      "emptyDescription": "A version is saved each time the rules change.",
+      "binCount_one": "{{count}} bin",
+      "binCount_other": "{{count}} bins",
+      "revert": "Restore this version",
+      "revertTitle": "Restore this version?",
+      "revertDescription": "The preset's rules go back to how they were on {{date}}.",
+      "reverted": "Rules restored",
+      "revertFailed": "Couldn't restore that version"
+    },
     "title": "Sorting rules",
     "noCollectionTitle": "No active collection",
     "noCollectionDescription": "Choose the collection you sort into, then edit its game's presets here.",
@@ -1321,7 +1387,7 @@
     "presets": "Preset",
     "choosePreset": "Choose a preset",
     "noPresetsTitle": "No presets for this game",
-    "noPresetsDescription": "Create a preset on the web, then pull down to refresh.",
+    "noPresetsDescription": "Create a preset to start sorting this game's cards into bins.",
     "activateFailed": "Couldn't switch presets",
     "binsWithRules_one": "{{count}} bin with rules",
     "binsWithRules_other": "{{count}} bins with rules",

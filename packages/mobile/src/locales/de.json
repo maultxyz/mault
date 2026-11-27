@@ -550,6 +550,21 @@
     "manageSection": "Verwalten"
   },
   "sorter": {
+    "rename": {
+      "title": "Sortierer umbenennen",
+      "nameLabel": "Name",
+      "save": "Speichern",
+      "failed": "Der Sortierer konnte nicht umbenannt werden"
+    },
+    "saved": {
+      "title": "Gespeicherte Sortierer",
+      "renameHint": "Zum Umbenennen tippen",
+      "delete": "Löschen",
+      "deleteTitle": "{{name}} löschen?",
+      "deleteDescription": "Kalibrierung und Einstellungen werden entfernt. Ein gerade verbundener Sortierer kann nicht gelöscht werden.",
+      "deleted": "Sortierer gelöscht",
+      "deleteFailed": "Der Sortierer konnte nicht gelöscht werden. Trenne ihn zuerst."
+    },
     "noSorter": "Kein Sortierer verbunden",
     "connectHint": "Schalte deinen Sortierer ein und suche ihn unten.",
     "firmware": "Firmware {{version}} auf {{board}}",
@@ -1313,6 +1328,57 @@
     "autoCheckCheckingCard": "Diese Karte wird geprüft"
   },
   "rules": {
+    "advanced": {
+      "overrideLabel": "Vorrangige Regeln",
+      "overrideDescription": "Wenn diese Regeln zutreffen, hat dieses Fach Vorrang vor normalen Fächern. Treffen mehrere vorrangige Fächer zu, gewinnt Priorität 1 vor 2 und so weiter. Vorrangige Fächer mit derselben Priorität schicken die Karte in das leerste Fach. Verwende hier zum Beispiel Preis ≥ 1, um Karten ab 1 $ vor den Farbfächern in dieses Fach zu sortieren.",
+      "priorityLabel": "Prioritätsstufe",
+      "priorityPlaceholder": "Keine",
+      "priorityDescription": "1 ist die höchste Priorität. Treffen mehrere vorrangige Regeln auf eine Karte zu, gewinnt die niedrigste Zahl, und bei gleicher Stufe geht die Karte in das leerste dieser Fächer. Fächer ohne Stufe kommen zuletzt, in Fachreihenfolge.",
+      "copiesLabel": "Duplikate in diesem Fach",
+      "copiesAllow": "Duplikate erlauben",
+      "copiesByPrinting": "Kopien je Druck begrenzen",
+      "copiesByName": "Kopien je Name begrenzen",
+      "copiesByField": "Kopien je {{field}} begrenzen",
+      "maxCopiesCountLabel": "Erlaubte Kopien",
+      "maxCopiesDescription": "Sobald dieses Fach (seit dem letzten Leeren) so viele Karten mit demselben gewählten Wert enthält, überspringen weitere es und gehen in das nächste Fach, dessen Regeln zutreffen, oder in das Sammelfach. Beim Begrenzen nach Name zählen verschiedene Drucke derselben Karte zusammen.",
+      "lowMatchLabel": "Schwache Treffer hierher senden",
+      "lowMatchDescription": "Scans unter diesem Übereinstimmungswert landen hier, auch wenn die Regeln eines anderen Fachs passen, Vorrang-Fächer eingeschlossen.",
+      "lowMatchPlaceholder": "Keine"
+    },
+    "presetMenu": {
+      "title": "Vorlagenaktionen",
+      "new": "Neue Vorlage",
+      "duplicate": "Vorlage duplizieren",
+      "rename": "Vorlage umbenennen",
+      "history": "Regelverlauf",
+      "delete": "Vorlage löschen",
+      "deleteDescription": "\"{{name}}\" löschen? Die Regeln werden für alle in der Organisation entfernt.",
+      "deleteConfirm": "Löschen",
+      "deleteFailed": "Die Vorlage konnte nicht gelöscht werden"
+    },
+    "presetDetails": {
+      "newTitle": "Neue Vorlage",
+      "copyTitle": "Vorlage duplizieren",
+      "editTitle": "Vorlagendetails",
+      "create": "Vorlage erstellen",
+      "nameLabel": "Name",
+      "namePlaceholder": "Rares und Mythics",
+      "nameTaken": "Eine Vorlage mit diesem Namen gibt es bereits.",
+      "saveFailed": "Die Vorlage konnte nicht gespeichert werden."
+    },
+    "history": {
+      "title": "Regelverlauf",
+      "description": "Frühere Versionen der Regeln dieser Vorlage. Tippe auf eine, um zu ihr zurückzukehren.",
+      "emptyTitle": "Keine früheren Versionen",
+      "emptyDescription": "Bei jeder Regeländerung wird eine Version gespeichert.",
+      "binCount_one": "{{count}} Fach",
+      "binCount_other": "{{count}} Fächer",
+      "revert": "Diese Version wiederherstellen",
+      "revertTitle": "Diese Version wiederherstellen?",
+      "revertDescription": "Die Regeln der Vorlage werden auf den Stand vom {{date}} zurückgesetzt.",
+      "reverted": "Regeln wiederhergestellt",
+      "revertFailed": "Diese Version konnte nicht wiederhergestellt werden"
+    },
     "title": "Sortierregeln",
     "noCollectionTitle": "Keine aktive Sammlung",
     "noCollectionDescription": "Wähle die Sammlung, in die du sortierst, und bearbeite hier die Vorlagen ihres Spiels.",
@@ -1321,7 +1387,7 @@
     "presets": "Vorlage",
     "choosePreset": "Vorlage wählen",
     "noPresetsTitle": "Keine Vorlagen für dieses Spiel",
-    "noPresetsDescription": "Erstelle eine Vorlage im Web und ziehe dann zum Aktualisieren nach unten.",
+    "noPresetsDescription": "Erstelle eine Vorlage, um die Karten dieses Spiels in Fächer zu sortieren.",
     "activateFailed": "Vorlage konnte nicht gewechselt werden",
     "binsWithRules_one": "{{count}} Fach mit Regeln",
     "binsWithRules_other": "{{count}} Fächer mit Regeln",

@@ -55,6 +55,10 @@ export function resolveDevice(hardwareId: string): Promise<Device> {
   return unwrap(apiPost<Result<Device>>("/api/devices/resolve", { hardwareId }));
 }
 
+export function deleteDevice(guid: string): Promise<unknown> {
+  return unwrap(apiDelete<Result<unknown>>(`/api/devices/${guid}`));
+}
+
 export async function acquireDeviceLease(guid: string): Promise<boolean> {
   try {
     const body = await apiRequest<{ sorterLimitReached?: boolean }>(

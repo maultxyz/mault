@@ -134,11 +134,16 @@ export interface BinRowProps {
 }
 
 export type PresetDescriptionRouteParams = {
-  guid: string;
+  guid?: string;
+  mode?: "new" | "copy";
+  gameGuid?: string;
 };
 
-export interface PresetDescriptionSaveContext {
-  previous: BinSet[] | undefined;
+export interface BinSetHistoryEntry {
+  guid: string;
+  binSetGuid: string;
+  snapshot: BinConfig[];
+  createdAt: string;
 }
 
 export interface StoragePlanDraft {
@@ -152,4 +157,13 @@ export interface RuleGroupSkeletonProps {
 
 export interface RuleFormSkeletonProps {
   fields: number;
+}
+
+export interface BinNumberSettingRowProps {
+  title: string;
+  description?: string;
+  placeholder?: string;
+  value: number | null;
+  disabled?: boolean;
+  onChange: (value: number | null) => void;
 }

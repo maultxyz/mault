@@ -12,3 +12,5 @@ export const REPACK_ALLOW_DUPLICATES_VALUE = "$allow";
 export const PRESET_OPTION_PREFIX = "preset:";
 export const WORKFLOW_OPTION_PREFIX = "workflow:";
 export const STORAGE_PLAN_FILL_BAR_WIDTH = 56;
+export const DEFAULT_MAX_COPIES = 4;
+export const ALLOW_DUPLICATES_OPTION = "$allow";
