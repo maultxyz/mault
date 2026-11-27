@@ -389,7 +389,7 @@ export function SeasonalCornerDecor({
     <div
       aria-hidden
       className={cn(
-        "pointer-events-none select-none fixed z-decor size-20 text-foreground",
+        "pointer-events-none select-none fixed z-decor size-20 text-foreground print:hidden",
         SEASONAL_CORNER_CLASS[corner],
         className,
       )}
