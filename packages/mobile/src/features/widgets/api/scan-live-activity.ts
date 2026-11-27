@@ -2,4 +2,6 @@ import type { ScanSessionLiveActivityProps } from "@/lib/interfaces/live-activit
 
 export function showScanLiveActivity(_props: ScanSessionLiveActivityProps): void {}
 
+export function updateScanLiveActivity(_props: ScanSessionLiveActivityProps): void {}
+
 export function endScanLiveActivity(_finalProps?: ScanSessionLiveActivityProps): void {}

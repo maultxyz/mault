@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { endScanLiveActivity, showScanLiveActivity } from "@/features/widgets/api/scan-live-activity";
+import { endScanLiveActivity, showScanLiveActivity, updateScanLiveActivity } from "@/features/widgets/api/scan-live-activity";
 import type { ScanLiveActivityOptions, ScanSessionLiveActivityProps } from "@/lib/interfaces/live-activity";
 
 export function useScanLiveActivity({
@@ -28,14 +28,10 @@ export function useScanLiveActivity({
   const snapshot = JSON.stringify(props);
 
   useEffect(() => {
-    if (!isActive || !latestPropsRef.current) return;
-    showScanLiveActivity(latestPropsRef.current);
+    if (!latestPropsRef.current) return;
+    if (isActive) showScanLiveActivity(latestPropsRef.current);
+    else updateScanLiveActivity(latestPropsRef.current);
   }, [isActive, snapshot]);
-
-  useEffect(() => {
-    if (isActive) return;
-    endScanLiveActivity(latestPropsRef.current ?? undefined);
-  }, [isActive]);
 
   useEffect(() => () => endScanLiveActivity(latestPropsRef.current ?? undefined), []);
 }
