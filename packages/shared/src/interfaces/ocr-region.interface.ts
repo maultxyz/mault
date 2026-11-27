@@ -10,6 +10,7 @@ export interface OcrRegion {
   fallback?: boolean;
   ignoredLineTexts?: string[];
   anchorLinePattern?: string;
+  rotationDegrees?: number;
 }
 
 export type OcrReadout = Record<OcrField, string>;

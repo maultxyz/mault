@@ -221,6 +221,7 @@ Scan decisions live in `shared` (`runScanWorkflow`, `runScanDisposition`, scan p
 - OCR replaces the image match only when unsure or OCR confirms the printing (`prefersTextMatch`), never on an unconfirmed name; thresholds `UNCONFIRMED_TEXT_MATCH_MAX_DISTANCE_GAP`, `OCR_MATCH_MAX_IMAGE_DISTANCE`.
 - Text and printed-number matching use the in-memory index; `lib/card-name-trigrams.ts` must stay score-identical to pg_trgm `similarity()`.
 - OCR runs one job at a time. Scan reads pass `refusesWhenOcrIsBusy` and get `OcrBusyError` past `OCR_QUEUE_MAX_WAITING_SCAN_JOBS`: `/cards/by-text` then answers 200 `success: false` (never 5xx, which clients retry) so the image match stands.
+- The detector only finds upright text: vertical or diagonal print needs the region's `rotationDegrees` (how far the text is turned clockwise). Rotated regions are read at their fixed box, never anchored.
 - Server OCR is PaddleOCR on onnxruntime-node (`lib/paddle-ocr.ts`). The v5 recognizer needs input height 48; the small v3 detector is deliberate (v5 server is ~9x slower on a Pi).
 - Printing marks separate same-art printings (`PRINTING_REGIONS_BY_GAME_KEY`, adapter `printingMarkGroups`); clients sample them from the camera frame (`printingMarksPayload`), never the 448 px image. Changing an area, channel or grid bumps `PRINTING_MARK_VERSION`.
 

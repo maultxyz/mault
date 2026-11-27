@@ -55,3 +55,4 @@ export const OCR_QUEUE_MAX_WAITING_SCAN_JOBS = parseInt(
 );
 
 export const OCR_RGB_CHANNELS = 3;
+export const OCR_ROTATION_BACKGROUND = { r: 0, g: 0, b: 0 };
