@@ -110,6 +110,11 @@ function normalizeList(value: unknown): string[] {
   return Array.isArray(value) ? value.map(normalizeText) : [];
 }
 
+function cardValueAsList(value: string | number | string[] | null): string[] {
+  if (Array.isArray(value)) return normalizeList(value);
+  return isNullish(value) ? [] : [normalizeText(value)];
+}
+
 function sameSet(a: string[], b: string[]): boolean {
   return (
     a.length === b.length &&
@@ -132,16 +137,17 @@ export function evaluateCondition(
   const { operator, value } = condition;
   const cardText = normalizeText(cardValue);
   const valueText = normalizeText(value);
-  const cardList = normalizeList(cardValue);
+  const cardList = cardValueAsList(cardValue);
   const valueList = normalizeList(value);
-  const bothLists = Array.isArray(cardValue) && Array.isArray(value);
+  const valueIsList = Array.isArray(value);
+  const cardListsAnyValue = cardList.some((v) => valueList.includes(v));
 
   switch (operator) {
     case "equals":
-      return bothLists ? sameSet(cardList, valueList) : cardText === valueText;
+      return valueIsList ? sameSet(cardList, valueList) : cardText === valueText;
 
     case "not_equals":
-      return bothLists ? !sameSet(cardList, valueList) : cardText !== valueText;
+      return valueIsList ? !sameSet(cardList, valueList) : cardText !== valueText;
 
     case "contains":
       return cardText.includes(valueText);
@@ -174,19 +180,15 @@ export function evaluateCondition(
       return !isNullish(cardValue);
 
     case "in":
-      return Array.isArray(value) && valueList.includes(cardText);
+    case "contains_any":
+      return valueIsList && cardListsAnyValue;
 
     case "not_in":
-      return Array.isArray(value) && !valueList.includes(cardText);
-
-    case "contains_any":
-      return bothLists && valueList.some((v) => cardList.includes(v));
+    case "contains_none":
+      return valueIsList && !cardListsAnyValue;
 
     case "contains_all":
-      return bothLists && valueList.every((v) => cardList.includes(v));
-
-    case "contains_none":
-      return bothLists && !valueList.some((v) => cardList.includes(v));
+      return valueIsList && valueList.every((v) => cardList.includes(v));
 
     case "count_equals":
       return itemCount(cardValue) === Number(value);
