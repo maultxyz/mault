@@ -41,6 +41,7 @@ export function useCollectionActions({ includesScanInto = false, onDeleted, shar
         ? t("collections.shareLinkWithCount", { count: activeShareLinkCount })
         : t("collections.shareLink"),
     },
+    { value: "addCard", label: t("collections.addCard") },
     { value: "edit", label: t("collections.edit") },
     { value: "importCsv", label: t("collections.importCsv.button") },
     { value: "empty", label: t("collections.empty") },
@@ -51,6 +52,8 @@ export function useCollectionActions({ includesScanInto = false, onDeleted, shar
     if (action === "scanInto") {
       setScanTargetGuid(collection.guid);
       router.navigate("/scan");
+    } else if (action === "addCard") {
+      router.push({ pathname: "/search", params: { addToCollection: collection.guid } });
     } else if (action === "edit") {
       router.push({ pathname: "/collection-edit", params: { guid: collection.guid } });
     } else if (action === "importCsv") {

@@ -27,7 +27,7 @@ import { type PlayingCard } from "@magic-vault/shared";
 export default function CatalogCardScreen() {
   const { t } = useTranslation();
   const colors = useTheme();
-  const { id, gameKey } = useLocalSearchParams<CatalogCardRouteParams>();
+  const { id, gameKey, addToCollection, addToLocation } = useLocalSearchParams<CatalogCardRouteParams>();
   const { collections, collection: scanTargetCollection, collectionsQuery } = useScanTarget();
   const pricing = usePricing();
   const { showToast } = useToast();
@@ -40,7 +40,10 @@ export default function CatalogCardScreen() {
   const cardQuery = useQuery({ ...catalogCardQueryOptions(game, selectedCardId), placeholderData: keepPreviousData });
   const card = cardQuery.data;
   const targets = collections.filter((collection) => collection.game?.key === gameKey);
-  const defaultTarget = targets.find((collection) => collection.guid === scanTargetCollection?.guid) ?? targets[0] ?? null;
+  const requestedTarget = targets.find((collection) => collection.guid === addToCollection) ?? null;
+  const defaultTarget =
+    requestedTarget ?? targets.find((collection) => collection.guid === scanTargetCollection?.guid) ?? targets[0] ?? null;
+  const addsDirectly = (targets.length === 1 || !!requestedTarget) && !!defaultTarget;
   const hasFailed = cardQuery.isError || (!cardQuery.isPending && !card) || (!game && !catalogGamesLoading);
 
   const selectPrinting = (printing: PlayingCard) => {
@@ -53,7 +56,7 @@ export default function CatalogCardScreen() {
     const target = targets.find((collection) => collection.guid === collectionGuid);
     if (!target) return;
     addCard.mutate(
-      { collectionGuid, card },
+      { collectionGuid, card, locationGuid: addToLocation || undefined },
       {
         onSuccess: () =>
           showToast({
@@ -80,14 +83,14 @@ export default function CatalogCardScreen() {
         style={{ flex: 1 }}
         icon="plus"
         label={
-          targets.length === 1 && defaultTarget
+          addsDirectly && defaultTarget
             ? t("catalogCard.addTo", { collection: defaultTarget.name })
             : t("catalogCard.add")
         }
         loading={addCard.isPending}
         disabled={cardQuery.isPlaceholderData}
         onPress={() => {
-          if (targets.length === 1 && defaultTarget) add(defaultTarget.guid);
+          if (addsDirectly && defaultTarget) add(defaultTarget.guid);
           else setPickerOpen(true);
         }}
       />

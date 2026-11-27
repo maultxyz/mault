@@ -66,6 +66,26 @@
     "continueWithProvider": "Weiter mit {{provider}}"
   },
   "collections": {
+    "bulk": {
+      "select": "Sammlungen auswählen",
+      "doneSelecting": "Auswahl beenden",
+      "selectAll": "Alle auswählen",
+      "clear": "Auswahl aufheben",
+      "selectedCount_one": "{{count}} Sammlung ausgewählt",
+      "selectedCount_other": "{{count}} Sammlungen ausgewählt",
+      "emptyTitle_one": "{{count}} Sammlung leeren?",
+      "emptyTitle_other": "{{count}} Sammlungen leeren?",
+      "emptyDescription": "Alle Karten in den ausgewählten Sammlungen werden entfernt. Die Sammlungen selbst bleiben erhalten.",
+      "deleteTitle_one": "{{count}} Sammlung löschen?",
+      "deleteTitle_other": "{{count}} Sammlungen löschen?",
+      "deleteDescription": "Die ausgewählten Sammlungen und alle Karten darin werden gelöscht.",
+      "emptied_one": "{{count}} Sammlung geleert",
+      "emptied_other": "{{count}} Sammlungen geleert",
+      "deleted_one": "{{count}} Sammlung gelöscht",
+      "deleted_other": "{{count}} Sammlungen gelöscht",
+      "failed": "Nicht abgeschlossen. Einige Sammlungen wurden möglicherweise nicht geändert."
+    },
+    "addCard": "Karte hinzufügen",
     "title": "Sammlung",
     "cardCount_one": "{{count}} Karte",
     "cardCount_other": "{{count}} Karten",
@@ -116,6 +136,16 @@
     "notFoundTitle": "Sammlung nicht gefunden",
     "notFoundDescription": "Sie wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf.",
     "importCsv": {
+      "deckLink": {
+        "label": "Deck-Link",
+        "placeholder": "https://moxfield.com/decks/...",
+        "load": "Deck laden",
+        "failure": {
+          "notFound": "Dieses Deck wurde nicht gefunden. Prüfe, ob der Link stimmt und das Deck öffentlich ist.",
+          "unavailable": "Das Deck konnte gerade nicht geladen werden. Versuche es erneut oder exportiere es als CSV und lade diese hoch.",
+          "empty": "Dieses Deck enthält keine Karten zum Importieren."
+        }
+      },
       "button": "CSV importieren",
       "title": "Karten aus einer CSV importieren",
       "description": "Lade einen Sammlungsexport von Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer oder eine beliebige CSV mit einer Spalte für den Kartennamen hoch.",
@@ -1108,6 +1138,12 @@
     "seeAllStats": "Alle Statistiken"
   },
   "collection": {
+    "cardSize": {
+      "title": "Kartengröße",
+      "small": "Klein",
+      "medium": "Mittel",
+      "large": "Groß"
+    },
     "value": "Wert",
     "cards": "Karten",
     "cardsCount_one": "{{count}} Karte",
@@ -1118,6 +1154,11 @@
     "noMatches": "Keine Karten passen zu deiner Suche",
     "groupDuplicates": "Duplikate gruppieren",
     "filters": {
+      "minMatch": "Mindestübereinstimmung",
+      "minMatchAny": "Alle",
+      "minMatchValue": "{{percent}} % oder besser",
+      "buy": "Ankauf",
+      "onlyThisBuy": "Nur dieser Ankauf",
       "colors": "Farben",
       "rarity": "Seltenheit",
       "foil": "Foil",
@@ -1976,6 +2017,8 @@
     "searchLocations": "Lagerorte suchen",
     "searchCollections": "Sammlungen suchen",
     "pickList": {
+      "importFile": "Aus einer CSV-Datei importieren",
+      "importFailed": "In dieser Datei wurden keine Karten gefunden. Prüfe, ob die erste Zeile eine Spalte für den Kartennamen enthält.",
       "open": "Pickliste",
       "title": "Pickliste",
       "description": "Füge eine Deckliste ein, um zu sehen, wo jede Karte gelagert ist, und hake die Karten beim Heraussuchen ab.",
@@ -4388,6 +4431,15 @@
     }
   },
   "sharedLink": {
+    "filters": {
+      "title": "Sortieren und filtern",
+      "sorts": {
+        "newest": "Neueste",
+        "name": "Name",
+        "price-desc": "Preis: absteigend",
+        "price-asc": "Preis: aufsteigend"
+      }
+    },
     "title": "Geteilte Karten",
     "collectionSubtitle_one": "Geteilte Sammlung · {{count}} Karte",
     "collectionSubtitle_other": "Geteilte Sammlung · {{count}} Karten",

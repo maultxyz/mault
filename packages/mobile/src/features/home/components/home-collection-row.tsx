@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
+import { CheckboxIndicator } from "@/components/ui/checkbox-indicator";
 import { IconBadge } from "@/components/ui/icon-badge";
 import { SwipeRowActions } from "@/components/ui/swipe-row-actions";
 import { longPressProps } from "@/lib/long-press";
@@ -18,6 +19,7 @@ export function HomeCollectionRow({
   trailingAccessibilityLabel,
   isScanTarget,
   isLive = false,
+  checked,
   onPress,
   onPressIn,
   onLongPress,
@@ -33,7 +35,8 @@ export function HomeCollectionRow({
       destructiveAction={swipeDestructiveAction}
     >
       <Pressable
-        accessibilityRole="button"
+        accessibilityRole={checked === undefined ? "button" : "checkbox"}
+        accessibilityState={checked === undefined ? undefined : { checked }}
         accessibilityLabel={[name, subtitle, trailing ? trailingAccessibilityLabel : (exactValue ?? value)].filter(Boolean).join(", ")}
         onPress={onPress}
         onPressIn={onPressIn}
@@ -48,6 +51,7 @@ export function HomeCollectionRow({
           backgroundColor: pressed ? colors.tonal : "transparent",
         })}
       >
+        {checked === undefined ? null : <CheckboxIndicator checked={checked} />}
         <IconBadge
           name={isLive ? "live" : isScanTarget ? "scan" : "collections"}
           tone={isLive ? "warning" : isScanTarget ? "primary" : "neutral"}

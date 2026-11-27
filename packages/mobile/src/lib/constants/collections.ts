@@ -20,3 +20,7 @@ export const UNMATCHED_LIST_PAGE_SIZE = 30;
 export const COLLECTION_CSV_IMPORT_MIME_TYPES = ["text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/plain", "application/csv", "application/vnd.ms-excel"];
 export const SET_FILTER_CHIPS_MAX = 40;
 export const SET_FILTER_SEARCH_MIN_COUNT = 8;
+export const MIN_MATCH_PERCENT_FILTER_OPTIONS = [0, 50, 70, 80, 90, 95];
+export const COLLECTION_CARD_SIZE_KEY = "mault:collection-card-size";
+export const CARD_SIZE_GRID_COLUMNS = { small: 4, medium: 3, large: 2 } as const;
+export const CARD_SIZES = ["small", "medium", "large"] as const;

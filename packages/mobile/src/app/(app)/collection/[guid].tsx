@@ -51,6 +51,7 @@ import { useCollectionActions } from "@/features/collections/api/use-collection-
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { useSessionStream } from "@/features/monitor/api/use-session-stream";
 import { useSorter } from "@/features/sorter/api/use-sorter";
+import { useOpenBuy } from "@/features/business/api/use-open-buy";
 import {
   buildCollectionCardsQuery,
   cardSortOptions,
@@ -70,7 +71,8 @@ import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import {
-  CARD_GRID_COLUMNS,
+  CARD_SIZE_GRID_COLUMNS,
+  COLLECTION_CARD_SIZE_KEY,
   CARD_GRID_GAP_X,
   CARD_GRID_GAP_Y,
   CARD_GRID_GUTTER,
@@ -88,9 +90,9 @@ import {
 } from "@/lib/constants/navigation-memory";
 import { BADGE_RADIUS, FLOATING_BUTTON_SHADOW, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { BUTTON_HEIGHTS } from "@/lib/constants/ui";
-import type { CollectionScanTimeline, ScanTimelineListRow } from "@/lib/interfaces/collections";
+import type { CardSize, CollectionScanTimeline, ScanTimelineListRow } from "@/lib/interfaces/collections";
 import { readReviewLayout } from "@/lib/review-layout";
-import { writeKv } from "@/lib/storage/kv";
+import { readKv, writeKv } from "@/lib/storage/kv";
 
 export default function CollectionScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
@@ -110,6 +112,16 @@ export default function CollectionScreen() {
   const [sort, setSort] = useState<string | null>(viewMemory?.sort ?? null);
   const [filters, setFilters] = useState<CardFilters>(EMPTY_CARD_FILTERS);
   const [viewOptionsOpen, setViewOptionsOpen] = useState(false);
+  const [cardSize, setCardSize] = useState<CardSize>(() => {
+    const stored = readKv(COLLECTION_CARD_SIZE_KEY);
+    return stored === "small" || stored === "large" ? stored : "medium";
+  });
+  const changeCardSize = (next: CardSize) => {
+    setCardSize(next);
+    writeKv(COLLECTION_CARD_SIZE_KEY, next);
+  };
+  const gridColumns = CARD_SIZE_GRID_COLUMNS[cardSize];
+  const openBuy = useOpenBuy(guid, true);
   const [scanTimeline, setScanTimeline] = useState<CollectionScanTimeline>(readStoredCollectionScanTimeline);
   const changeScanTimeline = (next: CollectionScanTimeline) => {
     setScanTimeline(next);
@@ -216,10 +228,10 @@ export default function CollectionScreen() {
       scanTimelineGrouping
         ? toScanTimelineListRows(
             groupCardsByScanTime(items, scanTimelineGrouping, scanTimelineBuckets.data?.buckets),
-            CARD_GRID_COLUMNS,
+            gridColumns,
           )
         : [],
-    [items, scanTimelineGrouping, scanTimelineBuckets.data],
+    [items, scanTimelineGrouping, scanTimelineBuckets.data, gridColumns],
   );
   const scanTimelineStickyHeaderIndices = useMemo(
     () =>
@@ -241,7 +253,7 @@ export default function CollectionScreen() {
     countActiveCardFilters(filters) + (sort && !scanTimelineGrouping ? 1 : 0) + (scanTimelineGrouping ? 1 : 0);
 
   const hasPricing = !!stats && stats.priceableCount > 0;
-  const tileWidth = (width - CARD_GRID_GUTTER * 2 - CARD_GRID_GAP_X * (CARD_GRID_COLUMNS - 1)) / CARD_GRID_COLUMNS;
+  const tileWidth = (width - CARD_GRID_GUTTER * 2 - CARD_GRID_GAP_X * (gridColumns - 1)) / gridColumns;
   const headerSummary = [
     collection?.game?.name,
     totalCards != null ? t("collection.cardsCount", { count: totalCards }) : null,
@@ -430,7 +442,7 @@ export default function CollectionScreen() {
 
       {scanTimelineGrouping ? (
         <FlatList<ScanTimelineListRow>
-          key="scan-timeline"
+          key={`scan-timeline-${gridColumns}`}
           ref={(list) => {
             listRef.current = list;
           }}
@@ -481,7 +493,7 @@ export default function CollectionScreen() {
         />
       ) : (
         <FlatList<CardGridTile>
-          key="cards"
+          key={`cards-${gridColumns}`}
           ref={(list) => {
             listRef.current = list;
           }}
@@ -489,7 +501,7 @@ export default function CollectionScreen() {
           keyExtractor={(tile) =>
             tile.kind === "moreUnmatched" ? `more-unmatched-${tile.position}` : `${tile.kind}-${tile.entry.scanId}`
           }
-          numColumns={CARD_GRID_COLUMNS}
+          numColumns={gridColumns}
           columnWrapperStyle={{ gap: CARD_GRID_GAP_X }}
           {...sharedListProps}
           renderItem={({ item: tile }) =>
@@ -525,6 +537,9 @@ export default function CollectionScreen() {
         filters={filters}
         breakdown={breakdown}
         binCount={binCount}
+        openBuyGuid={openBuy?.guid ?? null}
+        cardSize={cardSize}
+        onCardSizeChange={changeCardSize}
         onChange={setFilters}
         onClose={() => setViewOptionsOpen(false)}
       />

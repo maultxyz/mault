@@ -7,12 +7,18 @@ import type { AddCatalogCardInput } from "@/lib/interfaces/cards";
 export function useAddCatalogCard() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ collectionGuid, card }: AddCatalogCardInput) =>
-      unwrap(apiPost<Result<ScannedCard>>(`/api/collections/${collectionGuid}/cards/manual`, { card } satisfies AddManualCardRequest)),
+    mutationFn: ({ collectionGuid, card, locationGuid }: AddCatalogCardInput) =>
+      unwrap(
+        apiPost<Result<ScannedCard>>(`/api/collections/${collectionGuid}/cards/manual`, {
+          card,
+          locationGuid,
+        } satisfies AddManualCardRequest),
+      ),
     onSuccess: (_card, { collectionGuid }) => {
       invalidateCollectionCards(queryClient, collectionGuid);
       void queryClient.invalidateQueries({ queryKey: ["collections"] });
       void queryClient.invalidateQueries({ queryKey: ["owned-card-search"] });
+      void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
     },
   });
 }

@@ -72,9 +72,14 @@ export interface CardViewOptionsSheetProps {
   filters: CardFilters;
   breakdown: StatsBreakdown | null;
   binCount?: number;
+  openBuyGuid?: string | null;
+  cardSize?: CardSize;
+  onCardSizeChange?: (cardSize: CardSize) => void;
   onChange: (filters: CardFilters) => void;
   onClose: () => void;
 }
+
+export type CardSize = "small" | "medium" | "large";
 
 export interface CardActionsSheetProps {
   entry: GroupedScannedCard | null;

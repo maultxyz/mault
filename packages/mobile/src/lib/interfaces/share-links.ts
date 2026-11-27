@@ -1,3 +1,4 @@
+import type { PublicCardFacets, PublicCardFilters, PublicCardSort } from "@magic-vault/shared";
 import type { ShareLinkKind, ShareLinkPurpose } from "@magic-vault/shared";
 import type { OrgShareLink } from "@magic-vault/shared";
 export type { ShareLinkKind };
@@ -42,4 +43,20 @@ export interface SubjectShareLinksProps {
   onSelect: (linkGuid: string) => void;
   onNew: () => void;
   showsCreatedInListNotice: boolean;
+}
+
+export interface SharedLinkFilterSheetProps {
+  visible: boolean;
+  facets: PublicCardFacets | undefined;
+  showsPrices: boolean;
+  sort: PublicCardSort;
+  filters: PublicCardFilters;
+  onSortChange: (sort: PublicCardSort) => void;
+  onFiltersChange: (filters: PublicCardFilters) => void;
+  onClose: () => void;
+}
+
+export interface TradeLinkCardsQueryOptions {
+  sort?: PublicCardSort;
+  filters?: PublicCardFilters;
 }

@@ -28,6 +28,7 @@ export function useStorageLocationActions({ onDeleted, shareLinkCountGuid }: Sto
       value: "share",
       label: activeShareLinkCount > 0 ? t("storage.shareWithCount", { count: activeShareLinkCount }) : t("storage.share"),
     },
+    { value: "addCard", label: t("collections.addCard") },
     { value: "printLabel", label: t("storage.printLabel") },
     { value: "rename", label: t("storage.edit") },
     { value: "delete", label: t("storage.delete") },
@@ -36,6 +37,8 @@ export function useStorageLocationActions({ onDeleted, shareLinkCountGuid }: Sto
   const runAction = (location: StorageLocationActionTarget, action: string) => {
     if (action === "share") {
       router.push({ pathname: "/share-link", params: { kind: "storage", guid: location.guid } });
+    } else if (action === "addCard") {
+      router.push({ pathname: "/search", params: { addToLocation: location.guid } });
     } else if (action === "printLabel") {
       void Linking.openURL(
         `${WEB_URL}${STORAGE_LABELS_PATH}?${STORAGE_LOCATION_SEARCH_PARAM}=${encodeURIComponent(location.guid)}`,

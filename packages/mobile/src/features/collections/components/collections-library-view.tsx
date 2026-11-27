@@ -1,9 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useIsFocused } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
+import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast-provider";
+import { deleteCollection, emptyCollection } from "@/features/collections/api/collections";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
@@ -89,6 +92,58 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
         .join(" · ")
     : null;
   const openNewCollection = () => router.push("/collection-new");
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectedGuids, setSelectedGuids] = useState<string[]>([]);
+  const stopSelecting = () => {
+    setIsSelecting(false);
+    setSelectedGuids([]);
+  };
+  const toggleSelected = (guid: string) =>
+    setSelectedGuids((current) =>
+      current.includes(guid) ? current.filter((selected) => selected !== guid) : [...current, guid],
+    );
+  const allSelected = filtered.length > 0 && filtered.every((collection) => selectedGuids.includes(collection.guid));
+  const bulk = useMutation({
+    mutationFn: async (action: "empty" | "delete") => {
+      for (const guid of selectedGuids) {
+        if (action === "empty") await emptyCollection(guid);
+        else await deleteCollection(guid);
+      }
+    },
+    onSuccess: (_result, action) => {
+      showToast({
+        message: t(action === "empty" ? "collections.bulk.emptied" : "collections.bulk.deleted", {
+          count: selectedGuids.length,
+        }),
+        tone: "success",
+      });
+      stopSelecting();
+    },
+    onError: () => showToast({ message: t("collections.bulk.failed"), tone: "destructive" }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["collections"] });
+      void queryClient.invalidateQueries({ queryKey: ["collection-cards"] });
+      void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
+      void queryClient.invalidateQueries({ queryKey: ["billing"] });
+    },
+  });
+  const confirmBulk = (action: "empty" | "delete") =>
+    Alert.alert(
+      t(action === "empty" ? "collections.bulk.emptyTitle" : "collections.bulk.deleteTitle", {
+        count: selectedGuids.length,
+      }),
+      t(action === "empty" ? "collections.bulk.emptyDescription" : "collections.bulk.deleteDescription"),
+      [
+        { text: t("collections.cancel"), style: "cancel" },
+        {
+          text: t(action === "empty" ? "collections.emptyConfirm" : "collections.deleteConfirm"),
+          style: "destructive",
+          onPress: () => bulk.mutate(action),
+        },
+      ],
+    );
 
   return (
     <Screen
@@ -99,14 +154,53 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
           subtitle={summary}
           actions={
             <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-              <IconButton icon="search" accessibilityLabel={t("search.open")} onPress={() => router.push("/search")} />
               {sorted.length > 0 ? (
+                <IconButton
+                  icon={isSelecting ? "close" : "checkAll"}
+                  accessibilityLabel={isSelecting ? t("collections.bulk.doneSelecting") : t("collections.bulk.select")}
+                  onPress={() => (isSelecting ? stopSelecting() : setIsSelecting(true))}
+                />
+              ) : null}
+              <IconButton icon="search" accessibilityLabel={t("search.open")} onPress={() => router.push("/search")} />
+              {sorted.length > 0 && !isSelecting ? (
                 <IconButton icon="plus" variant="primary" accessibilityLabel={t("collections.new")} onPress={openNewCollection} />
               ) : null}
             </View>
           }
         >
           {viewSwitcher}
+          {isSelecting ? (
+            <View style={{ gap: SPACING.sm }}>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: SPACING.sm }}>
+                <AppText size="sm" weight="semibold" accessibilityLiveRegion="polite">
+                  {t("collections.bulk.selectedCount", { count: selectedGuids.length })}
+                </AppText>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  label={allSelected ? t("collections.bulk.clear") : t("collections.bulk.selectAll")}
+                  onPress={() => setSelectedGuids(allSelected ? [] : filtered.map((collection) => collection.guid))}
+                />
+              </View>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  label={t("collections.empty")}
+                  disabled={selectedGuids.length === 0 || bulk.isPending}
+                  onPress={() => confirmBulk("empty")}
+                />
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  label={t("collections.delete")}
+                  disabled={selectedGuids.length === 0 || bulk.isPending}
+                  loading={bulk.isPending}
+                  onPress={() => confirmBulk("delete")}
+                />
+              </View>
+            </View>
+          ) : null}
           {sorted.length > COLLECTION_SEARCH_MIN_COUNT ? (
             <SearchInput
               value={search}
@@ -193,8 +287,15 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
                 subtitle={[statusLabel, t("collection.cardsCount", { count: collection.cardCount })]
                   .filter(Boolean)
                   .join(" · ")}
-                onPress={() => router.push({ pathname: "/collection/[guid]", params: { guid: collection.guid } })}
-                onLongPress={() => setActionsCollection({ guid: collection.guid, name: collection.name })}
+                checked={isSelecting ? selectedGuids.includes(collection.guid) : undefined}
+                onPress={() =>
+                  isSelecting
+                    ? toggleSelected(collection.guid)
+                    : router.push({ pathname: "/collection/[guid]", params: { guid: collection.guid } })
+                }
+                onLongPress={
+                  isSelecting ? undefined : () => setActionsCollection({ guid: collection.guid, name: collection.name })
+                }
                 longPressLabel={t("collections.actions")}
               />
             );

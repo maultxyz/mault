@@ -2,6 +2,7 @@ import {
   PRICE_SOURCE_FIELDS,
   SHARE_LINK_GUEST_KEY_HEADER,
   type MonitorLinkInfo,
+  type PublicCardFacets,
   type PublicCardPage,
   type Result,
   type StorageShareLinkInfo,
@@ -20,6 +21,7 @@ import {
   TRADE_LINK_INFO_QUERY_KEY,
   TRADE_OFFER_QUOTE_QUERY_KEY,
 } from "@/lib/constants/trade";
+import type { TradeLinkCardsQueryOptions } from "@/lib/interfaces/share-links";
 import type { TradeLinkInfo, TradeLinkRef } from "@/lib/interfaces/trade";
 
 function publicUrl(link: TradeLinkRef, path: string, params: Record<string, string> = {}): string {
@@ -61,9 +63,19 @@ export const tradeLinkInfoQueryOptions = (link: TradeLinkRef) =>
     retry: false,
   });
 
-export const tradeLinkCardsQueryOptions = (link: TradeLinkRef, search: string) =>
+export const tradeLinkFacetsQueryOptions = (link: TradeLinkRef) =>
+  queryOptions({
+    queryKey: [TRADE_LINK_CARDS_QUERY_KEY, link.kind, link.guid, link.token, "facets"] as const,
+    queryFn: async () => readResult<PublicCardFacets>(await fetch(publicUrl(link, "/browse/facets"))),
+  });
+
+export const tradeLinkCardsQueryOptions = (
+  link: TradeLinkRef,
+  search: string,
+  { sort, filters }: TradeLinkCardsQueryOptions = {},
+) =>
   infiniteQueryOptions({
-    queryKey: [TRADE_LINK_CARDS_QUERY_KEY, link.kind, link.guid, link.token, search] as const,
+    queryKey: [TRADE_LINK_CARDS_QUERY_KEY, link.kind, link.guid, link.token, search, sort ?? null, filters ?? null] as const,
     queryFn: async ({ pageParam }) =>
       readResult<PublicCardPage>(
         await fetch(
@@ -71,6 +83,8 @@ export const tradeLinkCardsQueryOptions = (link: TradeLinkRef, search: string) =
             page: String(pageParam),
             limit: String(TRADE_LINK_CARDS_PAGE_SIZE),
             ...(search ? { search } : {}),
+            ...(sort ? { sort } : {}),
+            ...(filters ? { filters: JSON.stringify(filters) } : {}),
           }),
         ),
       ),

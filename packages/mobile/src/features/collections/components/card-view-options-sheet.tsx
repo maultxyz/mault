@@ -17,7 +17,9 @@ import { CardPriceRangeFields } from "@/features/collections/components/card-pri
 import { usePricing } from "@/hooks/use-pricing";
 import { FilterChip } from "@/features/collections/components/filter-chip";
 import {
+  CARD_SIZES,
   CARD_VIEW_MODES,
+  MIN_MATCH_PERCENT_FILTER_OPTIONS,
   COLLECTION_SCAN_TIMELINE_OPTIONS,
   SET_FILTER_CHIPS_MAX,
   SET_FILTER_SEARCH_MIN_COUNT,
@@ -42,6 +44,9 @@ export function CardViewOptionsSheet({
   filters,
   breakdown,
   binCount,
+  openBuyGuid,
+  cardSize,
+  onCardSizeChange,
   onChange,
   onClose,
 }: CardViewOptionsSheetProps) {
@@ -100,6 +105,20 @@ export function CardViewOptionsSheet({
                 label={t(`collection.viewModes.${mode}`)}
                 selected={viewMode === mode}
                 onPress={() => onViewModeChange(mode)}
+              />
+            )),
+          )
+        : null}
+      {onCardSizeChange
+        ? section(
+            t("collection.cardSize.title"),
+            CARD_SIZES.map((size) => (
+              <FilterChip
+                key={size}
+                label={t(`collection.cardSize.${size}`)}
+                selectionRole="radio"
+                selected={cardSize === size}
+                onPress={() => onCardSizeChange(size)}
               />
             )),
           )
@@ -298,6 +317,30 @@ export function CardViewOptionsSheet({
           ],
         )
       }
+      {section(
+        t("collection.filters.minMatch"),
+        MIN_MATCH_PERCENT_FILTER_OPTIONS.map((percent) => (
+          <FilterChip
+            key={percent}
+            label={percent === 0 ? t("collection.filters.minMatchAny") : t("collection.filters.minMatchValue", { percent })}
+            selectionRole="radio"
+            selected={filters.minMatchPercent === percent}
+            onPress={() => onChange({ ...filters, minMatchPercent: percent })}
+          />
+        )),
+      )}
+      {openBuyGuid || filters.intakeLotGuid
+        ? section(t("collection.filters.buy"), [
+            <FilterChip
+              key="buy"
+              label={t("collection.filters.onlyThisBuy")}
+              selected={!!filters.intakeLotGuid}
+              onPress={() =>
+                onChange({ ...filters, intakeLotGuid: filters.intakeLotGuid ? null : (openBuyGuid ?? null) })
+              }
+            />,
+          ])
+        : null}
       {section(t("collection.filters.status"), [
         <FilterChip
           key="review"

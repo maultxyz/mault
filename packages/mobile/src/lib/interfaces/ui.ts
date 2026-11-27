@@ -290,6 +290,7 @@ export interface HomeCollectionRowProps {
   trailingAccessibilityLabel?: string;
   isScanTarget: boolean;
   isLive?: boolean;
+  checked?: boolean;
   onPress: () => void;
   onPressIn?: () => void;
   onLongPress?: () => void;

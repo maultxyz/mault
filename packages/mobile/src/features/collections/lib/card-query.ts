@@ -43,7 +43,9 @@ export function countActiveCardFilters(filters: CardFilters): number {
     (filters.finish === EMPTY_CARD_FILTERS.finish ? 0 : 1) +
     (filters.minPrice === null ? 0 : 1) +
     (filters.maxPrice === null ? 0 : 1) +
-    (filters.hideDownloaded ? 1 : 0)
+    (filters.hideDownloaded ? 1 : 0) +
+    (filters.minMatchPercent > 0 ? 1 : 0) +
+    (filters.intakeLotGuid ? 1 : 0)
   );
 }
 

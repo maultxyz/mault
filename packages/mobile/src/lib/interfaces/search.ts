@@ -28,7 +28,12 @@ export interface CardPrintingsGridProps {
   onSelect: (printing: PlayingCard) => void;
 }
 
-export type CatalogCardRouteParams = {
+export type AddCardTargetRouteParams = {
+  addToCollection?: string;
+  addToLocation?: string;
+};
+
+export type CatalogCardRouteParams = AddCardTargetRouteParams & {
   id: string;
   gameKey: string;
 };

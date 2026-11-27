@@ -66,6 +66,26 @@
     "continueWithProvider": "Continue with {{provider}}"
   },
   "collections": {
+    "bulk": {
+      "select": "Select collections",
+      "doneSelecting": "Done selecting",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "selectedCount_one": "{{count}} collection selected",
+      "selectedCount_other": "{{count}} collections selected",
+      "emptyTitle_one": "Empty {{count}} collection?",
+      "emptyTitle_other": "Empty {{count}} collections?",
+      "emptyDescription": "Every card in the selected collections is removed. The collections themselves are kept.",
+      "deleteTitle_one": "Delete {{count}} collection?",
+      "deleteTitle_other": "Delete {{count}} collections?",
+      "deleteDescription": "The selected collections and every card in them are deleted.",
+      "emptied_one": "{{count}} collection emptied",
+      "emptied_other": "{{count}} collections emptied",
+      "deleted_one": "{{count}} collection deleted",
+      "deleted_other": "{{count}} collections deleted",
+      "failed": "Couldn't finish. Some collections may not have changed."
+    },
+    "addCard": "Add card",
     "title": "Collection",
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
@@ -116,6 +136,16 @@
     "notFoundTitle": "Collection not found",
     "notFoundDescription": "It may have been deleted, or you no longer have access to it.",
     "importCsv": {
+      "deckLink": {
+        "label": "Deck link",
+        "placeholder": "https://moxfield.com/decks/...",
+        "load": "Load deck",
+        "failure": {
+          "notFound": "That deck wasn't found. Check that the link is right and the deck is public.",
+          "unavailable": "Couldn't load the deck right now. Try again, or export it as a CSV and upload that instead.",
+          "empty": "That deck has no cards to import."
+        }
+      },
       "button": "Import CSV",
       "title": "Import cards from a CSV",
       "description": "Upload a collection export from Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer or any CSV with a card name column.",
@@ -1108,6 +1138,12 @@
     "seeAllStats": "All stats"
   },
   "collection": {
+    "cardSize": {
+      "title": "Card size",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
     "value": "Value",
     "cards": "Cards",
     "cardsCount_one": "{{count}} card",
@@ -1118,6 +1154,11 @@
     "noMatches": "No cards match your search",
     "groupDuplicates": "Group duplicates",
     "filters": {
+      "minMatch": "Minimum match",
+      "minMatchAny": "Any",
+      "minMatchValue": "{{percent}}% or better",
+      "buy": "Buy",
+      "onlyThisBuy": "Only this buy",
       "colors": "Colors",
       "rarity": "Rarity",
       "foil": "Foil",
@@ -1976,6 +2017,8 @@
     "searchLocations": "Search locations",
     "searchCollections": "Search collections",
     "pickList": {
+      "importFile": "Import from a CSV file",
+      "importFailed": "No cards found in that file. Check that the first row has a column for the card name.",
       "open": "Pick list",
       "title": "Pick list",
       "description": "Paste a decklist to see where each card is stored, then tick cards off as you pull them.",
@@ -4388,6 +4431,15 @@
     }
   },
   "sharedLink": {
+    "filters": {
+      "title": "Sort and filter",
+      "sorts": {
+        "newest": "Newest",
+        "name": "Name",
+        "price-desc": "Price: high to low",
+        "price-asc": "Price: low to high"
+      }
+    },
     "title": "Shared cards",
     "collectionSubtitle_one": "Shared collection · {{count}} card",
     "collectionSubtitle_other": "Shared collection · {{count}} cards",
