@@ -12,6 +12,8 @@ import { useTheme } from "@/hooks/use-theme";
 import { useMemberSeatLock } from "@/lib/api/member-seat-lock";
 import { UNFRAMED_STACK_ROUTE_NAMES } from "@/lib/constants/nav";
 
+export const unstable_settings = { initialRouteName: "(tabs)" };
+
 export default function AppLayout() {
   const colors = useTheme();
   const insets = useSafeAreaInsets();
