@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/web",
-  "version": "1.0.214",
+  "version": "1.0.215",
   "private": true,
   "scripts": {
     "dev": "node --env-file-if-exists=../../.env ../../scripts/wait-for-api.mjs && vite",
