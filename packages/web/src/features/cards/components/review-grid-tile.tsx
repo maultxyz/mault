@@ -112,7 +112,7 @@ export function ReviewGridTile({
         />
       </div>
       {autoCheckOutcome && autoCheckOutcome.verdict !== "confirmed" && (
-        <p className="flex items-start gap-1 px-0.5 text-xs text-warning-foreground">
+        <p className="flex items-start gap-1 px-0.5 text-xs text-warning-foreground animate-in fade-in-0 slide-in-from-top-1 motion-reduce:animate-none">
           <IconAlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           {autoCheckOutcome.suggestedCardName
             ? t("reviewGrid.autoCheckDifferent", {
