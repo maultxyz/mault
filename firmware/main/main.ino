@@ -1674,21 +1674,24 @@ class SeqPrint : public Print {
 // Drops everything the interrupted command still prints once an emergency
 // stop lands, so its only remaining line is the {"error":"stopped"} that
 // handleCommand() prints for it. A stop is only read inside waitMs(), never
-// mid-line, so no half-written line gets cut.
+// mid-line, so no half-written line gets cut. A command that starts while the
+// stop is already latched (getStatus, config writes...) isn't the interrupted
+// one, so it passes `armed = false` and its reply goes out as normal.
 class StopAwarePrint : public Print {
  public:
-  explicit StopAwarePrint(Print& out) : out(out) {}
+  StopAwarePrint(Print& out, bool armed) : out(out), armed(armed) {}
 
   size_t write(uint8_t c) override { return write(&c, 1); }
 
   size_t write(const uint8_t* buffer, size_t size) override {
-    if (emergencyStopped) return size;
+    if (armed && emergencyStopped) return size;
     return out.write(buffer, size);
   }
   using Print::write;
 
  private:
   Print& out;
+  bool armed;
 };
 
 bool commandInProgress = false;
@@ -1748,7 +1751,7 @@ void handleCommand(const char* json, Print& reply) {
     return;
   }
   bool stoppedBefore = emergencyStopped;
-  StopAwarePrint guarded(tagged);
+  StopAwarePrint guarded(tagged, !stoppedBefore);
   commandInProgress = true;
   runCommand(doc, guarded);
   commandInProgress = false;
