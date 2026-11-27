@@ -435,6 +435,7 @@ Structure and loading:
 
 - Feature-first: `features/<name>/{api,components,lib}`; cross-feature code in top-level `components/`, `hooks/`, `lib/`. API calls through `lib/api/client.ts` or `features/*/api/`.
 - Route components use `lazyRoute`; links never preload route chunks. The service worker registers from the app layout, never `main.tsx`.
+- The service worker never answers page navigations from the precache (`navigateFallback: null`, `directoryIndex: null`, no HTML but `index.html` precached): pages go network-first, or iOS users stay on the old build after deploys.
 - Only `common` i18n loads at startup; a route using a namespace in `ROUTE_LOADED_NAMESPACES` wraps its loader in `withNamespaces()`.
 - First paint on `/app/home`: queries Home doesn't show wait for `useSecondaryRequestsEnabled()`.
 - `/overview` and `/overview/widgets` never poll.
