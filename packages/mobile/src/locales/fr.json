@@ -4149,7 +4149,8 @@
         "revectorizeFailed": "Échec de la revectorisation de {{name}}",
         "previousPage": "Page précédente",
         "nextPage": "Page suivante",
-        "pageStatus": "Page {{page}} sur {{pageCount}}"
+        "pageStatus": "Page {{page}} sur {{pageCount}}",
+        "searchPrompt": "Recherchez une carte par son nom pour la charger."
       },
       "dump": {
         "heading": "Vider la base de données de cartes",
@@ -4673,7 +4674,8 @@
       "selected": "Impression {{printing}} affichée",
       "loadFailed": "Impossible de charger les autres impressions.",
       "showMore": "Afficher plus d'impressions"
-    }
+    },
+    "inBin": "Dans la case {{bin}} du trieur"
   },
   "offline": {
     "title": "Tu es hors ligne",

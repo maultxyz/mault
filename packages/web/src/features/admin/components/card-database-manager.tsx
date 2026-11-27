@@ -9,6 +9,7 @@ import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import {
   IconCards,
   IconRefresh,
+  IconSearch,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
@@ -30,7 +31,7 @@ export function CardDatabaseManager() {
     queryKey: ["admin", "cards", cardPage, cardSearch],
     queryFn: () => listCards(cardPage, cardSearch).then((r) => r.data),
     staleTime: 30_000,
-    enabled: !!activeOrg,
+    enabled: !!activeOrg && !!cardSearch,
   });
 
   const totalPages = cardsQuery.data
@@ -41,7 +42,7 @@ export function CardDatabaseManager() {
     setCardSearchInput(value);
     if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
     searchDebounceRef.current = setTimeout(() => {
-      setCardSearch(value);
+      setCardSearch(value.trim());
       setCardPage(1);
     }, SEARCH_DEBOUNCE_MS);
   }
@@ -101,6 +102,13 @@ export function CardDatabaseManager() {
           />
         )}
         <div className="min-h-0 divide-y divide-border overflow-y-auto">
+          {!cardSearch && (
+            <EmptyState
+              size="compact"
+              icon={IconSearch}
+              title={t("cardDatabase.searchPrompt")}
+            />
+          )}
           {cardsQuery.isLoading && (
             <p className="text-sm text-foreground/70 text-center py-6">
               {t("loading")}

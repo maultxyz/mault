@@ -48,5 +48,6 @@
     "selected": "Showing the {{printing}} printing",
     "loadFailed": "Couldn't load the other printings.",
     "showMore": "Show more printings"
-  }
+  },
+  "inBin": "In sorter bin {{bin}}"
 }

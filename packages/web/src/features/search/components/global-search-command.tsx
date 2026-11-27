@@ -1,4 +1,4 @@
-import { formatStorageSlot } from "@magic-vault/shared";
+import { ownedCardSearchPlacementOf } from "@magic-vault/shared";
 import { CardImage } from "@/components/card-image";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Command, CommandDialog, CommandGroup, CommandInput, CommandList } from "@/components/ui/command";
@@ -107,11 +107,15 @@ export function GlobalSearchCommand() {
                 results.cardResults.length > 0 && (
                   <CommandGroup heading={t("sections.cards")}>
                     {results.cardResults.map((result) => {
-                      const placement = result.locationName
-                        ? result.locationPosition != null
-                          ? t("locationPosition", { location: result.locationName, position: formatStorageSlot(result.locationPosition, result.locationBatchSize) })
-                          : result.locationName
-                        : null;
+                      const placement = ownedCardSearchPlacementOf(result);
+                      const placementText =
+                        placement?.kind === "location"
+                          ? placement.slot
+                            ? t("locationPosition", { location: placement.locationName, position: placement.slot })
+                            : placement.locationName
+                          : placement?.kind === "bin"
+                            ? t("inBin", { bin: placement.binNumber })
+                            : null;
                       return (
                         <GlobalSearchResultItem
                           key={result.scanId}
@@ -119,7 +123,7 @@ export function GlobalSearchCommand() {
                           onSelect={() => openPath(ownedCardPath(result))}
                           title={result.cardName}
                           subtitle={[
-                            placement,
+                            placementText,
                             result.collectionName,
                             result.setName ?? result.setCode?.toUpperCase(),
                             result.isFoil ? t("foil") : null,

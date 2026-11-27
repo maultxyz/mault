@@ -230,7 +230,8 @@
     "searchPlaceholder": "Search by name...",
     "loadError": "Failed to load cards",
     "revectorizeTitle": "Re-vectorize",
-    "empty": "No cards found"
+    "empty": "No cards found",
+    "searchPrompt": "Search for a card by name to load it."
   },
   "syncCardById": {
     "cardIdLabel": "Card ID",

@@ -4149,7 +4149,8 @@
         "revectorizeFailed": "Neu-Vektorisierung von {{name}} fehlgeschlagen",
         "previousPage": "Vorherige Seite",
         "nextPage": "Nächste Seite",
-        "pageStatus": "Seite {{page}} von {{pageCount}}"
+        "pageStatus": "Seite {{page}} von {{pageCount}}",
+        "searchPrompt": "Suche eine Karte nach Namen, um sie zu laden."
       },
       "dump": {
         "heading": "Kartendatenbank leeren",
@@ -4673,7 +4674,8 @@
       "selected": "Druck {{printing}} wird angezeigt",
       "loadFailed": "Die anderen Drucke konnten nicht geladen werden.",
       "showMore": "Weitere Drucke anzeigen"
-    }
+    },
+    "inBin": "In Sortierfach {{bin}}"
   },
   "offline": {
     "title": "Du bist offline",

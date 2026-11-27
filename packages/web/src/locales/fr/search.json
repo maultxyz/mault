@@ -48,5 +48,6 @@
     "selected": "Impression {{printing}} affichée",
     "loadFailed": "Impossible de charger les autres impressions.",
     "showMore": "Afficher plus d'impressions"
-  }
+  },
+  "inBin": "Dans la case {{bin}} du trieur"
 }

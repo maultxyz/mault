@@ -4149,7 +4149,8 @@
         "revectorizeFailed": "Failed to re-vectorize {{name}}",
         "previousPage": "Previous page",
         "nextPage": "Next page",
-        "pageStatus": "Page {{page}} of {{pageCount}}"
+        "pageStatus": "Page {{page}} of {{pageCount}}",
+        "searchPrompt": "Search for a card by name to load it."
       },
       "dump": {
         "heading": "Dump Card Database",
@@ -4673,7 +4674,8 @@
       "selected": "Showing the {{printing}} printing",
       "loadFailed": "Couldn't load the other printings.",
       "showMore": "Show more printings"
-    }
+    },
+    "inBin": "In sorter bin {{bin}}"
   },
   "offline": {
     "title": "You're offline",

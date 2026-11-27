@@ -48,5 +48,6 @@
     "selected": "Druck {{printing}} wird angezeigt",
     "loadFailed": "Die anderen Drucke konnten nicht geladen werden.",
     "showMore": "Weitere Drucke anzeigen"
-  }
+  },
+  "inBin": "In Sortierfach {{bin}}"
 }
