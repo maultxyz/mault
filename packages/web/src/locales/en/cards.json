@@ -523,6 +523,38 @@
     "added": "Added {{name}}",
     "failed": "Couldn't add the card."
   },
+  "quickAdd": {
+    "button": "Quick add",
+    "title": "Quick add cards",
+    "description": "Type a card and press Enter to add it. The field clears right away, so you can keep typing the next card.",
+    "searchLabel": "Card to add",
+    "placeholder": "4x Lightning Bolt (m10) 146 *f*",
+    "syntaxHint": "Start with a quantity (4x), add a set code in brackets (m10) and a collector number, or *f* for foil. Up and Down pick a printing, Enter adds it.",
+    "collection": "Collection",
+    "location": "Storage location",
+    "noLocation": "No location",
+    "condition": "Condition",
+    "foil": "Foil",
+    "noCollections": "Create a collection first to add cards to it.",
+    "noCollectorNumberMatch": "No printing with collector number {{number}} matches.",
+    "logTitle": "Added this session",
+    "logEmpty": "Cards you add show up here, so you can undo a mistake.",
+    "addedCount_one": "{{count}} card",
+    "addedCount_other": "{{count}} cards",
+    "status": {
+      "saving": "Adding...",
+      "failed": "Not added",
+      "undoing": "Undoing...",
+      "undone": "Undone"
+    },
+    "undo": "Undo",
+    "undoLabel": "Undo adding {{count}}x {{name}}",
+    "undoFailed": "Couldn't undo. Try again.",
+    "addedAnnouncement_one": "Added {{name}}",
+    "addedAnnouncement_other": "Added {{count}} copies of {{name}}",
+    "failedAnnouncement": "Couldn't add {{name}}",
+    "undoneAnnouncement": "Removed {{name}} again"
+  },
   "externalCardDrop": {
     "overlayTitle": "Drop to add cards",
     "overlayDescription": "Cards and deck links from Scryfall, Moxfield or Archidekt are added to {{collection}}.",

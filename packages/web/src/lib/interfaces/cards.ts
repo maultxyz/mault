@@ -36,7 +36,7 @@ import type {
   PrintingMarkRegion,
   MatchedScanDiagnostics,
 } from "@magic-vault/shared";
-import type { KeyboardEvent, MouseEvent, ReactNode, Ref } from "react";
+import type { KeyboardEvent, MouseEvent, ReactNode, Ref, RefObject } from "react";
 import type { TFunction } from "i18next";
 import type { ScanStats } from "@/lib/interfaces/scanner";
 
@@ -298,6 +298,7 @@ export interface CardToolbarProps {
   leading?: ReactNode;
   extraActions?: ReactNode;
   onAddCard?: () => void;
+  onQuickAdd?: () => void;
   onImportScans?: () => void;
   onImportCsv?: () => void;
   searchQuery: string;
@@ -967,4 +968,74 @@ export interface CardPriceHistoryProps {
   gameKey: string;
   lang: string;
   isFoil: boolean;
+}
+
+export interface QuickAddDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  collectionGuid?: string;
+  locationGuid?: string;
+}
+
+export interface QuickAddPanelProps {
+  initialCollectionGuid?: string;
+  initialLocationGuid?: string;
+  searchInputRef: RefObject<HTMLInputElement | null>;
+}
+
+export interface ParsedQuickAddLine {
+  quantity: number;
+  cardName: string;
+  setCode?: string;
+  collectorNumber?: string;
+  isFoil: boolean;
+}
+
+export interface QuickAddRequest {
+  collectionGuid: string;
+  collectionName: string;
+  locationGuid?: string;
+  locationName?: string;
+  card: PlayingCard;
+  quantity: number;
+  isFoil: boolean;
+  condition: CardCondition;
+}
+
+export type QuickAddLogEntryStatus =
+  | "saving"
+  | "added"
+  | "failed"
+  | "undoing"
+  | "undone";
+
+export interface QuickAddLogEntry extends QuickAddRequest {
+  id: string;
+  status: QuickAddLogEntryStatus;
+  scanIds: string[];
+}
+
+export interface QuickAddOptionsProps {
+  collectionGuid: string | undefined;
+  onCollectionChange: (collectionGuid: string) => void;
+  locationGuid: string;
+  onLocationChange: (locationGuid: string) => void;
+  showsLocations: boolean;
+  condition: CardCondition;
+  onConditionChange: (condition: CardCondition) => void;
+  isFoilByDefault: boolean;
+  onFoilByDefaultChange: (isFoil: boolean) => void;
+  language: string;
+  onLanguageChange: (language: string) => void;
+}
+
+export interface QuickAddResultItemProps {
+  card: PlayingCard;
+  isFoil: boolean;
+  onSelect: () => void;
+}
+
+export interface QuickAddLogProps {
+  entries: QuickAddLogEntry[];
+  onUndo: (entry: QuickAddLogEntry) => void;
 }

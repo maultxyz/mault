@@ -32,6 +32,7 @@ import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { ScannedCardGridSkeleton } from "@/features/cards/components/scanned-card-grid-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { QuickAddDialog } from "@/features/cards/components/quick-add-dialog";
 import { ExternalCardDropOverlay } from "@/features/cards/components/external-card-drop-overlay";
 import { useExternalCardDrop } from "@/features/cards/api/use-external-card-drop";
 import { CollectionCsvImportDialog } from "@/features/cards/components/collection-csv-import-dialog";
@@ -120,6 +121,7 @@ import {
   IconFileImport,
   IconLoader2,
   IconPhotoUp,
+  IconBolt,
   IconPlus,
   IconRosette,
   IconSparkles,
@@ -199,6 +201,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [addCardOpen, setAddCardOpen] = useState(false);
   const [addCardInitialQuery, setAddCardInitialQuery] = useState("");
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [importScansOpen, setImportScansOpen] = useState(false);
   const [importCsvOpen, setImportCsvOpen] = useState(false);
   const [importDeckLink, setImportDeckLink] = useState("");
@@ -676,6 +679,10 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
         : undefined,
     clearSelection:
       selectedIds.size > 0 ? clearSelection : undefined,
+    quickAddCards:
+      viewedCollection && !readOnly && !isMobile
+        ? () => setQuickAddOpen(true)
+        : undefined,
   });
 
   const toggleScanTimelineBlockSelect = useCallback(
@@ -899,6 +906,13 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
         collectionGuid={viewedCollection.guid}
         initialQuery={addCardInitialQuery}
       />
+      {!readOnly && !isMobile && (
+        <QuickAddDialog
+          open={quickAddOpen}
+          onOpenChange={setQuickAddOpen}
+          collectionGuid={viewedCollection.guid}
+        />
+      )}
       {isDraggingCard && (
         <ExternalCardDropOverlay collectionName={viewedCollection.name} />
       )}
@@ -940,6 +954,16 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
                 <IconPlus />
                 {t("addCard.button")}
               </Button>
+              {!readOnly && (
+                <Button
+                  variant="outline"
+                  className="max-md:hidden"
+                  onClick={() => setQuickAddOpen(true)}
+                >
+                  <IconBolt />
+                  {t("quickAdd.button")}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 onClick={() => setImportScansOpen(true)}
@@ -1192,6 +1216,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
           onShowUnmatched={() => inlineUnmatched.open(null)}
           unmatchedCount={unmatchedCount}
           onAddCard={() => setAddCardOpen(true)}
+          onQuickAdd={readOnly ? undefined : () => setQuickAddOpen(true)}
           onImportScans={() => setImportScansOpen(true)}
           onImportCsv={readOnly ? undefined : () => setImportCsvOpen(true)}
           collectionName={viewedCollection?.name}

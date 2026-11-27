@@ -2,6 +2,8 @@ import type { CardFilters } from "../interfaces/collection-cards.interface";
 
 export const COLLECTION_CARDS_PAGE_SIZE = 50;
 
+export const MANUAL_CARD_ADD_MAX_QUANTITY = 100;
+
 export const PAGE_SIZE_OPTIONS: readonly number[] = [25, 50, 75, 100];
 
 export const DEFAULT_CARD_SORT = "scan-desc";

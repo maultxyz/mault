@@ -523,6 +523,38 @@
     "added": "{{name}} hinzugefügt",
     "failed": "Die Karte konnte nicht hinzugefügt werden."
   },
+  "quickAdd": {
+    "button": "Schnell hinzufügen",
+    "title": "Karten schnell hinzufügen",
+    "description": "Gib eine Karte ein und drücke Enter, um sie hinzuzufügen. Das Feld wird sofort geleert, damit du die nächste Karte tippen kannst.",
+    "searchLabel": "Hinzuzufügende Karte",
+    "placeholder": "4x Lightning Bolt (m10) 146 *f*",
+    "syntaxHint": "Beginne mit einer Anzahl (4x), ergänze einen Setcode in Klammern (m10) und eine Sammlernummer oder *f* für Foil. Mit Pfeil hoch und runter wählst du einen Druck, Enter fügt ihn hinzu.",
+    "collection": "Sammlung",
+    "location": "Lagerort",
+    "noLocation": "Kein Lagerort",
+    "condition": "Zustand",
+    "foil": "Foil",
+    "noCollections": "Lege zuerst eine Sammlung an, um Karten hinzuzufügen.",
+    "noCollectorNumberMatch": "Kein Druck mit der Sammlernummer {{number}} gefunden.",
+    "logTitle": "In dieser Sitzung hinzugefügt",
+    "logEmpty": "Hinzugefügte Karten erscheinen hier, damit du Fehler rückgängig machen kannst.",
+    "addedCount_one": "{{count}} Karte",
+    "addedCount_other": "{{count}} Karten",
+    "status": {
+      "saving": "Wird hinzugefügt...",
+      "failed": "Nicht hinzugefügt",
+      "undoing": "Wird rückgängig gemacht...",
+      "undone": "Rückgängig gemacht"
+    },
+    "undo": "Rückgängig",
+    "undoLabel": "Hinzufügen von {{count}}x {{name}} rückgängig machen",
+    "undoFailed": "Rückgängig machen fehlgeschlagen. Versuche es erneut.",
+    "addedAnnouncement_one": "{{name}} hinzugefügt",
+    "addedAnnouncement_other": "{{count}} Exemplare von {{name}} hinzugefügt",
+    "failedAnnouncement": "{{name}} konnte nicht hinzugefügt werden",
+    "undoneAnnouncement": "{{name}} wieder entfernt"
+  },
   "externalCardDrop": {
     "overlayTitle": "Ablegen, um Karten hinzuzufügen",
     "overlayDescription": "Karten und Deck-Links von Scryfall, Moxfield oder Archidekt werden zu {{collection}} hinzugefügt.",

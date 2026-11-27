@@ -8,6 +8,8 @@ import type {
 } from "./scanner.interface";
 import type { CardStorageLocation } from "./storage-locations.interface";
 import type { PublicCardFinish } from "./public-cards.interface";
+import type { CardCondition } from "./card-condition.interface";
+import type { Result } from "./result.interface";
 
 export interface CardFilters {
   colors: string[];
@@ -148,6 +150,13 @@ export interface RetryUnmatchedCardsBatchResult {
 export interface AddManualCardRequest {
   card: PlayingCard;
   locationGuid?: string;
+  quantity?: number;
+  isFoil?: boolean;
+  condition?: CardCondition;
+}
+
+export interface AddManualCardResult extends Result<ScannedCard> {
+  addedScanIds?: string[];
 }
 
 export type CardSortDirection = "asc" | "desc";
