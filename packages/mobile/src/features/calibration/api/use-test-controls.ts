@@ -6,6 +6,8 @@ import {
   createDefaultBinRoutes,
   DEFAULT_FEEDER_CALIBRATION,
   DEFAULT_MODULE_COUNT,
+  isEmergencyStopReply,
+  isFirmwareFeatureSupported,
   type BinRoute,
   type SerialReply,
 } from "@magic-vault/shared";
@@ -14,7 +16,7 @@ import { useFeederTest } from "@/features/calibration/api/use-feeder-test";
 import { binRoutesQueryOptions } from "@/features/devices/api/devices";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { CALIBRATION_STEP_SETTLE_MS, IR_MONITOR_INTERVAL_MS, IR_READ_TIMEOUT_MS } from "@/lib/constants/calibration";
-import type { IrReading, TestControls } from "@/lib/interfaces/calibration";
+import type { CalibrationEmergencyStopDetail, IrReading, TestControls } from "@/lib/interfaces/calibration";
 
 function routeFailure(response: unknown): string | null {
   if (!response) return "";
@@ -42,8 +44,13 @@ export function useTestControls(): TestControls {
   const [activeBin, setActiveBin] = useState<number | null>(null);
   const [isSampleRunning, setIsSampleRunning] = useState(false);
   const [routeError, setRouteError] = useState<string | null>(null);
+  const [irError, setIrError] = useState<string | null>(null);
+  const [emergencyStopDetail, setEmergencyStopDetail] = useState<CalibrationEmergencyStopDetail | null>(null);
+  const [isResettingEmergencyStop, setIsResettingEmergencyStop] = useState(false);
   const irBusyRef = useRef(false);
   const activeBinRef = useRef<number | null>(null);
+  const emergencyStopRequestedRef = useRef(false);
+  const canEmergencyStop = isFirmwareFeatureSupported(sorter.firmwareVersion, "emergencyStop");
 
   const resolveRoute = useCallback(
     (bin: number): BinRoute =>
@@ -60,16 +67,20 @@ export function useTestControls(): TestControls {
     irBusyRef.current = true;
     try {
       const { line } = await sorter.sendRequest({ readIR: true }, IR_READ_TIMEOUT_MS);
-      if (!line) return;
+      if (!line) {
+        setIrError(t("calibration.ir.noReply"));
+        return;
+      }
       const parsed = JSON.parse(line) as IrReading;
+      setIrError(null);
       if (Array.isArray(parsed.ir)) setIrStates(parsed.ir as boolean[]);
       if (typeof parsed.hopper === "boolean") setHopperHasCards(parsed.hopper);
     } catch {
-      return;
+      setIrError(t("calibration.ir.noReply"));
     } finally {
       irBusyRef.current = false;
     }
-  }, [sorter]);
+  }, [sorter, t]);
 
   useEffect(() => {
     if (!irMonitoring || !sorter.isReady) return;
@@ -82,6 +93,9 @@ export function useTestControls(): TestControls {
     setIrMonitoring(false);
     setIrStates(null);
     setHopperHasCards(null);
+    setIrError(null);
+    emergencyStopRequestedRef.current = false;
+    setEmergencyStopDetail(null);
   }, [sorter.isConnected]);
 
   const setActive = (bin: number | null) => {
@@ -91,12 +105,17 @@ export function useTestControls(): TestControls {
 
   const testBin = useCallback(
     async (bin: number) => {
-      if (!sorter.isReady) return;
+      if (!sorter.isReady || emergencyStopRequestedRef.current) return;
       setRouteError(null);
       setActive(bin);
       try {
-        if (!(await sorter.sendNeutral())) return;
-        const failure = routeFailure(await sorter.sendRoute(resolveRoute(bin)));
+        if (!(await sorter.sendNeutral())) {
+          if (!emergencyStopRequestedRef.current) setRouteError(t("calibration.routing.neutralFailed"));
+          return;
+        }
+        const reply = await sorter.sendRoute(resolveRoute(bin));
+        if (emergencyStopRequestedRef.current || isEmergencyStopReply(reply)) return;
+        const failure = routeFailure(reply);
         if (failure !== null) setRouteError(`${t("calibration.routing.binFailed", { bin })}${failure ? `: ${failure}` : ""}`);
       } finally {
         setActive(null);
@@ -106,14 +125,20 @@ export function useTestControls(): TestControls {
   );
 
   const sampleRun = useCallback(async () => {
-    if (!sorter.isReady) return;
+    if (!sorter.isReady || emergencyStopRequestedRef.current) return;
     setRouteError(null);
     setIsSampleRunning(true);
     try {
-      if (!(await sorter.sendNeutral())) return;
+      if (!(await sorter.sendNeutral())) {
+        if (!emergencyStopRequestedRef.current) setRouteError(t("calibration.routing.neutralFailed"));
+        return;
+      }
       for (let bin = 1; bin <= binCount; bin++) {
+        if (emergencyStopRequestedRef.current) return;
         setActive(bin);
-        const failure = routeFailure(await sorter.sendRoute(resolveRoute(bin)));
+        const reply = await sorter.sendRoute(resolveRoute(bin));
+        if (emergencyStopRequestedRef.current || isEmergencyStopReply(reply)) return;
+        const failure = routeFailure(reply);
         if (failure !== null) {
           setRouteError(`${t("calibration.routing.sampleRunStopped", { bin })}${failure ? `: ${failure}` : ""}`);
           return;
@@ -127,7 +152,32 @@ export function useTestControls(): TestControls {
   }, [sorter, binCount, resolveRoute, t]);
 
   const resetToNeutral = useCallback(async () => {
-    await sorter.sendNeutral();
+    setRouteError(null);
+    if (!(await sorter.sendNeutral())) setRouteError(t("calibration.routing.neutralFailed"));
+  }, [sorter, t]);
+
+  const stopFeederTest = feederTest.stop;
+  const emergencyStop = useCallback(async () => {
+    if (!canEmergencyStop) return;
+    emergencyStopRequestedRef.current = true;
+    setRouteError(null);
+    setEmergencyStopDetail("stopped");
+    stopFeederTest();
+    if (!(await sorter.sendEmergencyStop())) setEmergencyStopDetail("unconfirmed");
+  }, [canEmergencyStop, sorter, stopFeederTest]);
+
+  const resetAfterEmergencyStop = useCallback(async () => {
+    setIsResettingEmergencyStop(true);
+    try {
+      if (!(await sorter.sendNeutral())) {
+        setEmergencyStopDetail("resetFailed");
+        return;
+      }
+      emergencyStopRequestedRef.current = false;
+      setEmergencyStopDetail(null);
+    } finally {
+      setIsResettingEmergencyStop(false);
+    }
   }, [sorter]);
 
   return {
@@ -140,6 +190,12 @@ export function useTestControls(): TestControls {
     activeBin,
     isSampleRunning,
     routeError,
+    irError,
+    canEmergencyStop,
+    emergencyStopDetail,
+    isResettingEmergencyStop,
+    emergencyStop,
+    resetAfterEmergencyStop,
     readIr,
     toggleIrMonitor: () => setIrMonitoring((value) => !value),
     testBin,

@@ -12,6 +12,7 @@
     "name": "Mault"
   },
   "common": {
+    "openSettings": "Open Settings",
     "loading": "Loading",
     "selected": "selected",
     "show": "Show",
@@ -59,9 +60,18 @@
       "verify-email": "Verify your email address, then sign in.",
       "storage": "Signed in, but the session couldn't be saved on this device. Try again.",
       "social": "Couldn't sign you in with that account. Try again.",
-      "socialWithCode": "Couldn't sign you in with that account ({{code}}). Try again."
+      "invalid-credentials": "That email or password isn't right. Check them and try again.",
+      "rate-limited": "Too many attempts. Wait a moment, then try again.",
+      "sign-in-failed": "Couldn't sign you in. Try again."
     },
     "createAccountOnWeb": "New to Mault? Create an account on the web",
+    "forgotPassword": "Forgot password?",
+    "opensInBrowser": "Opens in your browser",
+    "signedOut": {
+      "title": "You were signed out",
+      "session-expired": "Your session ended. Sign in again to continue.",
+      "access-revoked": "Your access changed, so you were signed out. Sign in again to continue."
+    },
     "orContinueWith": "Or continue with",
     "continueWithProvider": "Continue with {{provider}}"
   },
@@ -459,6 +469,12 @@
     "server": "Server",
     "version": "Version",
     "signOut": "Sign out",
+    "signOutConfirm": {
+      "title": "Sign out?",
+      "description": "You will need to sign in again to use Mault on this phone.",
+      "pendingScans_one": "{{count}} scan has not synced yet. It stays on this phone and syncs after you sign in again.",
+      "pendingScans_other": "{{count}} scans have not synced yet. They stay on this phone and sync after you sign in again."
+    },
     "pendingSaves": {
       "title_one": "{{count}} scan waiting to sync",
       "title_other": "{{count}} scans waiting to sync",
@@ -507,6 +523,7 @@
         "submit": "Update password",
         "updated": "Password updated",
         "updateFailed": "Couldn't update your password",
+        "currentIncorrect": "Your current password isn't right.",
         "change": "Change password"
       },
       "signInMethods": {
@@ -592,7 +609,11 @@
     "forgottenLinkKept": "Wi-Fi turned off. The server couldn't remove the old link, so it will be replaced the next time you set up Wi-Fi.",
     "forgottenRestarting": "Wi-Fi turned off. The sorter is restarting with Bluetooth back on.",
     "forgetFailed": "Couldn't turn off Wi-Fi.",
-    "saved": "Wi-Fi saved. The sorter is joining the network.",
+    "discardDescription": "The Wi-Fi details you typed haven't been saved.",
+    "joining": "Wi-Fi saved. Joining {{ssid}}",
+    "joined": "Connected to {{ssid}}",
+    "joinFailed": "Couldn't join {{ssid}}",
+    "joinFailedDescription": "Check the network name and password, and that it is a 2.4 GHz network. Then save again.",
     "savedRestarting": "Wi-Fi saved. The sorter is restarting to join the network, and Bluetooth turns off.",
     "saveFailed": "Couldn't save Wi-Fi",
     "saveFailedDescription": "The sorter didn't accept the settings. Check that it's still connected and try again.",
@@ -629,7 +650,7 @@
     },
     "saved": {
       "title": "Saved sorters",
-      "renameHint": "Tap to rename",
+      "rename": "Rename {{name}}",
       "delete": "Delete",
       "deleteTitle": "Delete {{name}}?",
       "deleteDescription": "Its calibration and settings are removed. A sorter that is connected right now can't be deleted.",
@@ -644,10 +665,26 @@
     "recent": "Recent sorters",
     "nearby": "Nearby sorters",
     "searching": "Searching for sorters",
+    "notSearchedYet": "Tap Find sorters to look for sorters nearby",
     "noneFound": "No sorters found",
     "bluetoothOnly": "Only ESP32-S3 and Uno R4 WiFi sorters have Bluetooth. Sorters set up for Wi-Fi in the web app also appear under Over Wi-Fi. An Uno R4 Minima needs the desktop app over USB.",
     "unnamed": "Unnamed sorter",
-    "signal": "Signal {{rssi}} dBm",
+    "signalStrength": {
+      "strong": "Strong signal",
+      "good": "Good signal",
+      "weak": "Weak signal"
+    },
+    "manual": {
+      "neutralDone": "Servos reset to neutral",
+      "dropDone": "Card dropped",
+      "noResponse": "The sorter didn't respond. Check the connection and try again."
+    },
+    "setup": {
+      "title": "Finish setting up this sorter",
+      "description": "Calibrate the servos under Calibration first. Then tap Finish setup: the sorter runs a self-test and is ready to scan once it passes.",
+      "failed": "Setup wasn't finished. Check that the self-test passes and that you're online, then try again.",
+      "finish": "Finish setup"
+    },
     "runSelfTest": "Run self-test",
     "resetEmergencyStop": "Reset sorter",
     "neutral": "Return to neutral",
@@ -717,7 +754,7 @@
       },
       "setup-incomplete": {
         "title": "Finish setting up this sorter",
-        "description": "Complete calibration in the web app first, then reconnect from your phone."
+        "description": "Calibrate this sorter, then finish its setup before scanning."
       },
       "sorter-offline": {
         "title": "Sorter is offline",
@@ -901,11 +938,18 @@
     "unmatchedHint": "Saved for review",
     "allowCamera": "Allow camera",
     "cameraPermissionTitle": "Camera access needed",
-    "cameraPermissionDescription": "Mault uses the camera to identify cards as they pass through your sorter.",
+    "cameraPermissionDescription": "Mault uses the camera to identify the cards you scan.",
     "cameraPermissionSettings": "Turn on camera access for Mault in Settings.",
     "noCamera": "No camera available",
     "noCollectionTitle": "No collection chosen",
     "noCollectionDescription": "Choose the collection scans should go into.",
+    "noCollectionsTitle": "No collections yet",
+    "noCollectionsDescription": "Create a collection to scan cards into.",
+    "pauseToChange": "Pause the sorter to change this.",
+    "result": {
+      "checkMatch": "Check this match",
+      "openHint": "Opens the card so you can check or fix it"
+    },
     "chooseCollection": "Choose collection",
     "openSorter": "Connect sorter",
     "modelErrorTitle": "Couldn't load the card recognition models",
@@ -959,7 +1003,7 @@
       "allowDuplicates": "Allow duplicates",
       "allowDuplicatesDescription": "Save the same printing more than once",
       "handScan": "Auto-detect cards",
-      "handScanDescription": "Scan without a sorter. Press Start, then hold a card still in view and it scans on its own.",
+      "handScanDescription": "Scan without a sorter. Hold a card still in view and it scans on its own. Turn off to scan one card at a time with the button.",
       "handScanBins": "Sort into bins",
       "handScanBinsDescription": "Show which bin each card goes in, using your rule preset. Leave off to just save cards to the collection.",
       "handScanBinsNoPreset": "Choose a rule preset for this game to sort cards into bins.",
@@ -1043,7 +1087,7 @@
       "done": "Got it",
       "holdCard": {
         "title": "Hold a card in the frame",
-        "description": "Keep the whole card inside the camera view and hold it still. Turn on Auto-detect cards in Scan options to scan without pressing the button."
+        "description": "Keep the whole card inside the camera view and hold it still. It scans on its own, and you can pause at any time. Turn off Auto-detect cards in Scan options to scan with the button instead."
       },
       "qrCode": {
         "title": "Point at a QR code to open it",
@@ -1125,6 +1169,11 @@
     }
   },
   "home": {
+    "noOrganization": {
+      "title": "No organization yet",
+      "description": "Accept an invite from a teammate, or create an organization on the Mault website. Then pull down to refresh.",
+      "refresh": "Check again"
+    },
     "searchPlaceholder": "Search collections",
     "noSearchResultsTitle": "No collections found",
     "noSearchResultsDescription": "Try a different name.",
@@ -1193,6 +1242,11 @@
     "searchPlaceholder": "Search cards",
     "noCardsYet": "No cards scanned yet",
     "noMatches": "No cards match your search",
+    "noFilterMatches": "No cards match your filters",
+    "noFilterMatchesDescription": "Clear the filters to see every card in this collection.",
+    "clearFilters_one": "Clear {{count}} filter",
+    "clearFilters_other": "Clear {{count}} filters",
+    "filtersCleared": "Filters cleared",
     "groupDuplicates": "Group duplicates",
     "filters": {
       "minMatch": "Minimum match",
@@ -1305,6 +1359,11 @@
     "markCorrect": "Mark correct",
     "acceptNext": "Looks right",
     "acceptFinish": "Looks right",
+    "skip": "Skip",
+    "skipHint": "Leaves this card for later and shows the next one",
+    "skipped": "Skipped. Showing the next card.",
+    "saveAndNext": "Save and next",
+    "shareLinkFailed": "Couldn't share a link for this card.",
     "reviewProgress": "Reviewing {{index}} of {{total}}",
     "similarMatches": "Similar matches",
     "similarMatchesHint": "Several close matches. Tap the right version.",
@@ -1389,6 +1448,9 @@
     "layoutOneByOne": "One by one",
     "acceptAll_one": "Accept {{count}} card",
     "acceptAll_other": "Accept all {{count}}",
+    "acceptAllConfirmTitle_one": "Accept {{count}} card?",
+    "acceptAllConfirmTitle_other": "Accept all {{count}} cards?",
+    "acceptAllConfirmDescription": "Every card shown is marked as reviewed with its current match. Cards you have not looked at are accepted too.",
     "accept": "Looks right",
     "correct": "Correct",
     "noPhoto": "No scan photo",
@@ -1450,6 +1512,7 @@
       "foundOf": "{{found}} of {{total}} found",
       "foundAll_one": "{{count}} copy pulled",
       "foundAll_other": "{{count}} copies pulled",
+      "resetFailed": "Couldn't reset the progress",
       "reset": "Reset progress"
     },
     "fill": {
@@ -1467,6 +1530,8 @@
       "emptyAll": "Empty all bins",
       "emptyAllTitle": "Empty all bins?",
       "emptied": "Bin {{number}} marked empty",
+      "emptyConfirmDescription_one": "{{count}} card is marked as taken out. Destination: {{target}}.",
+      "emptyConfirmDescription_other": "{{count}} cards are marked as taken out. Destination: {{target}}.",
       "emptiedAll": "All bins marked empty",
       "loadFailed": "Couldn't load the bin counts"
     },
@@ -1543,6 +1608,11 @@
     "or": "OR",
     "noConditions": "No conditions",
     "removeCondition": "Remove condition",
+    "removeGroupTitle": "Remove this group?",
+    "removeGroupDescription_one": "Its {{count}} condition is removed too.",
+    "removeGroupDescription_other": "Its {{count}} conditions are removed too.",
+    "invalidDate": "Enter the date as YYYY-MM-DD.",
+    "saveChangesFirst": "Save or discard your changes first",
     "removeGroup": "Remove group",
     "valuePlaceholder": "Value...",
     "freeformPlaceholder": "Comma-separated values...",
@@ -1683,6 +1753,8 @@
       "catchAllBin": "Bin {{number}} (catch-all)",
       "confirmTitle": "Rules to {{bin}}",
       "confirmDescription": "Copy keeps the rules on this bin too. Move clears them from this bin.",
+      "saveChangesFirst": "Save or discard your changes to copy or move rules.",
+      "failed": "Couldn't copy or move the rules",
       "replaceWarning": "{{bin}} already has rules. They will be replaced.",
       "copy": "Copy",
       "move": "Move"
@@ -1701,6 +1773,8 @@
       "deleteTitle": "Delete multi-stage preset",
       "deleteDescription": "Delete \"{{name}}\"? The presets it uses are kept.",
       "addStage": "Add stage",
+      "removeStageTitle": "Remove this stage?",
+      "removeStageDescription": "{{name}} is taken out of this multi-stage preset. The preset itself is kept.",
       "removeStage": "Remove stage",
       "moveUp": "Move earlier",
       "moveDown": "Move later",
@@ -1959,8 +2033,11 @@
       },
       "customHeightUnit": "mm",
       "customHeightHint": "About {{count}} cards at {{thickness}} mm each",
+      "customHeightBlocksSave": "Fix the custom height of bin {{bins}} before saving",
       "customHeightInvalid": "Enter {{min}} to {{max}} mm"
     },
+    "servosSaveFailed": "Couldn't save the calibration",
+    "connectionSaveFailed": "Couldn't save the connection settings",
     "layoutSaveFailed": "Couldn't save the layout",
     "scanRegion": {
       "heading": "Scan region",
@@ -2000,6 +2077,7 @@
       "clear": "Clear",
       "unknown": "Not read",
       "hopper": "Hopper",
+      "noReply": "The sorter didn't answer. Check the connection and try again.",
       "hopperEmpty": "Hopper empty",
       "hopperHasCards": "Cards waiting"
     },
@@ -2011,6 +2089,7 @@
       "binActive": "Bin {{bin}}…",
       "resetToNeutral": "Reset to neutral",
       "binFailed": "Bin {{bin}} didn't route",
+      "neutralFailed": "The sorter didn't reset to neutral. Check the connection and try again.",
       "sampleRunStopped": "Sample run stopped at bin {{bin}}"
     },
     "scanRegionCalibrationPanel": {}
@@ -2097,6 +2176,8 @@
         "alreadyPicked": "Every copy of {{name}} on your pick list is already picked."
       },
       "finishFailed": "The picked cards couldn't be removed. Try again.",
+      "finishCount_one": "Remove {{count}} picked card from its location",
+      "finishCount_other": "Remove {{count}} picked cards from their locations",
       "notStored": "Not stored",
       "missingCount_one": "{{count}} copy not stored",
       "missingCount_other": "{{count}} copies not stored",
@@ -2134,6 +2215,11 @@
     "shareWithCount_one": "Share location ({{count}} active)",
     "shareWithCount_other": "Share location ({{count}} active)",
     "searchFailed": "Couldn't search your storage locations",
+    "loadFailed": "Couldn't load your storage locations",
+    "deleteFailed": "Couldn't delete the storage location",
+    "saveFailed": "Couldn't save the storage location",
+    "nameTaken": "A storage location with that name already exists.",
+    "noCardsDescription": "Add a card by name, or scan cards straight into this location.",
     "notFoundTitle": "Location not found",
     "notFoundDescription": "It may have been deleted, or you no longer have access to it.",
     "printLabel": "Print label",
@@ -2373,6 +2459,12 @@
     "percentSuffix": "%",
     "conditionInvalid": "Enter 0 to 100",
     "discardDescription": "Your changes to these settings haven't been saved.",
+    "secretReveal": {
+      "leaveTitle": "Close without saving it?",
+      "leaveDescription": "This is the only time it's shown. Once you close this, you can't see it again.",
+      "keepOpen": "Keep open",
+      "close": "Close"
+    },
     "org": {
       "renameHeading": "Rename \"{{name}}\"",
       "nameLabel": "Organization name",
@@ -2385,10 +2477,13 @@
       "role": "Role",
       "pendingInvites": "Pending invites",
       "cancelInvite": "Cancel invite",
+      "cancelInviteTitle": "Cancel this invite?",
+      "keepInvite": "Keep invite",
       "dangerZoneHeading": "Danger zone",
       "deleteWarning": "Permanently deletes \"{{name}}\" and all its data.",
       "deleteOrganization": "Delete organization",
       "deleteOrgDescription": "Permanently deletes \"{{name}}\" and all its data. This cannot be undone.",
+      "deleteConfirmLabel": "Type \"{{name}}\" to confirm",
       "cancelSubscriptionFirst": "Cancel this organization's subscription before deleting it. Once it's set to cancel at the end of the billing period, you can delete the organization.",
       "removeMemberTitle": "Remove member",
       "removeMemberDescription": "Remove \"{{name}}\" from this organization? They will lose access immediately.",
@@ -2487,6 +2582,9 @@
       "loadFailed": "Couldn't load API keys.",
       "upgrade": "API keys aren't included in your plan.",
       "share": "Share key",
+      "copy": "Copy key",
+      "copied": "API key copied.",
+      "copyFailed": "Couldn't copy the API key.",
       "cancel": "Cancel"
     },
     "webhooks": {
@@ -2517,6 +2615,7 @@
       "empty": "No webhooks yet.",
       "disabled": "Disabled",
       "actions": "Webhook actions",
+      "manage": "Manage",
       "sendTest": "Send test event",
       "edit": "Edit",
       "enable": "Re-enable",
@@ -2662,13 +2761,16 @@
         "unlink": "Unlink",
         "unlinkSuccess": "Discord server unlinked.",
         "unlinkError": "Failed to unlink Discord server.",
+        "unlinkConfirmTitle": "Unlink this Discord server?",
+        "unlinkConfirmDescription": "Mault stops posting scans, alerts and trade offers to this server, and its slash commands stop working there. You can link a server again later.",
         "generateButton": "Generate link code",
         "generating": "Generating...",
         "generateError": "Failed to generate a link code.",
         "codeInstructions": "Run /link <code> in your Discord server to finish linking it.",
         "expiresIn": "Expires in {{seconds}}s"
       },
-      "notificationsHeading": "Scan posts"
+      "notificationsHeading": "Scan posts",
+      "refreshFailed": "Couldn't refresh the Discord settings."
     },
     "sounds": {
       "title": "Sounds",
@@ -3042,6 +3144,8 @@
       "resume": "Resume",
       "stop": "Stop",
       "emergencyStop": "Emergency stop",
+      "startFailed": "Couldn't start the scan",
+      "noCollectionsDescription": "Create a collection in Library first, then start the scan here.",
       "scanFailed": "The Raspberry Pi could not do that.",
       "progress_one": "{{count}} card scanned into {{collection}}",
       "progress_other": "{{count}} cards scanned into {{collection}}",
@@ -3345,6 +3449,8 @@
     "loadFailed": "Couldn't load unmatched cards",
     "identifyScan": "Identify the scan from {{scannedAt}}",
     "identifyTitle": "Identify card",
+    "skip": "Skip",
+    "skipHint": "Leaves this scan unmatched and shows the next one",
     "searchHint": "Search for the card in this photo. Picking one adds it to the collection.",
     "notFound": "This scan is no longer unmatched",
     "identifyFailed": "Couldn't add the card",
@@ -4213,10 +4319,13 @@
     "pickList": {
       "started": "Trade accepted. Tick off the cards they want as you pick them.",
       "acceptHint": "Accepting gives you a pick list. Each card they want is removed from your inventory when you tick it off.",
-      "acceptDescription_one": "You get a pick list for the {{count}} card they want. It's removed from your inventory when you tick it off, and a tick can't be undone.",
-      "acceptDescription_other": "You get a pick list for the {{count}} cards they want. Each one is removed from your inventory when you tick it off, and a tick can't be undone.",
+      "acceptDescription_one": "You get a pick list for the {{count}} card they want. It's removed from your inventory a few seconds after you tick it off.",
+      "acceptDescription_other": "You get a pick list for the {{count}} cards they want. Each one is removed from your inventory a few seconds after you tick it off.",
       "title": "Pick list",
-      "hint": "Tick each card as you pull it. Ticked cards are removed from your inventory right away.",
+      "hint": "Tick each card as you pull it. A ticked card is removed from your inventory after a few seconds. Tap it again right away to undo.",
+      "pickedUndoable": "Picked. Tap again to undo.",
+      "undoHint": "Unticks this card before it is removed from your inventory",
+      "pickUndone": "Pick undone",
       "progress": "{{picked}} of {{count}} picked",
       "picked": "Picked and removed",
       "pickedSection": "Picked",
@@ -4312,6 +4421,22 @@
       "record": "Record trade",
       "recorded": "Trade recorded.",
       "recordFailed": "Couldn't record the trade. Try again.",
+      "discardDescription": "The cards and details you entered for this trade will be lost.",
+      "confirmTitle": "Record this trade?",
+      "confirmCards": "Cards you give: {{give}} · Cards you get: {{get}}",
+      "confirmCashReceived": "Cash you get: {{amount}}",
+      "confirmCashGiven": "Cash you pay: {{amount}}",
+      "confirmDescription": "The cards you give are removed from your inventory. This can't be undone.",
+      "cardLimitReached": "You can add up to {{count}} cards on each side.",
+      "changeCollectionTitle": "Change collection?",
+      "changeCollectionDescription_one": "The {{count}} card you added to get will be cleared.",
+      "changeCollectionDescription_other": "The {{count}} cards you added to get will be cleared.",
+      "changeCollectionConfirm": "Change and clear",
+      "scanReceived": "Scan cards",
+      "scanAdded": "Added {{name}} to the cards you get",
+      "scannedCount_one": "{{count}} scanned",
+      "scannedCount_other": "{{count}} scanned",
+      "scanHint": "Hold a card you're getting in the frame and tap the shutter to add it.",
       "reviewTitle": "In-person trade with {{name}}",
       "recordedOn": "Recorded in person on {{date}}",
       "youGave_one": "You gave {{count}} card",
@@ -4389,6 +4514,13 @@
     "searchLinkCards": "Search these cards",
     "noLinkCards": "No cards match",
     "linkCardsLoadFailed": "Couldn't load the cards on this link",
+    "linkLoadFailed": "Couldn't load this trade link",
+    "quantityDecreaseFor": "Decrease quantity of {{name}}",
+    "quantityIncreaseFor": "Increase quantity of {{name}}",
+    "quantityOf": "{{name}}: quantity {{count}}",
+    "editFinishOf": "{{name}}: {{finish}}",
+    "editFinishHint": "Change condition or foil",
+    "editFinishDescription": "Pick the condition and whether the card is foil.",
     "tapToAdd": "Adds it to your trade offer",
     "tapToRemove": "Removes it from your trade offer",
     "loadMore": "Load more",
@@ -4499,7 +4631,8 @@
     "loadFailed": "Couldn't load these cards",
     "loadMore": "Load more",
     "invalid": "This link doesn't work",
-    "invalidDescription": "It may have expired or been revoked. Ask the owner for a new one."
+    "invalidDescription": "It may have expired or been revoked. Ask the owner for a new one.",
+    "linkLoadFailed": "Couldn't load this link"
   },
   "listRow": {
     "moreActions": "More actions"
@@ -4554,6 +4687,7 @@
     "retry": "Retry",
     "restored": "Restored",
     "undoFailed": "Couldn't undo that",
+    "scannerNotReady": "The scanner couldn't get ready. Check your connection and try again.",
     "cardsRemoved_one": "Card removed",
     "cardsRemoved_other": "{{count}} cards removed",
     "tagAdded": "{{tag}} added",
@@ -4904,6 +5038,9 @@
       "substitute": "Substitute",
       "reallocate": "Reallocate",
       "reallocated": "Pick reallocated",
+      "reallocateTitle": "Reallocate this pick?",
+      "reallocateDescription": "This matches the cards in stock to this pick again. Use it after adding stock so missing cards can be filled.",
+      "reallocateHint": "Match in-stock cards to this pick again",
       "cancel": "Cancel pick",
       "cancelTitle": "Cancel this pick?",
       "cancelDescription": "Its cards stay in stock and become available to other picks.",
@@ -5056,6 +5193,9 @@
       "noStorageLocation": "No storage location",
       "finish": "Finish intake",
       "finishTitle": "Finish intake",
+      "loadFailed": "Couldn't load this intake",
+      "notOpenTitle": "This intake is already closed",
+      "notOpenDescription": "It was finished or cancelled, so there is nothing left to finish here.",
       "finishDescription_one": "Add {{count}} card from {{name}} to your stock.",
       "finishDescription_other": "Add {{count}} cards from {{name}} to your stock.",
       "finishDescriptionOpened_one": "Add {{count}} card from {{name}} to your inventory.",
@@ -5123,6 +5263,7 @@
   },
   "machines": {
     "title": "Machines",
+    "raspberryPis": "Raspberry Pis",
     "chooseMachine": "Choose a machine",
     "machinePicker": "{{name}}, choose another machine",
     "empty": {

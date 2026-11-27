@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { localPost } from "@/lib/auth/local-api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
@@ -89,9 +89,8 @@ export default function AuthResetPasswordPage() {
                 <FieldLabel htmlFor="password">
                   {t("local.newPasswordLabel")}
                 </FieldLabel>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   autoComplete="new-password"
                   autoFocus
                   {...form.register("password")}
@@ -102,9 +101,8 @@ export default function AuthResetPasswordPage() {
                 <FieldLabel htmlFor="confirmPassword">
                   {t("local.confirmPasswordLabel")}
                 </FieldLabel>
-                <Input
+                <PasswordInput
                   id="confirmPassword"
-                  type="password"
                   autoComplete="new-password"
                   {...form.register("confirmPassword")}
                 />

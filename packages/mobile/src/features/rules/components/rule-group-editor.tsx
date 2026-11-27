@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 import { isRuleGroup, type BinCondition, type BinRuleGroup } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,17 @@ export function RuleGroupEditor({
     onChange({ ...group, conditions });
   };
   const remove = (index: number) => onChange({ ...group, conditions: group.conditions.filter((_, i) => i !== index) });
+  const confirmRemoveGroup = () => {
+    if (!onRemove) return;
+    if (group.conditions.length === 0) {
+      onRemove();
+      return;
+    }
+    Alert.alert(t("rules.removeGroupTitle"), t("rules.removeGroupDescription", { count: group.conditions.length }), [
+      { text: t("common.cancel"), style: "cancel" },
+      { text: t("rules.removeGroup"), style: "destructive", onPress: onRemove },
+    ]);
+  };
 
   const saveCondition = (condition: BinCondition) => {
     if (!editing) return;
@@ -79,7 +90,7 @@ export function RuleGroupEditor({
           {t("rules.matchSuffix")}
         </AppText>
         {onRemove && !disabled ? (
-          <IconButton icon="trash" size={32} variant="plain" accessibilityLabel={t("rules.removeGroup")} onPress={onRemove} />
+          <IconButton icon="trash" size={MIN_TOUCH_TARGET} variant="plain" accessibilityLabel={t("rules.removeGroup")} onPress={confirmRemoveGroup} />
         ) : null}
       </View>
 

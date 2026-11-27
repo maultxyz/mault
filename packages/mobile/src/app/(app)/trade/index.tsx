@@ -4,13 +4,10 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, View } from "react-native";
+import { View } from "react-native";
 import {
-  CARD_CONDITIONS,
-  TRADE_OFFER_CARD_QUANTITY_MAX,
   formatPrice,
   formatPriceInCurrency,
-  isCardCondition,
   parseTradeOfferCashInput,
   tradeOfferFormSchemaFor,
   tradeOfferGuestBalance,
@@ -26,20 +23,23 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { MultilineFieldSkeleton } from "@/components/ui/multiline-field-skeleton";
-import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Surface } from "@/components/ui/surface";
 import { TextField } from "@/components/ui/text-field";
+import { useToast } from "@/components/ui/toast-provider";
 import {
   submitTradeOffer,
   tradeLinkInfoQueryOptions,
   tradeOfferQuoteQueryOptions,
 } from "@/features/trade-offers/api/public-trade";
 import { useTradeDraft } from "@/features/trade-offers/api/use-trade-draft";
+import { OfferedTradeCardDetailsSheet } from "@/features/trade-offers/components/offered-trade-card-details-sheet";
+import { OfferedTradeCardRow } from "@/features/trade-offers/components/offered-trade-card-row";
 import { TradeCardRow } from "@/features/trade-offers/components/trade-card-row";
 import { TradeGuestBalance } from "@/features/trade-offers/components/trade-guest-balance";
 import {
@@ -50,15 +50,18 @@ import {
   toggleWantedCard,
   updateOfferedCard,
 } from "@/features/trade-offers/lib/trade-draft";
+import { isInvalidLinkError } from "@/features/trade-offers/lib/link-errors";
 import { useSession } from "@/lib/auth/session";
+import { TRADE_OFFERS_SENT_BOX } from "@/lib/constants/trade";
 import { FONT_SIZE, SPACING } from "@/lib/constants/theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
-import type { OfferedTradeCard, TradeLinkRef } from "@/lib/interfaces/trade";
+import type { TradeLinkRef } from "@/lib/interfaces/trade";
 
 export default function TradeScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams<{ kind?: string; guid?: string; token?: string }>();
   const draft = useTradeDraft();
+  const { showToast } = useToast();
   const routeLink = useMemo<TradeLinkRef | null>(
     () =>
       (params.kind === "collection" || params.kind === "storage") && params.guid && params.token
@@ -84,8 +87,8 @@ export default function TradeScreen() {
       offeredCash: "",
     },
   });
-  const [editingCard, setEditingCard] = useState<OfferedTradeCard | null>(null);
-  const [sent, setSent] = useState(false);
+  const [editingCardKey, setEditingCardKey] = useState<string | null>(null);
+  const editingCard = draft.offered.find((card) => card.key === editingCardKey) ?? null;
   const offeredCount = draft.offered.reduce((sum, card) => sum + card.quantity, 0);
   const offeredCash = parseTradeOfferCashInput(form.watch("offeredCash"));
   const isReady = draft.wanted.length > 0;
@@ -140,27 +143,10 @@ export default function TradeScreen() {
       clearTradeCards();
       form.setValue("guestNote", "");
       form.setValue("offeredCash", "");
-      setSent(true);
-      AccessibilityInfo.announceForAccessibility(t("trade.sent"));
+      showToast({ message: t("trade.sent"), tone: "success" });
+      router.navigate({ pathname: "/collections", params: { view: "trades", box: TRADE_OFFERS_SENT_BOX } });
     },
   });
-
-  const editOffered = (action: string) => {
-    const card = editingCard;
-    setEditingCard(null);
-    if (!card) return;
-    if (action === "increase") {
-      updateOfferedCard(card.key, { quantity: Math.min(card.quantity + 1, TRADE_OFFER_CARD_QUANTITY_MAX) });
-    } else if (action === "decrease") {
-      updateOfferedCard(card.key, { quantity: Math.max(card.quantity - 1, 1) });
-    } else if (action === "foil") {
-      updateOfferedCard(card.key, { isFoil: !card.isFoil });
-    } else if (action === "remove") {
-      removeOfferedCard(card.key);
-    } else if (isCardCondition(action)) {
-      updateOfferedCard(card.key, { condition: action });
-    }
-  };
 
   const header = (
     <PageHeader title={t("trade.title")} subtitle={info.data?.name} onBack={() => router.back()} />
@@ -194,8 +180,16 @@ export default function TradeScreen() {
   }
   if (!info.data) {
     return (
-      <Screen header={header}>
-        <EmptyState icon="transfer" title={t("trade.invalidLink")} description={t("trade.invalidLinkDescription")} />
+      <Screen header={header} onRefresh={() => info.refetch()}>
+        {info.isError && !isInvalidLinkError(info.error) ? (
+          <QueryErrorState
+            title={t("trade.linkLoadFailed")}
+            onRetry={() => void info.refetch()}
+            isRetrying={info.isFetching}
+          />
+        ) : (
+          <EmptyState icon="transfer" title={t("trade.invalidLink")} description={t("trade.invalidLinkDescription")} />
+        )}
       </Screen>
     );
   }
@@ -221,10 +215,7 @@ export default function TradeScreen() {
             label={t("trade.send")}
             disabled={!isReady}
             loading={send.isPending}
-            onPress={form.handleSubmit((values) => {
-              setSent(false);
-              send.mutate(values);
-            })}
+            onPress={form.handleSubmit((values) => send.mutate(values))}
           />
         </>
       }
@@ -232,7 +223,6 @@ export default function TradeScreen() {
       <AppText size="sm" tone="secondary">
         {t("trade.description", { source: info.data.name })}
       </AppText>
-      {sent ? <Callout tone="success" title={t("trade.sent")} /> : null}
       {send.isError ? <Callout tone="destructive" title={send.error.message || t("trade.sendFailed")} /> : null}
 
       <View style={{ gap: SPACING.sm }}>
@@ -329,17 +319,14 @@ export default function TradeScreen() {
         </AppText>
         <ListGroup>
           {draft.offered.map((card, index) => (
-            <TradeCardRow
+            <OfferedTradeCardRow
               key={card.key}
+              card={card}
               value={rowPriceLabel(currentQuote?.offeredPrices[index])}
               valueAccessibilityLabel={rowPriceAccessibilityLabel(currentQuote?.offeredPrices[index])}
-              name={card.name}
-              subtitle={[`×${card.quantity}`, t(`trade.conditions.${card.condition}`), card.isFoil ? t("trade.foil") : null, card.setName]
-                .filter(Boolean)
-                .join(" · ")}
-              imageUrl={card.imageUrl}
-              accessibilityHint={t("trade.editCardHint")}
-              onPress={() => setEditingCard(card)}
+              onQuantityChange={(quantity) => updateOfferedCard(card.key, { quantity })}
+              onEditDetails={() => setEditingCardKey(card.key)}
+              onRemove={() => removeOfferedCard(card.key)}
             />
           ))}
           <ListRow icon="camera" title={t("trade.scanCards")} onPress={() => router.push("/trade/scan")} />
@@ -375,24 +362,11 @@ export default function TradeScreen() {
         />
       ) : null}
 
-      <OptionSheet
-        visible={!!editingCard}
-        title={editingCard?.name ?? ""}
-        options={[
-          { value: "increase", label: t("trade.quantityIncrease", { count: (editingCard?.quantity ?? 1) + 1 }) },
-          ...((editingCard?.quantity ?? 1) > 1
-            ? [{ value: "decrease", label: t("trade.quantityDecrease", { count: (editingCard?.quantity ?? 2) - 1 }) }]
-            : []),
-          { value: "foil", label: editingCard?.isFoil ? t("trade.markNotFoil") : t("trade.markFoil") },
-          ...CARD_CONDITIONS.map((condition) => ({
-            value: condition,
-            label: t("trade.conditionOption", { condition: t(`trade.conditions.${condition}`) }),
-          })),
-          { value: "remove", label: t("trade.remove") },
-        ]}
-        selected={editingCard ? [editingCard.condition] : []}
-        onSelect={editOffered}
-        onClose={() => setEditingCard(null)}
+      <OfferedTradeCardDetailsSheet
+        card={editingCard}
+        onToggleFoil={(card) => updateOfferedCard(card.key, { isFoil: !card.isFoil })}
+        onConditionChange={(card, condition) => updateOfferedCard(card.key, { condition })}
+        onClose={() => setEditingCardKey(null)}
       />
     </Screen>
   );

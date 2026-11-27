@@ -1,3 +1,4 @@
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
@@ -53,6 +54,7 @@ export function ReviewGrid({
   const [attributeDrafts, setAttributeDrafts] = useState<
     Record<string, ReviewGridAttributes>
   >({});
+  const [isConfirmingAcceptAll, setIsConfirmingAcceptAll] = useState(false);
   const setHidden = (scanIds: string[], hidden: boolean) =>
     setHiddenScanIds((previous) => {
       const next = new Set(previous);
@@ -193,7 +195,11 @@ export function ReviewGrid({
           ))}
         <Button
           disabled={visibleCards.length === 0}
-          onClick={() => void accept(visibleCards)}
+          onClick={() =>
+            visibleCards.length > 1
+              ? setIsConfirmingAcceptAll(true)
+              : void accept(visibleCards)
+          }
         >
           <IconChecks />
           {t("reviewGrid.acceptAll", { count: visibleCards.length })}
@@ -284,6 +290,20 @@ export function ReviewGrid({
           </div>
         )}
       </div>
+      <ConfirmDialog
+        open={isConfirmingAcceptAll}
+        onOpenChange={setIsConfirmingAcceptAll}
+        title={t("reviewGrid.acceptAllConfirmTitle", {
+          count: visibleCards.length,
+        })}
+        description={t("reviewGrid.acceptAllConfirmDescription")}
+        confirmLabel={t("reviewGrid.acceptAll", { count: visibleCards.length })}
+        cancelLabel={t("actions.cancel", { ns: "common" })}
+        onConfirm={() => {
+          setIsConfirmingAcceptAll(false);
+          void accept(visibleCards);
+        }}
+      />
       <ReviewGridCorrectionDialog
         card={correctingCard}
         onSelect={(card, correctedCard) =>

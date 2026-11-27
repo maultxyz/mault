@@ -350,6 +350,16 @@ export default function StorageLocationScreen() {
               <EmptyState
                 icon={isQueryActive ? "search" : "collections"}
                 title={isQueryActive ? t("storage.noMatchingCards") : t("storage.noCardsTitle")}
+                description={isQueryActive || isStorageLocked ? undefined : t("storage.noCardsDescription")}
+                action={
+                  isQueryActive || isStorageLocked || !location ? undefined : (
+                    <Button
+                      icon="plus"
+                      label={t("collections.addCard")}
+                      onPress={() => locationActions.runAction({ guid, name: location.name }, "addCard")}
+                    />
+                  )
+                }
               />
             )
           }

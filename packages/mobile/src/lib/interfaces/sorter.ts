@@ -122,12 +122,23 @@ export interface SorterContextValue {
   sendNeutral: () => Promise<boolean>;
   sendEmergencyStop: () => Promise<boolean>;
   clearDevice: () => Promise<void>;
+  dropCard: () => Promise<boolean>;
+  completeSetup: () => Promise<boolean>;
   retractCard: () => Promise<RetractCardOutcome>;
   sendCommand: (command: object) => void;
   applySavedCalibration: () => Promise<void>;
   updateDevice: (device: Device) => void;
   subscribe: (listener: SerialMessageListener) => () => void;
 }
+
+export interface SorterWifiJoinAttempt {
+  ssid: string;
+  isRestarting: boolean;
+}
+
+export type SignalStrength = "strong" | "good" | "weak";
+
+export type ManualSorterCommand = "neutral" | "drop";
 
 export interface TestOutcome {
   ok: boolean;

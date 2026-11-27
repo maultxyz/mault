@@ -49,6 +49,7 @@ import {
   releaseDeviceLease,
   resolveDevice,
 } from "@/features/devices/api/devices";
+import { saveDevice } from "@/features/calibration/api/calibration-configs";
 import { State } from "react-native-ble-plx";
 import { ensureBlePermissions } from "@/features/sorter/lib/ble-permissions";
 import { BleTransport, getBleManager, settledBleState } from "@/features/sorter/lib/ble-transport";
@@ -580,6 +581,26 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       retractCardOutcome(await link.sendParsed({ retractCard: true }, RETRACT_CARD_TIMEOUT_MS)),
     [],
   );
+  const dropCard = useCallback(async () => {
+    const reply = await link.sendParsed({ clearDevice: true }, JAM_CLEAR_DEVICE_TIMEOUT_MS);
+    return !!reply && !reply.error;
+  }, []);
+  const completeSetup = useCallback(async (): Promise<boolean> => {
+    const bound = deviceRef.current;
+    if (!bound || !link.transport) return false;
+    if (!(await runSelfTest())) return false;
+    try {
+      const saved = await saveDevice(bound.guid, { setupCompleted: true });
+      if (deviceRef.current?.guid === saved.guid) {
+        deviceRef.current = saved;
+        setDevice(saved);
+      }
+      void queryClient.invalidateQueries({ queryKey: ["devices"] });
+      return true;
+    } catch {
+      return false;
+    }
+  }, [queryClient, runSelfTest]);
   const sendCommand = useCallback((command: object) => {
     void link.sendCommand(command);
   }, []);
@@ -705,6 +726,8 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       sendNeutral,
       sendEmergencyStop,
       clearDevice,
+      dropCard,
+      completeSetup,
       retractCard,
       sendCommand,
       applySavedCalibration,
@@ -743,6 +766,8 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       sendNeutral,
       sendEmergencyStop,
       clearDevice,
+      dropCard,
+      completeSetup,
       retractCard,
       sendCommand,
       applySavedCalibration,

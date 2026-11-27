@@ -6,13 +6,13 @@ import { Alert } from "react-native";
 import type { BinConfig } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
-import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { useToast } from "@/components/ui/toast-provider";
 import { invalidateCollectionCards } from "@/features/collections/api/collection-cards";
@@ -109,17 +109,29 @@ export default function BinFillScreen() {
     : [];
   const chooseEmptyTarget = (value: string) => {
     const bin = emptyingBin;
+    const targetLabel = emptyOptions.find((option) => option.value === value)?.label ?? "";
     setEmptyingBin(null);
     if (!bin) return;
-    emptyOne.mutate({
-      binNumber: bin.binNumber,
-      options:
-        value === EMPTY_BIN_NO_LOCATION_OPTION
-          ? {}
-          : value === EMPTY_BIN_CLAIMED_LOCATION_OPTION
-            ? { collectionGuid: collection?.guid, storeInClaimedLocation: true }
-            : { collectionGuid: collection?.guid, locationGuid: value },
-    });
+    Alert.alert(
+      t("rules.fill.emptyTitle", { number: bin.binNumber }),
+      t("rules.fill.emptyConfirmDescription", { count: countOf(bin.binNumber), target: targetLabel }),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("scan.emptyBin.confirm"),
+          onPress: () =>
+            emptyOne.mutate({
+              binNumber: bin.binNumber,
+              options:
+                value === EMPTY_BIN_NO_LOCATION_OPTION
+                  ? {}
+                  : value === EMPTY_BIN_CLAIMED_LOCATION_OPTION
+                    ? { collectionGuid: collection?.guid, storeInClaimedLocation: true }
+                    : { collectionGuid: collection?.guid, locationGuid: value },
+            }),
+        },
+      ],
+    );
   };
 
   return (
@@ -130,8 +142,13 @@ export default function BinFillScreen() {
       <AppText size="sm" tone="secondary">
         {t("rules.fill.description")}
       </AppText>
-      {counts.isError ? <Callout tone="destructive" title={t("rules.fill.loadFailed")} /> : null}
-      {isRulesDataPending || (counts.isPending && !!collection) ? (
+      {counts.isError && !counts.data ? (
+        <QueryErrorState
+          title={t("rules.fill.loadFailed")}
+          onRetry={() => void counts.refetch()}
+          isRetrying={counts.isFetching}
+        />
+      ) : isRulesDataPending || (counts.isPending && !!collection) ? (
         <ListSkeleton leading="none" hasSubtitle />
       ) : !collection || bins.length === 0 ? (
         <EmptyState icon="rules" title={t("rules.noCollectionTitle")} description={t("rules.noCollectionDescription")} />

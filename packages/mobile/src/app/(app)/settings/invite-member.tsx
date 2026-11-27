@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { router } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -15,6 +14,7 @@ import { SelectField } from "@/components/ui/select-field";
 import { TextField } from "@/components/ui/text-field";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { inviteMember } from "@/features/org/api/organization";
+import { useDiscardChangesGuard } from "@/features/settings/lib/use-leave-guard";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -34,12 +34,13 @@ export default function InviteMemberScreen() {
     defaultValues: { email: "", role: "member" },
   });
   const role = form.watch("role");
+  const { leaveWithoutGuard } = useDiscardChangesGuard(form.formState.isDirty);
   const invite = useMutation({
     mutationFn: (values: OrganizationInviteFormValues) => inviteMember(orgId ?? "", values.email.trim(), values.role),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["organization", orgId] });
       await queryClient.invalidateQueries({ queryKey: billingQueryOptions(orgId).queryKey });
-      router.back();
+      leaveWithoutGuard();
     },
   });
 

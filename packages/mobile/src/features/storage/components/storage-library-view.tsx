@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListRow } from "@/components/ui/list-row";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -194,7 +195,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
           />
         }
         ListHeaderComponent={
-          locked || locations.isError || locationActions.remove.isError || query ? (
+          locked || (locations.isError && list.length > 0) || locationActions.remove.isError || query ? (
             <View style={{ gap: SPACING.lg, paddingBottom: SPACING.lg }}>
               {locked ? (
                 <Callout
@@ -203,9 +204,22 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
                   description={list.length > 0 ? t("storage.lockedWithLocations") : t("storage.locked")}
                 />
               ) : null}
-              {locations.isError || locationActions.remove.isError ? (
-                <Callout tone="destructive" title={t("storage.actionFailed")} />
+              {locations.isError && list.length > 0 ? (
+                <Callout
+                  tone="destructive"
+                  title={t("storage.loadFailed")}
+                  action={
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      label={t("recovery.retry")}
+                      loading={locations.isRefetching}
+                      onPress={() => void locations.refetch()}
+                    />
+                  }
+                />
               ) : null}
+              {locationActions.remove.isError ? <Callout tone="destructive" title={t("storage.deleteFailed")} /> : null}
               {query ? (
                 results.isError ? (
                   <Callout
@@ -233,7 +247,12 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
                         name={entry.card.name}
                         subtitle={`${entry.locationName} · ${t("storage.position", { position: formatStorageSlot(entry.position, entry.locationBatchSize) })}`}
                         imageUrl={absoluteUrl(entry.card.image?.small)}
-                        onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: entry.locationGuid } })}
+                        onPress={() =>
+                          router.push({
+                            pathname: "/card/[scanId]",
+                            params: { scanId: entry.scanId, guid: entry.collectionGuid },
+                          })
+                        }
                       />
                     ))}
                   </ListGroup>
@@ -245,6 +264,12 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         ListEmptyComponent={
           query ? undefined : locations.isPending ? (
             <ListSkeleton rows={5} hasSubtitle />
+          ) : locations.isError ? (
+            <QueryErrorState
+              title={t("storage.loadFailed")}
+              onRetry={() => void locations.refetch()}
+              isRetrying={locations.isRefetching}
+            />
           ) : (
             <EmptyState icon="storage" title={t("storage.emptyTitle")} description={t("storage.emptyDescription")} />
           )

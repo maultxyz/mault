@@ -93,7 +93,9 @@ export function TradeOfferReview({ offer }: TradeOfferReviewProps) {
       offer={offer}
       remainingScanIds={picking.remainingScanIds}
       placements={picking.placements}
+      undoablePickScanIds={picking.undoablePickScanIds}
       onPicked={picking.markPicked}
+      onUndoPick={picking.undoPick}
     />
   ) : (
     <TradeOfferReviewSide

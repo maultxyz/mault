@@ -33,6 +33,8 @@ export function Screen({
           style={{ flex: 1 }}
           contentInsetAdjustmentBehavior="automatic"
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets
           contentContainerStyle={{
             paddingHorizontal: padding,
             paddingTop: topPadding,

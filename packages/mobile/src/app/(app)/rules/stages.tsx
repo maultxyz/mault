@@ -102,7 +102,18 @@ export default function PresetStagesScreen() {
         ),
       );
     } else if (action === "remove") {
-      saveStages.mutate(stageInputs().filter((stage) => stage.stepGuid !== step.guid));
+      Alert.alert(
+        t("rules.stages.removeStageTitle"),
+        t("rules.stages.removeStageDescription", { name: presetName(step.presetGuid) }),
+        [
+          { text: t("common.cancel"), style: "cancel" },
+          {
+            text: t("rules.stages.removeStage"),
+            style: "destructive",
+            onPress: () => saveStages.mutate(stageInputs().filter((stage) => stage.stepGuid !== step.guid)),
+          },
+        ],
+      );
     }
   };
 

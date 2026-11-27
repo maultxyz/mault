@@ -13,9 +13,11 @@ import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
@@ -33,7 +35,8 @@ export default function TransferIntakeLotScreen() {
   const orgId = useActiveOrgId();
   const { refresh, announce } = useBusinessAction();
   const [targetSheetOpen, setTargetSheetOpen] = useState(false);
-  const lot = useQuery(intakeLotQueryOptions(guid)).data;
+  const lotQuery = useQuery(intakeLotQueryOptions(guid));
+  const lot = lotQuery.data;
   const { data: collections = [] } = useQuery(collectionsQueryOptions(orgId));
   const targets = useMemo(
     () =>
@@ -93,6 +96,16 @@ export default function TransferIntakeLotScreen() {
           />
         }
       >
+        {lotQuery.isPending ? (
+          <FormSkeleton fields={2} />
+        ) : !lot ? (
+          <QueryErrorState
+            title={t("business.buy.loadFailed")}
+            onRetry={() => void lotQuery.refetch()}
+            isRetrying={lotQuery.isFetching}
+          />
+        ) : (
+          <>
         {transfer.isError ? (
           <Callout
             tone="destructive"
@@ -138,6 +151,8 @@ export default function TransferIntakeLotScreen() {
             />
           )}
         />
+          </>
+        )}
       </PinnedActionsLayout>
       <OptionSheet
         visible={targetSheetOpen}

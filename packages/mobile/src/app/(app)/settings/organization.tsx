@@ -6,12 +6,14 @@ import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { AppText } from "@/components/ui/app-text";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { TextField } from "@/components/ui/text-field";
 import { billingQueryOptions } from "@/features/org/api/billing";
+import { deleteOrganizationConfirmationSchema } from "@/features/org/lib/delete-organization-schema";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import { SettingsSection } from "@/features/settings/components/settings-section";
 import {
@@ -24,6 +26,7 @@ import {
 } from "@/features/org/api/organization";
 import { useActiveOrg } from "@/hooks/use-org";
 import { refreshOrganizations, useSession } from "@/lib/auth/session";
+import type { DeleteOrganizationConfirmationValues } from "@/lib/interfaces/forms";
 import type { OrgMember, OrgRole } from "@/lib/interfaces/settings";
 import { organizationNameFormSchema, type OrganizationNameFormValues } from "@magic-vault/shared";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -50,6 +53,14 @@ export default function OrganizationSettingsScreen() {
     values: { name: details.data?.name ?? org?.name ?? "" },
     resetOptions: { keepDirtyValues: true },
   });
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const organizationName = details.data?.name ?? org?.name ?? "";
+  const deleteConfirmationForm = useForm<DeleteOrganizationConfirmationValues>({
+    resolver: zodResolver(deleteOrganizationConfirmationSchema(organizationName)),
+    defaultValues: { confirmationName: "" },
+  });
+  const hasTypedOrganizationName =
+    organizationName.trim().length > 0 && deleteConfirmationForm.watch("confirmationName").trim() === organizationName.trim();
   const refresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ["organization", orgId] });
     await queryClient.invalidateQueries({ queryKey: billingQueryOptions(orgId).queryKey });
@@ -70,8 +81,8 @@ export default function OrganizationSettingsScreen() {
     ]);
 
   const confirmCancelInvite = (invitation: { id: string; email: string }) =>
-    Alert.alert(t("settings.org.cancelInvite"), invitation.email, [
-      { text: t("settings.org.cancel"), style: "cancel" },
+    Alert.alert(t("settings.org.cancelInviteTitle"), invitation.email, [
+      { text: t("settings.org.keepInvite"), style: "cancel" },
       {
         text: t("settings.org.cancelInvite"),
         style: "destructive",
@@ -87,21 +98,18 @@ export default function OrganizationSettingsScreen() {
     }),
   );
 
-  const confirmDelete = () =>
-    Alert.alert(t("settings.org.deleteOrganization"), t("settings.org.deleteOrgDescription", { name: org?.name ?? "" }), [
-      { text: t("settings.org.cancel"), style: "cancel" },
-      {
-        text: t("settings.org.deleteOrganization"),
-        style: "destructive",
-        onPress: () =>
-          void run(async () => {
-            await deleteOrganization(orgId ?? "");
-            queryClient.clear();
-            await refreshOrganizations();
-            router.back();
-          }),
-      },
-    ]);
+  const stopConfirmingDelete = () => {
+    setIsConfirmingDelete(false);
+    deleteConfirmationForm.reset();
+  };
+  const deleteAfterNameConfirmation = deleteConfirmationForm.handleSubmit(() =>
+    run(async () => {
+      await deleteOrganization(orgId ?? "");
+      queryClient.clear();
+      await refreshOrganizations();
+      router.back();
+    }),
+  );
 
   const invitations = details.data?.invitations ?? [];
   const isLoadError = details.isError && !details.data;
@@ -183,8 +191,8 @@ export default function OrganizationSettingsScreen() {
                 title={invitation.email}
                 subtitle={t(`settings.org.roles.${invitation.role}`)}
                 onPress={() => confirmCancelInvite(invitation)}
-                onLongPress={() => confirmCancelInvite(invitation)}
-                longPressLabel={t("settings.org.cancelInvite")}
+                actionLabel={t("settings.org.cancelInvite")}
+                actionTone="destructive"
               />
             ))}
           </ListGroup>
@@ -204,10 +212,41 @@ export default function OrganizationSettingsScreen() {
                   : t("settings.org.deleteWarning", { name: org?.name ?? "" })
               }
               subtitleNumberOfLines={3}
-              disabled={subscriptionBlocksDelete}
-              onPress={confirmDelete}
+              disabled={subscriptionBlocksDelete || isConfirmingDelete}
+              onPress={() => setIsConfirmingDelete(true)}
             />
           </ListGroup>
+          {isConfirmingDelete ? (
+            <>
+              <AppText size="sm" tone="secondary">
+                {t("settings.org.deleteOrgDescription", { name: organizationName })}
+              </AppText>
+              <Controller
+                control={deleteConfirmationForm.control}
+                name="confirmationName"
+                render={({ field }) => (
+                  <TextField
+                    label={t("settings.org.deleteConfirmLabel", { name: organizationName })}
+                    value={field.value}
+                    onBlur={field.onBlur}
+                    onChangeText={field.onChange}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    returnKeyType="done"
+                  />
+                )}
+              />
+              <Button
+                variant="destructive"
+                icon="trash"
+                label={t("settings.org.deleteOrganization")}
+                disabled={!hasTypedOrganizationName}
+                loading={mutate.isPending}
+                onPress={() => void deleteAfterNameConfirmation()}
+              />
+              <Button variant="ghost" label={t("settings.org.cancel")} onPress={stopConfirmingDelete} />
+            </>
+          ) : null}
         </SettingsSection>
       ) : null}
 

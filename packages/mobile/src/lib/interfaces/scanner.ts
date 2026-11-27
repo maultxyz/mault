@@ -534,6 +534,11 @@ export interface CameraPermissionEmptyStateProps {
   onRequestPermission: () => void;
 }
 
+export interface ScanResultChipProps {
+  entry: ScanFeedEntry;
+  onPress: () => void;
+}
+
 export interface CameraNoticeActionProps {
   label: string;
   onPress: () => void;

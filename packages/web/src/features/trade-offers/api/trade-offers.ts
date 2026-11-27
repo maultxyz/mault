@@ -1,10 +1,10 @@
 import { useOrg } from "@/features/companies/api/use-organization";
 import { apiGet, apiPost } from "@/lib/api/client";
-import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
+import { TRADE_OFFER_PICK_UNDO_TOAST_ID_PREFIX, TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
 import { collectionCardsKeys } from "@/features/collections/api/collection-cards";
 import { toast } from "@/lib/toast";
 import {
-  TRADE_OFFER_PICK_FLUSH_DELAY_MS,
+  TRADE_OFFER_PICK_UNDO_WINDOW_MS,
   rememberTradeOfferPlacements,
   type Result,
   type TradeOffer,
@@ -93,8 +93,7 @@ export function useTradeOfferPicking(offer: TradeOffer) {
   const queryClient = useQueryClient();
   const offerGuid = offer.guid;
   const [locallyPickedScanIds, setLocallyPickedScanIds] = useState<ReadonlySet<string>>(new Set());
-  const queuedScanIds = useRef<string[]>([]);
-  const flushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingPickTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   const [placementSource, setPlacementSource] = useState(offer.wantedPlacements);
   const [knownPlacements, setKnownPlacements] = useState(() =>
     rememberTradeOfferPlacements(new Map(), offer),
@@ -104,11 +103,12 @@ export function useTradeOfferPicking(offer: TradeOffer) {
     setKnownPlacements(rememberTradeOfferPlacements(knownPlacements, offer));
   }
 
-  const flushQueuedPicks = useCallback(async () => {
-    if (flushTimer.current) clearTimeout(flushTimer.current);
-    flushTimer.current = null;
-    const scanIds = queuedScanIds.current;
-    queuedScanIds.current = [];
+  const commitPicks = useCallback(async (requestedScanIds: string[]) => {
+    const scanIds = requestedScanIds.filter((scanId) => pendingPickTimers.current.has(scanId));
+    for (const scanId of scanIds) {
+      clearTimeout(pendingPickTimers.current.get(scanId));
+      pendingPickTimers.current.delete(scanId);
+    }
     if (scanIds.length === 0) return;
     try {
       const result = await apiPost<Result<TradeOfferPickResult>>(
@@ -132,21 +132,47 @@ export function useTradeOfferPicking(offer: TradeOffer) {
     }
   }, [offerGuid, queryClient, t]);
 
-  useEffect(() => () => void flushQueuedPicks(), [flushQueuedPicks]);
+  const commitPicksRef = useRef(commitPicks);
+  useEffect(() => {
+    commitPicksRef.current = commitPicks;
+  }, [commitPicks]);
+
+  useEffect(() => {
+    const timers = pendingPickTimers.current;
+    return () => void commitPicksRef.current([...timers.keys()]);
+  }, []);
+
+  const undoPick = (scanId: string) => {
+    const timer = pendingPickTimers.current.get(scanId);
+    if (!timer) return;
+    clearTimeout(timer);
+    pendingPickTimers.current.delete(scanId);
+    setLocallyPickedScanIds((current) => {
+      const next = new Set(current);
+      next.delete(scanId);
+      return next;
+    });
+  };
 
   const markPicked = (scanId: string) => {
     if (locallyPickedScanIds.has(scanId)) return;
     setLocallyPickedScanIds((current) => new Set(current).add(scanId));
-    queuedScanIds.current = [...queuedScanIds.current, scanId];
-    if (flushTimer.current) clearTimeout(flushTimer.current);
-    flushTimer.current = setTimeout(() => void flushQueuedPicks(), TRADE_OFFER_PICK_FLUSH_DELAY_MS);
+    pendingPickTimers.current.set(
+      scanId,
+      setTimeout(() => void commitPicksRef.current([scanId]), TRADE_OFFER_PICK_UNDO_WINDOW_MS),
+    );
+    const cardName = offer.wanted.find((card) => card.scanId === scanId)?.name ?? "";
+    toast.info(t("tradeOffers.pickList.pickedUndoable", { name: cardName }), {
+      id: `${TRADE_OFFER_PICK_UNDO_TOAST_ID_PREFIX}${scanId}`,
+      duration: TRADE_OFFER_PICK_UNDO_WINDOW_MS,
+      action: { label: t("tradeOffers.pickList.undo"), onClick: () => undoPick(scanId) },
+    });
   };
 
   const finish = useMutation({
     mutationFn: async () => {
-      if (flushTimer.current) clearTimeout(flushTimer.current);
-      flushTimer.current = null;
-      queuedScanIds.current = [];
+      for (const timer of pendingPickTimers.current.values()) clearTimeout(timer);
+      pendingPickTimers.current.clear();
       const result = await apiPost<Result<TradeOfferPickResult>>(
         `/api/trade-offers/${offerGuid}/finish-picking`,
       );

@@ -17,7 +17,7 @@ import type {
   AuthenticatedRequestInit,
   AuthenticatedResponse,
 } from "@/lib/interfaces/api-client";
-import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import { AUTH_PROVIDER, SIGNED_OUT_PARAM, SIGN_IN_PATH } from "@/lib/constants/auth";
 import { readMemberSeatLimit, setMemberSeatLock } from "@/lib/member-seat-lock";
 import { getPlanPreview } from "@/lib/plan-preview";
 import {
@@ -72,7 +72,7 @@ export async function handleForbidden(res: Response): Promise<void> {
     } else {
       await neon.auth.signOut();
     }
-    window.location.href = "/auth/sign-in";
+    window.location.href = `${SIGN_IN_PATH}?${SIGNED_OUT_PARAM}=1`;
   }
   throw new ApiStatusError(403);
 }

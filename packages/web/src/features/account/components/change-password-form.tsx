@@ -1,5 +1,5 @@
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { SaveBar } from "@/components/save-bar";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
@@ -52,9 +52,8 @@ export function ChangePasswordForm() {
           <FieldLabel htmlFor="currentPassword">
             {t("password.currentLabel")}
           </FieldLabel>
-          <Input
+          <PasswordInput
             id="currentPassword"
-            type="password"
             autoComplete="current-password"
             {...form.register("currentPassword")}
           />
@@ -62,9 +61,8 @@ export function ChangePasswordForm() {
         </Field>
         <Field data-invalid={!!form.formState.errors.newPassword}>
           <FieldLabel htmlFor="newPassword">{t("password.newLabel")}</FieldLabel>
-          <Input
+          <PasswordInput
             id="newPassword"
-            type="password"
             autoComplete="new-password"
             {...form.register("newPassword")}
           />
@@ -74,9 +72,8 @@ export function ChangePasswordForm() {
           <FieldLabel htmlFor="confirmPassword">
             {t("password.confirmLabel")}
           </FieldLabel>
-          <Input
+          <PasswordInput
             id="confirmPassword"
-            type="password"
             autoComplete="new-password"
             {...form.register("confirmPassword")}
           />

@@ -1,6 +1,7 @@
 import type { TradeOfferStatus } from "@magic-vault/shared";
 
 export const TRADE_OFFERS_QUERY_KEY = "trade-offers";
+export const TRADE_OFFER_PICK_UNDO_TOAST_ID_PREFIX = "trade-offer-pick-undo-";
 export const PUBLIC_TRADE_OFFERS_QUERY_KEY = "public-trade-offers";
 export const TRADE_OFFER_LINK_PATHS = {
   collection: "monitor-link",

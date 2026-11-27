@@ -76,6 +76,7 @@ export function useOrgSettingsDraft(): OrgSettingsDraft {
     isLoadError,
     isRetryingLoad: isLoadError && isFetching,
     retryLoad: () => void refetch(),
+    refresh: () => refetch(),
     isDirty: !!data && form.formState.isDirty,
     isSaving: form.formState.isSubmitting,
     saveError,

@@ -274,10 +274,6 @@ export default function BinEditorScreen() {
             {activeSet && !activeSet.isActive ? (
               <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />
             ) : null}
-            {save.isError || transfer.isError || resetPickList.isError ? (
-              <Callout tone="destructive" title={t("rules.saveFailed")} />
-            ) : null}
-
             {isScanOnly ? <Callout tone="info" title={t("rules.scanOnlyLocked")} /> : null}
 
             <View style={{ gap: SPACING.sm }}>
@@ -379,10 +375,14 @@ export default function BinEditorScreen() {
                     <ListRow
                       icon="refresh"
                       title={t("rules.pickListBin.reset")}
+                      subtitle={isDirty ? t("rules.saveChangesFirst") : undefined}
                       disabled={resetPickList.isPending || savedPickListTotals.found === 0 || isDirty}
                       onPress={() => resetPickList.mutate()}
                     />
                   </ListGroup>
+                ) : null}
+                {resetPickList.isError ? (
+                  <Callout tone="destructive" title={t("rules.pickListBin.resetFailed")} />
                 ) : null}
               </View>
             ) : null}
@@ -407,7 +407,13 @@ export default function BinEditorScreen() {
                   <AppText size="xs" tone="secondary">
                     {isCatchAll ? t("rules.overrideDescription") : t("rules.rulesDescription")}
                   </AppText>
+                  {canTransferRules && isDirty ? (
+                    <AppText size="xs" tone="secondary">
+                      {t("rules.transfer.saveChangesFirst")}
+                    </AppText>
+                  ) : null}
                 </View>
+                {transfer.isError ? <Callout tone="destructive" title={t("rules.transfer.failed")} /> : null}
                 {sources.length > 0 ? (
                   <Callout
                     tone="info"
@@ -620,6 +626,7 @@ export default function BinEditorScreen() {
           setCatchAllError(false);
           form.reset();
         }}
+        errorMessage={save.isError ? t("rules.saveFailed") : undefined}
       />
     </KeyboardAvoidingView>
   );

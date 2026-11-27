@@ -1,5 +1,6 @@
 {
   "title": "Machines",
+  "raspberryPis": "Raspberry Pis",
   "chooseMachine": "Choisir une machine",
   "machinePicker": "{{name}}, choisir une autre machine",
   "empty": {

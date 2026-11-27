@@ -1,8 +1,4 @@
-import {
-  TRADE_OFFER_PICK_FLUSH_DELAY_MS,
-  rememberTradeOfferPlacements,
-  type TradeOffer,
-} from "@magic-vault/shared";
+import { TRADE_OFFER_PICK_UNDO_WINDOW_MS, rememberTradeOfferPlacements, type TradeOffer } from "@magic-vault/shared";
 import { useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -24,6 +20,12 @@ function storeRemainingPickScanIds(queryClient: QueryClient, offerGuid: string, 
   );
 }
 
+function withoutScanIds(current: ReadonlySet<string>, scanIds: string[]): ReadonlySet<string> {
+  const next = new Set(current);
+  for (const scanId of scanIds) next.delete(scanId);
+  return next;
+}
+
 export function useTradeOfferPicking(offer: TradeOffer): TradeOfferPicking {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -32,54 +34,72 @@ export function useTradeOfferPicking(offer: TradeOffer): TradeOfferPicking {
   const [pickError, setPickError] = useState<string | null>(null);
   const [placementSource, setPlacementSource] = useState(offer.wantedPlacements);
   const [knownPlacements, setKnownPlacements] = useState(() => rememberTradeOfferPlacements(new Map(), offer));
-  const queuedScanIds = useRef<string[]>([]);
-  const flushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [undoablePickScanIds, setUndoablePickScanIds] = useState<ReadonlySet<string>>(new Set());
+  const pendingPickTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
   if (placementSource !== offer.wantedPlacements) {
     setPlacementSource(offer.wantedPlacements);
     setKnownPlacements(rememberTradeOfferPlacements(knownPlacements, offer));
   }
 
-  const flushQueuedPicks = useCallback(async () => {
-    if (flushTimer.current) clearTimeout(flushTimer.current);
-    flushTimer.current = null;
-    const scanIds = queuedScanIds.current;
-    queuedScanIds.current = [];
-    if (scanIds.length === 0) return;
-    try {
-      const result = await markTradeOfferCardsPicked(offerGuid, scanIds);
-      storeRemainingPickScanIds(queryClient, offerGuid, result.remainingScanIds);
-      void queryClient.invalidateQueries({ queryKey: [COLLECTION_CARDS_QUERY_ROOT] });
-    } catch {
-      const message = t("tradeOffers.pickList.pickFailed");
-      setPickError(message);
-      AccessibilityInfo.announceForAccessibility(message);
-      void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] });
-    } finally {
-      setLocallyPickedScanIds((current) => {
-        const next = new Set(current);
-        for (const scanId of scanIds) next.delete(scanId);
-        return next;
-      });
-    }
-  }, [offerGuid, queryClient, t]);
+  const commitPicks = useCallback(
+    async (scanIds: string[]) => {
+      const pendingScanIds = scanIds.filter((scanId) => pendingPickTimers.current.has(scanId));
+      for (const scanId of pendingScanIds) {
+        clearTimeout(pendingPickTimers.current.get(scanId));
+        pendingPickTimers.current.delete(scanId);
+      }
+      if (pendingScanIds.length === 0) return;
+      setUndoablePickScanIds((current) => withoutScanIds(current, pendingScanIds));
+      try {
+        const result = await markTradeOfferCardsPicked(offerGuid, pendingScanIds);
+        storeRemainingPickScanIds(queryClient, offerGuid, result.remainingScanIds);
+        void queryClient.invalidateQueries({ queryKey: [COLLECTION_CARDS_QUERY_ROOT] });
+      } catch {
+        const message = t("tradeOffers.pickList.pickFailed");
+        setPickError(message);
+        AccessibilityInfo.announceForAccessibility(message);
+        void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] });
+      } finally {
+        setLocallyPickedScanIds((current) => withoutScanIds(current, pendingScanIds));
+      }
+    },
+    [offerGuid, queryClient, t],
+  );
+  const commitPicksRef = useRef(commitPicks);
+  commitPicksRef.current = commitPicks;
 
-  useEffect(() => () => void flushQueuedPicks(), [flushQueuedPicks]);
+  useEffect(() => {
+    const timers = pendingPickTimers.current;
+    return () => void commitPicksRef.current([...timers.keys()]);
+  }, []);
 
   const markPicked = (scanId: string) => {
     if (locallyPickedScanIds.has(scanId)) return;
     setPickError(null);
     setLocallyPickedScanIds((current) => new Set(current).add(scanId));
-    queuedScanIds.current = [...queuedScanIds.current, scanId];
-    if (flushTimer.current) clearTimeout(flushTimer.current);
-    flushTimer.current = setTimeout(() => void flushQueuedPicks(), TRADE_OFFER_PICK_FLUSH_DELAY_MS);
+    setUndoablePickScanIds((current) => new Set(current).add(scanId));
+    pendingPickTimers.current.set(
+      scanId,
+      setTimeout(() => void commitPicksRef.current([scanId]), TRADE_OFFER_PICK_UNDO_WINDOW_MS),
+    );
+  };
+
+  const undoPick = (scanId: string) => {
+    const timer = pendingPickTimers.current.get(scanId);
+    if (!timer) return;
+    clearTimeout(timer);
+    pendingPickTimers.current.delete(scanId);
+    setUndoablePickScanIds((current) => withoutScanIds(current, [scanId]));
+    setLocallyPickedScanIds((current) => withoutScanIds(current, [scanId]));
+    AccessibilityInfo.announceForAccessibility(t("tradeOffers.pickList.pickUndone"));
   };
 
   const finish = useMutation({
     mutationFn: () => {
-      if (flushTimer.current) clearTimeout(flushTimer.current);
-      flushTimer.current = null;
-      queuedScanIds.current = [];
+      for (const timer of pendingPickTimers.current.values()) clearTimeout(timer);
+      pendingPickTimers.current.clear();
+      setUndoablePickScanIds(new Set());
       setPickError(null);
       return finishTradeOfferPicking(offerGuid);
     },
@@ -101,7 +121,9 @@ export function useTradeOfferPicking(offer: TradeOffer): TradeOfferPicking {
     remainingScanIds: (offer.remainingPickScanIds ?? []).filter((scanId) => !locallyPickedScanIds.has(scanId)),
     placements: offer.wanted.map((card) => knownPlacements.get(card.scanId) ?? null),
     pickError,
+    undoablePickScanIds,
     markPicked,
+    undoPick,
     finish: () => finish.mutate(),
     isFinishing: finish.isPending,
   };

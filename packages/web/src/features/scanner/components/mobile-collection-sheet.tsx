@@ -1,5 +1,7 @@
+import { EmptyState } from "@/components/empty-state";
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobileListRow } from "@/components/mobile-list-row";
+import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { MOBILE_LIST_CLASS } from "@/lib/constants/nav";
@@ -10,8 +12,10 @@ import { useTranslation } from "react-i18next";
 export function MobileCollectionSheet({
   open,
   onOpenChange,
+  onCreateCollection,
 }: MobileCollectionSheetProps) {
   const { t } = useTranslation("scanner");
+  const { t: tCollections } = useTranslation("collections");
   const { collections, activeCollection, activateCollection } =
     useCollections();
 
@@ -22,6 +26,19 @@ export function MobileCollectionSheet({
           <DrawerTitle className="font-heading text-base font-semibold text-foreground">
             {t("mobileScan.chooseCollection")}
           </DrawerTitle>
+          {collections.length === 0 && (
+            <EmptyState
+              size="compact"
+              icon={IconAlbum}
+              title={t("mobileScan.noCollectionsTitle")}
+              description={t("mobileScan.noCollectionsDescription")}
+              action={
+                <Button onClick={onCreateCollection}>
+                  {tCollections("newCollection")}
+                </Button>
+              }
+            />
+          )}
           <div className={MOBILE_LIST_CLASS}>
             {collections.map((collection) => (
               <MobileListRow

@@ -32,7 +32,6 @@ export default function CalibrationConnectionScreen() {
           <PageHeader title={t("calibration.sections.connection.title")} subtitle={sorter.device?.name} onBack={() => router.back()} />
         }
       >
-        {draft.saveError ? <Callout tone="destructive" title={t("calibration.saveFailed")} /> : null}
         <SettingsSection title={t("calibration.connection.title")}>
           <SwitchRow
             title={t("calibration.connection.autoConnectLabel")}
@@ -69,7 +68,13 @@ export default function CalibrationConnectionScreen() {
           description={t("calibration.connection.firmwareNote")}
         />
       </Screen>
-      <SaveBar visible={draft.isDirty} saving={draft.isSaving} onSave={() => void draft.save()} onDiscard={draft.discard} />
+      <SaveBar
+        visible={draft.isDirty}
+        saving={draft.isSaving}
+        onSave={() => void draft.save()}
+        onDiscard={draft.discard}
+        errorMessage={draft.saveError ? t("calibration.connectionSaveFailed") : undefined}
+      />
     </View>
   );
 }

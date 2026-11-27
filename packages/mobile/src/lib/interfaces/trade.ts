@@ -60,6 +60,39 @@ export interface TradeCardRowProps {
   right?: ReactNode;
 }
 
+export interface TradeQuantityStepperProps {
+  cardName: string;
+  quantity: number;
+  maxQuantity: number;
+  onChange: (quantity: number) => void;
+}
+
+export interface OfferedTradeCardRowProps {
+  card: OfferedTradeCard;
+  value?: string;
+  valueAccessibilityLabel?: string;
+  onQuantityChange: (quantity: number) => void;
+  onEditDetails: () => void;
+  onRemove: () => void;
+}
+
+export interface OfferedTradeCardDetailsSheetProps {
+  card: OfferedTradeCard | null;
+  onToggleFoil: (card: OfferedTradeCard) => void;
+  onConditionChange: (card: OfferedTradeCard, condition: CardCondition) => void;
+  onClose: () => void;
+}
+
+export interface ReceivedTradeCardLimits {
+  maxCards: number;
+  maxQuantity: number;
+}
+
+export interface MergedReceivedTradeCards {
+  cards: OfferedTradeCard[];
+  droppedCount: number;
+}
+
 export interface TradeScanNotice {
   noticeId: number;
   kind: "added" | "no-match" | "failed";

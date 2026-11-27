@@ -47,7 +47,9 @@ export interface TradeOfferPicking {
   remainingScanIds: string[];
   placements: (TradeOfferWantedPlacement | null)[];
   pickError: string | null;
+  undoablePickScanIds: ReadonlySet<string>;
   markPicked: (scanId: string) => void;
+  undoPick: (scanId: string) => void;
   finish: () => void;
   isFinishing: boolean;
 }
@@ -56,13 +58,17 @@ export interface TradeOfferPickListProps {
   offer: TradeOffer;
   remainingScanIds: string[];
   placements: (TradeOfferWantedPlacement | null)[];
+  undoablePickScanIds: ReadonlySet<string>;
   onPicked: (scanId: string) => void;
+  onUndoPick: (scanId: string) => void;
 }
 
 export interface TradeOfferPickListRowProps {
   item: TradeOfferPickListItem;
   priceSource: PriceSource;
+  isUndoable: boolean;
   onPicked: (scanId: string) => void;
+  onUndoPick: (scanId: string) => void;
 }
 
 export interface TradeOfferReviewProps {

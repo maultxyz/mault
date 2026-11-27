@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { useToast } from "@/components/ui/toast-provider";
 import { Screen } from "@/components/ui/screen";
 import { cardSetsQueryOptions } from "@/features/cards/api/card-sets";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
@@ -57,6 +58,7 @@ import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { CameraPermissionEmptyState } from "@/features/scanner/components/camera-permission-empty-state";
 import { LiveCardOutline } from "@/features/scanner/components/live-card-outline";
 import { ScanOptionsSheet } from "@/features/scanner/components/scan-options-sheet";
+import { ScanResultChip } from "@/features/scanner/components/scan-result-chip";
 import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
 import { ScanTipsSheet } from "@/features/scanner/components/scan-tips-sheet";
 import { UnmatchedScanNotice } from "@/features/scanner/components/unmatched-scan-notice";
@@ -81,7 +83,7 @@ import {
   SCAN_SAVED_STATUS_MS,
 } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import { CAMERA_BOTTOM_SCRIM_GRADIENT, CAMERA_TOP_SCRIM_GRADIENT, SHUTTER_SIZE } from "@/lib/constants/ui";
+import { CAMERA_BOTTOM_SCRIM_GRADIENT, CAMERA_TOP_SCRIM_GRADIENT, MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import { cardArtSources } from "@/lib/card-art";
 import { SCANNER_QR_REPEAT_MS } from "@/lib/constants/phone-camera";
 import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
@@ -100,7 +102,8 @@ export default function ScanScreen() {
   const isOnline = useIsOnline();
   const sorter = useSorter();
   const orgId = useActiveOrgId();
-  const { collection, collections, setScanTargetGuid } = useScanTarget();
+  const { collection, collections, collectionsQuery, setScanTargetGuid } = useScanTarget();
+  const { showToast } = useToast();
   const foilTypes = collection?.game?.foilTypes ?? [];
   const { sets: presets, activeSet } = useRulesData();
   const activePreset = activeSet?.isActive ? activeSet : null;
@@ -142,6 +145,10 @@ export default function ScanScreen() {
   const [setPickerOpen, setSetPickerOpen] = useState(false);
   const [conditionPickerOpen, setConditionPickerOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const closePickerAndReturnToOptions = (setIsPickerOpen: (isOpen: boolean) => void) => {
+    setIsPickerOpen(false);
+    setOptionsOpen(true);
+  };
   const { data: binSets } = useQuery(binSetsQueryOptions(orgId));
   const permission = useCameraPermission();
   const camera = useCameraChoice();
@@ -263,8 +270,9 @@ export default function ScanScreen() {
     writeKv(SCAN_TIPS_SEEN_KEY, "true");
   };
   const showsOpenBuyLine = !!openBuy && !!openBuyLabel && !session.removal.isEnabled;
+  const isSorterSessionRunning = session.isRunning && !session.handScanActive;
   const showsStartBuyLine =
-    !!collection && !openBuy && canStartBuy && !session.isRunning && !session.removal.isEnabled;
+    !!collection && !openBuy && canStartBuy && !isSorterSessionRunning && !session.removal.isEnabled;
   const scanBuyTips = useBusinessTips(
     "scanBuy",
     (showsOpenBuyLine || showsStartBuyLine) && !tipsOpen && !session.isRunning,
@@ -345,6 +353,45 @@ export default function ScanScreen() {
     if (isRemoveMode) session.setHandScan(true);
   };
   const sorterDriven = sorter.isReady || session.handScanActive;
+  const startsHandScanAutomatically = session.handScanActive && !sorter.isConnected && !session.removal.isEnabled;
+  const isAnySheetOpen =
+    tipsOpen ||
+    scanBuyTips.isOpen ||
+    collectionPickerOpen ||
+    destinationPickerOpen ||
+    presetPickerOpen ||
+    cameraPickerOpen ||
+    foilTypePickerOpen ||
+    setPickerOpen ||
+    conditionPickerOpen ||
+    optionsOpen ||
+    buySheetOpen ||
+    sessionOpen ||
+    controlsOpen ||
+    removalQueueOpen ||
+    removalBinPickerOpen;
+  const [isHandScanHeldForSheet, setIsHandScanHeldForSheet] = useState(false);
+  const pauseScanSession = session.pause;
+  const startScanSession = session.start;
+  const holdsHandScanForSheet = isAnySheetOpen && startsHandScanAutomatically && session.isRunning;
+  useEffect(() => {
+    if (!holdsHandScanForSheet) return;
+    setIsHandScanHeldForSheet(true);
+    pauseScanSession();
+  }, [holdsHandScanForSheet, pauseScanSession]);
+  const beginsHandScanNow =
+    focused &&
+    cameraMounted &&
+    startsHandScanAutomatically &&
+    session.canStart &&
+    !isAnySheetOpen &&
+    (session.pauseReason === null || isHandScanHeldForSheet);
+  useEffect(() => {
+    if (!beginsHandScanNow) return;
+    setIsHandScanHeldForSheet(false);
+    startScanSession();
+  }, [beginsHandScanNow, startScanSession]);
+  const explainSorterSessionLock = () => showToast({ message: t("scan.pauseToChange") });
   const canScanOnce = !!collection && !session.modelError && session.phase !== "loading-models";
   const phaseColor =
     session.phase === "error"
@@ -373,13 +420,14 @@ export default function ScanScreen() {
     camera.devices[index]?.localizedName || t("scan.options.cameraFallback", { number: index + 1 });
   const selectedCameraIndex = camera.devices.findIndex((d) => d.id === device?.id);
 
+  const keepsScreenAwake = session.isRunning && focused;
   useEffect(() => {
-    if (!session.isRunning) return;
+    if (!keepsScreenAwake) return;
     void activateKeepAwakeAsync();
     return () => {
       void deactivateKeepAwake();
     };
-  }, [session.isRunning]);
+  }, [keepsScreenAwake]);
 
   if (!permission.hasPermission) {
     return (
@@ -399,6 +447,14 @@ export default function ScanScreen() {
       description={session.modelError}
       actionLabel={t("recovery.retry")}
       onAction={session.retryModelLoad}
+    />
+  ) : !collection && collectionsQuery.isPending ? null : !collection && collections.length === 0 ? (
+    <CameraNotice
+      tone="warning"
+      title={t("scan.noCollectionsTitle")}
+      description={t("scan.noCollectionsDescription")}
+      actionLabel={t("collections.new")}
+      onAction={() => router.push("/collection-new")}
     />
   ) : !collection ? (
     <CameraNotice
@@ -542,24 +598,32 @@ export default function ScanScreen() {
               accessibilityLabel={
                 collection ? t("scan.scanningInto", { name: collection.name }) : t("scan.chooseCollection")
               }
-              onPress={session.isRunning ? undefined : () => setCollectionPickerOpen(true)}
+              onPress={
+                isSorterSessionRunning
+                  ? explainSorterSessionLock
+                  : collections.length === 0 && !collectionsQuery.isPending
+                    ? () => router.push("/collection-new")
+                    : () => setCollectionPickerOpen(true)
+              }
             />
             {collection && !session.removal.isEnabled ? (
               <CameraTextRow
                 icon={scanDestination.sortsCards ? "rules" : "storage"}
                 label={destinationLabel}
-                onPress={session.isRunning || sorter.isReady ? undefined : () => setDestinationPickerOpen(true)}
+                onPress={
+                  sorter.isReady
+                    ? undefined
+                    : isSorterSessionRunning
+                      ? explainSorterSessionLock
+                      : () => setDestinationPickerOpen(true)
+                }
               />
             ) : null}
             {openBuy && openBuyLabel && showsOpenBuyLine ? (
               <CameraTextRow
                 icon="coins"
                 label={openBuyLabel}
-                onPress={
-                  session.isRunning
-                    ? undefined
-                    : () => openBuySheet(openBuy)
-                }
+                onPress={isSorterSessionRunning ? explainSorterSessionLock : () => openBuySheet(openBuy)}
               />
             ) : null}
             {collection && showsStartBuyLine ? (
@@ -591,14 +655,14 @@ export default function ScanScreen() {
           <IconButton
             icon="help"
             variant="camera"
-            size={36}
+            size={MIN_TOUCH_TARGET}
             accessibilityLabel={t("scan.tips.open")}
             onPress={() => setTipsOpen(true)}
           />
           <IconButton
             icon="more"
             variant="camera"
-            size={36}
+            size={MIN_TOUCH_TARGET}
             accessibilityLabel={t("scan.options.title")}
             onPress={() => setOptionsOpen(true)}
           />
@@ -636,6 +700,17 @@ export default function ScanScreen() {
                 onPress={stopSorter}
               />
             </View>
+          ) : null}
+          {latestFeedEntry?.card && collection && !session.removal.isActive ? (
+            <ScanResultChip
+              entry={latestFeedEntry}
+              onPress={() =>
+                router.push({
+                  pathname: "/card/[scanId]",
+                  params: { scanId: latestFeedEntry.scanId, guid: collection.guid },
+                })
+              }
+            />
           ) : null}
           <View accessibilityLiveRegion="polite" style={{ alignItems: "center" }}>
             <CameraTextRow dotColor={phaseColor} label={statusText} />
@@ -679,16 +754,16 @@ export default function ScanScreen() {
                 <IconButton
                   icon="adjust"
                   variant="camera"
-                  size={SHUTTER_SIZE - SPACING.sm}
+                  size={MIN_TOUCH_TARGET}
                   accessibilityLabel={t("scan.controls.open")}
                   onPress={() => setControlsOpen(true)}
                 />
               ) : null}
-              {collection && !sorter.isConnected && !session.isRunning ? (
+              {collection && !sorter.isConnected && !isSorterSessionRunning ? (
                 <IconButton
                   icon="multiCard"
                   variant="camera"
-                  size={SHUTTER_SIZE - SPACING.sm}
+                  size={MIN_TOUCH_TARGET}
                   accessibilityLabel={t("batchScan.open")}
                   onPress={() =>
                     router.push({
@@ -791,10 +866,10 @@ export default function ScanScreen() {
         options={presetPicker.options}
         selected={presetPicker.selected}
         onSelect={(value) => {
-          setPresetPickerOpen(false);
+          closePickerAndReturnToOptions(setPresetPickerOpen);
           presetPicker.choose(value);
         }}
-        onClose={() => setPresetPickerOpen(false)}
+        onClose={() => closePickerAndReturnToOptions(setPresetPickerOpen)}
       />
       <OptionSheet
         visible={cameraPickerOpen}
@@ -802,10 +877,10 @@ export default function ScanScreen() {
         options={camera.devices.map((d, index) => ({ value: d.id, label: cameraLabel(index) }))}
         selected={device ? [device.id] : []}
         onSelect={(id) => {
-          setCameraPickerOpen(false);
+          closePickerAndReturnToOptions(setCameraPickerOpen);
           camera.select(id);
         }}
-        onClose={() => setCameraPickerOpen(false)}
+        onClose={() => closePickerAndReturnToOptions(setCameraPickerOpen)}
       />
       <OptionSheet
         visible={foilTypePickerOpen}
@@ -816,10 +891,10 @@ export default function ScanScreen() {
         ]}
         selected={[session.forcedFoilType ?? NOT_FOIL_OPTION]}
         onSelect={(value) => {
-          setFoilTypePickerOpen(false);
+          closePickerAndReturnToOptions(setFoilTypePickerOpen);
           session.setForcedFoilType(value === NOT_FOIL_OPTION ? null : value);
         }}
-        onClose={() => setFoilTypePickerOpen(false)}
+        onClose={() => closePickerAndReturnToOptions(setFoilTypePickerOpen)}
       />
       <OptionSheet
         visible={setPickerOpen}
@@ -833,7 +908,7 @@ export default function ScanScreen() {
         selected={session.forcedSetCodes.length > 0 ? session.forcedSetCodes : [ANY_SET_OPTION]}
         onSelect={(value) => {
           if (value === ANY_SET_OPTION) {
-            setSetPickerOpen(false);
+            closePickerAndReturnToOptions(setSetPickerOpen);
             session.setForcedSetCodes([]);
             return;
           }
@@ -843,7 +918,7 @@ export default function ScanScreen() {
               : [...session.forcedSetCodes, value],
           );
         }}
-        onClose={() => setSetPickerOpen(false)}
+        onClose={() => closePickerAndReturnToOptions(setSetPickerOpen)}
       />
       <OptionSheet
         visible={conditionPickerOpen}
@@ -854,10 +929,10 @@ export default function ScanScreen() {
         }))}
         selected={[session.scanCondition]}
         onSelect={(value) => {
-          setConditionPickerOpen(false);
+          closePickerAndReturnToOptions(setConditionPickerOpen);
           if (isCardCondition(value)) session.setScanCondition(value);
         }}
-        onClose={() => setConditionPickerOpen(false)}
+        onClose={() => closePickerAndReturnToOptions(setConditionPickerOpen)}
       />
       <ScanRemovalQueueSheet
         visible={removalQueueOpen}

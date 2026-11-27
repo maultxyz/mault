@@ -33,6 +33,7 @@ export default function PricingSettingsScreen() {
         if (draft.isLoadError) draft.retryLoad();
         if (businessDraft.isLoadError) businessDraft.retryLoad();
       }}
+      onRefresh={draft.refresh}
       isDirty={draft.isDirty || businessDraft.isDirty}
       isSaving={isSaving}
       saveError={draft.saveError || businessDraft.saveError}

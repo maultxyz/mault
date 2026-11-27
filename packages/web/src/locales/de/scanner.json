@@ -939,6 +939,11 @@
   },
   "mobileScan": {
     "chooseCollection": "Sammlung wählen",
+    "noCollectionsTitle": "Noch keine Sammlungen",
+    "noCollectionsDescription": "Erstelle eine Sammlung, in die du Karten scannen kannst.",
+    "result": {
+      "checkMatch": "Treffer prüfen"
+    },
     "scanningInto": "Scannen in {{name}}",
     "collection": "Sammlung",
     "options": "Scan-Optionen",

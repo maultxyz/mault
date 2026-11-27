@@ -12,6 +12,7 @@
     "name": "Mault"
   },
   "common": {
+    "openSettings": "Einstellungen öffnen",
     "loading": "Wird geladen",
     "selected": "ausgewählt",
     "show": "Anzeigen",
@@ -59,9 +60,18 @@
       "verify-email": "Bestätige deine E-Mail-Adresse und melde dich dann an.",
       "storage": "Angemeldet, aber die Sitzung konnte auf diesem Gerät nicht gespeichert werden. Versuche es erneut.",
       "social": "Die Anmeldung mit diesem Konto ist fehlgeschlagen. Versuche es erneut.",
-      "socialWithCode": "Die Anmeldung mit diesem Konto ist fehlgeschlagen ({{code}}). Versuche es erneut."
+      "invalid-credentials": "E-Mail-Adresse oder Passwort stimmt nicht. Prüfe beides und versuche es erneut.",
+      "rate-limited": "Zu viele Versuche. Warte einen Moment und versuche es dann erneut.",
+      "sign-in-failed": "Anmeldung fehlgeschlagen. Versuche es erneut."
     },
     "createAccountOnWeb": "Neu bei Mault? Erstelle ein Konto im Web",
+    "forgotPassword": "Passwort vergessen?",
+    "opensInBrowser": "Wird im Browser geöffnet",
+    "signedOut": {
+      "title": "Du wurdest abgemeldet",
+      "session-expired": "Deine Sitzung ist beendet. Melde dich erneut an, um fortzufahren.",
+      "access-revoked": "Dein Zugriff hat sich geändert, deshalb wurdest du abgemeldet. Melde dich erneut an, um fortzufahren."
+    },
     "orContinueWith": "Oder weiter mit",
     "continueWithProvider": "Weiter mit {{provider}}"
   },
@@ -459,6 +469,12 @@
     "server": "Server",
     "version": "Version",
     "signOut": "Abmelden",
+    "signOutConfirm": {
+      "title": "Abmelden?",
+      "description": "Du musst dich erneut anmelden, um Mault auf diesem Handy zu nutzen.",
+      "pendingScans_one": "{{count}} Scan ist noch nicht synchronisiert. Er bleibt auf diesem Handy und wird synchronisiert, sobald du dich wieder anmeldest.",
+      "pendingScans_other": "{{count}} Scans sind noch nicht synchronisiert. Sie bleiben auf diesem Handy und werden synchronisiert, sobald du dich wieder anmeldest."
+    },
     "pendingSaves": {
       "title_one": "{{count}} Scan wartet auf Synchronisierung",
       "title_other": "{{count}} Scans warten auf Synchronisierung",
@@ -507,6 +523,7 @@
         "submit": "Passwort aktualisieren",
         "updated": "Passwort aktualisiert",
         "updateFailed": "Passwort konnte nicht aktualisiert werden",
+        "currentIncorrect": "Dein aktuelles Passwort stimmt nicht.",
         "change": "Passwort ändern"
       },
       "signInMethods": {
@@ -592,7 +609,11 @@
     "forgottenLinkKept": "WLAN ausgeschaltet. Der Server konnte die alte Verbindung nicht entfernen, sie wird beim nächsten Einrichten des WLANs ersetzt.",
     "forgottenRestarting": "WLAN ausgeschaltet. Der Sortierer startet neu und Bluetooth ist wieder an.",
     "forgetFailed": "WLAN konnte nicht ausgeschaltet werden.",
-    "saved": "WLAN gespeichert. Der Sortierer verbindet sich mit dem Netz.",
+    "discardDescription": "Die eingegebenen WLAN-Daten wurden nicht gespeichert.",
+    "joining": "WLAN gespeichert. Verbindung mit {{ssid}} wird hergestellt",
+    "joined": "Mit {{ssid}} verbunden",
+    "joinFailed": "Verbindung mit {{ssid}} fehlgeschlagen",
+    "joinFailedDescription": "Prüfe Netzwerkname und Passwort und ob es ein 2,4-GHz-Netz ist. Speichere dann erneut.",
     "savedRestarting": "WLAN gespeichert. Der Sortierer startet neu, um sich mit dem Netz zu verbinden, und Bluetooth geht aus.",
     "saveFailed": "WLAN konnte nicht gespeichert werden",
     "saveFailedDescription": "Der Sortierer hat die Einstellungen nicht übernommen. Prüfe, ob er noch verbunden ist, und versuche es erneut.",
@@ -629,7 +650,7 @@
     },
     "saved": {
       "title": "Gespeicherte Sortierer",
-      "renameHint": "Zum Umbenennen tippen",
+      "rename": "{{name}} umbenennen",
       "delete": "Löschen",
       "deleteTitle": "{{name}} löschen?",
       "deleteDescription": "Kalibrierung und Einstellungen werden entfernt. Ein gerade verbundener Sortierer kann nicht gelöscht werden.",
@@ -644,10 +665,26 @@
     "recent": "Zuletzt verbundene Sortierer",
     "nearby": "Sortierer in der Nähe",
     "searching": "Suche nach Sortierern",
+    "notSearchedYet": "Tippe auf Sortierer suchen, um Sortierer in der Nähe zu finden",
     "noneFound": "Keine Sortierer gefunden",
     "bluetoothOnly": "Nur ESP32-S3- und Uno-R4-WiFi-Sortierer haben Bluetooth. Sortierer, die in der Web-App für WLAN eingerichtet sind, erscheinen auch unter Über WLAN. Ein Uno R4 Minima braucht die Desktop-App über USB.",
     "unnamed": "Unbenannter Sortierer",
-    "signal": "Signal {{rssi}} dBm",
+    "signalStrength": {
+      "strong": "Starkes Signal",
+      "good": "Gutes Signal",
+      "weak": "Schwaches Signal"
+    },
+    "manual": {
+      "neutralDone": "Servos auf Neutral zurückgesetzt",
+      "dropDone": "Karte ausgeworfen",
+      "noResponse": "Der Sortierer hat nicht geantwortet. Prüfe die Verbindung und versuch es noch einmal."
+    },
+    "setup": {
+      "title": "Schließe die Einrichtung dieses Sortierers ab",
+      "description": "Kalibriere zuerst die Servos unter Kalibrierung. Tippe dann auf Einrichtung abschließen: Der Sortierer führt einen Selbsttest aus und ist nach bestandenem Test bereit zum Scannen.",
+      "failed": "Die Einrichtung wurde nicht abgeschlossen. Prüfe, ob der Selbsttest besteht und du online bist, und versuch es noch einmal.",
+      "finish": "Einrichtung abschließen"
+    },
     "runSelfTest": "Selbsttest ausführen",
     "resetEmergencyStop": "Sortierer zurücksetzen",
     "neutral": "Zurück in Neutralstellung",
@@ -717,7 +754,7 @@
       },
       "setup-incomplete": {
         "title": "Schließe die Einrichtung dieses Sortierers ab",
-        "description": "Schließe zuerst die Kalibrierung in der Web-App ab und verbinde dich dann vom Handy aus."
+        "description": "Kalibriere diesen Sortierer und schließe die Einrichtung ab, bevor du scannst."
       },
       "sorter-offline": {
         "title": "Sortierer ist offline",
@@ -901,11 +938,18 @@
     "unmatchedHint": "Zur Überprüfung gespeichert",
     "allowCamera": "Kamera erlauben",
     "cameraPermissionTitle": "Kamerazugriff erforderlich",
-    "cameraPermissionDescription": "Mault nutzt die Kamera, um Karten zu erkennen, während sie durch deinen Sortierer laufen.",
+    "cameraPermissionDescription": "Mault nutzt die Kamera, um die Karten zu erkennen, die du scannst.",
     "cameraPermissionSettings": "Aktiviere den Kamerazugriff für Mault in den Einstellungen.",
     "noCamera": "Keine Kamera verfügbar",
     "noCollectionTitle": "Keine Sammlung gewählt",
     "noCollectionDescription": "Wähle die Sammlung, in die gescannt werden soll.",
+    "noCollectionsTitle": "Noch keine Sammlungen",
+    "noCollectionsDescription": "Erstelle eine Sammlung, in die du Karten scannen kannst.",
+    "pauseToChange": "Pausiere den Sortierer, um das zu ändern.",
+    "result": {
+      "checkMatch": "Treffer prüfen",
+      "openHint": "Öffnet die Karte, damit du sie prüfen oder korrigieren kannst"
+    },
     "chooseCollection": "Sammlung wählen",
     "openSorter": "Sortierer verbinden",
     "modelErrorTitle": "Die Kartenerkennungsmodelle konnten nicht geladen werden",
@@ -959,7 +1003,7 @@
       "allowDuplicates": "Duplikate erlauben",
       "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
       "handScan": "Karten automatisch erkennen",
-      "handScanDescription": "Ohne Sortierer scannen. Tippe auf Start und halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
+      "handScanDescription": "Ohne Sortierer scannen. Halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt. Schalte es aus, um Karten einzeln mit dem Auslöser zu scannen.",
       "handScanBins": "In Fächer sortieren",
       "handScanBinsDescription": "Zeigt mit deiner Vorlage, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
       "handScanBinsNoPreset": "Wähle eine Vorlage für dieses Spiel, um Karten in Fächer zu sortieren.",
@@ -1043,7 +1087,7 @@
       "done": "Verstanden",
       "holdCard": {
         "title": "Karte in den Rahmen halten",
-        "description": "Halte die ganze Karte ruhig im Kamerabild. Schalte in den Scan-Optionen Karten automatisch erkennen ein, um ohne Tippen auf den Auslöser zu scannen."
+        "description": "Halte die ganze Karte ruhig im Kamerabild. Sie wird automatisch gescannt, und du kannst jederzeit pausieren. Schalte in den Scan-Optionen Karten automatisch erkennen aus, um stattdessen mit dem Auslöser zu scannen."
       },
       "qrCode": {
         "title": "Auf einen QR-Code richten, um ihn zu öffnen",
@@ -1125,6 +1169,11 @@
     }
   },
   "home": {
+    "noOrganization": {
+      "title": "Noch keine Organisation",
+      "description": "Nimm eine Einladung aus deinem Team an oder erstelle eine Organisation auf der Mault-Website. Ziehe danach zum Aktualisieren nach unten.",
+      "refresh": "Erneut prüfen"
+    },
     "searchPlaceholder": "Sammlungen durchsuchen",
     "noSearchResultsTitle": "Keine Sammlungen gefunden",
     "noSearchResultsDescription": "Versuche einen anderen Namen.",
@@ -1193,6 +1242,11 @@
     "searchPlaceholder": "Karten suchen",
     "noCardsYet": "Noch keine Karten gescannt",
     "noMatches": "Keine Karten passen zu deiner Suche",
+    "noFilterMatches": "Keine Karten passen zu deinen Filtern",
+    "noFilterMatchesDescription": "Setze die Filter zurück, um alle Karten dieser Sammlung zu sehen.",
+    "clearFilters_one": "{{count}} Filter zurücksetzen",
+    "clearFilters_other": "{{count}} Filter zurücksetzen",
+    "filtersCleared": "Filter zurückgesetzt",
     "groupDuplicates": "Duplikate gruppieren",
     "filters": {
       "minMatch": "Mindestübereinstimmung",
@@ -1305,6 +1359,11 @@
     "markCorrect": "Als korrekt markieren",
     "acceptNext": "Sieht richtig aus",
     "acceptFinish": "Sieht richtig aus",
+    "skip": "Überspringen",
+    "skipHint": "Lässt diese Karte für später und zeigt die nächste",
+    "skipped": "Übersprungen. Die nächste Karte wird angezeigt.",
+    "saveAndNext": "Speichern und weiter",
+    "shareLinkFailed": "Für diese Karte konnte kein Link geteilt werden.",
     "reviewProgress": "Prüfe {{index}} von {{total}}",
     "similarMatches": "Ähnliche Übereinstimmungen",
     "similarMatchesHint": "Mehrere ähnliche Treffer. Tippe auf die richtige Version.",
@@ -1389,6 +1448,9 @@
     "layoutOneByOne": "Einzeln",
     "acceptAll_one": "{{count}} Karte bestätigen",
     "acceptAll_other": "Alle {{count}} bestätigen",
+    "acceptAllConfirmTitle_one": "{{count}} Karte bestätigen?",
+    "acceptAllConfirmTitle_other": "Alle {{count}} Karten bestätigen?",
+    "acceptAllConfirmDescription": "Jede angezeigte Karte wird mit ihrem aktuellen Treffer als geprüft markiert. Auch Karten, die du dir nicht angesehen hast, werden bestätigt.",
     "accept": "Stimmt",
     "correct": "Korrigieren",
     "noPhoto": "Kein Scanfoto",
@@ -1450,6 +1512,7 @@
       "foundOf": "{{found}} von {{total}} gefunden",
       "foundAll_one": "{{count}} Kopie gezogen",
       "foundAll_other": "{{count}} Kopien gezogen",
+      "resetFailed": "Der Fortschritt konnte nicht zurückgesetzt werden",
       "reset": "Fortschritt zurücksetzen"
     },
     "fill": {
@@ -1467,6 +1530,8 @@
       "emptyAll": "Alle Fächer leeren",
       "emptyAllTitle": "Alle Fächer leeren?",
       "emptied": "Fach {{number}} als leer markiert",
+      "emptyConfirmDescription_one": "{{count}} Karte wird als entnommen markiert. Ziel: {{target}}.",
+      "emptyConfirmDescription_other": "{{count}} Karten werden als entnommen markiert. Ziel: {{target}}.",
       "emptiedAll": "Alle Fächer als leer markiert",
       "loadFailed": "Die Fachzahlen konnten nicht geladen werden"
     },
@@ -1543,6 +1608,11 @@
     "or": "ODER",
     "noConditions": "Keine Bedingungen",
     "removeCondition": "Bedingung entfernen",
+    "removeGroupTitle": "Diese Gruppe entfernen?",
+    "removeGroupDescription_one": "Ihre {{count}} Bedingung wird ebenfalls entfernt.",
+    "removeGroupDescription_other": "Ihre {{count}} Bedingungen werden ebenfalls entfernt.",
+    "invalidDate": "Gib das Datum als JJJJ-MM-TT ein.",
+    "saveChangesFirst": "Speichere oder verwirf zuerst deine Änderungen",
     "removeGroup": "Gruppe entfernen",
     "valuePlaceholder": "Wert...",
     "freeformPlaceholder": "Werte, durch Komma getrennt...",
@@ -1683,6 +1753,8 @@
       "catchAllBin": "Fach {{number}} (Auffangfach)",
       "confirmTitle": "Regeln nach {{bin}}",
       "confirmDescription": "Beim Kopieren bleiben die Regeln auch in diesem Fach. Beim Verschieben werden sie hier entfernt.",
+      "saveChangesFirst": "Speichere oder verwirf deine Änderungen, um Regeln zu kopieren oder zu verschieben.",
+      "failed": "Die Regeln konnten nicht kopiert oder verschoben werden",
       "replaceWarning": "{{bin}} hat bereits Regeln. Sie werden ersetzt.",
       "copy": "Kopieren",
       "move": "Verschieben"
@@ -1701,6 +1773,8 @@
       "deleteTitle": "Mehrstufige Vorlage löschen",
       "deleteDescription": "\"{{name}}\" löschen? Die verwendeten Vorlagen bleiben erhalten.",
       "addStage": "Stufe hinzufügen",
+      "removeStageTitle": "Diese Stufe entfernen?",
+      "removeStageDescription": "{{name}} wird aus diesem mehrstufigen Preset entfernt. Das Preset selbst bleibt erhalten.",
       "removeStage": "Stufe entfernen",
       "moveUp": "Nach vorne verschieben",
       "moveDown": "Nach hinten verschieben",
@@ -1959,8 +2033,11 @@
       },
       "customHeightUnit": "mm",
       "customHeightHint": "Etwa {{count}} Karten bei {{thickness}} mm pro Karte",
+      "customHeightBlocksSave": "Korrigiere vor dem Speichern die eigene Höhe von Fach {{bins}}",
       "customHeightInvalid": "{{min}} bis {{max}} mm eingeben"
     },
+    "servosSaveFailed": "Die Kalibrierung konnte nicht gespeichert werden",
+    "connectionSaveFailed": "Die Verbindungseinstellungen konnten nicht gespeichert werden",
     "layoutSaveFailed": "Das Layout konnte nicht gespeichert werden",
     "scanRegion": {
       "heading": "Scanbereich",
@@ -2000,6 +2077,7 @@
       "clear": "Frei",
       "unknown": "Nicht gelesen",
       "hopper": "Magazin",
+      "noReply": "Der Sortierer hat nicht geantwortet. Prüfe die Verbindung und versuch es noch einmal.",
       "hopperEmpty": "Zuführbehälter leer",
       "hopperHasCards": "Karten warten"
     },
@@ -2011,6 +2089,7 @@
       "binActive": "Fach {{bin}}…",
       "resetToNeutral": "Grundstellung",
       "binFailed": "Fach {{bin}} wurde nicht angesteuert",
+      "neutralFailed": "Der Sortierer ist nicht auf Neutral zurückgegangen. Prüfe die Verbindung und versuch es noch einmal.",
       "sampleRunStopped": "Testlauf bei Fach {{bin}} gestoppt"
     },
     "scanRegionCalibrationPanel": {}
@@ -2097,6 +2176,8 @@
         "alreadyPicked": "Alle Exemplare von {{name}} auf deiner Pickliste sind bereits herausgesucht."
       },
       "finishFailed": "Die herausgesuchten Karten konnten nicht entfernt werden. Versuche es erneut.",
+      "finishCount_one": "{{count}} herausgesuchte Karte aus ihrem Lagerort entfernen",
+      "finishCount_other": "{{count}} herausgesuchte Karten aus ihren Lagerorten entfernen",
       "notStored": "Nicht gelagert",
       "missingCount_one": "{{count}} Exemplar nicht gelagert",
       "missingCount_other": "{{count}} Exemplare nicht gelagert",
@@ -2134,6 +2215,11 @@
     "shareWithCount_one": "Lagerort teilen ({{count}} aktiv)",
     "shareWithCount_other": "Lagerort teilen ({{count}} aktiv)",
     "searchFailed": "Die Lagerorte konnten nicht durchsucht werden",
+    "loadFailed": "Die Lagerorte konnten nicht geladen werden",
+    "deleteFailed": "Der Lagerort konnte nicht gelöscht werden",
+    "saveFailed": "Der Lagerort konnte nicht gespeichert werden",
+    "nameTaken": "Es gibt bereits einen Lagerort mit diesem Namen.",
+    "noCardsDescription": "Füge eine Karte per Namen hinzu oder scanne Karten direkt in diesen Lagerort.",
     "notFoundTitle": "Lagerort nicht gefunden",
     "notFoundDescription": "Er wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf.",
     "printLabel": "Etikett drucken",
@@ -2373,6 +2459,12 @@
     "percentSuffix": "%",
     "conditionInvalid": "Gib 0 bis 100 ein",
     "discardDescription": "Deine Änderungen an diesen Einstellungen wurden nicht gespeichert.",
+    "secretReveal": {
+      "leaveTitle": "Schließen, ohne es zu sichern?",
+      "leaveDescription": "Es wird nur dieses eine Mal angezeigt. Nach dem Schließen kannst du es nicht mehr sehen.",
+      "keepOpen": "Geöffnet lassen",
+      "close": "Schließen"
+    },
     "org": {
       "renameHeading": "\"{{name}}\" umbenennen",
       "nameLabel": "Name der Organisation",
@@ -2385,10 +2477,13 @@
       "role": "Rolle",
       "pendingInvites": "Ausstehende Einladungen",
       "cancelInvite": "Einladung zurückziehen",
+      "cancelInviteTitle": "Diese Einladung zurückziehen?",
+      "keepInvite": "Einladung behalten",
       "dangerZoneHeading": "Gefahrenzone",
       "deleteWarning": "Löscht \"{{name}}\" und alle zugehörigen Daten dauerhaft.",
       "deleteOrganization": "Organisation löschen",
       "deleteOrgDescription": "Löscht \"{{name}}\" und alle zugehörigen Daten dauerhaft. Dies kann nicht rückgängig gemacht werden.",
+      "deleteConfirmLabel": "Gib zur Bestätigung „{{name}}“ ein",
       "cancelSubscriptionFirst": "Kündige das Abonnement dieser Organisation, bevor du sie löschst. Sobald es zum Ende des Abrechnungszeitraums gekündigt ist, kannst du die Organisation löschen.",
       "removeMemberTitle": "Mitglied entfernen",
       "removeMemberDescription": "\"{{name}}\" aus dieser Organisation entfernen? Der Zugriff geht sofort verloren.",
@@ -2487,6 +2582,9 @@
       "loadFailed": "API-Schlüssel konnten nicht geladen werden.",
       "upgrade": "API-Schlüssel sind nicht in deinem Plan enthalten.",
       "share": "Schlüssel teilen",
+      "copy": "Schlüssel kopieren",
+      "copied": "API-Schlüssel kopiert.",
+      "copyFailed": "Der API-Schlüssel konnte nicht kopiert werden.",
       "cancel": "Abbrechen"
     },
     "webhooks": {
@@ -2517,6 +2615,7 @@
       "empty": "Noch keine Webhooks.",
       "disabled": "Deaktiviert",
       "actions": "Webhook-Aktionen",
+      "manage": "Verwalten",
       "sendTest": "Testereignis senden",
       "edit": "Bearbeiten",
       "enable": "Wieder aktivieren",
@@ -2662,13 +2761,16 @@
         "unlink": "Trennen",
         "unlinkSuccess": "Discord-Server getrennt.",
         "unlinkError": "Discord-Server konnte nicht getrennt werden.",
+        "unlinkConfirmTitle": "Verknüpfung mit diesem Discord-Server aufheben?",
+        "unlinkConfirmDescription": "Mault postet keine Scans, Warnungen und Tauschangebote mehr auf diesem Server, und die Slash-Befehle funktionieren dort nicht mehr. Du kannst später wieder einen Server verknüpfen.",
         "generateButton": "Verknüpfungscode erstellen",
         "generating": "Wird erzeugt...",
         "generateError": "Verknüpfungscode konnte nicht erstellt werden.",
         "codeInstructions": "Führe /link <code> auf deinem Discord-Server aus, um die Verknüpfung abzuschließen.",
         "expiresIn": "Läuft in {{seconds}}s ab"
       },
-      "notificationsHeading": "Scan-Beiträge"
+      "notificationsHeading": "Scan-Beiträge",
+      "refreshFailed": "Die Discord-Einstellungen konnten nicht aktualisiert werden."
     },
     "sounds": {
       "title": "Sounds",
@@ -3042,6 +3144,8 @@
       "resume": "Fortsetzen",
       "stop": "Stoppen",
       "emergencyStop": "Notstopp",
+      "startFailed": "Der Scan konnte nicht gestartet werden",
+      "noCollectionsDescription": "Lege zuerst in der Bibliothek eine Sammlung an und starte den Scan dann hier.",
       "scanFailed": "Der Raspberry Pi konnte das nicht ausführen.",
       "progress_one": "{{count}} Karte in {{collection}} gescannt",
       "progress_other": "{{count}} Karten in {{collection}} gescannt",
@@ -3345,6 +3449,8 @@
     "loadFailed": "Nicht erkannte Karten konnten nicht geladen werden",
     "identifyScan": "Scan vom {{scannedAt}} zuordnen",
     "identifyTitle": "Karte zuordnen",
+    "skip": "Überspringen",
+    "skipHint": "Lässt diesen Scan unzugeordnet und zeigt den nächsten",
     "searchHint": "Suche nach der Karte auf diesem Foto. Wenn du eine auswählst, wird sie der Sammlung hinzugefügt.",
     "notFound": "Dieser Scan ist nicht mehr unerkannt",
     "identifyFailed": "Die Karte konnte nicht hinzugefügt werden",
@@ -4213,10 +4319,13 @@
     "pickList": {
       "started": "Tausch angenommen. Hake die gewünschten Karten ab, während du sie heraussuchst.",
       "acceptHint": "Beim Annehmen bekommst du eine Pickliste. Jede gewünschte Karte wird aus deinem Bestand entfernt, sobald du sie abhakst.",
-      "acceptDescription_one": "Du bekommst eine Pickliste für die {{count}} gewünschte Karte. Sie wird aus deinem Bestand entfernt, sobald du sie abhakst, und ein Haken lässt sich nicht zurücknehmen.",
-      "acceptDescription_other": "Du bekommst eine Pickliste für die {{count}} gewünschten Karten. Jede wird aus deinem Bestand entfernt, sobald du sie abhakst, und ein Haken lässt sich nicht zurücknehmen.",
+      "acceptDescription_one": "Du bekommst eine Pickliste für die {{count}} gewünschte Karte. Sie wird wenige Sekunden nach dem Abhaken aus deinem Bestand entfernt.",
+      "acceptDescription_other": "Du bekommst eine Pickliste für die {{count}} gewünschten Karten. Jede wird wenige Sekunden nach dem Abhaken aus deinem Bestand entfernt.",
       "title": "Pickliste",
-      "hint": "Hake jede Karte ab, wenn du sie herausziehst. Abgehakte Karten werden sofort aus deinem Bestand entfernt.",
+      "hint": "Hake jede Karte ab, wenn du sie herausziehst. Eine abgehakte Karte wird nach wenigen Sekunden aus deinem Bestand entfernt. Tippe sie gleich noch einmal an, um das rückgängig zu machen.",
+      "pickedUndoable": "Gepickt. Zum Rückgängigmachen erneut tippen.",
+      "undoHint": "Entfernt den Haken, bevor die Karte aus deinem Bestand entfernt wird",
+      "pickUndone": "Haken entfernt",
       "progress": "{{picked}} von {{count}} gepickt",
       "picked": "Gepickt und entfernt",
       "pickedSection": "Gepickt",
@@ -4312,6 +4421,22 @@
       "record": "Tausch erfassen",
       "recorded": "Tausch erfasst.",
       "recordFailed": "Der Tausch konnte nicht erfasst werden. Versuche es erneut.",
+      "discardDescription": "Die Karten und Angaben, die du für diesen Tausch eingegeben hast, gehen verloren.",
+      "confirmTitle": "Diesen Tausch erfassen?",
+      "confirmCards": "Karten, die du gibst: {{give}} · Karten, die du bekommst: {{get}}",
+      "confirmCashReceived": "Bargeld, das du bekommst: {{amount}}",
+      "confirmCashGiven": "Bargeld, das du zahlst: {{amount}}",
+      "confirmDescription": "Die Karten, die du gibst, werden aus deinem Bestand entfernt. Das lässt sich nicht rückgängig machen.",
+      "cardLimitReached": "Du kannst auf jeder Seite bis zu {{count}} Karten hinzufügen.",
+      "changeCollectionTitle": "Sammlung wechseln?",
+      "changeCollectionDescription_one": "Die {{count}} Karte, die du bekommst, wird aus der Liste entfernt.",
+      "changeCollectionDescription_other": "Die {{count}} Karten, die du bekommst, werden aus der Liste entfernt.",
+      "changeCollectionConfirm": "Wechseln und leeren",
+      "scanReceived": "Karten scannen",
+      "scanAdded": "{{name}} zu den Karten hinzugefügt, die du bekommst",
+      "scannedCount_one": "{{count}} gescannt",
+      "scannedCount_other": "{{count}} gescannt",
+      "scanHint": "Halte eine Karte, die du bekommst, in den Rahmen und tippe auf den Auslöser, um sie hinzuzufügen.",
       "reviewTitle": "Tausch vor Ort mit {{name}}",
       "recordedOn": "Vor Ort erfasst am {{date}}",
       "youGave_one": "Du hast {{count}} Karte gegeben",
@@ -4389,6 +4514,13 @@
     "searchLinkCards": "Diese Karten durchsuchen",
     "noLinkCards": "Keine Karten gefunden",
     "linkCardsLoadFailed": "Die Karten dieses Links konnten nicht geladen werden",
+    "linkLoadFailed": "Dieser Tauschlink konnte nicht geladen werden",
+    "quantityDecreaseFor": "Anzahl von {{name}} verringern",
+    "quantityIncreaseFor": "Anzahl von {{name}} erhöhen",
+    "quantityOf": "{{name}}: Anzahl {{count}}",
+    "editFinishOf": "{{name}}: {{finish}}",
+    "editFinishHint": "Zustand oder Foil ändern",
+    "editFinishDescription": "Wähle den Zustand und ob die Karte Foil ist.",
     "tapToAdd": "Fügt sie deinem Tauschangebot hinzu",
     "tapToRemove": "Entfernt sie aus deinem Tauschangebot",
     "loadMore": "Mehr laden",
@@ -4499,7 +4631,8 @@
     "loadFailed": "Die Karten konnten nicht geladen werden",
     "loadMore": "Mehr laden",
     "invalid": "Dieser Link funktioniert nicht",
-    "invalidDescription": "Er ist vielleicht abgelaufen oder wurde widerrufen. Bitte den Besitzer um einen neuen."
+    "invalidDescription": "Er ist vielleicht abgelaufen oder wurde widerrufen. Bitte den Besitzer um einen neuen.",
+    "linkLoadFailed": "Dieser Link konnte nicht geladen werden"
   },
   "listRow": {
     "moreActions": "Weitere Aktionen"
@@ -4554,6 +4687,7 @@
     "retry": "Erneut versuchen",
     "restored": "Wiederhergestellt",
     "undoFailed": "Konnte nicht rückgängig gemacht werden",
+    "scannerNotReady": "Der Scanner konnte nicht vorbereitet werden. Prüfe deine Verbindung und versuche es erneut.",
     "cardsRemoved_one": "Karte entfernt",
     "cardsRemoved_other": "{{count}} Karten entfernt",
     "tagAdded": "{{tag}} hinzugefügt",
@@ -4904,6 +5038,9 @@
       "substitute": "Ersatz",
       "reallocate": "Neu zuweisen",
       "reallocated": "Pick neu zugewiesen",
+      "reallocateTitle": "Diesen Pick neu zuweisen?",
+      "reallocateDescription": "Die vorrätigen Karten werden diesem Pick erneut zugeordnet. Nutze das, nachdem du Bestand hinzugefügt hast, damit fehlende Karten gefüllt werden.",
+      "reallocateHint": "Vorrätige Karten diesem Pick erneut zuordnen",
       "cancel": "Pick abbrechen",
       "cancelTitle": "Diesen Pick abbrechen?",
       "cancelDescription": "Die Karten bleiben im Bestand und stehen anderen Picks zur Verfügung.",
@@ -5056,6 +5193,9 @@
       "noStorageLocation": "Kein Lagerort",
       "finish": "Wareneingang abschließen",
       "finishTitle": "Wareneingang abschließen",
+      "loadFailed": "Dieser Wareneingang konnte nicht geladen werden",
+      "notOpenTitle": "Dieser Wareneingang ist bereits geschlossen",
+      "notOpenDescription": "Er wurde abgeschlossen oder storniert, deshalb gibt es hier nichts mehr abzuschließen.",
       "finishDescription_one": "{{count}} Karte von {{name}} in deinen Bestand übernehmen.",
       "finishDescription_other": "{{count}} Karten von {{name}} in deinen Bestand übernehmen.",
       "finishDescriptionOpened_one": "{{count}} Karte aus {{name}} in deinen Bestand aufnehmen.",
@@ -5123,6 +5263,7 @@
   },
   "machines": {
     "title": "Maschinen",
+    "raspberryPis": "Raspberry Pis",
     "chooseMachine": "Maschine wählen",
     "machinePicker": "{{name}}, andere Maschine wählen",
     "empty": {

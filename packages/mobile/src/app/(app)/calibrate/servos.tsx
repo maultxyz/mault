@@ -1,6 +1,7 @@
 import { router, useNavigation, usePreventRemove } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Alert, ScrollView, View } from "react-native";
+import { isFirmwareFeatureSupported } from "@magic-vault/shared";
+import { AccessibilityInfo, Alert, ScrollView, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -25,6 +26,11 @@ export default function CalibrateScreen() {
   const sorter = useSorter();
   const state = useCalibration();
   const retract = useRetractCard();
+  const canEmergencyStop = isFirmwareFeatureSupported(sorter.firmwareVersion, "emergencyStop");
+  const stopSorter = () => {
+    AccessibilityInfo.announceForAccessibility(t("scan.pause.emergency-stop.title"));
+    void sorter.sendEmergencyStop();
+  };
 
   usePreventRemove(state.isDirty && !state.isSaving, ({ data }) => {
     Alert.alert(t("common.discardTitle"), t("calibration.discardDescription"), [
@@ -57,9 +63,36 @@ export default function CalibrateScreen() {
             action={<Button size="sm" variant="secondary" label={t("scan.openSorter")} onPress={() => router.push("/sorter")} />}
           />
         ) : null}
-        {state.saveError ? <Callout tone="destructive" title={t("calibration.saveFailed")} /> : null}
 
         <View style={{ gap: SPACING.sm }}>
+          {sorter.phase === "testing" && canEmergencyStop ? (
+            <Button
+              size="lg"
+              variant="destructive"
+              icon="handStop"
+              label={t("scan.emergencyStop")}
+              accessibilityHint={t("scan.emergencyStopHint")}
+              onPress={stopSorter}
+            />
+          ) : null}
+          {(sorter.error?.code === "emergency-stopped" || sorter.error?.code === "emergency-stop-reset-failed") &&
+          sorter.isConnected ? (
+            <Callout
+              tone="destructive"
+              title={t(`sorter.errors.${sorter.error.code}.title`)}
+              description={t(`sorter.errors.${sorter.error.code}.description`)}
+              action={
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  icon="refresh"
+                  label={t("sorter.resetEmergencyStop")}
+                  loading={sorter.resettingEmergencyStop}
+                  onPress={() => void sorter.resetEmergencyStop()}
+                />
+              }
+            />
+          ) : null}
           <View style={{ flexDirection: "row", gap: SPACING.sm }}>
             <Button
               style={{ flex: 1 }}
@@ -144,6 +177,7 @@ export default function CalibrateScreen() {
         saving={state.isSaving}
         onSave={() => void state.save()}
         onDiscard={state.discard}
+        errorMessage={state.saveError ? t("calibration.servosSaveFailed") : undefined}
       />
     </View>
   );

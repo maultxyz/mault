@@ -128,12 +128,14 @@ export interface BinSlotProps {
   height: number | undefined;
   onBinChange: (binNumber: number) => void;
   onHeightChange: (binNumber: number, height: number) => void;
+  onHeightValidityChange: (binNumber: number, isValid: boolean) => void;
 }
 
 export interface BinSizePickerProps {
   binNumber: number;
   height: number | undefined;
   onChange: (binNumber: number, height: number) => void;
+  onValidityChange: (binNumber: number, isValid: boolean) => void;
 }
 
 export interface ScanRegionEditorProps {
@@ -202,6 +204,8 @@ export interface DeviceTogglesDraft {
   discard: () => void;
 }
 
+export type CalibrationEmergencyStopDetail = "stopped" | "unconfirmed" | "resetFailed";
+
 export interface TestControls {
   modules: number[];
   binCount: number;
@@ -212,6 +216,12 @@ export interface TestControls {
   activeBin: number | null;
   isSampleRunning: boolean;
   routeError: string | null;
+  irError: string | null;
+  canEmergencyStop: boolean;
+  emergencyStopDetail: CalibrationEmergencyStopDetail | null;
+  isResettingEmergencyStop: boolean;
+  emergencyStop: () => Promise<void>;
+  resetAfterEmergencyStop: () => Promise<void>;
   readIr: () => Promise<void>;
   toggleIrMonitor: () => void;
   testBin: (bin: number) => Promise<void>;

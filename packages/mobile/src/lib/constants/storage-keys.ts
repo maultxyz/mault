@@ -24,3 +24,4 @@ export const SCAN_SETTINGS_KEY_PREFIX = "mault.scan-settings.";
 export const MATCH_VALIDATION_GUIDE_SEEN_KEY = "mault.match-validation-guide-seen";
 export const TORCH_STRENGTH_PERCENT_KEY = "mault.torch-strength-percent";
 export const TRADE_GUEST_KEY = "mault.trade-guest-key";
+export const RASPBERRY_PI_SCAN_START_VALUES_KEY_PREFIX = "mault.raspberry-pi-scan-start.";

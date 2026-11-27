@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -29,6 +29,7 @@ import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
 import { RuleFormSkeleton } from "@/features/rules/components/rule-form-skeleton";
 import { createGroup } from "@/features/rules/lib/rules";
+import { useDiscardChangesGuard } from "@/features/settings/lib/use-leave-guard";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SPACING } from "@/lib/constants/theme";
@@ -77,6 +78,7 @@ export default function NotificationRuleScreen() {
   };
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["notification-rules", orgId] });
+  const { leaveWithoutGuard } = useDiscardChangesGuard(form.formState.isDirty);
 
   const save = useMutation({
     mutationFn: (draft: NotificationRuleFormValues) => {
@@ -86,18 +88,18 @@ export default function NotificationRuleScreen() {
     onSuccess: async (_, draft) => {
       form.reset(draft);
       await invalidate();
-      router.back();
+      leaveWithoutGuard();
     },
-    onError: (err: Error) => setError(err.message || t("settings.discord.ruleDialog.saveFailed")),
+    onError: () => setError(t("settings.discord.ruleDialog.saveFailed")),
   });
   const remove = useMutation({
     mutationFn: () => deleteNotificationRule(existing?.guid ?? ""),
     onSuccess: async () => {
       form.reset(values);
       await invalidate();
-      router.back();
+      leaveWithoutGuard();
     },
-    onError: (err: Error) => setError(err.message || t("settings.discord.rules.saveFailed")),
+    onError: () => setError(t("settings.discord.rules.saveFailed")),
   });
 
   const submit = form.handleSubmit(

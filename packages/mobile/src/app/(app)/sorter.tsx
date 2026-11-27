@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { router } from "expo-router";
-import { useState } from "react";
+import { isFirmwareFeatureSupported } from "@magic-vault/shared";
+import { router, useIsFocused } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
+import { AccessibilityInfo, Alert, Linking, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -23,8 +24,11 @@ import { useRetractCard } from "@/features/sorter/api/use-retract-card";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useWifiSorters } from "@/features/sorter/api/use-wifi-sorters";
 import { CommLog } from "@/features/sorter/components/comm-log";
+import { signalStrengthOf } from "@/features/sorter/lib/signal-strength";
 import { BUSY_PHASES, PHASE_TONES } from "@/lib/constants/sorter";
 import { SPACING } from "@/lib/constants/theme";
+import { MIN_TOUCH_TARGET } from "@/lib/constants/ui";
+import type { ManualSorterCommand } from "@/lib/interfaces/sorter";
 
 export default function SorterScreen() {
   const { t } = useTranslation();
@@ -46,6 +50,54 @@ export default function SorterScreen() {
     onError: () => showToast({ message: t("sorter.saved.deleteFailed"), tone: "destructive" }),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ["devices"] }),
   });
+  const isFocused = useIsFocused();
+  const hasStartedDiscoveryRef = useRef(false);
+  const [hasSearchedForSorters, setHasSearchedForSorters] = useState(false);
+  const { phase: sorterPhase, error: sorterError, startDiscovery } = sorter;
+  useEffect(() => {
+    if (sorterPhase === "scanning") setHasSearchedForSorters(true);
+  }, [sorterPhase]);
+  useEffect(() => {
+    if (!isFocused) {
+      hasStartedDiscoveryRef.current = false;
+      return;
+    }
+    if (hasStartedDiscoveryRef.current || connected || sorterPhase !== "idle" || sorterError) return;
+    hasStartedDiscoveryRef.current = true;
+    startDiscovery();
+  }, [isFocused, connected, sorterPhase, sorterError, startDiscovery]);
+  const canEmergencyStop = isFirmwareFeatureSupported(sorter.firmwareVersion, "emergencyStop");
+  const stopSelfTest = () => {
+    AccessibilityInfo.announceForAccessibility(t("scan.pause.emergency-stop.title"));
+    void sorter.sendEmergencyStop();
+  };
+  const needsSetup = connected && !!sorter.device && !sorter.device.setupCompletedAt;
+  const [isCompletingSetup, setIsCompletingSetup] = useState(false);
+  const [setupCompletionFailed, setSetupCompletionFailed] = useState(false);
+  const completeSetup = async () => {
+    setIsCompletingSetup(true);
+    setSetupCompletionFailed(false);
+    try {
+      setSetupCompletionFailed(!(await sorter.completeSetup()));
+    } finally {
+      setIsCompletingSetup(false);
+    }
+  };
+  const [runningManualCommand, setRunningManualCommand] = useState<ManualSorterCommand | null>(null);
+  const runManualCommand = async (command: ManualSorterCommand) => {
+    setRunningManualCommand(command);
+    try {
+      const succeeded = command === "neutral" ? await sorter.sendNeutral() : await sorter.dropCard();
+      showToast({
+        message: succeeded ? t(`sorter.manual.${command}Done`) : t("sorter.manual.noResponse"),
+        tone: succeeded ? "success" : "destructive",
+      });
+    } finally {
+      setRunningManualCommand(null);
+    }
+  };
+  const signalLabel = (rssi: number | null | undefined) =>
+    rssi != null ? t(`sorter.signalStrength.${signalStrengthOf(rssi)}`) : undefined;
   const confirmRemoveSorter = (guid: string, name: string) =>
     Alert.alert(t("sorter.saved.deleteTitle", { name }), t("sorter.saved.deleteDescription"), [
       { text: t("common.cancel"), style: "cancel" },
@@ -75,7 +127,7 @@ export default function SorterScreen() {
       </View>
       {!connected && !sorter.error ? <AppText tone="secondary">{t("sorter.connectHint")}</AppText> : null}
 
-      {sorter.error ? (
+      {sorter.error && !(sorter.error.code === "setup-incomplete" && needsSetup) ? (
         <Callout
           tone="destructive"
           title={t(`sorter.errors.${sorter.error.code}.title`)}
@@ -86,6 +138,34 @@ export default function SorterScreen() {
                   module: sorter.error.module,
                   detail: sorter.error.detail ?? "",
                 })
+          }
+          action={
+            sorter.error.code === "bluetooth-unauthorized" ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                label={t("common.openSettings")}
+                onPress={() => void Linking.openSettings()}
+              />
+            ) : undefined
+          }
+        />
+      ) : null}
+      {needsSetup ? (
+        <Callout
+          tone="warning"
+          title={t("sorter.setup.title")}
+          description={setupCompletionFailed ? t("sorter.setup.failed") : t("sorter.setup.description")}
+          action={
+            <Button
+              size="sm"
+              variant="secondary"
+              icon="check"
+              label={t("sorter.setup.finish")}
+              loading={isCompletingSetup}
+              disabled={busy}
+              onPress={() => void completeSetup()}
+            />
           }
         />
       ) : null}
@@ -131,13 +211,24 @@ export default function SorterScreen() {
 
       {connected ? (
         <>
-          <Button
-            size="lg"
-            icon="selfTest"
-            label={t("sorter.runSelfTest")}
-            disabled={busy}
-            onPress={() => void sorter.runSelfTest()}
-          />
+          {sorter.phase === "testing" && canEmergencyStop ? (
+            <Button
+              size="lg"
+              variant="destructive"
+              icon="handStop"
+              label={t("scan.emergencyStop")}
+              accessibilityHint={t("scan.emergencyStopHint")}
+              onPress={stopSelfTest}
+            />
+          ) : (
+            <Button
+              size="lg"
+              icon="selfTest"
+              label={t("sorter.runSelfTest")}
+              disabled={busy}
+              onPress={() => void sorter.runSelfTest()}
+            />
+          )}
           <ListGroup>
             <ListRow
               icon="sorter"
@@ -162,14 +253,14 @@ export default function SorterScreen() {
             <ListRow
               icon="refresh"
               title={t("sorter.neutral")}
-              disabled={!sorter.isReady}
-              onPress={() => void sorter.sendNeutral()}
+              disabled={!sorter.isReady || runningManualCommand !== null}
+              onPress={() => void runManualCommand("neutral")}
             />
             <ListRow
               icon="arrowDown"
               title={t("sorter.dropCard")}
-              disabled={!sorter.isReady}
-              onPress={() => void sorter.clearDevice()}
+              disabled={!sorter.isReady || runningManualCommand !== null}
+              onPress={() => void runManualCommand("drop")}
             />
             <ListRow
               icon="arrowUp"
@@ -203,7 +294,7 @@ export default function SorterScreen() {
                       key={recent.id}
                       icon="sorter"
                       title={recent.name}
-                      subtitle={nearby?.rssi != null ? t("sorter.signal", { rssi: nearby.rssi }) : undefined}
+                      subtitle={signalLabel(nearby?.rssi)}
                       disabled={busy && sorter.phase !== "scanning"}
                       onPress={() => void sorter.connect(recent.id)}
                     />
@@ -218,7 +309,13 @@ export default function SorterScreen() {
               {nearbySorters.length === 0 ? (
                 <EmptyState
                   icon="bluetooth"
-                  title={sorter.phase === "scanning" ? t("sorter.searching") : t("sorter.noneFound")}
+                  title={
+                    sorter.phase === "scanning"
+                      ? t("sorter.searching")
+                      : hasSearchedForSorters
+                        ? t("sorter.noneFound")
+                        : t("sorter.notSearchedYet")
+                  }
                   description={t("sorter.bluetoothOnly")}
                 />
               ) : (
@@ -228,7 +325,7 @@ export default function SorterScreen() {
                       key={found.id}
                       icon="sorter"
                       title={found.name ?? t("sorter.unnamed")}
-                      subtitle={found.rssi != null ? t("sorter.signal", { rssi: found.rssi }) : undefined}
+                      subtitle={signalLabel(found.rssi)}
                       onPress={() => void sorter.connect(found.id)}
                     />
                   ))}
@@ -245,16 +342,23 @@ export default function SorterScreen() {
                     key={saved.guid}
                     icon="sorter"
                     title={saved.name}
-                    subtitle={t("sorter.saved.renameHint")}
-                    onPress={() => router.push({ pathname: "/sorter-name", params: { guid: saved.guid } })}
                     rightIsInteractive
                     right={
-                      <IconButton
-                        icon="trash"
-                        accessibilityLabel={t("sorter.saved.deleteTitle", { name: saved.name })}
-                        disabled={removeSorter.isPending}
-                        onPress={() => confirmRemoveSorter(saved.guid, saved.name)}
-                      />
+                      <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+                        <IconButton
+                          icon="edit"
+                          size={MIN_TOUCH_TARGET}
+                          accessibilityLabel={t("sorter.saved.rename", { name: saved.name })}
+                          onPress={() => router.push({ pathname: "/sorter-name", params: { guid: saved.guid } })}
+                        />
+                        <IconButton
+                          icon="trash"
+                          size={MIN_TOUCH_TARGET}
+                          accessibilityLabel={t("sorter.saved.deleteTitle", { name: saved.name })}
+                          disabled={removeSorter.isPending}
+                          onPress={() => confirmRemoveSorter(saved.guid, saved.name)}
+                        />
+                      </View>
                     }
                   />
                 ))}

@@ -12,6 +12,7 @@ import {
 } from "@magic-vault/shared";
 import { infiniteQueryOptions, keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { tradeGuestKey } from "@/features/trade-offers/lib/guest-key";
+import { TradeLinkUnavailableError } from "@/features/trade-offers/lib/link-errors";
 import { getAccessToken } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/config";
 import {
@@ -35,12 +36,20 @@ async function readResult<T>(response: Response): Promise<T> {
   return result.data;
 }
 
+async function readLinkInfo<T>(response: Response): Promise<T> {
+  const isRetryableStatus = response.status >= 500 || response.status === 429;
+  const result = (await response.json().catch(() => null)) as Result<T> | null;
+  if (isRetryableStatus || (!result && response.ok)) throw new Error("Request failed.");
+  if (!result?.success || result.data === undefined) throw new TradeLinkUnavailableError();
+  return result.data;
+}
+
 export const tradeLinkInfoQueryOptions = (link: TradeLinkRef) =>
   queryOptions({
     queryKey: [TRADE_LINK_INFO_QUERY_KEY, link.kind, link.guid, link.token] as const,
     queryFn: async (): Promise<TradeLinkInfo> => {
       if (link.kind === "collection") {
-        const info = await readResult<MonitorLinkInfo>(await fetch(publicUrl(link, "")));
+        const info = await readLinkInfo<MonitorLinkInfo>(await fetch(publicUrl(link, "")));
         return {
           name: info.collectionName,
           purpose: info.purpose,
@@ -50,7 +59,7 @@ export const tradeLinkInfoQueryOptions = (link: TradeLinkRef) =>
           requiresGuestContact: info.requiresGuestContact !== false,
         };
       }
-      const info = await readResult<StorageShareLinkInfo>(await fetch(publicUrl(link, "")));
+      const info = await readLinkInfo<StorageShareLinkInfo>(await fetch(publicUrl(link, "")));
       return {
         name: info.locationName,
         purpose: info.purpose,

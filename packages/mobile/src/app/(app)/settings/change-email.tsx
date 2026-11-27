@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, View } from "react-native";
@@ -13,6 +14,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { TextField } from "@/components/ui/text-field";
 import { changeEmail } from "@/features/account/api/account";
+import { useDiscardChangesGuard } from "@/features/settings/lib/use-leave-guard";
 import { useTheme } from "@/hooks/use-theme";
 import { useSession } from "@/lib/auth/session";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -22,9 +24,14 @@ export default function ChangeEmailScreen() {
   const colors = useTheme();
   const { user } = useSession();
   const form = useForm<ChangeEmailFormValues>({ resolver: zodResolver(changeEmailFormSchema), defaultValues: { newEmail: "" } });
+  const [hasSentConfirmation, setHasSentConfirmation] = useState(false);
+  useDiscardChangesGuard(form.formState.isDirty && !hasSentConfirmation);
   const emailChange = useMutation({
     mutationFn: ({ newEmail }: ChangeEmailFormValues) => changeEmail(newEmail.trim()),
-    onSuccess: () => AccessibilityInfo.announceForAccessibility(t("account.profile.email.confirmationSent")),
+    onSuccess: () => {
+      setHasSentConfirmation(true);
+      AccessibilityInfo.announceForAccessibility(t("account.profile.email.confirmationSent"));
+    },
   });
 
   const submit = form.handleSubmit((values) => {
@@ -59,7 +66,7 @@ export default function ChangeEmailScreen() {
         }
       >
         {emailChange.isError ? (
-          <Callout tone="destructive" title={emailChange.error.message || t("account.profile.email.updateFailed")} />
+          <Callout tone="destructive" title={t("account.profile.email.updateFailed")} />
         ) : null}
         <ListGroup>
           <ListRow title={t("account.profile.email.heading")} value={user?.email ?? ""} />
@@ -78,6 +85,7 @@ export default function ChangeEmailScreen() {
               textContentType="emailAddress"
               keyboardType="email-address"
               autoCapitalize="none"
+              autoCorrect={false}
               returnKeyType="done"
               onSubmitEditing={() => void submit()}
               error={fieldState.error ? (translateFormErrorMessage(t, fieldState.error.message) ?? t("account.profile.email.updateFailed")) : undefined}

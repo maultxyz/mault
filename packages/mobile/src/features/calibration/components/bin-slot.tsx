@@ -9,7 +9,15 @@ import { useTheme } from "@/hooks/use-theme";
 import { SPACING } from "@/lib/constants/theme";
 import type { BinSlotProps } from "@/lib/interfaces/calibration";
 
-export function BinSlot({ label, binNumber, binCount, height, onBinChange, onHeightChange }: BinSlotProps) {
+export function BinSlot({
+  label,
+  binNumber,
+  binCount,
+  height,
+  onBinChange,
+  onHeightChange,
+  onHeightValidityChange,
+}: BinSlotProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const [open, setOpen] = useState(false);
@@ -28,7 +36,13 @@ export function BinSlot({ label, binNumber, binCount, height, onBinChange, onHei
         placeholder={t("rules.selectPlaceholder")}
         onPress={() => setOpen(true)}
       />
-      {binNumber != null ? <BinSizePicker key={binNumber} binNumber={binNumber} height={height} onChange={onHeightChange} /> : null}
+      {binNumber != null ? <BinSizePicker
+          key={binNumber}
+          binNumber={binNumber}
+          height={height}
+          onChange={onHeightChange}
+          onValidityChange={onHeightValidityChange}
+        /> : null}
       <OptionSheet
         visible={open}
         title={label}

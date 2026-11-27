@@ -229,7 +229,7 @@ export default function SoundsSettingsScreen() {
 
   return (
     <SettingsPage
-      title={t("settings.sounds.title")}
+      title={t("settings.sections.sounds.title")}
       isLoading={clips.isLoading || rulesQuery.isLoading}
       isLoadError={isLoadError}
       isRetryingLoad={clips.isFetching || rulesQuery.isFetching}

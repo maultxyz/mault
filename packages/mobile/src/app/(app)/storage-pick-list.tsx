@@ -99,6 +99,15 @@ export default function StoragePickListScreen() {
               disabled={pickList.cards.length === pickList.pickedCount}
               onPress={() => router.push("/storage-card-scan")}
             />
+            {pickList.pickedCount > 0 ? (
+              <Button
+                variant={pickList.cards.length === pickList.pickedCount ? "primary" : "secondary"}
+                icon="check"
+                label={t("storage.pickList.finishCount", { count: pickList.pickedCount })}
+                loading={pickList.isFinishing}
+                onPress={confirmFinish}
+              />
+            ) : null}
             {pickList.cards.length > 0 ? (
               <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
                 <AppText size="xs" tone="secondary">
@@ -110,8 +119,30 @@ export default function StoragePickListScreen() {
                 />
               </View>
             ) : null}
-            {pickList.finishFailed ? <Callout tone="destructive" title={t("storage.pickList.finishFailed")} /> : null}
-            {pickList.isError ? <Callout tone="destructive" title={t("storage.pickList.loadFailed")} /> : null}
+            {pickList.finishFailed ? (
+              <Callout
+                tone="destructive"
+                title={t("storage.pickList.finishFailed")}
+                action={
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    label={t("recovery.retry")}
+                    loading={pickList.isFinishing}
+                    onPress={pickList.finish}
+                  />
+                }
+              />
+            ) : null}
+            {pickList.isError ? (
+              <Callout
+                tone="destructive"
+                title={t("storage.pickList.loadFailed")}
+                action={
+                  <Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void pickList.refetch()} />
+                }
+              />
+            ) : null}
           </View>
         }
         ListEmptyComponent={
@@ -119,7 +150,7 @@ export default function StoragePickListScreen() {
             <View style={{ paddingHorizontal: SPACING.sm }}>
               <ListSkeleton rows={5} leading="thumbnail" hasSubtitle hasTrailing={false} />
             </View>
-          ) : (
+          ) : pickList.isError ? undefined : (
             <EmptyState
               icon="storage"
               title={t("storage.pickList.emptyTitle")}

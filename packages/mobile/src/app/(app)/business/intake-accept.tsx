@@ -17,8 +17,10 @@ import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Surface } from "@/components/ui/surface";
 import { TextField } from "@/components/ui/text-field";
@@ -38,7 +40,8 @@ export default function FinishBuyScreen() {
   const orgId = useActiveOrgId();
   const { format } = usePricing();
   const { refresh, announce } = useBusinessAction();
-  const lot = useQuery(intakeLotQueryOptions(guid)).data;
+  const lotQuery = useQuery(intakeLotQueryOptions(guid));
+  const lot = lotQuery.data;
   const settings = useQuery(businessSettingsQueryOptions(orgId)).data?.settings;
   const buylist = settings?.buylist ?? DEFAULT_BUYLIST_CONFIG;
   const [totalText, setTotalText] = useState("");
@@ -117,6 +120,23 @@ export default function FinishBuyScreen() {
           />
         }
       >
+        {lotQuery.isPending ? (
+          <FormSkeleton fields={2} />
+        ) : !lot ? (
+          <QueryErrorState
+            title={t("business.buy.loadFailed")}
+            onRetry={() => void lotQuery.refetch()}
+            isRetrying={lotQuery.isFetching}
+          />
+        ) : (
+          <>
+        {lot.status !== "open" ? (
+          <Callout
+            tone="warning"
+            title={t("business.buy.notOpenTitle")}
+            description={t("business.buy.notOpenDescription")}
+          />
+        ) : null}
         {finish.isError ? (
           <Callout
             tone="destructive"
@@ -189,6 +209,8 @@ export default function FinishBuyScreen() {
         {destination ? (
           <Callout tone="info" title={t("business.buy.finishDestinationTitle")} description={destination} />
         ) : null}
+          </>
+        )}
       </PinnedActionsLayout>
     </View>
   );

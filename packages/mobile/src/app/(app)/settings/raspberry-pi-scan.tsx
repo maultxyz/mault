@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -15,13 +14,21 @@ import {
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
+import { Callout } from "@/components/ui/callout";
+import { EmptyState } from "@/components/ui/empty-state";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
-import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { useScanTarget } from "@/features/collections/api/use-scan-target";
+import {
+  readLastRaspberryPiScanStartValues,
+  saveLastRaspberryPiScanStartValues,
+} from "@/features/raspberry-pis/lib/last-scan-start-values";
 import { useRaspberryPiScan, useRaspberryPis } from "@/features/raspberry-pis/api/use-raspberry-pis";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
@@ -35,21 +42,34 @@ export default function StartRaspberryPiScanScreen() {
   const { guid = "" } = useLocalSearchParams<{ guid?: string }>();
   const { query } = useRaspberryPis();
   const host = query.data?.hosts.find((candidate) => candidate.guid === guid);
-  const { data: collections = [] } = useQuery(collectionsQueryOptions(useActiveOrgId()));
-  const scan = useRaspberryPiScan(guid);
+  const orgId = useActiveOrgId();
+  const { collection: scanTargetCollection, collections, collectionsQuery } = useScanTarget();
+  const scan = useRaspberryPiScan(guid, { reportsErrorsInline: true });
   const [openPicker, setOpenPicker] = useState<RaspberryPiStartPicker>(null);
-  const form = useForm<PiHostScanStartFormValues>({
-    resolver: zodResolver(piHostScanStartFormSchema),
-    values: {
-      collectionGuid: collections[0]?.guid ?? "",
+  const [lastStartValues] = useState(() => readLastRaspberryPiScanStartValues(orgId));
+  const defaultCollectionGuid =
+    collections.find((collection) => collection.guid === lastStartValues?.collectionGuid)?.guid ??
+    scanTargetCollection?.guid ??
+    "";
+  const formValues = useMemo<PiHostScanStartFormValues>(
+    () => ({
       condition: DEFAULT_CARD_CONDITION,
       foilType: "",
       preferredSetCodes: "",
       autoFeed: true,
       allowDuplicates: true,
-    },
+      ...lastStartValues,
+      collectionGuid: defaultCollectionGuid,
+    }),
+    [lastStartValues, defaultCollectionGuid],
+  );
+  const form = useForm<PiHostScanStartFormValues>({
+    resolver: zodResolver(piHostScanStartFormSchema),
+    values: formValues,
     resetOptions: { keepDirtyValues: true },
   });
+  const hasNoCollections = collectionsQuery.isSuccess && collections.length === 0;
+  const canShowForm = collections.length > 0;
   const collectionGuid = useWatch({ control: form.control, name: "collectionGuid" });
   const foilTypes = collections.find((collection) => collection.guid === collectionGuid)?.game?.foilTypes ?? [];
   const collectionName = (value: string) => collections.find((collection) => collection.guid === value)?.name;
@@ -62,17 +82,40 @@ export default function StartRaspberryPiScanScreen() {
       />
       <PinnedActionsLayout
         actions={
-          <Button
-            size="lg"
-            icon="play"
-            label={t("settings.raspberryPis.start")}
-            loading={scan.isPending}
-            onPress={form.handleSubmit((values) =>
-              scan.mutate({ kind: "start", body: piHostScanStartBody(values) }, { onSuccess: () => router.back() }),
-            )}
-          />
+          canShowForm ? (
+            <Button
+              size="lg"
+              icon="play"
+              label={t("settings.raspberryPis.start")}
+              loading={scan.isPending}
+              onPress={form.handleSubmit((values) => {
+                saveLastRaspberryPiScanStartValues(orgId, values);
+                scan.mutate({ kind: "start", body: piHostScanStartBody(values) }, { onSuccess: () => router.back() });
+              })}
+            />
+          ) : null
         }
       >
+        {scan.isError ? (
+          <Callout tone="destructive" title={t("settings.raspberryPis.startFailed")} description={scan.error.message} />
+        ) : null}
+        {collectionsQuery.isPending ? <FormSkeleton fields={4} /> : null}
+        {collectionsQuery.isError && collections.length === 0 ? (
+          <QueryErrorState
+            title={t("collections.loadFailed")}
+            onRetry={() => void collectionsQuery.refetch()}
+            isRetrying={collectionsQuery.isFetching}
+          />
+        ) : null}
+        {hasNoCollections ? (
+          <EmptyState
+            icon="collections"
+            title={t("collections.emptyTitle")}
+            description={t("settings.raspberryPis.noCollectionsDescription")}
+          />
+        ) : null}
+        {canShowForm ? (
+          <>
         <Controller
           control={form.control}
           name="collectionGuid"
@@ -207,6 +250,8 @@ export default function StartRaspberryPiScanScreen() {
             />
           )}
         />
+          </>
+        ) : null}
       </PinnedActionsLayout>
     </View>
   );

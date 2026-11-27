@@ -13,7 +13,10 @@ import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import { useToast } from "@/components/ui/toast-provider";
 import { changePassword } from "@/features/account/api/account";
+import { useDiscardChangesGuard } from "@/features/settings/lib/use-leave-guard";
 import { useTheme } from "@/hooks/use-theme";
+import { NeonAuthRequestError } from "@/lib/auth/neon-auth-request-error";
+import { NEON_INVALID_PASSWORD_ERROR_CODE } from "@/lib/constants/auth";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function ChangePasswordScreen() {
@@ -25,13 +28,16 @@ export default function ChangePasswordScreen() {
     resolver: zodResolver(changePasswordFormSchema),
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "", revokeOtherSessions: false },
   });
+  const { leaveWithoutGuard } = useDiscardChangesGuard(form.formState.isDirty);
   const passwordChange = useMutation({
     mutationFn: (values: ChangePasswordFormValues) =>
       changePassword(values.currentPassword, values.newPassword, values.revokeOtherSessions),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["auth-sessions"] });
-      router.back();
-      showToast({ message: t("account.profile.password.updated"), tone: "success" });
+      leaveWithoutGuard(() => {
+        router.back();
+        showToast({ message: t("account.profile.password.updated"), tone: "success" });
+      });
     },
   });
 
@@ -73,7 +79,15 @@ export default function ChangePasswordScreen() {
         }
       >
         {passwordChange.isError ? (
-          <Callout tone="destructive" title={passwordChange.error.message || t("account.profile.password.updateFailed")} />
+          <Callout
+            tone="destructive"
+            title={
+              passwordChange.error instanceof NeonAuthRequestError &&
+              passwordChange.error.code === NEON_INVALID_PASSWORD_ERROR_CODE
+                ? t("account.profile.password.currentIncorrect")
+                : t("account.profile.password.updateFailed")
+            }
+          />
         ) : null}
         {passwordField("currentPassword", t("account.profile.password.currentLabel"), false)}
         {passwordField("newPassword", t("account.profile.password.newLabel"), true)}

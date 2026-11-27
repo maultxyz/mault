@@ -130,6 +130,7 @@ import {
   CARD_CONDITIONS,
   CARD_TAGS,
   computeBinCount,
+  EMPTY_CARD_FILTERS,
   UNMATCHED_PREVIEW_COUNT,
   type CardGridTile,
   deviceTimeZone,
@@ -1245,6 +1246,13 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
               >
                 <IconDownload />
                 {t("cardFilterPopover.showDownloadedCards")}
+              </Button>
+            ) : activeFilterCount > 0 ? (
+              <Button
+                variant="outline"
+                onClick={() => setFilters(EMPTY_CARD_FILTERS)}
+              >
+                {t("cardFilterPopover.resetFilters")}
               </Button>
             ) : undefined
           }

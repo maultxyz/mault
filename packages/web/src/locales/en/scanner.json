@@ -939,6 +939,11 @@
   },
   "mobileScan": {
     "chooseCollection": "Choose a collection",
+    "noCollectionsTitle": "No collections yet",
+    "noCollectionsDescription": "Create a collection to scan cards into.",
+    "result": {
+      "checkMatch": "Check this match"
+    },
     "scanningInto": "Scanning into {{name}}",
     "collection": "Collection",
     "options": "Scan options",

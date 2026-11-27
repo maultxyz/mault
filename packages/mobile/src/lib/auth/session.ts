@@ -19,6 +19,7 @@ import type {
   CachedSessionProfile,
   SessionSnapshot,
   SessionUser,
+  SignedOutReason,
   SignInResult,
   UserOrganization,
 } from "@/lib/interfaces/auth";
@@ -38,6 +39,7 @@ let snapshot: SessionSnapshot = {
   user: null,
   organizations: [],
   activeOrgId: readKv(ACTIVE_ORG_KEY),
+  signedOutReason: null,
 };
 let sessionToken: string | null = null;
 let cachedJwt: CachedJwt | null = null;
@@ -176,7 +178,13 @@ async function loadProfile(): Promise<boolean> {
 function applySignedInProfile(profile: CachedSessionProfile): void {
   const activeOrgId = pickActiveOrg(profile.organizations);
   writeKv(ACTIVE_ORG_KEY, activeOrgId);
-  setSnapshot({ status: "signed-in", user: profile.user, organizations: profile.organizations, activeOrgId });
+  setSnapshot({
+    status: "signed-in",
+    user: profile.user,
+    organizations: profile.organizations,
+    activeOrgId,
+    signedOutReason: null,
+  });
 }
 
 function readCachedSessionProfile(): CachedSessionProfile | null {
@@ -184,7 +192,7 @@ function readCachedSessionProfile(): CachedSessionProfile | null {
   return profile?.user?.id && Array.isArray(profile.organizations) ? profile : null;
 }
 
-function clearLocalSession(): void {
+function clearLocalSession(signedOutReason: SignedOutReason | null = null): void {
   sessionToken = null;
   cachedJwt = null;
   isCachedJwtFromStorage = false;
@@ -193,7 +201,7 @@ function clearLocalSession(): void {
   void writeSecure(SESSION_TOKEN_KEY, null).catch((error: unknown) =>
     console.warn("Clearing the stored session failed", error),
   );
-  setSnapshot({ status: "signed-out", user: null, organizations: [] });
+  setSnapshot({ status: "signed-out", user: null, organizations: [], signedOutReason });
 }
 
 export async function restoreSession(): Promise<void> {
@@ -220,7 +228,7 @@ export async function restoreSession(): Promise<void> {
           clearStoredAccessToken();
           continue;
         }
-        clearLocalSession();
+        clearLocalSession("session-expired");
       }
       return;
     } catch (error) {
@@ -276,6 +284,19 @@ export async function signOut(): Promise<void> {
   const token = sessionToken;
   clearLocalSession();
   if (token) await backend.signOut(token);
+}
+
+export async function isRejectedSessionUnrecoverable(): Promise<boolean> {
+  if (!sessionToken) return false;
+  if (AUTH_PROVIDER === "local") return true;
+  return (await getAccessToken()) === null;
+}
+
+export async function signOutBecause(signedOutReason: SignedOutReason): Promise<void> {
+  const token = sessionToken;
+  if (!token) return;
+  clearLocalSession(signedOutReason);
+  await backend.signOut(token);
 }
 
 export function setActiveOrg(orgId: string): void {

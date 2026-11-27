@@ -15,3 +15,4 @@ export const HARDWARE_BLOCKED_WHILE_IMPERSONATING_ERROR =
 export const SIGN_IN_PATH = "/auth/sign-in";
 export const SIGN_UP_PATH = "/auth/sign-up";
 export const AUTH_REDIRECT_PARAM = "redirectTo";
+export const SIGNED_OUT_PARAM = "signedOut";

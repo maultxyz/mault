@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { AccessibilityInfo, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -21,13 +21,65 @@ export default function CalibrationTestScreen() {
   const bins = Array.from({ length: test.binCount }, (_, i) => i + 1);
   const isRoutingTestRunning = test.activeBin !== null || test.isSampleRunning;
   const busy = isRoutingTestRunning || test.feederTest.isRunning;
+  const isEmergencyStopped = test.emergencyStopDetail !== null;
+  const stopSorter = () => {
+    AccessibilityInfo.announceForAccessibility(t("scan.pause.emergency-stop.title"));
+    void test.emergencyStop();
+  };
 
   return (
     <Screen
       header={<PageHeader title={t("calibration.sections.test.title")} subtitle={sorter.device?.name} onBack={() => router.back()} />}
     >
-      {!test.isReady ? <Callout tone="info" title={t("calibration.testBeforeControls")} /> : null}
+      {!test.isReady ? (
+        <Callout
+          tone="info"
+          title={t("calibration.testBeforeControls")}
+          action={
+            sorter.isConnected ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                icon="selfTest"
+                label={t("calibration.runTest")}
+                loading={sorter.phase === "testing"}
+                onPress={() => void sorter.runSelfTest()}
+              />
+            ) : (
+              <Button size="sm" variant="secondary" label={t("scan.openSorter")} onPress={() => router.push("/sorter")} />
+            )
+          }
+        />
+      ) : null}
+      {test.emergencyStopDetail ? (
+        <Callout
+          tone="destructive"
+          title={t("scan.pause.emergency-stop.title")}
+          description={t(`scan.pause.emergency-stop.${test.emergencyStopDetail}`)}
+          action={
+            <Button
+              size="sm"
+              variant="secondary"
+              icon="refresh"
+              label={t("scan.pause.emergency-stop.reset")}
+              loading={test.isResettingEmergencyStop}
+              disabled={busy}
+              onPress={() => void test.resetAfterEmergencyStop()}
+            />
+          }
+        />
+      ) : null}
       {test.routeError ? <Callout tone="destructive" title={test.routeError} /> : null}
+      {busy && test.canEmergencyStop && !isEmergencyStopped ? (
+        <Button
+          size="lg"
+          variant="destructive"
+          icon="handStop"
+          label={t("scan.emergencyStop")}
+          accessibilityHint={t("scan.emergencyStopHint")}
+          onPress={stopSorter}
+        />
+      ) : null}
 
       <SettingsSection title={t("calibration.ir.label")} description={t("calibration.ir.description")}>
         <Surface style={{ gap: SPACING.md }}>
@@ -84,6 +136,11 @@ export default function CalibrationTestScreen() {
               />
             </View>
           </View>
+          {test.irError ? (
+            <AppText size="xs" tone="destructive" accessibilityRole="alert">
+              {test.irError}
+            </AppText>
+          ) : null}
         </Surface>
       </SettingsSection>
 
@@ -95,7 +152,7 @@ export default function CalibrationTestScreen() {
               variant="secondary"
               icon="refresh"
               label={t("calibration.routing.resetToNeutral")}
-              disabled={!test.isReady || busy}
+              disabled={!test.isReady || busy || isEmergencyStopped}
               onPress={() => void test.resetToNeutral()}
             />
             <Button
@@ -108,7 +165,7 @@ export default function CalibrationTestScreen() {
                     : t("calibration.routing.running")
                   : t("calibration.routing.sampleRun")
               }
-              disabled={!test.isReady || busy}
+              disabled={!test.isReady || busy || isEmergencyStopped}
               onPress={() => void test.sampleRun()}
             />
           </View>
@@ -120,7 +177,7 @@ export default function CalibrationTestScreen() {
                 variant={test.activeBin === bin ? "primary" : "secondary"}
                 label={t("calibration.binLabel", { bin })}
                 loading={test.activeBin === bin && !test.isSampleRunning}
-                disabled={!test.isReady || busy}
+                disabled={!test.isReady || busy || isEmergencyStopped}
                 onPress={() => void test.testBin(bin)}
               />
             ))}
@@ -128,7 +185,7 @@ export default function CalibrationTestScreen() {
         </Surface>
       </SettingsSection>
 
-      <FeederTestPanel feederTest={test.feederTest} isBlockedByRoutingTest={isRoutingTestRunning} />
+      <FeederTestPanel feederTest={test.feederTest} isBlockedByRoutingTest={isRoutingTestRunning || isEmergencyStopped} />
     </Screen>
   );
 }

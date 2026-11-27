@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
@@ -104,6 +105,8 @@ export default function RulesScreen() {
     }
   };
 
+  const hasLoadFailedWithoutData = data.isError && (!collection || sets.length === 0);
+
   return (
     <Screen
       onRefresh={data.refetch}
@@ -120,11 +123,17 @@ export default function RulesScreen() {
         />
       }
     >
-      {data.isError ? <Callout tone="destructive" title={t("rules.loadFailed")} /> : null}
+      {data.isError && !hasLoadFailedWithoutData ? <Callout tone="destructive" title={t("rules.loadFailed")} /> : null}
       {picker.isError ? <Callout tone="destructive" title={t("rules.activateFailed")} /> : null}
       {remove.isError ? <Callout tone="destructive" title={t("rules.presetMenu.deleteFailed")} /> : null}
 
-      {data.isPending ? (
+      {hasLoadFailedWithoutData ? (
+        <QueryErrorState
+          title={t("rules.loadFailed")}
+          onRetry={() => void data.refetch()}
+          isRetrying={data.isRefetching}
+        />
+      ) : data.isPending ? (
         <>
           <ListSkeleton rows={1} hasSubtitle />
           <ListSkeleton rows={1} hasSubtitle hasTrailing={false} />

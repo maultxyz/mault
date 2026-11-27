@@ -1,7 +1,6 @@
 import { router, useNavigation, usePreventRemove } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
-import { Callout } from "@/components/ui/callout";
+import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageLoading } from "@/components/ui/page-loading";
 import { QueryErrorState } from "@/components/ui/query-error-state";
@@ -18,6 +17,7 @@ export function SettingsPage({
   isDirty = false,
   isSaving = false,
   saveError = false,
+  saveErrorMessage,
   isLoading = false,
   isLoadError = false,
   isRetryingLoad = false,
@@ -48,12 +48,11 @@ export function SettingsPage({
     ]);
   });
   return (
-    <View style={{ flex: 1 }}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <Screen
         onRefresh={onRefresh}
         header={<PageHeader title={title} subtitle={subtitle ?? org?.name} onBack={() => router.back()} />}
       >
-        {saveError && hasLoadedData ? <Callout tone="destructive" title={t("settings.draft.saveFailed")} /> : null}
         {isLoadError ? (
           <QueryErrorState
             title={t("settings.loadFailed")}
@@ -71,7 +70,8 @@ export function SettingsPage({
         saving={isSaving}
         onSave={onSave}
         onDiscard={onSaveBarDiscard ?? onDiscard}
+        errorMessage={saveError ? (saveErrorMessage ?? t("settings.draft.saveFailed")) : undefined}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
