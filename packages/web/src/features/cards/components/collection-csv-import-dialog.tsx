@@ -98,13 +98,11 @@ export function CollectionCsvImportDialog({
       }
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <div className="max-md:hidden">
-          <DeckLinkImportForm
-            initialDeckLink={initialDeckLink}
-            disabled={importRows.isPending}
-            onDeckLoaded={handleDeckLoaded}
-          />
-        </div>
+        <DeckLinkImportForm
+          initialDeckLink={initialDeckLink}
+          disabled={importRows.isPending}
+          onDeckLoaded={handleDeckLoaded}
+        />
         <div className="flex flex-wrap items-center gap-1.5">
           <CardListFileButton onFileRead={handleFileRead} />
           {file && (

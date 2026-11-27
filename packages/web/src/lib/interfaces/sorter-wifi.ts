@@ -1,4 +1,4 @@
-import type { SorterWifiFormValues } from "@/schemas/sorter-wifi.schema";
+import type { SorterWifiFormValues } from "@magic-vault/shared";
 import type { SorterWifiStatus } from "@magic-vault/shared";
 import type { ReactNode } from "react";
 

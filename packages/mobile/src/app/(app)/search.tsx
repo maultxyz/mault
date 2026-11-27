@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, ScrollView, View } from "react-native";
@@ -29,6 +29,7 @@ import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SETTINGS_SECTION_LINKS } from "@/lib/constants/settings";
 import { SPACING } from "@/lib/constants/theme";
 import { absoluteUrl } from "@/lib/url";
+import type { AddCardTargetRouteParams } from "@/lib/interfaces/search";
 import {
   CATALOG_SEARCH_MIN_QUERY_LENGTH,
   GLOBAL_SEARCH_MIN_QUERY_LENGTH,
@@ -41,6 +42,7 @@ import {
 export default function GlobalSearchScreen() {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
+  const addCardTarget = useLocalSearchParams<AddCardTargetRouteParams>();
   const [search, setSearch] = useState("");
   const query = search.trim();
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
@@ -230,7 +232,15 @@ export default function GlobalSearchScreen() {
                         leading={<CardThumbnail {...artSources} />}
                         onPress={() => {
                           rememberCatalogCard(queryClient, game.gameKey, card);
-                          router.push({ pathname: "/catalog-card", params: { id: card.id, gameKey: game.gameKey } });
+                          router.push({
+                            pathname: "/catalog-card",
+                            params: {
+                              id: card.id,
+                              gameKey: game.gameKey,
+                              ...(addCardTarget.addToCollection ? { addToCollection: addCardTarget.addToCollection } : {}),
+                              ...(addCardTarget.addToLocation ? { addToLocation: addCardTarget.addToLocation } : {}),
+                            },
+                          });
                         }}
                       />
                     );

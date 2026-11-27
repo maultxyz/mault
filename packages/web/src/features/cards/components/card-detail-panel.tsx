@@ -158,6 +158,7 @@ import type {
   CardDetailAttributePicker,
   CardDetailMoveTarget,
   CardDetailPanelProps,
+  CardImageViewerView,
 } from "@/lib/interfaces/cards";
 
 export function CardDetailPanel({
@@ -213,6 +214,7 @@ export function CardDetailPanel({
   );
   const ocrRegionsVisible = !isMobile && (reviewMode || showOcrRegions);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerView, setViewerView] = useState<CardImageViewerView>("scan");
 
   const [candidates, setCandidates] = useState<PlayingCardWithDistance[]>([]);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
@@ -635,7 +637,10 @@ export function CardDetailPanel({
           </div>
           <button
             type="button"
-            onClick={() => setViewerOpen(true)}
+            onClick={() => {
+              setViewerView("scan");
+              setViewerOpen(true);
+            }}
             disabled={!shownCapturedImageUrl}
             aria-label={t("cardDetailPanel.enlargeImage")}
             title={t("cardDetailPanel.enlargeImage")}
@@ -665,6 +670,10 @@ export function CardDetailPanel({
       <CardDetailArt
         card={selectedCard}
         widthClass={imageWidthClass}
+        onEnlarge={() => {
+          setViewerView("reference");
+          setViewerOpen(true);
+        }}
         caption={
           showCapturedImageSlot ? t("cardDetailPanel.matchedCard") : undefined
         }
@@ -949,16 +958,22 @@ export function CardDetailPanel({
 
   const cardName =
     selectedCard?.name ?? t("cardDetailPanel.cardDetailsFallback");
+  const referenceImageUrl =
+    selectedCard?.image?.normal || selectedCard?.image?.small || null;
   const headerPrice = editing ? null : conditionPrice;
   const typeLine = selectedCard?.typeLine ?? "";
 
   return (
     <div className="flex h-full overflow-x-hidden">
-      {shownCapturedImageUrl && (
+      {(shownCapturedImageUrl || referenceImageUrl) && (
         <CardImageViewer
           open={viewerOpen}
           onOpenChange={setViewerOpen}
-          capturedImageUrl={shownCapturedImageUrl}
+          view={viewerView}
+          onViewChange={setViewerView}
+          capturedImageUrl={shownCapturedImageUrl ?? null}
+          referenceImageUrl={referenceImageUrl}
+          referenceAlt={selectedCard?.name ?? ""}
           download={capturedImageDownload}
           showOcrRegions={shownOcrRegionsVisible}
           onShowOcrRegionsChange={reviewMode ? undefined : setShowOcrRegions}

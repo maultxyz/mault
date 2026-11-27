@@ -55,8 +55,10 @@ import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-d
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import { CardDetailSkeleton } from "@/features/cards/components/card-detail-skeleton";
+import { cardArtSources } from "@/lib/card-art";
 import type {
   CardDetailSheet,
+  CardImageViewerImage,
   CardReviewAccept,
   CardReviewAcceptState,
   CardTagToggle,
@@ -67,6 +69,7 @@ import type { CardCachePatchContext } from "@/lib/interfaces/undo";
 import type { IconName } from "@/lib/interfaces/ui";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardDetailArt, CardImageFrame } from "@/features/cards/components/card-detail-art";
+import { CardImageViewer } from "@/components/cards/card-image-viewer";
 import { CardDetailInfoSections } from "@/features/cards/components/card-detail-info-sections";
 import { CardDetailTitleBlock } from "@/features/cards/components/card-detail-title-block";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
@@ -183,10 +186,28 @@ export default function CardDetailScreen() {
   const card = entry?.card;
   const frontCapturedUrl = absoluteUrl(image.data?.capturedImageUrl);
   const capturedBackUrl = absoluteUrl(image.data?.capturedBackImageUrl);
+  const [viewerImages, setViewerImages] = useState<CardImageViewerImage[] | null>(null);
+  const [viewerIndex, setViewerIndex] = useState(0);
   const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
   const showsCapturedBackSide = !!capturedBackUrl && backSideScanId === scanId;
   const capturedUrl = showsCapturedBackSide ? capturedBackUrl : frontCapturedUrl;
   const showCaptured = image.isPending || !!capturedUrl;
+  const capturedViewerImage: CardImageViewerImage = {
+    title: t("cardDetail.capturedScan"),
+    imageUrl: capturedUrl ?? null,
+    accessibilityLabel: showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan"),
+  };
+  const referenceSources = cardArtSources(card?.image);
+  const referenceViewerImage: CardImageViewerImage = {
+    title: t("cardDetail.matchedCard"),
+    imageUrl: referenceSources.imageUrl,
+    placeholderUrl: referenceSources.placeholderUrl,
+    accessibilityLabel: card?.name ?? t("cardDetail.matchedCard"),
+  };
+  const openImageViewer = (images: CardImageViewerImage[], startIndex: number) => {
+    setViewerIndex(startIndex);
+    setViewerImages(images);
+  };
   const canConfirm = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
   const isReviewed = !!entry?.reviewed || !!entry?.corrected;
   const tagsSet = entry ? cardTagsSetOn(entry) : [];
@@ -750,23 +771,34 @@ export default function CardDetailScreen() {
                       ) : null}
                     </View>
                   </View>
-                  <CardImageFrame>
+                  <CardImageFrame
+                    onPress={capturedUrl ? () => openImageViewer(referenceViewerImage.imageUrl ? [capturedViewerImage, referenceViewerImage] : [capturedViewerImage], 0) : undefined}
+                    accessibilityLabel={
+                      showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan")
+                    }
+                  >
                     {capturedUrl ? (
-                      <Image
-                        source={{ uri: capturedUrl }}
-                        style={{ flex: 1 }}
-                        contentFit="fill"
-                        accessibilityLabel={
-                          showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan")
-                        }
-                      />
+                      <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="fill" accessible={false} />
                     ) : (
                       <Skeleton height="100%" radius={0} />
                     )}
                   </CardImageFrame>
+
                 </View>
               ) : null}
-              <CardDetailArt card={card} caption={showCaptured ? t("cardDetail.matchedCard") : undefined} />
+              <CardDetailArt
+                card={card}
+                caption={showCaptured ? t("cardDetail.matchedCard") : undefined}
+                onOpenImage={(reference) =>
+                  openImageViewer(capturedUrl ? [capturedViewerImage, reference] : [reference], capturedUrl ? 1 : 0)
+                }
+              />
+              <CardImageViewer
+                visible={!!viewerImages}
+                images={viewerImages ?? []}
+                initialIndex={viewerIndex}
+                onClose={() => setViewerImages(null)}
+              />
             </View>
 
             {candidates.length > 1 ? (

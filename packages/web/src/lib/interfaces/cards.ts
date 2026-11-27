@@ -120,6 +120,7 @@ export interface CardDetailArtProps {
   caption?: string;
   children?: ReactNode;
   footer?: ReactNode;
+  onEnlarge?: () => void;
 }
 
 export interface CardRulesSectionProps {
@@ -171,10 +172,16 @@ export interface ScanImageDownloadRequest {
 
 export type DownloadScanImageButtonProps = ScanImageDownloadRequest;
 
+export type CardImageViewerView = "scan" | "reference";
+
 export interface CardImageViewerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  capturedImageUrl: string;
+  view: CardImageViewerView;
+  onViewChange: (view: CardImageViewerView) => void;
+  capturedImageUrl: string | null;
+  referenceImageUrl: string | null;
+  referenceAlt: string;
   download?: ScanImageDownloadRequest;
   showOcrRegions: boolean;
   onShowOcrRegionsChange?: (show: boolean) => void;

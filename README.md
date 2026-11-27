@@ -6,6 +6,10 @@ An open-source trading card scanner and physical sorter. A camera identifies eac
 - Printable sorter: [MakerWorld](https://makerworld.com/en/models/3066180-tcg-card-sorting-machine)
 - Build guide (BOM, wiring, assembly): `/build` in the app
 
+Database hosting is supported by [Neon](https://neon.com).
+
+<a href="https://neon.com"><img src="packages/web/public/sponsor/neon-logo.svg" alt="Neon" height="48"></a>
+
 ## Supported games
 
 Magic: The Gathering, Pokemon, Yu-Gi-Oh, One Piece, Lorcana, Gundam, Flesh and Blood, Riftbound, Grand Archive, Star Wars: Unlimited, Cyberpunk, Sorcery: Contested Realm.

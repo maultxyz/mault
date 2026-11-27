@@ -1,12 +1,8 @@
 import { getRequestAuth } from "@/lib/api/client";
 import { API_BASE } from "@/lib/constants/api";
 import {
-  parseSerialReply,
   SORTER_LINK_CLIENT_PATH,
   SORTER_LINK_DEVICE_PATH,
-  type CloudLinkState,
-  type SorterWifiStatus,
-  type WifiLinkState,
 } from "@magic-vault/shared";
 
 export function toWebSocketUrl(path: string): URL {
@@ -19,6 +15,8 @@ export function defaultSorterLinkDeviceUrl(): string {
   return toWebSocketUrl(SORTER_LINK_DEVICE_PATH).toString();
 }
 
+export { parseWifiStatus } from "@magic-vault/shared";
+
 export async function sorterLinkClientUrl(
   deviceGuid: string,
 ): Promise<string | null> {
@@ -29,19 +27,4 @@ export async function sorterLinkClientUrl(
   url.searchParams.set("orgId", orgId);
   url.searchParams.set("device", deviceGuid);
   return url.toString();
-}
-
-export function parseWifiStatus(line: string): SorterWifiStatus | null {
-  const parsed = parseSerialReply(line);
-  if (typeof parsed?.wifi !== "string" || typeof parsed.cloud !== "string") {
-    return null;
-  }
-  return {
-    wifi: parsed.wifi as WifiLinkState,
-    ssid: typeof parsed.ssid === "string" ? parsed.ssid : null,
-    ip: typeof parsed.ip === "string" ? parsed.ip : null,
-    rssi: typeof parsed.rssi === "number" ? parsed.rssi : null,
-    cloud: parsed.cloud as CloudLinkState,
-    host: typeof parsed.host === "string" ? parsed.host : null,
-  };
 }

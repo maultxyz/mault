@@ -5,6 +5,8 @@ import type {
   BinRuleGroup,
   BinSet,
   Collection,
+  EmptyBinOptions,
+  PickListInput,
   FieldMeta,
   PresetWorkflow,
   PresetWorkflowStep,
@@ -24,7 +26,7 @@ export interface BinSaveInput {
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
   maxCards?: number | null;
-  pickList?: null;
+  pickList?: PickListInput | null;
 }
 
 
@@ -134,11 +136,20 @@ export interface BinRowProps {
 }
 
 export type PresetDescriptionRouteParams = {
-  guid: string;
+  guid?: string;
+  mode?: "new" | "copy" | "workflow" | "workflowRename";
+  gameGuid?: string;
 };
 
-export interface PresetDescriptionSaveContext {
-  previous: BinSet[] | undefined;
+export type PresetStagesRouteParams = {
+  workflow?: string;
+};
+
+export interface BinSetHistoryEntry {
+  guid: string;
+  binSetGuid: string;
+  snapshot: BinConfig[];
+  createdAt: string;
 }
 
 export interface StoragePlanDraft {
@@ -153,3 +164,21 @@ export interface RuleGroupSkeletonProps {
 export interface RuleFormSkeletonProps {
   fields: number;
 }
+
+export interface BinNumberSettingRowProps {
+  title: string;
+  description?: string;
+  placeholder?: string;
+  value: number | null;
+  disabled?: boolean;
+  onChange: (value: number | null) => void;
+}
+
+export interface EmptyBinRequest {
+  binNumber: number;
+  options: EmptyBinOptions;
+}
+
+export type BinRulesImportOutcome =
+  | { status: "cancelled" | "invalid" | "wrongGame" }
+  | { status: "imported"; name: string; skippedBinCount: number };

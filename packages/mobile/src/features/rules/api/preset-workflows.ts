@@ -1,6 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { PresetWorkflow, PresetWorkflowsAndPresets, Result } from "@magic-vault/shared";
-import { apiGet, apiPut, unwrap } from "@/lib/api/client";
+import type {
+  PresetWorkflow,
+  PresetWorkflowStageInput,
+  PresetWorkflowsAndPresets,
+  Result,
+} from "@magic-vault/shared";
+import { apiDelete, apiGet, apiPost, apiPut, unwrap } from "@/lib/api/client";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
 
 export const presetWorkflowsQueryOptions = (orgId: string | null) =>
@@ -21,4 +26,24 @@ export function enterPresetWorkflowStep(
       markBinsEmptied,
     }),
   );
+}
+
+export function createPresetWorkflow(
+  name: string,
+  firstPresetGuid: string,
+  gameGuid: string | undefined,
+): Promise<PresetWorkflow[]> {
+  return unwrap(apiPost<Result<PresetWorkflow[]>>("/api/preset-workflows", { name, firstPresetGuid, gameGuid }));
+}
+
+export function renamePresetWorkflow(guid: string, name: string): Promise<PresetWorkflow[]> {
+  return unwrap(apiPut<Result<PresetWorkflow[]>>(`/api/preset-workflows/${guid}`, { name }));
+}
+
+export function deletePresetWorkflow(guid: string): Promise<PresetWorkflow[]> {
+  return unwrap(apiDelete<Result<PresetWorkflow[]>>(`/api/preset-workflows/${guid}`));
+}
+
+export function savePresetWorkflowStages(guid: string, stages: PresetWorkflowStageInput[]): Promise<PresetWorkflow[]> {
+  return unwrap(apiPut<Result<PresetWorkflow[]>>(`/api/preset-workflows/${guid}/steps`, { stages }));
 }

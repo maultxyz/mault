@@ -1,13 +1,11 @@
 import {
   CONDITION_NUMERIC_MAX,
-  CONDITION_VALUE_NUMERIC_MAX,
-  CONDITION_STRING_MAX_LENGTH,
   formValidationMessage,
   LOW_MATCH_PERCENT_MAX,
   OVERRIDE_PRIORITY_MAX,
   presetDescriptionFormSchema,
   SET_NAME_MAX_LENGTH,
-  type BinRuleGroup,
+  binRuleGroupSchema,
 } from "@magic-vault/shared";
 import { z } from "zod";
 import {
@@ -77,49 +75,6 @@ export type PresetWorkflowStagesFormValues = z.infer<
 >;
 
 export type PresetWorkflowRenameFormValues = CreateSetFormValues;
-
-const conditionOperatorValues = [
-  "equals",
-  "not_equals",
-  "contains",
-  "not_contains",
-  "starts_with",
-  "ends_with",
-  "gt",
-  "gte",
-  "lt",
-  "lte",
-  "in",
-  "not_in",
-  "contains_any",
-  "contains_all",
-  "contains_none",
-  "count_equals",
-  "count_gt",
-  "count_lt",
-  "is_null",
-  "is_not_null",
-] as const;
-
-export const binConditionSchema = z.object({
-  id: z.string(),
-  field: z.string().min(1),
-  operator: z.enum(conditionOperatorValues),
-  value: z.union([
-    z.string().max(CONDITION_STRING_MAX_LENGTH),
-    z.number().max(CONDITION_VALUE_NUMERIC_MAX),
-    z.array(z.string().max(CONDITION_STRING_MAX_LENGTH)),
-  ]),
-});
-
-export const binRuleGroupSchema: z.ZodType<BinRuleGroup, BinRuleGroup> =
-  z.object({
-    id: z.string(),
-    combinator: z.enum(["and", "or"]),
-    conditions: z.array(
-      z.union([binConditionSchema, z.lazy(() => binRuleGroupSchema)]),
-    ),
-  });
 
 export const binConfigSchema = z.object({
   isCatchAll: z.boolean(),

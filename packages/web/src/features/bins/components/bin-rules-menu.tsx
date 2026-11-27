@@ -7,13 +7,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { downloadBinRulesExport } from "@/features/bins/lib/bin-rules-export";
 import {
   buildBinRulesExport,
-  downloadBinRulesExport,
   parseBinRulesExport,
   serializeBinRulesExport,
   uniqueImportedName,
-} from "@/features/bins/lib/bin-rules-export";
+} from "@magic-vault/shared";
 import {
   IconChevronDown,
   IconClipboard,

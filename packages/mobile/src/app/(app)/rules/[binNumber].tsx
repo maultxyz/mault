@@ -21,13 +21,26 @@ import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { SwitchRowSkeleton } from "@/components/ui/switch-row-skeleton";
-import { saveBinConfig } from "@/features/rules/api/bin-sets";
+import { resetBinPickList, saveBinConfig } from "@/features/rules/api/bin-sets";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { TextField } from "@/components/ui/text-field";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
 import { RuleGroupSkeleton } from "@/features/rules/components/rule-group-skeleton";
 import { binSchema } from "@/features/rules/lib/bin-schema";
 import { emptyRules, modeLocksBinRules, overflowSourcesFor, overflowTargetsFor } from "@/features/rules/lib/rules";
-import { binSetMode, type BinConfig } from "@magic-vault/shared";
+import {
+  binSetMode,
+  formatDecklist,
+  getPickListTotals,
+  parseDecklist,
+  PICK_LIST_MAX_ENTRIES,
+  REPACK_UNIQUE_BY_NAME,
+  REPACK_UNIQUE_BY_PRINTING,
+  type BinConfig,
+} from "@magic-vault/shared";
+import { BinNumberSettingRow } from "@/features/rules/components/bin-number-setting-row";
+import { ALLOW_DUPLICATES_OPTION, DEFAULT_MAX_COPIES } from "@/lib/constants/rules";
 import { binSaveInputWithRules } from "@/features/rules/lib/bin-rule-transfer";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
@@ -54,6 +67,7 @@ export default function BinEditorScreen() {
   const bin = bins.find((b) => b.binNumber === binNumber);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [copiesOpen, setCopiesOpen] = useState(false);
   const [catchAllError, setCatchAllError] = useState(false);
 
   const serverValues = useMemo<BinFormValues | undefined>(
@@ -65,6 +79,15 @@ export default function BinEditorScreen() {
             isDisabled: !!bin.isDisabled,
             overflowBin: bin.overflowBin ?? null,
             maxCards: bin.maxCards ?? null,
+            isOverride: !!bin.isOverride,
+            overridePriority: bin.overridePriority ?? null,
+            lowMatchPercent: bin.isCatchAll ? (bin.lowMatchPercent ?? null) : null,
+            maxCopies: bin.maxCopies ?? null,
+            maxCopiesBy: bin.maxCopiesBy ?? REPACK_UNIQUE_BY_PRINTING,
+            pickList:
+              bin.pickList && !bin.isCatchAll
+                ? { mode: bin.pickList.mode, decklist: formatDecklist(bin.pickList.entries) }
+                : null,
           }
         : undefined,
     [bin],
@@ -78,34 +101,98 @@ export default function BinEditorScreen() {
   const isCatchAll = form.watch("isCatchAll");
   const overflowBin = form.watch("overflowBin");
   const isDisabled = form.watch("isDisabled");
-  const maxCardsError = form.formState.errors.maxCards?.message;
+  const isOverride = form.watch("isOverride");
+  const maxCopies = form.watch("maxCopies");
+  const maxCopiesBy = form.watch("maxCopiesBy");
+  const draftRules = form.watch("rules");
+  const { errors } = form.formState;
+  const maxCardsError =
+    errors.maxCards?.message ??
+    errors.overridePriority?.message ??
+    errors.lowMatchPercent?.message ??
+    errors.maxCopies?.message;
 
   const editableSet = !!activeSet?.isActive;
   const sources = overflowSourcesFor(binNumber, bins);
   const targets = overflowTargetsFor(binNumber, bins);
-  const pickList = !!bin?.pickList;
+  const draftPickList = form.watch("pickList");
+  const pickList = !isCatchAll && draftPickList != null;
   const mode = binSetMode(activeSet);
   const isScanOnly = mode === "scan-only";
   const modeLocksRules = modeLocksBinRules(mode);
-  const readOnly = !editableSet || pickList || isScanOnly;
+  const readOnly = !editableSet || isScanOnly;
   const rulesLocked = readOnly || sources.length > 0 || modeLocksRules;
   const otherCatchAll = bins.some((b) => b.binNumber !== binNumber && b.isCatchAll);
+  const isClaimedOverflow = !isCatchAll && sources.length > 0;
+  const isAutoAssign = mode === "auto-assign";
+  const canOverride = !isCatchAll && !isClaimedOverflow && !modeLocksRules && !isScanOnly && !pickList;
+  const canUsePickList = !isCatchAll && !isClaimedOverflow && !modeLocksRules && !isScanOnly;
+  const savedPickListTotals = bin?.pickList ? getPickListTotals(bin.pickList) : null;
+  const showsPriority =
+    !isAutoAssign &&
+    !modeLocksRules &&
+    !isScanOnly &&
+    ((isCatchAll && (draftRules?.conditions.length ?? 0) > 0) || (canOverride && isOverride));
+  const showsCopies = !isCatchAll && !isAutoAssign && !modeLocksRules && !isScanOnly && !pickList;
+  const copiesSelection = maxCopies == null ? ALLOW_DUPLICATES_OPTION : maxCopiesBy;
+  const copiesOptions = [
+    { value: ALLOW_DUPLICATES_OPTION, label: t("rules.advanced.copiesAllow") },
+    { value: REPACK_UNIQUE_BY_PRINTING, label: t("rules.advanced.copiesByPrinting") },
+    { value: REPACK_UNIQUE_BY_NAME, label: t("rules.advanced.copiesByName") },
+    ...fieldDefinitions
+      .filter((field) => field.field !== "name")
+      .map((field) => ({ value: field.field, label: t("rules.advanced.copiesByField", { field: field.label }) })),
+  ];
+  const copiesLabel =
+    copiesOptions.find((option) => option.value === copiesSelection)?.label ??
+    t("rules.advanced.copiesByField", { field: copiesSelection });
 
+  const resetPickList = useMutation({
+    mutationFn: () => resetBinPickList(bin?.guid ?? ""),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["bin-sets"] }),
+  });
   const save = useMutation({
     mutationFn: (values: BinFormValues) =>
-      saveBinConfig({
+      values.pickList && !values.isCatchAll && canUsePickList
+        ? saveBinConfig({
+            binNumber,
+            gameGuid,
+            rules: emptyRules(),
+            isCatchAll: false,
+            isDisabled: values.isDisabled,
+            overflowBin: null,
+            isOverride: false,
+            overridePriority: null,
+            lowMatchPercent: null,
+            maxCopies: null,
+            maxCopiesBy: null,
+            maxCards: values.maxCards,
+            pickList: { mode: values.pickList.mode, entries: parseDecklist(values.pickList.decklist) },
+          })
+        : saveBinConfig({
         binNumber,
         gameGuid,
         rules: values.rules,
         isCatchAll: values.isCatchAll,
         isDisabled: values.isCatchAll ? false : values.isDisabled,
         overflowBin: values.isCatchAll ? null : values.overflowBin,
-        isOverride: bin?.isOverride,
-        overridePriority: bin?.overridePriority,
-        lowMatchPercent: bin?.lowMatchPercent,
-        maxCopies: bin?.maxCopies,
-        maxCopiesBy: bin?.maxCopiesBy,
+        isOverride: canOverride ? values.isOverride : !values.isCatchAll && !!bin?.isOverride,
+        overridePriority: showsPriority
+          ? values.overridePriority
+          : values.isCatchAll || canOverride
+            ? null
+            : (bin?.overridePriority ?? null),
+        lowMatchPercent: values.isCatchAll ? values.lowMatchPercent : null,
+        maxCopies: showsCopies ? values.maxCopies : values.isCatchAll || isAutoAssign ? null : (bin?.maxCopies ?? null),
+        maxCopiesBy: showsCopies
+          ? values.maxCopies != null
+            ? values.maxCopiesBy
+            : null
+          : values.isCatchAll || isAutoAssign
+            ? null
+            : (bin?.maxCopiesBy ?? null),
         maxCards: values.maxCards,
+        pickList: null,
       }),
     onSuccess: async (_, values) => {
       form.reset(values);
@@ -187,8 +274,9 @@ export default function BinEditorScreen() {
             {activeSet && !activeSet.isActive ? (
               <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />
             ) : null}
-            {pickList ? <Callout tone="info" title={t("rules.pickListNotice")} /> : null}
-            {save.isError || transfer.isError ? <Callout tone="destructive" title={t("rules.saveFailed")} /> : null}
+            {save.isError || transfer.isError || resetPickList.isError ? (
+              <Callout tone="destructive" title={t("rules.saveFailed")} />
+            ) : null}
 
             {isScanOnly ? <Callout tone="info" title={t("rules.scanOnlyLocked")} /> : null}
 
@@ -216,7 +304,90 @@ export default function BinEditorScreen() {
               />
             </View>
 
-            {!isScanOnly ? (
+            {canUsePickList ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("rules.pickListBin.sourceLabel")} />
+                <SegmentedControl
+                  options={[
+                    { value: "rules", label: t("rules.pickListBin.sourceRules") },
+                    { value: "pickList", label: t("rules.pickListBin.sourcePickList") },
+                  ]}
+                  value={pickList ? "pickList" : "rules"}
+                  onChange={(source) =>
+                    form.setValue(
+                      "pickList",
+                      source === "pickList" ? (serverValues?.pickList ?? { mode: "until_found", decklist: "" }) : null,
+                      { shouldDirty: true },
+                    )
+                  }
+                />
+                <AppText size="xs" tone="secondary">
+                  {pickList ? t("rules.pickListBin.sourcePickListDescription") : t("rules.pickListBin.sourceRulesDescription")}
+                </AppText>
+              </View>
+            ) : null}
+
+            {pickList && draftPickList ? (
+              <View style={{ gap: SPACING.md }}>
+                <SectionHeader title={t("rules.pickListBin.modeLabel")} />
+                <SegmentedControl
+                  options={[
+                    { value: "until_found", label: t("rules.pickListBin.modeUntilFound") },
+                    { value: "all", label: t("rules.pickListBin.modeAll") },
+                  ]}
+                  value={draftPickList.mode}
+                  onChange={(nextMode) =>
+                    form.setValue("pickList", { ...draftPickList, mode: nextMode }, { shouldDirty: true })
+                  }
+                />
+                <AppText size="xs" tone="secondary">
+                  {draftPickList.mode === "all"
+                    ? t("rules.pickListBin.modeAllDescription")
+                    : t("rules.pickListBin.modeUntilFoundDescription")}
+                </AppText>
+                <TextField
+                  label={t("rules.pickListBin.cardsLabel")}
+                  placeholder={t("rules.pickListBin.cardsPlaceholder")}
+                  value={draftPickList.decklist}
+                  onChangeText={(decklist) =>
+                    form.setValue("pickList", { ...draftPickList, decklist }, { shouldDirty: true, shouldValidate: true })
+                  }
+                  multiline
+                  error={translateFormErrorMessage(t, errors.pickList?.decklist?.message)}
+                />
+                <AppText size="xs" tone="secondary">
+                  {t("rules.pickListBin.cardCount", {
+                    count: parseDecklist(draftPickList.decklist).length,
+                    max: PICK_LIST_MAX_ENTRIES,
+                  })}
+                  {" "}
+                  {t("rules.pickListBin.cardsHint")}
+                </AppText>
+                {savedPickListTotals && bin?.pickList ? (
+                  <ListGroup>
+                    <ListRow
+                      title={t("rules.pickListBin.progress")}
+                      value={
+                        bin.pickList.mode === "all"
+                          ? t("rules.pickListBin.foundAll", { count: savedPickListTotals.found })
+                          : t("rules.pickListBin.foundOf", {
+                              found: savedPickListTotals.found,
+                              total: savedPickListTotals.wanted,
+                            })
+                      }
+                    />
+                    <ListRow
+                      icon="refresh"
+                      title={t("rules.pickListBin.reset")}
+                      disabled={resetPickList.isPending || savedPickListTotals.found === 0 || isDirty}
+                      onPress={() => resetPickList.mutate()}
+                    />
+                  </ListGroup>
+                ) : null}
+              </View>
+            ) : null}
+
+            {!isScanOnly && !pickList ? (
               <View style={{ gap: SPACING.md }}>
                 <View style={{ gap: 2 }}>
                   <SectionHeader
@@ -285,8 +456,79 @@ export default function BinEditorScreen() {
                   )}
                 />
               ) : null}
+              {canOverride ? (
+                <Controller
+                  control={form.control}
+                  name="isOverride"
+                  render={({ field }) => (
+                    <SwitchRow
+                      title={t("rules.advanced.overrideLabel")}
+                      description={t("rules.advanced.overrideDescription")}
+                      value={field.value}
+                      disabled={readOnly}
+                      onValueChange={field.onChange}
+                    />
+                  )}
+                />
+              ) : null}
               <ListGroup>
-                {!isCatchAll && !modeLocksRules && !isScanOnly ? (
+                {showsPriority ? (
+                  <Controller
+                    control={form.control}
+                    name="overridePriority"
+                    render={({ field }) => (
+                      <BinNumberSettingRow
+                        title={t("rules.advanced.priorityLabel")}
+                        description={t("rules.advanced.priorityDescription")}
+                        placeholder={t("rules.advanced.priorityPlaceholder")}
+                        value={field.value}
+                        disabled={readOnly}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                ) : null}
+                {isCatchAll ? (
+                  <Controller
+                    control={form.control}
+                    name="lowMatchPercent"
+                    render={({ field }) => (
+                      <BinNumberSettingRow
+                        title={t("rules.advanced.lowMatchLabel")}
+                        description={t("rules.advanced.lowMatchDescription")}
+                        placeholder={t("rules.advanced.lowMatchPlaceholder")}
+                        value={field.value}
+                        disabled={readOnly}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                ) : null}
+                {showsCopies ? (
+                  <ListRow
+                    title={t("rules.advanced.copiesLabel")}
+                    subtitle={t("rules.advanced.maxCopiesDescription")}
+                    subtitleNumberOfLines={0}
+                    value={copiesLabel}
+                    disabled={readOnly}
+                    onPress={() => setCopiesOpen(true)}
+                  />
+                ) : null}
+                {showsCopies && maxCopies != null ? (
+                  <Controller
+                    control={form.control}
+                    name="maxCopies"
+                    render={({ field }) => (
+                      <BinNumberSettingRow
+                        title={t("rules.advanced.maxCopiesCountLabel")}
+                        value={field.value}
+                        disabled={readOnly}
+                        onChange={(next) => field.onChange(next ?? DEFAULT_MAX_COPIES)}
+                      />
+                    )}
+                  />
+                ) : null}
+                {!isCatchAll && !modeLocksRules && !isScanOnly && !pickList ? (
                   <ListRow
                     title={t("rules.overflowLabel")}
                     subtitle={targets.length === 0 && overflowBin == null ? t("rules.overflowNoOptions") : undefined}
@@ -343,6 +585,22 @@ export default function BinEditorScreen() {
           setOverflowOpen(false);
         }}
         onClose={() => setOverflowOpen(false)}
+      />
+      <OptionSheet
+        visible={copiesOpen}
+        title={t("rules.advanced.copiesLabel")}
+        options={copiesOptions}
+        selected={[copiesSelection]}
+        onSelect={(value) => {
+          setCopiesOpen(false);
+          if (value === ALLOW_DUPLICATES_OPTION) {
+            form.setValue("maxCopies", null, { shouldDirty: true });
+            return;
+          }
+          form.setValue("maxCopiesBy", value, { shouldDirty: true });
+          if (maxCopies == null) form.setValue("maxCopies", DEFAULT_MAX_COPIES, { shouldDirty: true });
+        }}
+        onClose={() => setCopiesOpen(false)}
       />
       <OptionSheet
         visible={transferOpen}

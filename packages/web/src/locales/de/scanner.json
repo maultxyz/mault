@@ -1070,11 +1070,6 @@
     "password": "Passwort",
     "passwordHint": "Für ein offenes Netz leer lassen.",
     "save": "Speichern",
-    "validation": {
-      "ssidRequired": "Gib den Netzwerknamen ein.",
-      "ssidTooLong": "Netzwerknamen dürfen höchstens {{max}} Bytes lang sein.",
-      "password": "Passwörter haben {{min}} bis {{max}} Zeichen oder bleiben für ein offenes Netz leer."
-    },
     "wifiLabel": "WLAN",
     "cloudLabel": "Serververbindung",
     "wifiState": {

@@ -1,5 +1,12 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { parseShareLinkUrl, parseStorageLabelUrl } from "@magic-vault/shared";
+import {
+  DEFAULT_PUBLIC_CARD_SORT,
+  EMPTY_PUBLIC_CARD_FILTERS,
+  parseShareLinkUrl,
+  parseStorageLabelUrl,
+  type PublicCardFilters,
+  type PublicCardSort,
+} from "@magic-vault/shared";
 import { router, useLocalSearchParams } from "expo-router";
 import { Linking } from "react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -14,7 +21,13 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { shortLinkQueryOptions } from "@/features/share-links/api/short-links";
 import { useOpenStorageLabel } from "@/features/storage/api/use-open-storage-label";
-import { tradeLinkCardsQueryOptions, tradeLinkInfoQueryOptions } from "@/features/trade-offers/api/public-trade";
+import {
+  tradeLinkCardsQueryOptions,
+  tradeLinkFacetsQueryOptions,
+  tradeLinkInfoQueryOptions,
+} from "@/features/trade-offers/api/public-trade";
+import { IconButton } from "@/components/ui/icon-button";
+import { SharedLinkFilterSheet } from "@/features/share-links/components/shared-link-filter-sheet";
 import { TradeCardRow } from "@/features/trade-offers/components/trade-card-row";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
@@ -50,10 +63,14 @@ export default function SharedLinkScreen() {
   const isViewLink = !!info.data && info.data.purpose !== "trade";
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
+  const [sort, setSort] = useState<PublicCardSort>(DEFAULT_PUBLIC_CARD_SORT);
+  const [filters, setFilters] = useState<PublicCardFilters>(EMPTY_PUBLIC_CARD_FILTERS);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const cards = useInfiniteQuery({
-    ...tradeLinkCardsQueryOptions(link ?? placeholderLink, debouncedSearch),
+    ...tradeLinkCardsQueryOptions(link ?? placeholderLink, debouncedSearch, { sort, filters }),
     enabled: !!link && isViewLink,
   });
+  const facets = useQuery({ ...tradeLinkFacetsQueryOptions(link ?? placeholderLink), enabled: !!link && isViewLink && filtersOpen });
   const entries = cards.data?.pages.flatMap((page) => page.cards) ?? [];
   const total = cards.data?.pages[0]?.total;
 
@@ -83,6 +100,11 @@ export default function SharedLinkScreen() {
           : t("sharedLink.collectionSubtitle", { count: total ?? 0 })
       }
       onBack={() => router.back()}
+      actions={
+        isViewLink ? (
+          <IconButton icon="filter" accessibilityLabel={t("sharedLink.filters.title")} onPress={() => setFiltersOpen(true)} />
+        ) : null
+      }
     />
   );
 
@@ -144,6 +166,16 @@ export default function SharedLinkScreen() {
           onPress={() => void cards.fetchNextPage()}
         />
       ) : null}
+      <SharedLinkFilterSheet
+        visible={filtersOpen}
+        facets={facets.data}
+        showsPrices={!!info.data?.showsPrices}
+        sort={sort}
+        filters={filters}
+        onSortChange={setSort}
+        onFiltersChange={setFilters}
+        onClose={() => setFiltersOpen(false)}
+      />
     </Screen>
   );
 }

@@ -59,6 +59,9 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "deckLinkInvalid",
   "profileHandleInvalid",
   "profileHandleReserved",
+  "wifiSsidRequired",
+  "wifiSsidTooLong",
+  "wifiPassword",
 ] as const;
 
 export const ORGANIZATION_NAME_MAX_LENGTH = 100;

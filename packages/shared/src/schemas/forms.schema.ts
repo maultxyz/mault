@@ -19,6 +19,7 @@ import {
   SHOP_CATALOG_SOURCES_MAX,
 } from "../constants/shop-catalogs.constant";
 import { SET_DESCRIPTION_MAX_LENGTH, SET_NAME_MAX_LENGTH } from "../constants/sort-bins.constant";
+import { DEVICE_NAME_MAX_LENGTH } from "../constants/sorters.constant";
 import { storagePickListEntries } from "../storage-pick-list";
 import {
   STORAGE_LOCATION_BATCH_SIZE_MAX,
@@ -391,6 +392,18 @@ export const presetDescriptionFormSchema = z.object({
 });
 
 export type PresetDescriptionFormValues = z.infer<typeof presetDescriptionFormSchema>;
+
+export const deviceNameFormSchema = z.object({
+  name: nameSchema(DEVICE_NAME_MAX_LENGTH),
+});
+
+export type DeviceNameFormValues = z.infer<typeof deviceNameFormSchema>;
+
+export const presetDetailsFormSchema = presetDescriptionFormSchema.extend({
+  name: nameSchema(SET_NAME_MAX_LENGTH),
+});
+
+export type PresetDetailsFormValues = z.infer<typeof presetDetailsFormSchema>;
 export type PiHostClaimFormInput = z.input<typeof piHostClaimFormSchema>;
 export type PiHostClaimFormValues = z.output<typeof piHostClaimFormSchema>;
 export type PiHostScanStartFormValues = z.infer<typeof piHostScanStartFormSchema>;

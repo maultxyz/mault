@@ -9,6 +9,7 @@ import {
   type ModuleConfig,
   type Result,
   SORTER_LINKS_REFETCH_MS,
+  type SorterLinkCredentials,
   type SorterLinkStatus,
 } from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
@@ -53,6 +54,18 @@ export const binSetsQueryOptions = (orgId: string | null) =>
 
 export function resolveDevice(hardwareId: string): Promise<Device> {
   return unwrap(apiPost<Result<Device>>("/api/devices/resolve", { hardwareId }));
+}
+
+export function createSorterLink(deviceGuid: string): Promise<SorterLinkCredentials> {
+  return unwrap(apiPost<Result<SorterLinkCredentials>>(`/api/devices/${deviceGuid}/sorter-link`));
+}
+
+export function deleteSorterLink(deviceGuid: string): Promise<unknown> {
+  return unwrap(apiDelete<Result<unknown>>(`/api/devices/${deviceGuid}/sorter-link`));
+}
+
+export function deleteDevice(guid: string): Promise<unknown> {
+  return unwrap(apiDelete<Result<unknown>>(`/api/devices/${guid}`));
 }
 
 export async function acquireDeviceLease(guid: string): Promise<boolean> {

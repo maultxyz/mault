@@ -12,6 +12,8 @@ import {
   COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS,
   EMPTY_CARD_FILTERS,
   type SetCardTagsRequest,
+  type CardCondition,
+  type CollectionCsvExportRequest,
   type CardScanOrigin,
   type CollectionCardPosition,
   type CollectionCardsQuery,
@@ -24,7 +26,7 @@ import {
   type ScanTimelineBuckets,
   type ScanTimelineGrouping,
 } from "@magic-vault/shared";
-import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPost, apiPostText, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
 import { CARD_EDIT_REFRESH_DELAY_MS, SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { ScanImageResponse } from "@/lib/interfaces/collections";
@@ -145,6 +147,28 @@ export function updateCollectionCard(guid: string, scanId: string, body: CardUpd
 
 export function setCollectionCardTags(guid: string, request: SetCardTagsRequest): Promise<unknown> {
   return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/tags`, request));
+}
+
+export function setCollectionCardsFoilType(guid: string, scanIds: string[], foilType: string | null): Promise<unknown> {
+  return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/foil`, { scanIds, foilType }));
+}
+
+export function setCollectionCardsCondition(guid: string, scanIds: string[], condition: CardCondition): Promise<unknown> {
+  return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/condition`, { scanIds, condition }));
+}
+
+export function markCollectionCardsDownloaded(guid: string, scanIds: string[]): Promise<unknown> {
+  return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/mark-downloaded`, { scanIds }));
+}
+
+export function downloadCollectionCsv(guid: string, request: CollectionCsvExportRequest): Promise<string> {
+  return apiPostText(`/api/collections/${guid}/cards/csv-export`, request);
+}
+
+export function loadCollectionCardIds(guid: string, query: CollectionCardsQuery): Promise<string[]> {
+  const params = new URLSearchParams(collectionCardsQueryParams(query, 0));
+  params.delete("page");
+  return unwrap(apiGet<Result<string[]>>(`/api/collections/${guid}/cards/ids?${params}`));
 }
 
 export function invalidateCollectionCards(queryClient: QueryClient, guid: string): void {

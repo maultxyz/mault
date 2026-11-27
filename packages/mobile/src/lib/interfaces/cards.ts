@@ -182,11 +182,28 @@ export interface CardDetailTitleBlockProps {
 
 export interface CardImageFrameProps {
   children?: ReactNode;
+  onPress?: () => void;
+  accessibilityLabel?: string;
+}
+
+export interface CardImageViewerImage {
+  title: string;
+  imageUrl: string | null;
+  placeholderUrl?: string | null;
+  accessibilityLabel: string;
+}
+
+export interface CardImageViewerProps {
+  visible: boolean;
+  images: CardImageViewerImage[];
+  initialIndex?: number;
+  onClose: () => void;
 }
 
 export interface CardDetailArtProps {
   card: PlayingCard | undefined;
   caption?: string;
+  onOpenImage?: (image: CardImageViewerImage) => void;
 }
 
 export interface CardDetailInfoSectionsProps {
@@ -278,3 +295,52 @@ export interface CardPriceHistoryProps {
   lang: string;
   isFoil: boolean;
 }
+
+export interface CardSelectionReference {
+  scanId: string;
+  collectionGuid: string;
+}
+
+export interface CardSelectionState {
+  isSelecting: boolean;
+  references: CardSelectionReference[];
+  selectedCount: number;
+  isSelected: (scanIds: string[]) => boolean;
+  startSelecting: () => void;
+  stopSelecting: () => void;
+  toggle: (references: CardSelectionReference[]) => void;
+  replace: (references: CardSelectionReference[]) => void;
+  clear: () => void;
+}
+
+export interface CardBulkActionsOptions {
+  references: CardSelectionReference[];
+  storageLocationGuid?: string;
+  exportName: string;
+  onFinished: () => void;
+}
+
+export interface CardBulkActionRun {
+  work: () => Promise<unknown>;
+  successMessage: string;
+}
+
+export interface CardSelectionBarProps {
+  selectedCount: number;
+  allSelected: boolean;
+  selectingAll: boolean;
+  actionsDisabled: boolean;
+  onToggleSelectAll: () => void;
+  onOpenActions: () => void;
+}
+
+export interface CardBulkActionsSheetProps {
+  visible: boolean;
+  references: CardSelectionReference[];
+  storageLocationGuid?: string;
+  exportName: string;
+  onClose: () => void;
+  onFinished: () => void;
+}
+
+export type CardBulkActionsPicker = "export" | "foil" | "condition" | "addTag" | "removeTag" | "location" | "collection";

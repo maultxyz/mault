@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import { CardArt } from "@/components/cards/card-art";
+import { CardImageViewer } from "@/components/cards/card-image-viewer";
 import { AppText } from "@/components/ui/app-text";
 import { IconButton } from "@/components/ui/icon-button";
 import { useTheme } from "@/hooks/use-theme";
@@ -10,27 +11,44 @@ import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { CARD_ART_RADIUS } from "@/lib/constants/theme";
 import type { CardDetailArtProps, CardImageFrameProps } from "@/lib/interfaces/cards";
 
-export function CardImageFrame({ children }: CardImageFrameProps) {
+export function CardImageFrame({ children, onPress, accessibilityLabel }: CardImageFrameProps) {
+  const { t } = useTranslation();
   const colors = useTheme();
+  const frameStyle = {
+    aspectRatio: CARD_ASPECT_RATIO,
+    borderRadius: CARD_ART_RADIUS,
+    overflow: "hidden" as const,
+    backgroundColor: colors.muted,
+  };
+  if (!onPress) return <View style={frameStyle}>{children}</View>;
   return (
-    <View
-      style={{
-        aspectRatio: CARD_ASPECT_RATIO,
-        borderRadius: CARD_ART_RADIUS,
-        overflow: "hidden",
-        backgroundColor: colors.muted,
-      }}
+    <Pressable
+      accessibilityRole="imagebutton"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={t("cardImageViewer.openHint")}
+      onPress={onPress}
+      style={({ pressed }) => [frameStyle, { opacity: pressed ? 0.85 : 1 }]}
     >
       {children}
-    </View>
+    </Pressable>
   );
 }
 
-export function CardDetailArt({ card, caption }: CardDetailArtProps) {
+export function CardDetailArt({ card, caption, onOpenImage }: CardDetailArtProps) {
   const { t } = useTranslation();
   const [backSideCardId, setBackSideCardId] = useState<string | null>(null);
   const backImage = card?.backImage ?? null;
   const showsBackSide = !!backImage && !!card && backSideCardId === card.id;
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const shownSources = cardArtSources(showsBackSide ? backImage : card?.image);
+  const shownLabel = card ? (showsBackSide ? t("cardDetail.backSideAlt", { name: card.name }) : card.name) : "";
+  const shownImage = {
+    title: t("cardDetail.matchedCard"),
+    imageUrl: shownSources.imageUrl,
+    placeholderUrl: shownSources.placeholderUrl,
+    accessibilityLabel: shownLabel,
+  };
+  const openImage = () => (onOpenImage ? onOpenImage(shownImage) : setViewerOpen(true));
 
   return (
     <View style={{ flex: 1, gap: 6 }}>
@@ -55,17 +73,23 @@ export function CardDetailArt({ card, caption }: CardDetailArtProps) {
           ) : null}
         </View>
       ) : null}
-      <CardImageFrame>
+      <CardImageFrame
+        onPress={shownSources.imageUrl ? openImage : undefined}
+        accessibilityLabel={shownLabel}
+      >
         {card ? (
           <CardArt
             key={showsBackSide ? "back" : "front"}
-            {...cardArtSources(showsBackSide ? backImage : card.image)}
-            accessibilityLabel={showsBackSide ? t("cardDetail.backSideAlt", { name: card.name }) : card.name}
+            {...shownSources}
+            accessible={false}
             style={{ flex: 1 }}
             contentFit="cover"
           />
         ) : null}
       </CardImageFrame>
+      {onOpenImage ? null : (
+        <CardImageViewer visible={viewerOpen} images={[shownImage]} onClose={() => setViewerOpen(false)} />
+      )}
     </View>
   );
 }

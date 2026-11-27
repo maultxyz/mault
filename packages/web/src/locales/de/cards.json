@@ -110,7 +110,8 @@
     "name": "Name",
     "moveToLocation": "In Lagerort verschieben",
     "moveToCollection": "In Sammlung verschieben",
-    "backSideAlt": "{{name}}, Rückseite"
+    "backSideAlt": "{{name}}, Rückseite",
+    "imageViewerTabs": "Anzuzeigendes Bild"
   },
   "cardFilterPopover": {
     "color": "Farbe",

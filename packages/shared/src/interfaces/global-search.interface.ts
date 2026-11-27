@@ -33,6 +33,7 @@ export interface CatalogCardResult {
 export interface AddCatalogCardInput {
   collectionGuid: string;
   card: PlayingCard;
+  locationGuid?: string;
 }
 
 export interface OwnedCardSearchPage {

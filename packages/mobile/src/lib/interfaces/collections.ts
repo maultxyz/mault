@@ -18,6 +18,9 @@ export interface CollectionCardTileProps {
   onOpen: (scanId: string) => void;
   onPrefetch: (scanId: string) => void;
   onShowActions: (item: GroupedScannedCard) => void;
+  isSelecting?: boolean;
+  isSelected?: boolean;
+  onToggleSelected?: (item: GroupedScannedCard) => void;
 }
 
 export interface CollectionUnmatchedTileProps {
@@ -69,9 +72,14 @@ export interface CardViewOptionsSheetProps {
   filters: CardFilters;
   breakdown: StatsBreakdown | null;
   binCount?: number;
+  openBuyGuid?: string | null;
+  cardSize?: CardSize;
+  onCardSizeChange?: (cardSize: CardSize) => void;
   onChange: (filters: CardFilters) => void;
   onClose: () => void;
 }
+
+export type CardSize = "small" | "medium" | "large";
 
 export interface CardActionsSheetProps {
   entry: GroupedScannedCard | null;

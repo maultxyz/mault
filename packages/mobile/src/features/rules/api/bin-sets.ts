@@ -1,15 +1,24 @@
+import { queryOptions } from "@tanstack/react-query";
 import type {
   BinConfig,
   BinSet,
+  DefaultBinInit,
   EmptyAllBinsInput,
   EmptyAllBinsOptions,
+  EmptyBinOptions,
   PickListFoundInput,
   PickListFoundResult,
   Result,
   ScanOnlyConfig,
 } from "@magic-vault/shared";
-import { apiPost, apiPut, unwrap } from "@/lib/api/client";
-import type { AlphabetConfigInput, BinSaveInput, ChaosConfigInput, RepackConfigInput } from "@/lib/interfaces/rules";
+import { apiDelete, apiGet, apiPost, apiPut, unwrap } from "@/lib/api/client";
+import type {
+  AlphabetConfigInput,
+  BinSaveInput,
+  BinSetHistoryEntry,
+  ChaosConfigInput,
+  RepackConfigInput,
+} from "@/lib/interfaces/rules";
 
 export function activateBinSet(guid: string): Promise<BinSet[]> {
   return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/active`));
@@ -27,6 +36,15 @@ export function emptyBins(
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
   const input: EmptyAllBinsInput = { ...options, binNumbers };
   return unwrap(apiPost<Result<BinSet[]>>(`/api/bins/bins/empty-all${params}`, input));
+}
+
+export function emptyBin(
+  binNumber: number,
+  gameGuid: string | undefined,
+  options: EmptyBinOptions,
+): Promise<BinConfig[]> {
+  const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
+  return unwrap(apiPost<Result<BinConfig[]>>(`/api/bins/bins/${binNumber}/empty${params}`, options));
 }
 
 export function saveBinConfig({ binNumber, gameGuid, ...body }: BinSaveInput): Promise<BinConfig[]> {
@@ -74,6 +92,50 @@ export function setFillStorageLocations(guid: string, storageLocationGuids: stri
 
 export function setSkipSaving(guid: string, skipSaving: boolean): Promise<BinSet[]> {
   return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/skip-saving`, { skipSaving }));
+}
+
+export function createBinSet(
+  name: string,
+  gameGuid: string | undefined,
+  initialBins?: DefaultBinInit[],
+): Promise<BinSet[]> {
+  return unwrap(apiPost<Result<BinSet[]>>("/api/bins", { name, gameGuid, initialBins }));
+}
+
+export function copyActiveBinSet(name: string, gameGuid: string | undefined): Promise<BinSet[]> {
+  return unwrap(apiPost<Result<BinSet[]>>("/api/bins/copies", { name, gameGuid }));
+}
+
+export function deleteBinSet(guid: string): Promise<BinSet[]> {
+  return unwrap(apiDelete<Result<BinSet[]>>(`/api/bins/${guid}`));
+}
+
+export async function isBinSetNameAvailable(
+  name: string,
+  gameGuid: string | undefined,
+  excludeGuid: string | undefined,
+): Promise<boolean> {
+  const params = new URLSearchParams({ name });
+  if (gameGuid) params.set("gameGuid", gameGuid);
+  if (excludeGuid) params.set("excludeGuid", excludeGuid);
+  const result = await unwrap(apiGet<Result<{ available: boolean }>>(`/api/bins/check-name?${params}`));
+  return result.available;
+}
+
+export const binSetHistoryQueryOptions = (setGuid: string | undefined) =>
+  queryOptions({
+    queryKey: ["bin-set-history", setGuid] as const,
+    queryFn: () =>
+      unwrap(apiGet<Result<BinSetHistoryEntry[]>>(`/api/bins/history?setGuid=${encodeURIComponent(setGuid ?? "")}`)),
+    enabled: !!setGuid,
+  });
+
+export function revertBinSet(historyGuid: string): Promise<BinSet[]> {
+  return unwrap(apiPost<Result<BinSet[]>>(`/api/bins/history/${historyGuid}/revert`));
+}
+
+export function resetBinPickList(binGuid: string): Promise<PickListFoundResult> {
+  return unwrap(apiPost<Result<PickListFoundResult>>(`/api/bins/bins/${binGuid}/pick-list/reset`));
 }
 
 export function updateBinSetDetails(guid: string, name: string, description: string): Promise<BinSet[]> {

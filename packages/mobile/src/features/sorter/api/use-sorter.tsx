@@ -123,6 +123,8 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   const [device, setDevice] = useState<Device | null>(null);
   const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
   const [board, setBoard] = useState<string | null>(null);
+  const [hasWifi, setHasWifi] = useState(false);
+  const [isCloudConnection, setIsCloudConnection] = useState(false);
   const deviceRef = useRef<Device | null>(null);
   const uptimeRef = useRef<number | null>(null);
   const discoveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -161,6 +163,8 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     setDevice(null);
     setFirmwareVersion(null);
     setBoard(null);
+    setHasWifi(false);
+    setIsCloudConnection(false);
     if (leased) void releaseDeviceLease(leased.guid);
     await transport?.close();
   }, []);
@@ -329,6 +333,8 @@ export function SorterProvider({ children }: { children: ReactNode }) {
         setFirmwareVersion(status.version ?? null);
         versionRef.current = status.version ?? null;
         setBoard(status.board ?? null);
+        setHasWifi(typeof status.wifi === "string");
+        setIsCloudConnection(id.startsWith(CLOUD_SORTER_ID_PREFIX));
         uptimeRef.current = statusUptimeMs(status);
         advertisedNameRef.current = status.name ?? null;
 
@@ -681,6 +687,8 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       device,
       firmwareVersion,
       board,
+      hasWifi,
+      isCloudConnection,
       isReady: phase === "ready",
       isConnected: !!device,
       startDiscovery,
@@ -719,6 +727,8 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       device,
       firmwareVersion,
       board,
+      hasWifi,
+      isCloudConnection,
       startDiscovery,
       stopDiscovery,
       connect,

@@ -4,6 +4,7 @@ import type {
   CollectionCsvImportRequest,
   CollectionCsvImportResult,
   CreateCollectionFormValues,
+  DeckLinkImportResult,
   EditCollectionFormValues,
   Result,
 } from "@magic-vault/shared";
@@ -48,6 +49,10 @@ export function checkCollectionName(name: string, excludeGuid?: string): Promise
   return apiGet<Result<{ available: boolean }>>(`/api/collections/check-name?${params.toString()}`).then(
     (result) => result.data?.available ?? true,
   );
+}
+
+export function loadDeckLink(url: string): Promise<DeckLinkImportResult> {
+  return apiPost<DeckLinkImportResult>("/api/cards/deck-link", { url });
 }
 
 export const previewCollectionCsvImport = (guid: string, request: CollectionCsvImportRequest) =>
