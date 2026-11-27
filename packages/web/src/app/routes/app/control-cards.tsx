@@ -1,5 +1,6 @@
 import { Callout } from "@/components/callout";
 import { PageHeader } from "@/components/page-header";
+import { PanelBackButton } from "@/components/panel-back-button";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { ControlCardBuilder } from "@/features/control-cards/components/control-card-builder";
@@ -27,7 +28,7 @@ export default function ControlCardsPage() {
     <PageHeader
       title={t("controlCards.page.title")}
       description={t("controlCards.page.description")}
-      backTo={CONTROL_CARDS_BACK_PATH}
+      backTo={isMobile ? CONTROL_CARDS_BACK_PATH : undefined}
       backLabel={t("controlCards.page.back")}
       spansFullWidth
       actions={
@@ -79,6 +80,10 @@ export default function ControlCardsPage() {
       <style>{CONTROL_CARD_PRINT_PAGE_STYLE}</style>
       <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-y-auto border-r bg-sidebar/70 p-2 lg:col-span-3">
+          <PanelBackButton
+            to={CONTROL_CARDS_BACK_PATH}
+            label={t("controlCards.page.back")}
+          />
           {builder}
         </section>
         <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">

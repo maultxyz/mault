@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
+import { PanelBackButton } from "@/components/panel-back-button";
 import { SkeletonStatus } from "@/components/skeleton-status";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -143,6 +144,7 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
       <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
       <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-y-auto border-r bg-sidebar/70 p-2 lg:col-span-3">
+          <PanelBackButton to={STORAGE_PATH} label={t("pickList.back")} />
           {isPending ? (
             <SkeletonStatus>
               <StorageLabelOptionsFormSkeleton />
@@ -155,8 +157,6 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
           <PageHeader
             title={t("labels.page.title")}
             description={t("labels.page.description")}
-            backTo={STORAGE_PATH}
-            backLabel={t("pickList.back")}
             actions={printButton}
             spansFullWidth
           />
