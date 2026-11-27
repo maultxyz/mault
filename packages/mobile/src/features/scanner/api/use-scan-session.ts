@@ -47,6 +47,7 @@ import {
   type BinConfig,
   type BinContentCard,
   type BinRoute,
+  type BinWindow,
   type ScanPickListUpdate,
   type ScannerControlCommand,
   type ScanRoutingContext,
@@ -70,6 +71,7 @@ import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { showScanGiftReveal } from "@/features/scanner/lib/scan-gift-reveal-store";
 import {
+  binWindowsOf,
   fetchBinContents,
   fetchBinCounts,
 } from "@/features/scanner/api/bin-counts";
@@ -142,9 +144,10 @@ export function useScanSession({
   const { data: feederConfig } = useQuery(
     feederConfigQueryOptions(sorter.device?.guid ?? null),
   );
-  const { data: binHeights, isError: binHeightsFailed } = useQuery(
+  const { data: binHeights, isError: binHeightsRequestFailed } = useQuery(
     binHeightsQueryOptions(sorter.device?.guid ?? null),
   );
+  const binHeightsFailed = binHeightsRequestFailed && !binHeights;
 
   const [phase, setPhaseState] = useState<ScannerPhase>("idle");
   const [pauseReason, setPauseReason] = useState<ScannerPauseReason | null>(
@@ -212,6 +215,15 @@ export function useScanSession({
     fieldDefinitions,
   );
   const needsBinContents = !!set?.isRepackMode || hasMaxCopiesBins(configs);
+  const collectionGuid = collection?.guid ?? null;
+  const binCountWindowsKey = useMemo(
+    () => JSON.stringify(binWindowsOf(configs)),
+    [configs],
+  );
+  const binContentsWindowsKey = useMemo(
+    () => JSON.stringify(binWindowsOf(configs.filter((bin) => !bin.isCatchAll))),
+    [configs],
+  );
 
   const phaseRef = useRef<ScannerPhase>("idle");
   const runningRef = useRef(false);
@@ -386,15 +398,12 @@ export function useScanSession({
   }, [sorter.isReady, handScanActive, pause]);
 
   useEffect(() => {
-    binCountsLoadedRef.current = configs.length === 0;
-    if (!collection || configs.length === 0) return;
+    const windows: BinWindow[] = JSON.parse(binCountWindowsKey);
+    binCountsLoadedRef.current = windows.length === 0;
+    if (!collectionGuid || windows.length === 0) return;
     let cancelled = false;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
-    const windows = configs.map((bin) => ({
-      binNumber: bin.binNumber,
-      lastEmptiedAt: bin.lastEmptiedAt ?? null,
-    }));
-    void fetchBinCounts(collection.guid, windows)
+    void fetchBinCounts(collectionGuid, windows)
       .then((counts) => {
         if (cancelled) return;
         binCountsRef.current = new Map(
@@ -418,7 +427,7 @@ export function useScanSession({
       cancelled = true;
       if (retryTimer) clearTimeout(retryTimer);
     };
-  }, [collection, configs, binDataReloadAttempt]);
+  }, [collectionGuid, binCountWindowsKey, binDataReloadAttempt]);
 
   useEffect(() => {
     locallyUpdatedConfigsRef.current = null;
@@ -427,16 +436,11 @@ export function useScanSession({
   useEffect(() => {
     binContentsRef.current = [];
     binContentsLoadedRef.current = !needsBinContents;
-    if (!collection || !needsBinContents) return;
+    if (!collectionGuid || !needsBinContents) return;
     let cancelled = false;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
-    const windows = configs
-      .filter((bin) => !bin.isCatchAll)
-      .map((bin) => ({
-        binNumber: bin.binNumber,
-        lastEmptiedAt: bin.lastEmptiedAt ?? null,
-      }));
-    void fetchBinContents(collection.guid, windows)
+    const windows: BinWindow[] = JSON.parse(binContentsWindowsKey);
+    void fetchBinContents(collectionGuid, windows)
       .then((contents) => {
         if (cancelled) return;
         binContentsRef.current = contents.map((entry) => ({
@@ -457,7 +461,7 @@ export function useScanSession({
       cancelled = true;
       if (retryTimer) clearTimeout(retryTimer);
     };
-  }, [collection, configs, needsBinContents, binDataReloadAttempt]);
+  }, [collectionGuid, binContentsWindowsKey, needsBinContents, binDataReloadAttempt]);
 
   const routeFor = useCallback(
     (binNumber: number): BinRoute =>
