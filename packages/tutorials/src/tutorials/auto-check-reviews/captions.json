@@ -1,0 +1,13 @@
+{
+  "title": "Auto-check your reviews",
+  "subtitle": "Let a high accuracy rescan accept the cards that were right",
+  "steps": {
+    "intro": "Cards the scanner wasn't sure about wait for review.",
+    "openReview": "Open the review grid to see them all at once.",
+    "startAutoCheck": "Press Auto-check to rescan their photos with high accuracy.",
+    "checking": "Cards are checked in small batches.",
+    "results": "Matches are accepted for you. Anything else stays with a note on what to look at.",
+    "pause": "Pause any time. Cards being checked finish first.",
+    "resume": "Resume later to pick up where you left off."
+  }
+}

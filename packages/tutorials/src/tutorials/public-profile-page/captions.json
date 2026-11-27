@@ -1,0 +1,21 @@
+{
+  "title": "Your public profile page",
+  "subtitle": "Show off your shop, links and best cards at your own address",
+  "steps": {
+    "intro": "Set up your profile page in Settings, under Profile.",
+    "publish": "Turn on Published so anyone with the link can see it.",
+    "handle": "Pick a handle. It becomes the address of your page.",
+    "displayName": "Add the name shown at the top of the page.",
+    "bio": "Write a short bio about what you sell or where you play.",
+    "addLink": "Add buttons for your shops and socials.",
+    "linkAddress": "Paste the address the button opens.",
+    "openShowcase": "Add cards from your library to the showcase.",
+    "pickCards": "Pick the cards you want to show off.",
+    "finishPicking": "Reorder or remove them any time.",
+    "prices": "Choose whether showcase cards show their prices.",
+    "save": "Save to put your page live.",
+    "liveLink": "Copy the link and share it anywhere.",
+    "publicPage": "This is what visitors see.",
+    "publicShowcase": "Your showcase cards appear in the order you picked."
+  }
+}
