@@ -12,6 +12,16 @@ import type {
 } from "../../interfaces/fleshcube";
 import { fetchCardByPrintingId, fleshcubeFetch, searchUrl } from "./search";
 
+function withoutFabVolatileData(data: unknown): unknown {
+  const card = data as FleshcubeCard;
+  return {
+    ...card,
+    cardPrintings: card.cardPrintings?.map(
+      ({ tcgPlayerPrice: _tcgPlayerPrice, ...printing }) => printing,
+    ),
+  };
+}
+
 function toSyncCard(
   card: FleshcubeCard,
   printing: FleshcubePrinting,
@@ -103,6 +113,7 @@ async function fetchOne(id: string, baseUrl: string) {
 export const fabSyncSource: SyncSource = {
   gameKey: "fab",
   label: "Flesh and Blood (Fleshcube)",
+  withoutVolatileData: withoutFabVolatileData,
   defaultUrl: FAB_DEFAULT_URL,
   fetchHeaders: CARD_API_HEADERS,
   languages: ["en"],

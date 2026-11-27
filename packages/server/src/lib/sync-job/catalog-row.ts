@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { catalogColumnsFor } from "../card-catalog";
 import { storedCollectorNumber } from "../card-search/collector-number";
+import type { SyncSource } from "../interfaces/card-search";
 import type {
   CatalogCardRow,
   CatalogCardRowInput,
@@ -36,8 +37,9 @@ function withoutKeys(data: unknown, keys: readonly string[]): unknown {
 
 export function sourceDataHashOf(
   row: CatalogCardRow,
-  volatileDataKeys: readonly string[],
+  { volatileDataKeys = [], withoutVolatileData }: Pick<SyncSource, "volatileDataKeys" | "withoutVolatileData">,
 ): string {
+  const stableData = withoutVolatileData ? withoutVolatileData(row.data) : row.data;
   return createHash("sha256")
     .update(
       JSON.stringify([
@@ -49,7 +51,7 @@ export function sourceDataHashOf(
         row.colorIdentity,
         row.searchText,
         row.imageSmall,
-        withoutKeys(row.data, volatileDataKeys),
+        withoutKeys(stableData, volatileDataKeys),
       ]),
     )
     .digest("hex");

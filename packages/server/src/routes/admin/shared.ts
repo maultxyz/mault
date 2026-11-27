@@ -140,10 +140,7 @@ export async function syncOneCard(
     backEmbedding,
     data: sql`${card.data}::jsonb`,
     embeddingVersion: CARD_EMBEDDING_VERSION,
-    sourceDataHash: sourceDataHashOf(
-      { ...row, data },
-      source.volatileDataKeys ?? [],
-    ),
+    sourceDataHash: sourceDataHashOf({ ...row, data }, source),
     ...printingMarkColumns(gameKey, front.marks),
   };
 

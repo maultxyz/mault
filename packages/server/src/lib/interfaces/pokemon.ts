@@ -49,6 +49,7 @@ export interface PokemonCardVariant {
     tcgplayer?: number;
     cardmarket?: number;
   };
+  pricing?: PokemonPricing;
 }
 
 export interface PokemonFinish {

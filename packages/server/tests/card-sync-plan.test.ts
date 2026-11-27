@@ -68,16 +68,19 @@ const row: CatalogCardRow = {
 
 test("the source data hash ignores volatile keys only", () => {
   const withNewPrice = { ...row, data: { id: "card-1", name: "Card 1", prices: { usd: "2.00" } } };
-  assert.equal(sourceDataHashOf(row, ["prices"]), sourceDataHashOf(withNewPrice, ["prices"]));
-  assert.notEqual(sourceDataHashOf(row, []), sourceDataHashOf(withNewPrice, []));
+  assert.equal(
+    sourceDataHashOf(row, { volatileDataKeys: ["prices"] }),
+    sourceDataHashOf(withNewPrice, { volatileDataKeys: ["prices"] }),
+  );
+  assert.notEqual(sourceDataHashOf(row, {}), sourceDataHashOf(withNewPrice, {}));
 });
 
 test("the source data hash changes with stored columns and data", () => {
-  const hash = sourceDataHashOf(row, ["prices"]);
-  assert.notEqual(sourceDataHashOf({ ...row, setCode: "new" }, ["prices"]), hash);
-  assert.notEqual(sourceDataHashOf({ ...row, collectorNumber: "2" }, ["prices"]), hash);
+  const hash = sourceDataHashOf(row, { volatileDataKeys: ["prices"] });
+  assert.notEqual(sourceDataHashOf({ ...row, setCode: "new" }, { volatileDataKeys: ["prices"] }), hash);
+  assert.notEqual(sourceDataHashOf({ ...row, collectorNumber: "2" }, { volatileDataKeys: ["prices"] }), hash);
   assert.notEqual(
-    sourceDataHashOf({ ...row, data: { id: "card-1", name: "Renamed", prices: {} } }, ["prices"]),
+    sourceDataHashOf({ ...row, data: { id: "card-1", name: "Renamed", prices: {} } }, { volatileDataKeys: ["prices"] }),
     hash,
   );
 });

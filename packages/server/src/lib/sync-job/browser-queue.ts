@@ -219,10 +219,7 @@ export async function submitBrowserWork(
             embedding,
             backEmbedding,
             embeddingVersion: CARD_EMBEDDING_VERSION,
-            sourceDataHash: sourceDataHashOf(
-              row,
-              source.volatileDataKeys ?? [],
-            ),
+            sourceDataHash: sourceDataHashOf(row, source),
           },
         });
       }
