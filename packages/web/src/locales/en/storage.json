@@ -15,7 +15,8 @@
     "deleteDescription": "The cards stay in your collections, but they lose this location and their position in it.",
     "summary_one": "{{count, compact}} card · {{value}} total",
     "summary_other": "{{count, compact}} cards · {{value}} total",
-    "addCard": "Add card"
+    "addCard": "Add card",
+    "quickAdd": "Quick add"
   },
   "nameDialog": {
     "label": "Name",

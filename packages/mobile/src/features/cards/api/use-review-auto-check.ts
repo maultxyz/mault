@@ -1,6 +1,7 @@
 import {
   countReviewAutoCheckVerdicts,
   loadUnseenReviewCards,
+  ReviewAutoCheckRevealPacer,
   runReviewAutoCheck,
   type ReviewAutoCheckOutcome,
   type ReviewAutoCheckProgress,
@@ -50,10 +51,12 @@ export function useReviewAutoCheck({ cards, hiddenScanIds, remainingTotal, loadR
     pageCardsRef.current = cards;
     hiddenScanIdsRef.current = hiddenScanIds;
   }, [cards, hiddenScanIds]);
+  const revealPacerRef = useRef<ReviewAutoCheckRevealPacer | null>(null);
   useEffect(() => {
     isUnmountedRef.current = false;
     return () => {
       isUnmountedRef.current = true;
+      revealPacerRef.current?.dispose();
     };
   }, []);
 
@@ -102,6 +105,16 @@ export function useReviewAutoCheck({ cards, hiddenScanIds, remainingTotal, loadR
       return { checked, total: checked + estimatedUncheckedCount };
     });
     const touchedCollectionGuids = new Set<string>();
+    const revealPacer = new ReviewAutoCheckRevealPacer({
+      onReveal: (outcome) => {
+        jobOutcomesRef.current.push(outcome);
+        setOutcomes((previous) => new Map(previous).set(outcome.scanId, outcome));
+        setProgress((previous) => (previous ? { ...previous, checked: previous.checked + 1 } : previous));
+        if (outcome.verdict === "confirmed") onConfirmed([outcome.scanId]);
+      },
+      onCheckingScanIdChange: (scanId) => setCheckingScanIds(new Set(scanId ? [scanId] : [])),
+    });
+    revealPacerRef.current = revealPacer;
     let result: Awaited<ReturnType<typeof runReviewAutoCheck>> | "failed";
     try {
       result = await runReviewAutoCheck({
@@ -110,29 +123,21 @@ export function useReviewAutoCheck({ cards, hiddenScanIds, remainingTotal, loadR
         loadMoreCards,
         checkCollectionCards: async (collectionGuid, scanIds) => {
           touchedCollectionGuids.add(collectionGuid);
-          const checkResult = await autoCheckCollectionReviewCards(collectionGuid, scanIds);
-          setProgress((previous) => (previous ? { ...previous, checked: previous.checked + scanIds.length } : previous));
-          return checkResult;
+          return autoCheckCollectionReviewCards(collectionGuid, scanIds);
         },
         onBatchStart: (scanIds) => {
-          setCheckingScanIds(new Set(scanIds));
+          revealPacer.addBatch(scanIds);
           bumpTotal();
         },
-        onOutcomes: (batch) => {
-          jobOutcomesRef.current.push(...batch);
-          setOutcomes((previous) => {
-            const next = new Map(previous);
-            for (const outcome of batch) next.set(outcome.scanId, outcome);
-            return next;
-          });
-          setCheckingScanIds(new Set());
-          onConfirmed(batch.filter((outcome) => outcome.verdict === "confirmed").map((outcome) => outcome.scanId));
-        },
+        onOutcomes: (batch) => revealPacer.addOutcomes(batch),
         isCancelled: () => isUnmountedRef.current || isPauseRequestedRef.current,
       });
     } catch {
       result = "failed";
     }
+    if (isUnmountedRef.current) revealPacer.dispose();
+    else if (result === "finished") await revealPacer.drain();
+    else revealPacer.flush();
     for (const guid of touchedCollectionGuids) invalidateCollectionCards(queryClient, guid);
     if (isUnmountedRef.current) return;
     onFinished();

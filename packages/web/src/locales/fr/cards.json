@@ -523,6 +523,38 @@
     "added": "{{name}} ajoutée",
     "failed": "Impossible d'ajouter la carte."
   },
+  "quickAdd": {
+    "button": "Ajout rapide",
+    "title": "Ajout rapide de cartes",
+    "description": "Saisissez une carte et appuyez sur Entrée pour l'ajouter. Le champ se vide aussitôt pour que vous puissiez saisir la carte suivante.",
+    "searchLabel": "Carte à ajouter",
+    "placeholder": "4x Lightning Bolt (m10) 146 *f*",
+    "syntaxHint": "Commencez par une quantité (4x), ajoutez un code d'extension entre parenthèses (m10) et un numéro de collection, ou *f* pour foil. Haut et Bas choisissent une impression, Entrée l'ajoute.",
+    "collection": "Collection",
+    "location": "Emplacement de rangement",
+    "noLocation": "Aucun emplacement",
+    "condition": "État",
+    "foil": "Foil",
+    "noCollections": "Créez d'abord une collection pour y ajouter des cartes.",
+    "noCollectorNumberMatch": "Aucune impression ne correspond au numéro de collection {{number}}.",
+    "logTitle": "Ajoutées pendant cette session",
+    "logEmpty": "Les cartes ajoutées apparaissent ici pour que vous puissiez annuler une erreur.",
+    "addedCount_one": "{{count}} carte",
+    "addedCount_other": "{{count}} cartes",
+    "status": {
+      "saving": "Ajout...",
+      "failed": "Non ajoutée",
+      "undoing": "Annulation...",
+      "undone": "Annulée"
+    },
+    "undo": "Annuler",
+    "undoLabel": "Annuler l'ajout de {{count}}x {{name}}",
+    "undoFailed": "Impossible d'annuler. Réessayez.",
+    "addedAnnouncement_one": "{{name}} ajoutée",
+    "addedAnnouncement_other": "{{count}} exemplaires de {{name}} ajoutés",
+    "failedAnnouncement": "Impossible d'ajouter {{name}}",
+    "undoneAnnouncement": "{{name}} retirée"
+  },
   "externalCardDrop": {
     "overlayTitle": "Déposez pour ajouter des cartes",
     "overlayDescription": "Les cartes et liens de deck de Scryfall, Moxfield ou Archidekt sont ajoutés à {{collection}}.",

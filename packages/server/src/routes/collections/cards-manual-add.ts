@@ -1,8 +1,12 @@
 import {
+  MANUAL_CARD_ADD_MAX_QUANTITY,
+  detectedFoilFamily,
   pickedCardLanguage,
+  resolveScanFoilType,
+  toCardCondition,
   type AddManualCardRequest,
+  type AddManualCardResult,
   type PlayingCardWithDistance,
-  type ScannedCard,
 } from "@magic-vault/shared";
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
@@ -35,7 +39,7 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
     const orgId = c.get("orgId");
     const userId = c.get("userId");
     const guid = c.req.param("guid");
-    const { card, locationGuid } = await c.req
+    const { card, locationGuid, quantity = 1, isFoil, condition } = await c.req
       .json<AddManualCardRequest>()
       .catch(() => ({}) as Partial<AddManualCardRequest>);
     if (!card?.id) {
@@ -44,13 +48,21 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
     if (locationGuid != null && !UUID_PATTERN.test(locationGuid)) {
       return c.json({ success: false, message: "Invalid location." }, 400);
     }
+    if (
+      !Number.isInteger(quantity) ||
+      quantity < 1 ||
+      quantity > MANUAL_CARD_ADD_MAX_QUANTITY
+    ) {
+      return c.json({ success: false, message: "Invalid quantity." }, 400);
+    }
+    const savedCondition = toCardCondition(condition);
     const added: PlayingCardWithDistance = {
       ...card,
       distance: 0,
       confidence: 1,
     };
     const language = pickedCardLanguage(added);
-    const scanId = randomUUID();
+    const scanIds = Array.from({ length: quantity }, () => randomUUID());
 
     const outcome = await authQuery(c.get("jwtClaims"), async (tx) => {
       const [collection] = await tx
@@ -87,31 +99,50 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
         }
       }
 
-      const scannedAt = new Date();
+      const foilType = resolveScanFoilType({
+        card: added,
+        sessionFoilType:
+          isFoil === true && !added.hasNoFoilPrinting
+            ? detectedFoilFamily(added, [], collection.gameKey)
+            : null,
+        foilDetection: null,
+        fallbackFoilTypes: [],
+        gameKey: collection.gameKey,
+        isNudgeFoilDetectionEnabled: false,
+        isFoilStarDetectionEnabled: false,
+      });
+      const firstScannedAtMs = Date.now();
+      const scannedAtOfCopy = (copyIndex: number) =>
+        new Date(firstScannedAtMs + copyIndex);
       const saved = await toSavedCardSnapshots(
         { gameKey: collection.gameKey, lang: collection.lang },
         added,
         null,
       );
-      await tx.insert(collectionCards).values({
-        guid: scanId,
-        collectionId: collection.id,
-        cardId: added.id,
-        card: saved.card,
-        scannedAt,
-        isFoil: false,
-        language,
-        isReviewed: true,
-        scannedByUserId: userId,
-        intakeLotId: await findOpenIntakeLotId(tx, collection.id),
-        orgId,
-      });
+      const intakeLotId = await findOpenIntakeLotId(tx, collection.id);
+      await tx.insert(collectionCards).values(
+        scanIds.map((scanId, copyIndex) => ({
+          guid: scanId,
+          collectionId: collection.id,
+          cardId: added.id,
+          card: saved.card,
+          scannedAt: scannedAtOfCopy(copyIndex),
+          isFoil: foilType != null,
+          foilType,
+          condition: savedCondition,
+          language,
+          isReviewed: true,
+          scannedByUserId: userId,
+          intakeLotId,
+          orgId,
+        })),
+      );
 
       if (locationId !== null) {
         await moveCardsToLocation(tx, {
           orgId,
           locationId,
-          scanIds: [scanId],
+          scanIds,
         });
         await tx
           .update(storageLocations)
@@ -126,15 +157,19 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
 
       return {
         status: 200 as const,
-        card: toScannedCard({
-          guid: scanId,
-          card: added,
-          scannedAt,
-          binNumber: null,
-          isFoil: false,
-          language,
-          isReviewed: true,
-        }),
+        cards: scanIds.map((scanId, copyIndex) =>
+          toScannedCard({
+            guid: scanId,
+            card: added,
+            scannedAt: scannedAtOfCopy(copyIndex),
+            binNumber: null,
+            isFoil: foilType != null,
+            foilType,
+            condition: savedCondition,
+            language,
+            isReviewed: true,
+          }),
+        ),
       };
     });
 
@@ -152,10 +187,16 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
       );
     }
 
-    const data: ScannedCard = outcome.card;
-    emitToSession(orgId, guid, "card_added", data);
+    for (const addedCard of outcome.cards) {
+      emitToSession(orgId, guid, "card_added", addedCard);
+    }
     emitCollectionCardsChanged(orgId, guid);
-    if (locationGuid) emitCardsStoredWebhook(orgId, locationGuid, [scanId]);
-    return c.json({ success: true, data });
+    if (locationGuid) emitCardsStoredWebhook(orgId, locationGuid, scanIds);
+    const result: AddManualCardResult = {
+      success: true,
+      data: outcome.cards[0],
+      addedScanIds: scanIds,
+    };
+    return c.json(result);
   },
 );

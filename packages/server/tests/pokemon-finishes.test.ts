@@ -122,6 +122,10 @@ test("a listed normal variant wins over prices that only cover a foil finish", (
   assert.equal(pokemonListsNonFoilPrinting(commonMissingNormalPrice), true);
 });
 
+test("saved cards without source data list no non-foil printing", () => {
+  assert.equal(pokemonListsNonFoilPrinting(undefined), false);
+});
+
 test("cards with a non-foil printing keep the session finish", () => {
   const common: PokemonCardDetail = {
     id: "me02.5-039",

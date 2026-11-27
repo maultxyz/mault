@@ -261,6 +261,7 @@ export * from "./interfaces/review-auto-check.interface";
 export * from "./constants/review-auto-check.constant";
 export * from "./schemas/review-auto-check.schema";
 export * from "./review-auto-check";
+export * from "./review-auto-check-reveal-pacer";
 export * from "./interfaces/scan-timeline.interface";
 export * from "./constants/scan-timeline.constant";
 export * from "./scan-timeline";

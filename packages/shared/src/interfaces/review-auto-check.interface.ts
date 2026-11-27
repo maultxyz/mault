@@ -54,3 +54,11 @@ export interface ReviewAutoCheckRunOptions {
   onOutcomes: (outcomes: ReviewAutoCheckOutcome[]) => void;
   isCancelled?: () => boolean;
 }
+
+export interface ReviewAutoCheckRevealPacerOptions {
+  onReveal: (outcome: ReviewAutoCheckOutcome) => void;
+  onCheckingScanIdChange: (scanId: string | null) => void;
+  now?: () => number;
+  setTimer?: (callback: () => void, delayMs: number) => unknown;
+  clearTimer?: (timer: unknown) => void;
+}

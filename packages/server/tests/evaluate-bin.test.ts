@@ -19,6 +19,7 @@ import {
   toRuleCard,
   type BinConfig,
   type BinRuleGroup,
+  type ConditionOperator,
   type FieldMeta,
   type RepackSlot,
   withScanRuleFields,
@@ -50,6 +51,26 @@ const priceBin = bin(6, [{ id: "price", field: "price", operator: "gte", value: 
 });
 const catchAll = bin(7, [], { isCatchAll: true });
 const configs = [...colors, priceBin, catchAll];
+
+test("list operators treat a single card value as a one-item list, ignoring case", () => {
+  const rarityFields: FieldMeta[] = [
+    { field: "rarity", label: "Rarity", type: "set", path: "rarity", operators: [] },
+    { field: "types", label: "Types", type: "enum", path: "types", operators: [] },
+  ];
+  const rare = { rarity: "Rare", types: ["Fire", "Water"] };
+  const check = (field: string, operator: ConditionOperator, value: string[]) =>
+    evaluateCondition(rare, { id: "c", field, operator, value }, rarityFields);
+
+  assert.equal(check("rarity", "contains_any", ["EPIC RARE", "RARE"]), true);
+  assert.equal(check("rarity", "contains_all", ["RARE"]), true);
+  assert.equal(check("rarity", "contains_none", ["RARE"]), false);
+  assert.equal(check("rarity", "contains_none", ["COMMON"]), true);
+  assert.equal(check("rarity", "equals", ["RARE"]), true);
+  assert.equal(check("rarity", "in", ["rare"]), true);
+  assert.equal(check("types", "in", ["water"]), true);
+  assert.equal(check("types", "not_in", ["water"]), false);
+  assert.equal(check("types", "not_in", ["grass"]), true);
+});
 
 test("$1+ cards override every WUBRG bin, including the exact threshold", () => {
   for (const color of ["W", "U", "B", "R", "G"]) {

@@ -118,7 +118,7 @@ export const pokemonAdapter: CardSearchAdapter = {
   printedSetTotalSql: sql`CASE WHEN data->'set'->'cardCount'->>'official' ~ '^[0-9]+$' THEN (data->'set'->'cardCount'->>'official')::int END`,
   printingMarkGroups: pokemonPrintingMarkGroups,
   sourceListsNonFoilPrinting: (card) =>
-    pokemonListsNonFoilPrinting(card.raw as PokemonCardDetail),
+    pokemonListsNonFoilPrinting(card.raw as PokemonCardDetail | undefined),
   tcgplayer: {
     categoryId: 3,
     foilTypeOfVariant: (variant) =>

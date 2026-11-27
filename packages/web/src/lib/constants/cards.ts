@@ -136,3 +136,12 @@ export const EXTERNAL_CARD_SOURCE_HOSTS: ExternalCardSourceHost[] = [
 export const EXTERNAL_CARD_DROP_DATA_TYPES = ["text/uri-list", "text/html"];
 
 export const EXTERNAL_CARD_NAME_MAX_LENGTH = 200;
+
+export const QUICK_ADD_NO_LOCATION = "none";
+
+export const QUICK_ADD_QUANTITY_PATTERN = /^(\d{1,3})\s*x?\s+/i;
+
+export const QUICK_ADD_FOIL_MARKER_PATTERN = /\s*\*f(?:oil)?\*\s*/gi;
+
+export const QUICK_ADD_PRINTING_PATTERN =
+  /\s*[([]([a-z0-9]{2,8})[)\]](?:\s+([a-z0-9★-]+))?\s*$/i;

@@ -93,8 +93,10 @@ export function pokemonFinishProducts(card: PlayingCard): TcgplayerFinishProduct
   );
 }
 
-export function pokemonListsNonFoilPrinting(raw: PokemonCardDetail): boolean {
-  return (raw.variants_detailed ?? []).some((variant) => variant.type === "normal");
+export function pokemonListsNonFoilPrinting(
+  raw: PokemonCardDetail | undefined,
+): boolean {
+  return (raw?.variants_detailed ?? []).some((variant) => variant.type === "normal");
 }
 
 export function pokemonFoilOnlyFoilType(

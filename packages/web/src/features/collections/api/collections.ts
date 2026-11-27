@@ -13,6 +13,7 @@ import {
 } from "@/lib/api/client";
 import {
   type AddManualCardRequest,
+  type AddManualCardResult,
   type CardCondition,
   type CardScanOrigin,
   type CollectionCsvImportRequest,
@@ -514,8 +515,8 @@ export async function retryUnmatchedCardsBatch(
 export async function addManualCollectionCard(
   guid: string,
   request: AddManualCardRequest,
-): Promise<Result<ScannedCard>> {
-  return apiPost<Result<ScannedCard>>(
+): Promise<AddManualCardResult> {
+  return apiPost<AddManualCardResult>(
     `/api/collections/${guid}/cards/manual`,
     request,
   );

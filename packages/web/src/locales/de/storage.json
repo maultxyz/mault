@@ -15,7 +15,8 @@
     "deleteDescription": "Die Karten bleiben in deinen Sammlungen, verlieren aber diesen Lagerort und ihre Position darin.",
     "summary_one": "{{count, compact}} Karte · {{value}} gesamt",
     "summary_other": "{{count, compact}} Karten · {{value}} gesamt",
-    "addCard": "Karte hinzufügen"
+    "addCard": "Karte hinzufügen",
+    "quickAdd": "Schnell hinzufügen"
   },
   "nameDialog": {
     "label": "Name",

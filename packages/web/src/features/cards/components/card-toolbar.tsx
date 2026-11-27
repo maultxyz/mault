@@ -19,6 +19,7 @@ import {
   IconFileImport,
   IconListCheck,
   IconPhotoUp,
+  IconBolt,
   IconPlus,
   IconSearch,
   IconTrash,
@@ -64,6 +65,7 @@ export function CardToolbar({
   leading,
   extraActions,
   onAddCard,
+  onQuickAdd,
   onImportScans,
   onImportCsv,
 }: CardToolbarProps) {
@@ -200,6 +202,16 @@ export function CardToolbar({
           >
             <IconListCheck />
             {t("cardToolbar.reviewCount", { count: needsReviewCount })}
+          </Button>
+        )}
+        {onQuickAdd && (
+          <Button
+            variant="outline"
+            onClick={onQuickAdd}
+            className="shrink-0 max-md:hidden"
+          >
+            <IconBolt />
+            {t("quickAdd.button")}
           </Button>
         )}
         {onAddCard && (

@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useStorageLocationSelection } from "@/features/storage/api/use-storage-location-selection";
 import { StorageLocationSelectionBar } from "@/features/storage/components/storage-location-selection-bar";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { QuickAddDialog } from "@/features/cards/components/quick-add-dialog";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import {
@@ -74,6 +75,7 @@ import {
   IconEdit,
   IconListCheck,
   IconListSearch,
+  IconBolt,
   IconPlus,
   IconStack2,
   IconPrinter,
@@ -104,6 +106,7 @@ function DesktopStoragePage() {
     openLocationAction,
   } = dialogs;
   const [addCardOpen, setAddCardOpen] = useState(false);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
   const { collections } = useCollections();
   const [searchQuery, setSearchQuery] = useState("");
   const [locationHeaderElement, setLocationHeaderElement] =
@@ -206,8 +209,11 @@ function DesktopStoragePage() {
     !isGridReviewing &&
     selected.cardCount > 0;
 
+  const canQuickAdd = !!selected && !isLocked && collections.length > 0;
+
   useHotkeys({
     reviewStart: canStartReview ? () => void startReview() : undefined,
+    quickAddCards: canQuickAdd ? () => setQuickAddOpen(true) : undefined,
   });
 
   const openLocation = (guid: string) => {
@@ -422,6 +428,15 @@ function DesktopStoragePage() {
                     {t("page.addCard")}
                   </Button>
                 )}
+                {canQuickAdd && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setQuickAddOpen(true)}
+                  >
+                    <IconBolt />
+                    {t("page.quickAdd")}
+                  </Button>
+                )}
                 {selected.cardCount > 0 && (
                   <>
                     {!isLocked && (
@@ -571,6 +586,13 @@ function DesktopStoragePage() {
         <AddCardDialog
           open={addCardOpen}
           onOpenChange={setAddCardOpen}
+          locationGuid={selected.guid}
+        />
+      )}
+      {selected && (
+        <QuickAddDialog
+          open={quickAddOpen}
+          onOpenChange={setQuickAddOpen}
           locationGuid={selected.guid}
         />
       )}
