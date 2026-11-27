@@ -8,11 +8,14 @@ import {
   NeonAuthUIProvider,
 } from "@neondatabase/neon-js/auth/react/ui";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { Callout } from "@/components/callout";
+import { SIGNED_OUT_PARAM } from "@/lib/constants/auth";
 
 export default function AuthPage() {
   const { t } = useTranslation("auth");
   const { path } = useParams();
+  const [searchParams] = useSearchParams();
   const headingKey =
     path === "sign-up"
       ? "local.signUpTitle"
@@ -40,6 +43,11 @@ export default function AuthPage() {
       >
         <h1 className="sr-only">{t(headingKey)}</h1>
         <BrandMark />
+        {path === "sign-in" && searchParams.has(SIGNED_OUT_PARAM) ? (
+          <Callout variant="warning" title={t("local.signedOutTitle")} className="w-full max-w-sm">
+            {t("local.signedOutDescription")}
+          </Callout>
+        ) : null}
         <AuthView
           path={path}
           classNames={{

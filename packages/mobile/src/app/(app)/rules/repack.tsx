@@ -39,6 +39,7 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { REPACK_ALLOW_DUPLICATES_VALUE } from "@/lib/constants/rules";
 import { FONT_SIZE, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 import type { RepackFormInput, RepackFormValues } from "@/lib/interfaces/forms";
 
@@ -147,7 +148,6 @@ export default function RepackEditorScreen() {
             <AppText size="sm" tone="secondary">
               {t("rules.modes.repack.description")}
             </AppText>
-            {save.isError ? <Callout tone="destructive" title={t("rules.repack.saveFailed")} /> : null}
 
             <ListGroup>
               <ListRow
@@ -232,7 +232,7 @@ export default function RepackEditorScreen() {
                           />
                           <IconButton
                             icon="trash"
-                            size={36}
+                            size={MIN_TOUCH_TARGET}
                             accessibilityLabel={t("rules.repack.removeSlot")}
                             disabled={!editable}
                             onPress={() => field.onChange(field.value.filter((_, i) => i !== index))}
@@ -287,6 +287,7 @@ export default function RepackEditorScreen() {
         saving={save.isPending}
         onSave={form.handleSubmit((values) => save.mutate(values))}
         onDiscard={() => form.reset()}
+        errorMessage={save.isError ? t("rules.repack.saveFailed") : undefined}
       />
     </KeyboardAvoidingView>
   );

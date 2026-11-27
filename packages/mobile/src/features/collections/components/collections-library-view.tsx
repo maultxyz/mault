@@ -220,7 +220,21 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
         </PageHeader>
       }
     >
-      {collectionsQuery.isError ? <Callout tone="destructive" title={t("collections.loadFailed")} /> : null}
+      {collectionsQuery.isError ? (
+        <Callout
+          tone="destructive"
+          title={t("collections.loadFailed")}
+          action={
+            <Button
+              size="sm"
+              variant="secondary"
+              label={t("recovery.retry")}
+              loading={collectionsQuery.isRefetching}
+              onPress={() => void collectionsQuery.refetch()}
+            />
+          }
+        />
+      ) : null}
       {valueMode === "change" && widgetSummary.isError ? (
         <Callout
           tone="destructive"

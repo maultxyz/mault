@@ -14,7 +14,7 @@ import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
 import type { TradeOfferPickListProps, TradeOfferPickListRowProps } from "@/lib/interfaces/trade-offers";
 
-function TradeOfferPickListRow({ item, priceSource, onPicked }: TradeOfferPickListRowProps) {
+function TradeOfferPickListRow({ item, priceSource, isUndoable, onPicked, onUndoPick }: TradeOfferPickListRowProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const { card } = item;
@@ -26,7 +26,9 @@ function TradeOfferPickListRow({ item, priceSource, onPicked }: TradeOfferPickLi
   ]
     .filter(Boolean)
     .join(" · ");
-  const statusLine = item.isPicked
+  const statusLine = isUndoable
+    ? t("tradeOffers.pickList.pickedUndoable")
+    : item.isPicked
     ? t("tradeOffers.pickList.picked")
     : (tradeOfferPlacementLines([item.placement], t)[0] ?? null);
   const priceLabel = item.price == null ? t("tradeOffers.cardList.noPrice") : formatPrice(item.price, priceSource);
@@ -36,9 +38,10 @@ function TradeOfferPickListRow({ item, priceSource, onPicked }: TradeOfferPickLi
     <Pressable
       accessibilityRole="checkbox"
       accessibilityLabel={[card.name, detailLine, statusLine, priceLabel].filter(Boolean).join(", ")}
-      accessibilityState={{ checked: item.isPicked, disabled: item.isPicked }}
-      disabled={item.isPicked}
-      onPress={() => onPicked(item.scanId)}
+      accessibilityHint={isUndoable ? t("tradeOffers.pickList.undoHint") : undefined}
+      accessibilityState={{ checked: item.isPicked, disabled: item.isPicked && !isUndoable }}
+      disabled={item.isPicked && !isUndoable}
+      onPress={() => (isUndoable ? onUndoPick(item.scanId) : onPicked(item.scanId))}
       style={({ pressed }) => ({
         flexDirection: "row",
         alignItems: "center",
@@ -65,12 +68,19 @@ function TradeOfferPickListRow({ item, priceSource, onPicked }: TradeOfferPickLi
         </AppText>
         {statusLine ? (
           <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
-            {item.isPicked ? <Icon name="check" size={14} color={colors.successForeground} /> : null}
+            {item.isPicked && !isUndoable ? <Icon name="check" size={14} color={colors.successForeground} /> : null}
             <AppText
               size="xs"
               numberOfLines={2}
+              weight={isUndoable ? "semibold" : undefined}
               tone={item.isPicked ? undefined : "secondary"}
-              style={item.isPicked ? { color: colors.successForeground } : undefined}
+              style={
+                isUndoable
+                  ? { color: colors.primaryText }
+                  : item.isPicked
+                    ? { color: colors.successForeground }
+                    : undefined
+              }
             >
               {statusLine}
             </AppText>
@@ -84,7 +94,14 @@ function TradeOfferPickListRow({ item, priceSource, onPicked }: TradeOfferPickLi
   );
 }
 
-export function TradeOfferPickList({ offer, remainingScanIds, placements, onPicked }: TradeOfferPickListProps) {
+export function TradeOfferPickList({
+  offer,
+  remainingScanIds,
+  placements,
+  undoablePickScanIds,
+  onPicked,
+  onUndoPick,
+}: TradeOfferPickListProps) {
   const { t } = useTranslation();
   const sections = useMemo(
     () => tradeOfferPickListSections(offer.wanted, offer.wantedPrices, placements, remainingScanIds),
@@ -116,7 +133,14 @@ export function TradeOfferPickList({ offer, remainingScanIds, placements, onPick
           </AppText>
           <ListGroup>
             {section.items.map((item) => (
-              <TradeOfferPickListRow key={item.scanId} item={item} priceSource={offer.priceSource} onPicked={onPicked} />
+              <TradeOfferPickListRow
+                key={item.scanId}
+                item={item}
+                priceSource={offer.priceSource}
+                isUndoable={undoablePickScanIds.has(item.scanId)}
+                onPicked={onPicked}
+                onUndoPick={onUndoPick}
+              />
             ))}
           </ListGroup>
         </View>

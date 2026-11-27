@@ -105,3 +105,11 @@ export interface StoragePlanBulkInput {
 export interface StorageLocationPlanUsesProps {
   locationGuid: string;
 }
+
+export type ScanModelsStatus = "loading" | "ready" | "failed";
+
+export interface ScanModelsReadyState {
+  areModelsReady: boolean;
+  haveModelsFailed: boolean;
+  retryModels: () => void;
+}

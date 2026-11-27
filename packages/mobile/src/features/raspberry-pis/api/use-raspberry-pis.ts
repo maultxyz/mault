@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { PiHostClaimFormValues } from "@magic-vault/shared";
 import { useToast } from "@/components/ui/toast-provider";
 import { useActiveOrgId } from "@/hooks/use-org";
-import type { RaspberryPiList, RaspberryPiScanRequest } from "@/lib/interfaces/raspberry-pis";
+import type { RaspberryPiList, RaspberryPiScanOptions, RaspberryPiScanRequest } from "@/lib/interfaces/raspberry-pis";
 import {
   claimRaspberryPi,
   raspberryPisQueryOptions,
@@ -58,7 +58,7 @@ export function useRaspberryPis() {
   return { query, claim, remove, rename };
 }
 
-export function useRaspberryPiScan(hostGuid: string) {
+export function useRaspberryPiScan(hostGuid: string, { reportsErrorsInline = false }: RaspberryPiScanOptions = {}) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
@@ -88,7 +88,9 @@ export function useRaspberryPiScan(hostGuid: string) {
           : current,
       );
     },
-    onError: (error) => showToast({ message: error.message, tone: "destructive" }),
+    onError: (error) => {
+      if (!reportsErrorsInline) showToast({ message: error.message, tone: "destructive" });
+    },
   });
 }
 

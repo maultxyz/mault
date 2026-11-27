@@ -307,7 +307,7 @@ async function refreshStoredData(
       setCode: card.setCode,
       data: JSON.parse(card.data),
     });
-    const sourceDataHash = sourceDataHashOf(row, volatileDataKeys);
+    const sourceDataHash = sourceDataHashOf(row, source);
     if (storedCards.get(card.id)?.sourceDataHash === sourceDataHash) continue;
     changedRows.push(
       `{"card_id":${JSON.stringify(card.id)},"name":${JSON.stringify(row.name)},"set_code":${JSON.stringify(row.setCode)},"collector_number":${JSON.stringify(row.collectorNumber)},"set_name":${JSON.stringify(row.setName)},"rarity":${JSON.stringify(row.rarity)},"color_identity":${JSON.stringify(row.colorIdentity)},"search_text":${JSON.stringify(row.searchText)},"image_small":${JSON.stringify(row.imageSmall)},"source_data_hash":${JSON.stringify(sourceDataHash)},"data":${card.data}}`,
@@ -929,7 +929,7 @@ async function runSync(
           embedding,
           backEmbedding,
           embeddingVersion: CARD_EMBEDDING_VERSION,
-          sourceDataHash: sourceDataHashOf(row, source.volatileDataKeys ?? []),
+          sourceDataHash: sourceDataHashOf(row, source),
           ...printingMarkColumns(source.gameKey, marks),
         });
         pendingCards.push(card);

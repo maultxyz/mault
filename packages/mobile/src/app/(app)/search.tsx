@@ -36,7 +36,7 @@ import {
   globalSearchGamesFor,
   isGlobalSearchGameSelected,
   selectedGlobalSearchGameKey,
-  formatStorageSlot,
+  ownedCardSearchPlacementOf,
 } from "@magic-vault/shared";
 
 export default function GlobalSearchScreen() {
@@ -160,21 +160,22 @@ export default function GlobalSearchScreen() {
               ) : (
                 <ListGroup>
                   {cardResults.map((result) => {
-                    const placement = result.locationName
-                      ? result.locationPosition != null
-                        ? t("search.locationPosition", {
-                            location: result.locationName,
-                            position: formatStorageSlot(result.locationPosition, result.locationBatchSize),
-                          })
-                        : result.locationName
-                      : null;
+                    const placement = ownedCardSearchPlacementOf(result);
+                    const placementText =
+                      placement?.kind === "location"
+                        ? placement.slot
+                          ? t("search.locationPosition", { location: placement.locationName, position: placement.slot })
+                          : placement.locationName
+                        : placement?.kind === "bin"
+                          ? t("search.inBin", { bin: placement.binNumber })
+                          : null;
                     const imageUrl = absoluteUrl(result.imageUrl);
                     return (
                       <ListRow
                         key={result.scanId}
                         title={result.cardName}
                         subtitle={[
-                          placement,
+                          placementText,
                           result.collectionName,
                           result.setName ?? result.setCode?.toUpperCase(),
                           result.isFoil ? t("search.foil") : null,

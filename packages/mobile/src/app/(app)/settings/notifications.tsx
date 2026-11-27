@@ -13,6 +13,7 @@ import {
   type DiscordSettingsDraftFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
@@ -20,6 +21,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { Surface } from "@/components/ui/surface";
+import { useToast } from "@/components/ui/toast-provider";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import {
   discordIntegrationQueryOptions,
@@ -49,6 +51,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { NOTIFICATION_TEST_TYPES, ROLE_PICKERS } from "@/lib/constants/integrations";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { DiscordChannelPicker, DiscordLinkCode, NotificationTestType } from "@/lib/interfaces/integrations";
+import type { SettingsNotice } from "@/lib/interfaces/settings";
 
 export default function NotificationsSettingsScreen() {
   const { t } = useTranslation();
@@ -69,7 +72,9 @@ export default function NotificationsSettingsScreen() {
   const [picker, setPicker] = useState<DiscordChannelPicker | null>(null);
   const [linkCode, setLinkCode] = useState<DiscordLinkCode | null>(null);
   const [now, setNow] = useState(() => Date.now());
-  const [message, setMessage] = useState<{ tone: "success" | "destructive" | "info"; text: string } | null>(null);
+  const { showToast } = useToast();
+  const setMessage = (message: SettingsNotice) =>
+    showToast({ message: message.text, tone: message.tone === "info" ? "default" : message.tone });
   const [saveError, setSaveError] = useState(false);
   const [overrideActions, setOverrideActions] = useState<string | null>(null);
   const [ruleActions, setRuleActions] = useState<{ guid: string; name: string } | null>(null);
@@ -291,7 +296,7 @@ export default function NotificationsSettingsScreen() {
   };
 
   const confirmUnlink = () =>
-    Alert.alert(t("settings.discord.bot.unlink"), t("settings.discord.bot.linked"), [
+    Alert.alert(t("settings.discord.bot.unlinkConfirmTitle"), t("settings.discord.bot.unlinkConfirmDescription"), [
       { text: t("settings.discord.ruleDialog.cancel"), style: "cancel" },
       { text: t("settings.discord.bot.unlink"), style: "destructive", onPress: () => unlink.mutate() },
     ]);
@@ -352,8 +357,13 @@ export default function NotificationsSettingsScreen() {
       <AppText size="sm" tone="secondary">
         {t("settings.discord.discord.description")}
       </AppText>
-      {integration.isError ? <Callout tone="destructive" title={t("settings.discord.channelSettings.saveFailed")} /> : null}
-      {message ? <Callout tone={message.tone} title={message.text} /> : null}
+      {integration.isError ? (
+        <Callout
+          tone="destructive"
+          title={t("settings.discord.refreshFailed")}
+          action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void integration.refetch()} />}
+        />
+      ) : null}
 
       <SettingsSection title={t("settings.discord.bot.heading")}>
         <ListGroup>

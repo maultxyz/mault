@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { router } from "expo-router";
+import { router, useNavigation, usePreventRemove } from "expo-router";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
@@ -13,17 +14,20 @@ import { ListRow } from "@/components/ui/list-row";
 import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { TextField } from "@/components/ui/text-field";
-import { useToast } from "@/components/ui/toast-provider";
 import { useSorterWifi } from "@/features/sorter/api/use-sorter-wifi";
 import { useTheme } from "@/hooks/use-theme";
+import { SORTER_WIFI_JOIN_TIMEOUT_MS } from "@/lib/constants/sorter";
 import { SPACING } from "@/lib/constants/theme";
+import type { SorterWifiJoinAttempt } from "@/lib/interfaces/sorter";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function SorterWifiScreen() {
   const { t } = useTranslation();
   const colors = useTheme();
-  const { showToast } = useToast();
+  const navigation = useNavigation();
   const wifi = useSorterWifi();
+  const [joinAttempt, setJoinAttempt] = useState<SorterWifiJoinAttempt | null>(null);
+  const [hasJoinTimedOut, setHasJoinTimedOut] = useState(false);
   const isConfigured = !!wifi.status && wifi.status.wifi !== "unconfigured";
   const form = useForm<SorterWifiFormValues>({
     resolver: zodResolver(sorterWifiFormSchema),
@@ -33,25 +37,42 @@ export default function SorterWifiScreen() {
 
   const save = useMutation({
     mutationFn: wifi.configure,
-    onSuccess: (result) => {
+    onMutate: () => {
+      setJoinAttempt(null);
+      setHasJoinTimedOut(false);
+    },
+    onSuccess: (result, values) => {
       if (!result.ok) return;
-      showToast({ message: result.restarting ? t("sorterWifi.savedRestarting") : t("sorterWifi.saved"), tone: "success" });
-      router.back();
+      form.reset({ ssid: values.ssid, password: "" });
+      setJoinAttempt({ ssid: values.ssid, isRestarting: result.restarting });
     },
   });
   const forget = useMutation({
     mutationFn: wifi.forget,
-    onSuccess: (result) => {
-      if (!result.ok) return;
-      showToast({
-        message: result.serverLinkRemovalFailed
-          ? t("sorterWifi.forgottenLinkKept")
-          : result.restarting
-            ? t("sorterWifi.forgottenRestarting")
-            : t("sorterWifi.forgotten"),
-        tone: "success",
-      });
-    },
+    onMutate: () => setJoinAttempt(null),
+  });
+  const forgetNotice =
+    forget.data && forget.data.ok && !joinAttempt && !save.isPending
+      ? forget.data.serverLinkRemovalFailed
+        ? t("sorterWifi.forgottenLinkKept")
+        : forget.data.restarting
+          ? t("sorterWifi.forgottenRestarting")
+          : t("sorterWifi.forgotten")
+      : null;
+  const hasJoined =
+    !!joinAttempt && !joinAttempt.isRestarting && wifi.status?.wifi === "connected" && wifi.status.ssid === joinAttempt.ssid;
+  const isWaitingToJoin = !!joinAttempt && !joinAttempt.isRestarting && !hasJoined && !hasJoinTimedOut;
+  useEffect(() => {
+    if (!isWaitingToJoin) return;
+    const timer = setTimeout(() => setHasJoinTimedOut(true), SORTER_WIFI_JOIN_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [isWaitingToJoin]);
+
+  usePreventRemove(form.formState.isDirty && !save.isPending, ({ data }) => {
+    Alert.alert(t("common.discardTitle"), t("sorterWifi.discardDescription"), [
+      { text: t("common.keepEditing"), style: "cancel" },
+      { text: t("common.discard"), style: "destructive", onPress: () => navigation.dispatch(data.action) },
+    ]);
   });
   const saveError = save.data && !save.data.ok ? (save.data.error ?? t("sorterWifi.saveFailedDescription")) : null;
   const forgetError = forget.data && !forget.data.ok ? (forget.data.error ?? t("sorterWifi.forgetFailed")) : null;
@@ -72,11 +93,13 @@ export default function SorterWifiScreen() {
       <PageHeader title={t("sorterWifi.title")} />
       <PinnedActionsLayout
         actions={
-          wifi.canConfigure ? (
+          hasJoined || joinAttempt?.isRestarting ? (
+            <Button size="lg" label={t("common.done")} onPress={() => router.back()} />
+          ) : wifi.canConfigure ? (
             <Button
               size="lg"
               label={t("sorterWifi.save")}
-              loading={save.isPending}
+              loading={save.isPending || isWaitingToJoin}
               disabled={forget.isPending}
               onPress={form.handleSubmit((values) => save.mutate(values))}
             />
@@ -95,6 +118,25 @@ export default function SorterWifiScreen() {
         {wifi.status?.wifi === "paused" ? <Callout tone="warning" title={t("sorterWifi.pausedForPower")} /> : null}
         {saveError ? <Callout tone="destructive" title={t("sorterWifi.saveFailed")} description={saveError} /> : null}
         {forgetError ? <Callout tone="destructive" title={forgetError} /> : null}
+        {forgetNotice ? <Callout tone="success" title={forgetNotice} /> : null}
+        {joinAttempt?.isRestarting ? <Callout tone="success" title={t("sorterWifi.savedRestarting")} /> : null}
+        {isWaitingToJoin && joinAttempt ? (
+          <View accessibilityLiveRegion="polite">
+            <Callout tone="info" title={t("sorterWifi.joining", { ssid: joinAttempt.ssid })} />
+          </View>
+        ) : null}
+        {hasJoined && joinAttempt ? (
+          <View accessibilityLiveRegion="polite">
+            <Callout tone="success" title={t("sorterWifi.joined", { ssid: joinAttempt.ssid })} />
+          </View>
+        ) : null}
+        {hasJoinTimedOut && joinAttempt && !hasJoined ? (
+          <Callout
+            tone="destructive"
+            title={t("sorterWifi.joinFailed", { ssid: joinAttempt.ssid })}
+            description={t("sorterWifi.joinFailedDescription")}
+          />
+        ) : null}
 
         {wifi.isSupported ? (
           <ListGroup>

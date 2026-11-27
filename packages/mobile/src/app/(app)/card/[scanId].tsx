@@ -90,7 +90,7 @@ import {
 } from "@/features/collections/api/collection-cards";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
-import { useCopyCardShareLink } from "@/features/share-links/api/use-copy-card-share-link";
+import { useShareCardLink } from "@/features/cards/api/use-share-card-link";
 import { useShareScanImage } from "@/features/cards/api/use-share-scan-image";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import {
@@ -354,6 +354,7 @@ export default function CardDetailScreen() {
       ),
     onError: (_error, _toggle, context) => {
       if (context) restoreCardCaches(queryClient, context.snapshot);
+      setSheet((openSheet) => (openSheet === "tags" ? null : openSheet));
       AccessibilityInfo.announceForAccessibility(t("cardTags.saveFailed"));
     },
     onSettled: () => invalidateCollectionCardsAfterEdits(queryClient, guid),
@@ -397,7 +398,7 @@ export default function CardDetailScreen() {
     onError: () => AccessibilityInfo.announceForAccessibility(t("storage.actionFailed")),
   });
 
-  const copyShareLink = useCopyCardShareLink();
+  const shareCardLink = useShareCardLink();
   const shareScanImage = useShareScanImage();
   const actionMenuOptions = [
     ...(reviewMode ? [] : [{ value: CARD_DETAIL_SHARE_ACTION, label: t("cardDetail.share") }]),
@@ -414,7 +415,13 @@ export default function CardDetailScreen() {
     ]);
   });
 
-  const goToNextInReview = async () => {
+  const goToNextInReview = async (leavingCard: "accepted" | "skipped" = "accepted") => {
+    const finishReview = () => {
+      router.back();
+      if (leavingCard === "accepted") {
+        Alert.alert(t("cardDetail.reviewCompleteTitle"), t("cardDetail.reviewCompleteDescription"));
+      }
+    };
     if (storageReview && storageGuid) {
       const context = await queryClient
         .fetchQuery({ ...storageLocationCardContextQueryOptions(storageGuid, scanId, true), staleTime: 0 })
@@ -426,16 +433,14 @@ export default function CardDetailScreen() {
           params: { scanId: next.scanId, guid: next.collectionGuid, review: "1", storage: storageGuid },
         });
       } else {
-        router.back();
-        Alert.alert(t("cardDetail.reviewCompleteTitle"), t("cardDetail.reviewCompleteDescription"));
+        finishReview();
       }
       return;
     }
     if (nextScanId) {
       router.replace({ pathname: "/card/[scanId]", params: { scanId: nextScanId, guid, review: "1" } });
     } else {
-      router.back();
-      Alert.alert(t("cardDetail.reviewCompleteTitle"), t("cardDetail.reviewCompleteDescription"));
+      finishReview();
     }
   };
 
@@ -457,6 +462,16 @@ export default function CardDetailScreen() {
     acceptInBackground.mutate({ kind, acceptedScanId: scanId });
     await goToNextInReview();
   };
+
+  const skipInReview = () => {
+    AccessibilityInfo.announceForAccessibility(t("cardDetail.skipped"));
+    void goToNextInReview("skipped");
+  };
+
+  const saveDraftAndAcceptInReview = form.handleSubmit(async (values) => {
+    await saveDraft.mutateAsync({ values, dirtyFields: { ...form.formState.dirtyFields } });
+    await acceptInReview();
+  });
 
   const showReviewGrid = () => {
     saveReviewLayout("grid");
@@ -494,16 +509,34 @@ export default function CardDetailScreen() {
         {t("common.unsavedChanges")}
       </AppText>
       <Button variant="ghost" label={t("common.discard")} disabled={saveDraft.isPending} onPress={() => form.reset()} />
-      <Button label={t("common.save")} loading={saveDraft.isPending} onPress={submitDraft} />
+      {entry && reviewMode ? (
+        <Button
+          icon="check"
+          label={t("cardDetail.saveAndNext")}
+          loading={saveDraft.isPending || markCorrect.isPending}
+          onPress={() => void saveDraftAndAcceptInReview().catch(() => {})}
+        />
+      ) : (
+        <Button label={t("common.save")} loading={saveDraft.isPending} onPress={submitDraft} />
+      )}
     </>
   ) : entry && reviewMode ? (
-    <Button
-      style={{ flex: 1 }}
-      icon="check"
-      label={nextScanId ? t("cardDetail.acceptNext") : t("cardDetail.acceptFinish")}
-      loading={markCorrect.isPending}
-      onPress={() => void acceptInReview()}
-    />
+    <>
+      <Button
+        variant="secondary"
+        label={t("cardDetail.skip")}
+        accessibilityHint={t("cardDetail.skipHint")}
+        disabled={markCorrect.isPending}
+        onPress={skipInReview}
+      />
+      <Button
+        style={{ flex: 1 }}
+        icon="check"
+        label={nextScanId ? t("cardDetail.acceptNext") : t("cardDetail.acceptFinish")}
+        loading={markCorrect.isPending}
+        onPress={() => void acceptInReview()}
+      />
+    </>
   ) : entry && canConfirm ? (
     <Button
       style={{ flex: 1 }}
@@ -551,8 +584,21 @@ export default function CardDetailScreen() {
         }
       />
       <PinnedActionsLayout actions={bottomActions} actionsDirection="row">
-        {copyShareLink.isSuccess ? <Callout tone="success" title={t("cardDetail.shareLinkCopied")} /> : null}
-        {copyShareLink.isError ? <Callout tone="destructive" title={t("cardDetail.shareLinkCopyFailed")} /> : null}
+        {shareCardLink.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("cardDetail.shareLinkFailed")}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                label={t("recovery.retry")}
+                loading={shareCardLink.isPending}
+                onPress={() => shareCardLink.mutate(scanId)}
+              />
+            }
+          />
+        ) : null}
         {shareScanImage.isError ? <Callout tone="destructive" title={t("cardDetail.downloadPhotoFailed")} /> : null}
         {position.isError ? (
           <Callout
@@ -952,7 +998,7 @@ export default function CardDetailScreen() {
         onSelect={(value) => {
           if (value === CARD_DETAIL_SHARE_ACTION) {
             setSheet(null);
-            copyShareLink.mutate(scanId);
+            shareCardLink.mutate(scanId);
             return;
           }
           setSheet(CARD_DETAIL_MENU_SHEETS.find((menuSheet) => menuSheet === value) ?? null);
@@ -1015,7 +1061,6 @@ export default function CardDetailScreen() {
         options={CARD_TAGS.map((tag) => ({ value: tag, label: setTagName(tag) }))}
         selected={tagsSet}
         onSelect={(value) => {
-          setSheet(null);
           const tag = CARD_TAGS.find((candidate) => candidate === value);
           if (tag) toggleTag.mutate({ tag, enabled: !tagsSet.includes(tag) });
         }}

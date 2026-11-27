@@ -12,6 +12,7 @@
     "name": "Mault"
   },
   "common": {
+    "openSettings": "Ouvrir les Réglages",
     "loading": "Chargement",
     "selected": "sélectionné",
     "show": "Afficher",
@@ -59,9 +60,18 @@
       "verify-email": "Vérifie ton adresse e-mail, puis connecte-toi.",
       "storage": "Connecté, mais la session n'a pas pu être enregistrée sur cet appareil. Réessaie.",
       "social": "Impossible de vous connecter avec ce compte. Réessayez.",
-      "socialWithCode": "Impossible de vous connecter avec ce compte ({{code}}). Réessayez."
+      "invalid-credentials": "L'adresse e-mail ou le mot de passe est incorrect. Vérifiez-les et réessayez.",
+      "rate-limited": "Trop de tentatives. Patientez un instant, puis réessayez.",
+      "sign-in-failed": "Connexion impossible. Réessayez."
     },
     "createAccountOnWeb": "Nouveau sur Mault ? Crée un compte sur le web",
+    "forgotPassword": "Mot de passe oublié ?",
+    "opensInBrowser": "S'ouvre dans votre navigateur",
+    "signedOut": {
+      "title": "Vous avez été déconnecté",
+      "session-expired": "Votre session a pris fin. Reconnectez-vous pour continuer.",
+      "access-revoked": "Votre accès a changé, vous avez donc été déconnecté. Reconnectez-vous pour continuer."
+    },
     "orContinueWith": "Ou continuer avec",
     "continueWithProvider": "Continuer avec {{provider}}"
   },
@@ -459,6 +469,12 @@
     "server": "Serveur",
     "version": "Version",
     "signOut": "Se déconnecter",
+    "signOutConfirm": {
+      "title": "Se déconnecter ?",
+      "description": "Tu devras te reconnecter pour utiliser Mault sur ce téléphone.",
+      "pendingScans_one": "{{count}} scan n’est pas encore synchronisé. Il reste sur ce téléphone et sera synchronisé quand tu te reconnecteras.",
+      "pendingScans_other": "{{count}} scans ne sont pas encore synchronisés. Ils restent sur ce téléphone et seront synchronisés quand tu te reconnecteras."
+    },
     "pendingSaves": {
       "title_one": "{{count}} scan en attente de synchronisation",
       "title_other": "{{count}} scans en attente de synchronisation",
@@ -507,6 +523,7 @@
         "submit": "Mettre à jour le mot de passe",
         "updated": "Mot de passe mis à jour",
         "updateFailed": "Impossible de mettre à jour le mot de passe",
+        "currentIncorrect": "Votre mot de passe actuel est incorrect.",
         "change": "Changer de mot de passe"
       },
       "signInMethods": {
@@ -592,7 +609,11 @@
     "forgottenLinkKept": "Wi-Fi désactivé. Le serveur n'a pas pu supprimer l'ancien lien : il sera remplacé la prochaine fois que tu configureras le Wi-Fi.",
     "forgottenRestarting": "Wi-Fi désactivé. La trieuse redémarre avec le Bluetooth réactivé.",
     "forgetFailed": "Impossible de désactiver le Wi-Fi.",
-    "saved": "Wi-Fi enregistré. La trieuse rejoint le réseau.",
+    "discardDescription": "Les informations Wi-Fi saisies n'ont pas été enregistrées.",
+    "joining": "Wi-Fi enregistré. Connexion à {{ssid}} en cours",
+    "joined": "Connectée à {{ssid}}",
+    "joinFailed": "Impossible de rejoindre {{ssid}}",
+    "joinFailedDescription": "Vérifiez le nom du réseau et le mot de passe, et qu'il s'agit d'un réseau 2,4 GHz. Enregistrez ensuite à nouveau.",
     "savedRestarting": "Wi-Fi enregistré. La trieuse redémarre pour rejoindre le réseau et le Bluetooth se désactive.",
     "saveFailed": "Impossible d'enregistrer le Wi-Fi",
     "saveFailedDescription": "La trieuse n'a pas accepté les réglages. Vérifie qu'elle est toujours connectée et réessaie.",
@@ -629,7 +650,7 @@
     },
     "saved": {
       "title": "Trieuses enregistrées",
-      "renameHint": "Touchez pour renommer",
+      "rename": "Renommer {{name}}",
       "delete": "Supprimer",
       "deleteTitle": "Supprimer {{name}} ?",
       "deleteDescription": "Son étalonnage et ses réglages sont supprimés. Une trieuse actuellement connectée ne peut pas être supprimée.",
@@ -644,10 +665,26 @@
     "recent": "Trieurs récents",
     "nearby": "Trieurs à proximité",
     "searching": "Recherche de trieurs",
+    "notSearchedYet": "Touchez Rechercher des trieurs pour trouver les trieurs à proximité",
     "noneFound": "Aucun trieur trouvé",
     "bluetoothOnly": "Seuls les trieurs ESP32-S3 et Uno R4 WiFi ont le Bluetooth. Les trieurs configurés pour le Wi-Fi dans l'application web apparaissent aussi sous Par Wi-Fi. Un Uno R4 Minima nécessite l'application de bureau en USB.",
     "unnamed": "Trieur sans nom",
-    "signal": "Signal {{rssi}} dBm",
+    "signalStrength": {
+      "strong": "Signal fort",
+      "good": "Bon signal",
+      "weak": "Signal faible"
+    },
+    "manual": {
+      "neutralDone": "Servos remis au neutre",
+      "dropDone": "Carte éjectée",
+      "noResponse": "Le trieur n'a pas répondu. Vérifiez la connexion et réessayez."
+    },
+    "setup": {
+      "title": "Terminez la configuration de ce trieur",
+      "description": "Étalonnez d'abord les servos dans Étalonnage. Touchez ensuite Terminer la configuration : le trieur lance un autotest et est prêt à scanner une fois le test réussi.",
+      "failed": "La configuration n'a pas été terminée. Vérifiez que l'autotest réussit et que vous êtes en ligne, puis réessayez.",
+      "finish": "Terminer la configuration"
+    },
     "runSelfTest": "Lancer l'autotest",
     "resetEmergencyStop": "Réinitialiser la trieuse",
     "neutral": "Retour en position neutre",
@@ -717,7 +754,7 @@
       },
       "setup-incomplete": {
         "title": "Termine la configuration de ce trieur",
-        "description": "Termine d'abord l'étalonnage dans l'application web, puis reconnecte-toi depuis ton téléphone."
+        "description": "Étalonne ce trieur, puis termine sa configuration avant de scanner."
       },
       "sorter-offline": {
         "title": "Le trieur est hors ligne",
@@ -901,11 +938,18 @@
     "unmatchedHint": "Enregistrée pour vérification",
     "allowCamera": "Autoriser la caméra",
     "cameraPermissionTitle": "Accès à la caméra requis",
-    "cameraPermissionDescription": "Mault utilise la caméra pour identifier les cartes qui passent dans ton trieur.",
+    "cameraPermissionDescription": "Mault utilise la caméra pour identifier les cartes que tu scannes.",
     "cameraPermissionSettings": "Active l'accès à la caméra pour Mault dans les Réglages.",
     "noCamera": "Aucune caméra disponible",
     "noCollectionTitle": "Aucune collection choisie",
     "noCollectionDescription": "Choisis la collection dans laquelle scanner.",
+    "noCollectionsTitle": "Aucune collection pour le moment",
+    "noCollectionsDescription": "Crée une collection pour y scanner des cartes.",
+    "pauseToChange": "Mets le trieur en pause pour modifier ceci.",
+    "result": {
+      "checkMatch": "Vérifie cette correspondance",
+      "openHint": "Ouvre la carte pour la vérifier ou la corriger"
+    },
     "chooseCollection": "Choisir une collection",
     "openSorter": "Connecter la trieuse",
     "modelErrorTitle": "Impossible de charger les modèles de reconnaissance des cartes",
@@ -959,7 +1003,7 @@
       "allowDuplicates": "Autoriser les doublons",
       "allowDuplicatesDescription": "Enregistrer la même impression plusieurs fois",
       "handScan": "Détection auto des cartes",
-      "handScanDescription": "Scanner sans trieuse. Appuie sur Démarrer, puis tiens une carte immobile dans le cadre et elle est scannée toute seule.",
+      "handScanDescription": "Scanner sans trieuse. Tiens une carte immobile dans le cadre et elle est scannée toute seule. Désactive cette option pour scanner une carte à la fois avec le bouton.",
       "handScanBins": "Trier dans les bacs",
       "handScanBinsDescription": "Indique dans quel bac va chaque carte, d'après ton préréglage de règles. Laisse désactivé pour simplement enregistrer les cartes dans la collection.",
       "handScanBinsNoPreset": "Choisis un préréglage de règles pour ce jeu afin de trier les cartes dans des bacs.",
@@ -1043,7 +1087,7 @@
       "done": "Compris",
       "holdCard": {
         "title": "Tenez une carte dans le cadre",
-        "description": "Gardez toute la carte dans le champ de la caméra et tenez-la immobile. Activez Détection auto des cartes dans les options de scan pour scanner sans appuyer sur le bouton."
+        "description": "Gardez toute la carte dans le champ de la caméra et tenez-la immobile. Elle est scannée toute seule et vous pouvez mettre en pause à tout moment. Désactivez Détection auto des cartes dans les options de scan pour scanner avec le bouton."
       },
       "qrCode": {
         "title": "Visez un QR code pour l'ouvrir",
@@ -1125,6 +1169,11 @@
     }
   },
   "home": {
+    "noOrganization": {
+      "title": "Pas encore d’organisation",
+      "description": "Accepte une invitation de ton équipe ou crée une organisation sur le site de Mault. Tire ensuite vers le bas pour actualiser.",
+      "refresh": "Vérifier à nouveau"
+    },
     "searchPlaceholder": "Rechercher des collections",
     "noSearchResultsTitle": "Aucune collection trouvée",
     "noSearchResultsDescription": "Essaie un autre nom.",
@@ -1193,6 +1242,11 @@
     "searchPlaceholder": "Rechercher des cartes",
     "noCardsYet": "Aucune carte scannée pour le moment",
     "noMatches": "Aucune carte ne correspond à ta recherche",
+    "noFilterMatches": "Aucune carte ne correspond à tes filtres",
+    "noFilterMatchesDescription": "Efface les filtres pour voir toutes les cartes de cette collection.",
+    "clearFilters_one": "Effacer {{count}} filtre",
+    "clearFilters_other": "Effacer {{count}} filtres",
+    "filtersCleared": "Filtres effacés",
     "groupDuplicates": "Grouper les doublons",
     "filters": {
       "minMatch": "Correspondance minimale",
@@ -1305,6 +1359,11 @@
     "markCorrect": "Marquer comme correcte",
     "acceptNext": "Ça a l'air bon",
     "acceptFinish": "Ça a l'air bon",
+    "skip": "Passer",
+    "skipHint": "Laisse cette carte pour plus tard et affiche la suivante",
+    "skipped": "Carte passée. La suivante est affichée.",
+    "saveAndNext": "Enregistrer et continuer",
+    "shareLinkFailed": "Impossible de partager un lien pour cette carte.",
     "reviewProgress": "Vérification {{index}} sur {{total}}",
     "similarMatches": "Correspondances similaires",
     "similarMatchesHint": "Plusieurs correspondances proches. Touche la bonne version.",
@@ -1389,6 +1448,9 @@
     "layoutOneByOne": "Une par une",
     "acceptAll_one": "Valider {{count}} carte",
     "acceptAll_other": "Tout valider ({{count}})",
+    "acceptAllConfirmTitle_one": "Valider {{count}} carte ?",
+    "acceptAllConfirmTitle_other": "Valider les {{count}} cartes ?",
+    "acceptAllConfirmDescription": "Chaque carte affichée est marquée comme vérifiée avec sa correspondance actuelle. Les cartes que tu n’as pas regardées sont validées aussi.",
     "accept": "C'est bon",
     "correct": "Corriger",
     "noPhoto": "Pas de photo du scan",
@@ -1450,6 +1512,7 @@
       "foundOf": "{{found}} sur {{total}} trouvées",
       "foundAll_one": "{{count}} copie sortie",
       "foundAll_other": "{{count}} copies sorties",
+      "resetFailed": "Impossible de réinitialiser la progression",
       "reset": "Réinitialiser la progression"
     },
     "fill": {
@@ -1467,6 +1530,8 @@
       "emptyAll": "Vider tous les bacs",
       "emptyAllTitle": "Vider tous les bacs ?",
       "emptied": "Bac {{number}} marqué comme vide",
+      "emptyConfirmDescription_one": "{{count}} carte est marquée comme retirée. Destination : {{target}}.",
+      "emptyConfirmDescription_other": "{{count}} cartes sont marquées comme retirées. Destination : {{target}}.",
       "emptiedAll": "Tous les bacs marqués comme vides",
       "loadFailed": "Impossible de charger le contenu des bacs"
     },
@@ -1543,6 +1608,11 @@
     "or": "OU",
     "noConditions": "Aucune condition",
     "removeCondition": "Supprimer la condition",
+    "removeGroupTitle": "Supprimer ce groupe ?",
+    "removeGroupDescription_one": "Sa {{count}} condition est supprimée aussi.",
+    "removeGroupDescription_other": "Ses {{count}} conditions sont supprimées aussi.",
+    "invalidDate": "Saisissez la date au format AAAA-MM-JJ.",
+    "saveChangesFirst": "Enregistrez ou annulez d'abord vos modifications",
     "removeGroup": "Supprimer le groupe",
     "valuePlaceholder": "Valeur...",
     "freeformPlaceholder": "Valeurs séparées par des virgules...",
@@ -1683,6 +1753,8 @@
       "catchAllBin": "Bac {{number}} (fourre-tout)",
       "confirmTitle": "Règles vers {{bin}}",
       "confirmDescription": "Copier garde aussi les règles sur ce bac. Déplacer les retire de ce bac.",
+      "saveChangesFirst": "Enregistrez ou annulez vos modifications pour copier ou déplacer des règles.",
+      "failed": "Impossible de copier ou de déplacer les règles",
       "replaceWarning": "{{bin}} a déjà des règles. Elles seront remplacées.",
       "copy": "Copier",
       "move": "Déplacer"
@@ -1701,6 +1773,8 @@
       "deleteTitle": "Supprimer le préréglage multi-étapes",
       "deleteDescription": "Supprimer « {{name}} » ? Les préréglages qu'il utilise sont conservés.",
       "addStage": "Ajouter une étape",
+      "removeStageTitle": "Retirer cette étape ?",
+      "removeStageDescription": "{{name}} est retiré de ce préréglage à plusieurs étapes. Le préréglage lui-même est conservé.",
       "removeStage": "Retirer l'étape",
       "moveUp": "Déplacer plus tôt",
       "moveDown": "Déplacer plus tard",
@@ -1959,8 +2033,11 @@
       },
       "customHeightUnit": "mm",
       "customHeightHint": "Environ {{count}} cartes à {{thickness}} mm chacune",
+      "customHeightBlocksSave": "Corrigez la hauteur personnalisée du bac {{bins}} avant d'enregistrer",
       "customHeightInvalid": "Saisissez entre {{min}} et {{max}} mm"
     },
+    "servosSaveFailed": "Impossible d'enregistrer l'étalonnage",
+    "connectionSaveFailed": "Impossible d'enregistrer les réglages de connexion",
     "layoutSaveFailed": "Impossible d'enregistrer la disposition",
     "scanRegion": {
       "heading": "Zone de scan",
@@ -2000,6 +2077,7 @@
       "clear": "Libre",
       "unknown": "Non lu",
       "hopper": "Bac",
+      "noReply": "Le trieur n'a pas répondu. Vérifiez la connexion et réessayez.",
       "hopperEmpty": "Trémie vide",
       "hopperHasCards": "Cartes en attente"
     },
@@ -2011,6 +2089,7 @@
       "binActive": "Bac {{bin}}…",
       "resetToNeutral": "Position neutre",
       "binFailed": "Le bac {{bin}} n'a pas été atteint",
+      "neutralFailed": "Le trieur n'est pas revenu au neutre. Vérifiez la connexion et réessayez.",
       "sampleRunStopped": "Test d'exécution arrêté au bac {{bin}}"
     },
     "scanRegionCalibrationPanel": {}
@@ -2097,6 +2176,8 @@
         "alreadyPicked": "Tous les exemplaires de {{name}} de votre liste de collecte sont déjà sortis."
       },
       "finishFailed": "Les cartes sorties n'ont pas pu être retirées. Réessayez.",
+      "finishCount_one": "Retirer {{count}} carte sortie de son emplacement",
+      "finishCount_other": "Retirer {{count}} cartes sorties de leurs emplacements",
       "notStored": "Non rangée",
       "missingCount_one": "{{count}} exemplaire non rangé",
       "missingCount_other": "{{count}} exemplaires non rangés",
@@ -2134,6 +2215,11 @@
     "shareWithCount_one": "Partager l'emplacement ({{count}} actif)",
     "shareWithCount_other": "Partager l'emplacement ({{count}} actifs)",
     "searchFailed": "Impossible de rechercher dans tes emplacements",
+    "loadFailed": "Impossible de charger vos emplacements",
+    "deleteFailed": "Impossible de supprimer l'emplacement",
+    "saveFailed": "Impossible d'enregistrer l'emplacement",
+    "nameTaken": "Un emplacement porte déjà ce nom.",
+    "noCardsDescription": "Ajoutez une carte par son nom ou scannez des cartes directement dans cet emplacement.",
     "notFoundTitle": "Emplacement introuvable",
     "notFoundDescription": "Il a peut-être été supprimé, ou tu n'y as plus accès.",
     "printLabel": "Imprimer l'étiquette",
@@ -2373,6 +2459,12 @@
     "percentSuffix": "%",
     "conditionInvalid": "Saisis une valeur de 0 à 100",
     "discardDescription": "Tes modifications de ces paramètres n'ont pas été enregistrées.",
+    "secretReveal": {
+      "leaveTitle": "Fermer sans l'enregistrer ?",
+      "leaveDescription": "Il n'est affiché que cette fois. Une fois cette page fermée, vous ne pourrez plus le voir.",
+      "keepOpen": "Garder ouvert",
+      "close": "Fermer"
+    },
     "org": {
       "renameHeading": "Renommer « {{name}} »",
       "nameLabel": "Nom de l'organisation",
@@ -2385,10 +2477,13 @@
       "role": "Rôle",
       "pendingInvites": "Invitations en attente",
       "cancelInvite": "Annuler l'invitation",
+      "cancelInviteTitle": "Annuler cette invitation ?",
+      "keepInvite": "Garder l'invitation",
       "dangerZoneHeading": "Zone à risque",
       "deleteWarning": "Supprime définitivement « {{name}} » et toutes ses données.",
       "deleteOrganization": "Supprimer l'organisation",
       "deleteOrgDescription": "Supprime définitivement « {{name}} » et toutes ses données. Cette action est irréversible.",
+      "deleteConfirmLabel": "Saisissez « {{name}} » pour confirmer",
       "cancelSubscriptionFirst": "Annulez l'abonnement de cette organisation avant de la supprimer. Une fois qu'il est programmé pour s'arrêter à la fin de la période de facturation, vous pourrez supprimer l'organisation.",
       "removeMemberTitle": "Retirer le membre",
       "removeMemberDescription": "Retirer « {{name}} » de cette organisation ? Il perdra immédiatement l'accès.",
@@ -2487,6 +2582,9 @@
       "loadFailed": "Impossible de charger les clés API.",
       "upgrade": "Les clés API ne sont pas incluses dans ton offre.",
       "share": "Partager la clé",
+      "copy": "Copier la clé",
+      "copied": "Clé API copiée.",
+      "copyFailed": "Impossible de copier la clé API.",
       "cancel": "Annuler"
     },
     "webhooks": {
@@ -2517,6 +2615,7 @@
       "empty": "Aucun webhook pour l'instant.",
       "disabled": "Désactivé",
       "actions": "Actions du webhook",
+      "manage": "Gérer",
       "sendTest": "Envoyer un événement de test",
       "edit": "Modifier",
       "enable": "Réactiver",
@@ -2662,13 +2761,16 @@
         "unlink": "Dissocier",
         "unlinkSuccess": "Serveur Discord dissocié.",
         "unlinkError": "Échec de la dissociation du serveur Discord.",
+        "unlinkConfirmTitle": "Dissocier ce serveur Discord ?",
+        "unlinkConfirmDescription": "Mault ne publie plus les scans, les alertes ni les offres d'échange sur ce serveur, et ses commandes slash n'y fonctionnent plus. Vous pourrez associer un serveur plus tard.",
         "generateButton": "Générer un code de liaison",
         "generating": "Génération...",
         "generateError": "Échec de la génération du code de liaison.",
         "codeInstructions": "Exécute /link <code> sur ton serveur Discord pour terminer la liaison.",
         "expiresIn": "Expire dans {{seconds}}s"
       },
-      "notificationsHeading": "Publications des scans"
+      "notificationsHeading": "Publications des scans",
+      "refreshFailed": "Impossible d'actualiser les paramètres Discord."
     },
     "sounds": {
       "title": "Sons",
@@ -3042,6 +3144,8 @@
       "resume": "Reprendre",
       "stop": "Arrêter",
       "emergencyStop": "Arrêt d'urgence",
+      "startFailed": "Impossible de démarrer le scan",
+      "noCollectionsDescription": "Créez d'abord une collection dans la Bibliothèque, puis démarrez le scan ici.",
       "scanFailed": "Le Raspberry Pi n'a pas pu effectuer cette action.",
       "progress_one": "{{count}} carte scannée dans {{collection}}",
       "progress_other": "{{count}} cartes scannées dans {{collection}}",
@@ -3345,6 +3449,8 @@
     "loadFailed": "Impossible de charger les cartes non reconnues",
     "identifyScan": "Identifier le scan du {{scannedAt}}",
     "identifyTitle": "Identifier la carte",
+    "skip": "Passer",
+    "skipHint": "Laisse ce scan non identifié et affiche le suivant",
     "searchHint": "Recherchez la carte de cette photo. La choisir l'ajoute à la collection.",
     "notFound": "Ce scan n'est plus non reconnu",
     "identifyFailed": "Impossible d'ajouter la carte",
@@ -4043,7 +4149,8 @@
         "revectorizeFailed": "Échec de la revectorisation de {{name}}",
         "previousPage": "Page précédente",
         "nextPage": "Page suivante",
-        "pageStatus": "Page {{page}} sur {{pageCount}}"
+        "pageStatus": "Page {{page}} sur {{pageCount}}",
+        "searchPrompt": "Recherchez une carte par son nom pour la charger."
       },
       "dump": {
         "heading": "Vider la base de données de cartes",
@@ -4213,10 +4320,13 @@
     "pickList": {
       "started": "Échange accepté. Cochez les cartes demandées à mesure que vous les sortez.",
       "acceptHint": "En acceptant, vous obtenez une liste de préparation. Chaque carte demandée est retirée de votre stock quand vous la cochez.",
-      "acceptDescription_one": "Vous obtenez une liste de préparation pour la {{count}} carte demandée. Elle est retirée de votre stock quand vous la cochez, et une coche ne peut pas être annulée.",
-      "acceptDescription_other": "Vous obtenez une liste de préparation pour les {{count}} cartes demandées. Chacune est retirée de votre stock quand vous la cochez, et une coche ne peut pas être annulée.",
+      "acceptDescription_one": "Vous obtenez une liste de préparation pour la {{count}} carte demandée. Elle est retirée de votre stock quelques secondes après que vous l'avez cochée.",
+      "acceptDescription_other": "Vous obtenez une liste de préparation pour les {{count}} cartes demandées. Chacune est retirée de votre stock quelques secondes après que vous l'avez cochée.",
       "title": "Liste de préparation",
-      "hint": "Cochez chaque carte quand vous la sortez. Les cartes cochées sont retirées de votre stock tout de suite.",
+      "hint": "Cochez chaque carte quand vous la sortez. Une carte cochée est retirée de votre stock après quelques secondes. Touchez-la de nouveau tout de suite pour annuler.",
+      "pickedUndoable": "Préparée. Touchez de nouveau pour annuler.",
+      "undoHint": "Décoche cette carte avant qu'elle soit retirée de votre stock",
+      "pickUndone": "Coche annulée",
       "progress": "{{picked}} sur {{count}} préparées",
       "picked": "Préparée et retirée",
       "pickedSection": "Préparées",
@@ -4312,6 +4422,22 @@
       "record": "Enregistrer l'échange",
       "recorded": "Échange enregistré.",
       "recordFailed": "Impossible d'enregistrer l'échange. Réessayez.",
+      "discardDescription": "Les cartes et les informations saisies pour cet échange seront perdues.",
+      "confirmTitle": "Enregistrer cet échange ?",
+      "confirmCards": "Cartes que vous donnez : {{give}} · Cartes que vous recevez : {{get}}",
+      "confirmCashReceived": "Espèces que vous recevez : {{amount}}",
+      "confirmCashGiven": "Espèces que vous payez : {{amount}}",
+      "confirmDescription": "Les cartes que vous donnez sont retirées de votre stock. Cette action est irréversible.",
+      "cardLimitReached": "Vous pouvez ajouter jusqu'à {{count}} cartes de chaque côté.",
+      "changeCollectionTitle": "Changer de collection ?",
+      "changeCollectionDescription_one": "La {{count}} carte que vous recevez sera retirée de la liste.",
+      "changeCollectionDescription_other": "Les {{count}} cartes que vous recevez seront retirées de la liste.",
+      "changeCollectionConfirm": "Changer et vider",
+      "scanReceived": "Scanner des cartes",
+      "scanAdded": "{{name}} ajoutée aux cartes que vous recevez",
+      "scannedCount_one": "{{count}} scannée",
+      "scannedCount_other": "{{count}} scannées",
+      "scanHint": "Placez une carte que vous recevez dans le cadre et appuyez sur le déclencheur pour l'ajouter.",
       "reviewTitle": "Échange en personne avec {{name}}",
       "recordedOn": "Enregistré en personne le {{date}}",
       "youGave_one": "Vous avez donné {{count}} carte",
@@ -4389,6 +4515,13 @@
     "searchLinkCards": "Rechercher dans ces cartes",
     "noLinkCards": "Aucune carte trouvée",
     "linkCardsLoadFailed": "Impossible de charger les cartes de ce lien",
+    "linkLoadFailed": "Impossible de charger ce lien d'échange",
+    "quantityDecreaseFor": "Diminuer la quantité de {{name}}",
+    "quantityIncreaseFor": "Augmenter la quantité de {{name}}",
+    "quantityOf": "{{name}} : quantité {{count}}",
+    "editFinishOf": "{{name}} : {{finish}}",
+    "editFinishHint": "Modifier l'état ou le foil",
+    "editFinishDescription": "Choisissez l'état et indiquez si la carte est foil.",
     "tapToAdd": "L'ajoute à votre offre",
     "tapToRemove": "La retire de votre offre",
     "loadMore": "Charger plus",
@@ -4499,7 +4632,8 @@
     "loadFailed": "Impossible de charger ces cartes",
     "loadMore": "Charger plus",
     "invalid": "Ce lien ne fonctionne pas",
-    "invalidDescription": "Il a peut-être expiré ou été révoqué. Demandez-en un nouveau au propriétaire."
+    "invalidDescription": "Il a peut-être expiré ou été révoqué. Demandez-en un nouveau au propriétaire.",
+    "linkLoadFailed": "Impossible de charger ce lien"
   },
   "listRow": {
     "moreActions": "Plus d'actions"
@@ -4540,7 +4674,8 @@
       "selected": "Impression {{printing}} affichée",
       "loadFailed": "Impossible de charger les autres impressions.",
       "showMore": "Afficher plus d'impressions"
-    }
+    },
+    "inBin": "Dans la case {{bin}} du trieur"
   },
   "offline": {
     "title": "Tu es hors ligne",
@@ -4554,6 +4689,7 @@
     "retry": "Réessayer",
     "restored": "Restauré",
     "undoFailed": "Impossible d'annuler",
+    "scannerNotReady": "Le scanner n'a pas pu se préparer. Vérifiez votre connexion et réessayez.",
     "cardsRemoved_one": "Carte retirée",
     "cardsRemoved_other": "{{count}} cartes retirées",
     "tagAdded": "{{tag}} ajouté",
@@ -4904,6 +5040,9 @@
       "substitute": "Remplacer",
       "reallocate": "Réattribuer",
       "reallocated": "Préparation réattribuée",
+      "reallocateTitle": "Réattribuer cette préparation ?",
+      "reallocateDescription": "Les cartes en stock sont de nouveau associées à cette préparation. Utilisez cette action après un ajout de stock pour compléter les cartes manquantes.",
+      "reallocateHint": "Associer de nouveau les cartes en stock à cette préparation",
       "cancel": "Annuler la préparation",
       "cancelTitle": "Annuler cette préparation ?",
       "cancelDescription": "Ses cartes restent en stock et sont disponibles pour d'autres préparations.",
@@ -5056,6 +5195,9 @@
       "noStorageLocation": "Aucun emplacement",
       "finish": "Terminer l'entrée de stock",
       "finishTitle": "Terminer l'entrée de stock",
+      "loadFailed": "Impossible de charger cette entrée de stock",
+      "notOpenTitle": "Cette entrée de stock est déjà clôturée",
+      "notOpenDescription": "Elle a été terminée ou annulée, il n'y a donc plus rien à terminer ici.",
       "finishDescription_one": "Ajouter {{count}} carte de {{name}} à votre stock.",
       "finishDescription_other": "Ajouter {{count}} cartes de {{name}} à votre stock.",
       "finishDescriptionOpened_one": "Ajouter {{count}} carte de {{name}} à votre inventaire.",
@@ -5123,6 +5265,7 @@
   },
   "machines": {
     "title": "Machines",
+    "raspberryPis": "Raspberry Pis",
     "chooseMachine": "Choisir une machine",
     "machinePicker": "{{name}}, choisir une autre machine",
     "empty": {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import {
@@ -26,7 +26,7 @@ function isValidCustom(value: number): boolean {
   return Number.isInteger(value) && value >= CUSTOM_BIN_HEIGHT_MIN_MM && value <= CUSTOM_BIN_HEIGHT_MAX_MM;
 }
 
-export function BinSizePicker({ binNumber, height, onChange }: BinSizePickerProps) {
+export function BinSizePicker({ binNumber, height, onChange, onValidityChange }: BinSizePickerProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const [open, setOpen] = useState(false);
@@ -37,6 +37,11 @@ export function BinSizePicker({ binNumber, height, onChange }: BinSizePickerProp
   const key = customPicked ? CUSTOM_BIN_SIZE_KEY : presetKeyFor(height);
   const parsed = Number(text);
   const valid = text !== "" && isValidCustom(parsed);
+  const hasInvalidCustomHeight = key === CUSTOM_BIN_SIZE_KEY && text !== "" && !valid;
+  useEffect(() => {
+    onValidityChange(binNumber, !hasInvalidCustomHeight);
+    return () => onValidityChange(binNumber, true);
+  }, [binNumber, hasInvalidCustomHeight, onValidityChange]);
   const options = [...BIN_HEIGHT_PRESETS.map((p) => p.key), CUSTOM_BIN_SIZE_KEY].map((value) => ({
     value,
     label: t(`calibration.bins.presets.${value}`),
@@ -63,7 +68,11 @@ export function BinSizePicker({ binNumber, height, onChange }: BinSizePickerProp
               {t("calibration.bins.customHeightUnit")}
             </AppText>
           </View>
-          <AppText size="2xs" style={{ color: valid || text === "" ? colors.foregroundSecondary : colors.destructive }}>
+          <AppText
+            size="2xs"
+            accessibilityRole={hasInvalidCustomHeight ? "alert" : undefined}
+            style={{ color: hasInvalidCustomHeight ? colors.destructiveForeground : colors.foregroundSecondary }}
+          >
             {valid
               ? t("calibration.bins.customHeightHint", {
                   count: Math.floor(parsed / DEFAULT_CARD_THICKNESS_MM),

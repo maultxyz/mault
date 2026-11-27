@@ -92,7 +92,15 @@ export default function OrderScreen() {
   const chooseMenuAction = (action: string) => {
     setMenuOpen(false);
     if (!detail) return;
-    if (action === "reallocate") void runAction(() => allocateOrder(detail.guid), t("business.order.reallocated"));
+    if (action === "reallocate") {
+      Alert.alert(t("business.order.reallocateTitle"), t("business.order.reallocateDescription"), [
+        { text: t("business.back"), style: "cancel" },
+        {
+          text: t("business.order.reallocate"),
+          onPress: () => void runAction(() => allocateOrder(detail.guid), t("business.order.reallocated")),
+        },
+      ]);
+    }
     if (action === "cancel") {
       Alert.alert(t("business.order.cancelTitle"), t("business.order.cancelDescription"), [
         { text: t("business.back"), style: "cancel" },
@@ -117,7 +125,11 @@ export default function OrderScreen() {
 
   const menuOptions = isOpen
     ? [
-        { value: "reallocate", label: t("business.order.reallocate") },
+        {
+          value: "reallocate",
+          label: t("business.order.reallocate"),
+          description: t("business.order.reallocateHint"),
+        },
         { value: "cancel", label: t("business.order.cancel") },
       ]
     : [{ value: "delete", label: t("business.delete") }];

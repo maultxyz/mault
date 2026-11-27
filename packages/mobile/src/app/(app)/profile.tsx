@@ -1,18 +1,21 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { TextField } from "@/components/ui/text-field";
+import { useToast } from "@/components/ui/toast-provider";
 import {
   authSessionsQueryOptions,
+  linkedSignInAccountsQueryOptions,
   revokeAuthSession,
   revokeOtherAuthSessions,
   updateName,
@@ -35,7 +38,13 @@ export default function ProfileScreen() {
   const queryClient = useQueryClient();
   const { user } = useSession();
   const isLocal = AUTH_PROVIDER === "local";
-  const [message, setMessage] = useState<{ tone: StatusTone; text: string } | null>(null);
+  const { showToast } = useToast();
+  const [hasNameSaveFailed, setHasNameSaveFailed] = useState(false);
+  const setMessage = useCallback(
+    (message: { tone: StatusTone; text: string }) =>
+      showToast({ message: message.text, tone: message.tone === "destructive" ? "destructive" : "success" }),
+    [showToast],
+  );
   const sessions = useQuery({ ...authSessionsQueryOptions(), enabled: !isLocal });
   const currentToken = getSessionToken();
 
@@ -49,13 +58,14 @@ export default function ProfileScreen() {
   const refreshSessions = () => void queryClient.invalidateQueries({ queryKey: ["auth-sessions"] });
 
   const saveName = async ({ name }: UpdateNameFormValues) => {
+    setHasNameSaveFailed(false);
     try {
       await updateName(name.trim());
       await refreshOrganizations();
       nameForm.reset({ name: name.trim() });
       setMessage({ tone: "success", text: t("account.profile.profile.updated") });
-    } catch (err) {
-      setMessage({ tone: "destructive", text: err instanceof Error ? err.message : t("account.profile.profile.updateFailed") });
+    } catch {
+      setHasNameSaveFailed(true);
     }
   };
 
@@ -69,13 +79,13 @@ export default function ProfileScreen() {
       }
       setMessage({ tone: "success", text: t("account.profile.sessions.revoked") });
     },
-    onError: (err: Error) => setMessage({ tone: "destructive", text: err.message || t("account.profile.sessions.revokeFailed") }),
+    onError: () => setMessage({ tone: "destructive", text: t("account.profile.sessions.revokeFailed") }),
     onSettled: refreshSessions,
   });
   const revokeOthers = useMutation({
     mutationFn: revokeOtherAuthSessions,
     onSuccess: () => setMessage({ tone: "success", text: t("account.profile.sessions.allRevoked") }),
-    onError: (err: Error) => setMessage({ tone: "destructive", text: err.message || t("account.profile.sessions.revokeAllFailed") }),
+    onError: () => setMessage({ tone: "destructive", text: t("account.profile.sessions.revokeAllFailed") }),
     onSettled: refreshSessions,
   });
 
@@ -110,11 +120,14 @@ export default function ProfileScreen() {
       }
       isDirty={!isLocal && nameForm.formState.isDirty}
       isSaving={nameForm.formState.isSubmitting}
+      saveError={hasNameSaveFailed}
+      saveErrorMessage={t("account.profile.profile.updateFailed")}
       onSave={() => void nameForm.handleSubmit(saveName)()}
-      onDiscard={() => nameForm.reset(nameValues)}
+      onDiscard={() => {
+        setHasNameSaveFailed(false);
+        nameForm.reset(nameValues);
+      }}
     >
-      {message ? <Callout tone={message.tone} title={message.text} /> : null}
-
       {isLocal ? (
         <ListGroup>
           <ListRow title={t("account.profile.email.heading")} value={user?.email ?? ""} />
@@ -161,7 +174,13 @@ export default function ProfileScreen() {
           <SignInMethodsSection onMessage={setMessage} />
 
           <SettingsSection title={t("account.profile.sessions.heading")} description={t("account.profile.sessions.description")}>
-            {sessions.isError ? <Callout tone="destructive" title={t("account.profile.sessions.loadFailed")} /> : null}
+            {sessions.isError ? (
+              <Callout
+                tone="destructive"
+                title={t("account.profile.sessions.loadFailed")}
+                action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void sessions.refetch()} />}
+              />
+            ) : null}
             {sessions.isPending ? (
               <ListSkeleton rows={2} hasSubtitle />
             ) : sessions.data && sessions.data.length === 0 ? (
@@ -178,6 +197,8 @@ export default function ProfileScreen() {
                       title={`${device.label || t("account.profile.sessions.unknownDevice")}${isCurrent ? ` · ${t("account.profile.sessions.current")}` : ""}`}
                       subtitle={`${row.ipAddress || t("account.profile.sessions.noIp")}\n${t("account.profile.sessions.lastActive", { date: formatShortDate(row.updatedAt, i18n.language) })}`}
                       onPress={() => confirmRevoke(row)}
+                      actionLabel={t("account.profile.sessions.revoke")}
+                      actionTone="destructive"
                       disabled={revoke.isPending}
                     />
                   );

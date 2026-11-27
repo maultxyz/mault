@@ -1,22 +1,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
-import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { router, useFocusEffect, useNavigation, usePreventRemove } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, View } from "react-native";
+import { AccessibilityInfo, Alert, View } from "react-native";
 import {
-  CARD_CONDITIONS,
   DEFAULT_CARD_CONDITION,
   IN_PERSON_TRADE_GIVEN_CARDS_MAX,
   IN_PERSON_TRADE_RECEIVED_CARDS_MAX,
   PRICE_SOURCE_FIELDS,
-  TRADE_OFFER_CARD_QUANTITY_MAX,
   formatPrice,
+  formatPriceInCurrency,
   inPersonTradeBalance,
   inPersonTradeFormSchema,
-  isCardCondition,
   ownedCardSearchSubtitle,
   parseTradeOfferCashInput,
   toTradeOfferCardOption,
@@ -28,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
+import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
@@ -46,13 +45,17 @@ import {
   inPersonTradeQuoteQueryOptions,
   recordInPersonTrade,
 } from "@/features/trade-offers/api/in-person-trades";
+import { OfferedTradeCardDetailsSheet } from "@/features/trade-offers/components/offered-trade-card-details-sheet";
+import { OfferedTradeCardRow } from "@/features/trade-offers/components/offered-trade-card-row";
 import { TradeCardRow } from "@/features/trade-offers/components/trade-card-row";
 import { TradeGuestBalance } from "@/features/trade-offers/components/trade-guest-balance";
+import { mergeReceivedTradeCards, takeInPersonScannedCards } from "@/features/trade-offers/lib/in-person-received-scans";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePricing } from "@/hooks/use-pricing";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SPACING } from "@/lib/constants/theme";
+import { IN_PERSON_RECEIVED_CARD_LIMITS, TRADE_SCAN_TARGET_IN_PERSON } from "@/lib/constants/trade";
 import {
   COLLECTION_CARDS_QUERY_ROOT,
   IN_PERSON_GIVEN_ALL_COLLECTIONS,
@@ -65,6 +68,7 @@ import type { InPersonGivenTradeCard } from "@/lib/interfaces/trade-offers";
 
 export default function InPersonTradeScreen() {
   const { t } = useTranslation();
+  const navigation = useNavigation();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const orgId = useActiveOrgId();
@@ -74,7 +78,9 @@ export default function InPersonTradeScreen() {
   const [received, setReceived] = useState<OfferedTradeCard[]>([]);
   const [receiveCollectionGuid, setReceiveCollectionGuid] = useState<string | null>(null);
   const [isCollectionSheetOpen, setIsCollectionSheetOpen] = useState(false);
-  const [editingCard, setEditingCard] = useState<OfferedTradeCard | null>(null);
+  const [editingCardKey, setEditingCardKey] = useState<string | null>(null);
+  const editingCard = received.find((card) => card.key === editingCardKey) ?? null;
+  const hasRecordedRef = useRef(false);
   const [givenSearch, setGivenSearch] = useState("");
   const [givenSourceGuid, setGivenSourceGuid] = useState(IN_PERSON_GIVEN_ALL_COLLECTIONS);
   const [isGivenSourceSheetOpen, setIsGivenSourceSheetOpen] = useState(false);
@@ -142,6 +148,29 @@ export default function InPersonTradeScreen() {
       ? (catalogResults.data?.cards ?? []).map((card) => toTradeOfferCardOption(card, receiveCollection.game?.key ?? ""))
       : [];
 
+  const updateReceived = (key: string, patch: Partial<OfferedTradeCard>) =>
+    setReceived((current) => current.map((item) => (item.key === key ? { ...item, ...patch } : item)));
+  const announceCardLimit = useCallback(
+    (limit: number) =>
+      showToast({ message: t("tradeOffers.inPerson.cardLimitReached", { count: limit }), tone: "destructive" }),
+    [showToast, t],
+  );
+  const receivedRef = useRef(received);
+  receivedRef.current = received;
+
+  useFocusEffect(
+    useCallback(() => {
+      const scannedCards = takeInPersonScannedCards();
+      if (scannedCards.length === 0) return;
+      const merged = mergeReceivedTradeCards(receivedRef.current, scannedCards, IN_PERSON_RECEIVED_CARD_LIMITS, () =>
+        Crypto.randomUUID(),
+      );
+      setReceived(merged.cards);
+      if (merged.droppedCount > 0) announceCardLimit(IN_PERSON_TRADE_RECEIVED_CARDS_MAX);
+    }, [announceCardLimit]),
+  );
+  useEffect(() => () => void takeInPersonScannedCards(), []);
+
   const record = useMutation({
     mutationFn: ({ cash, ...values }: InPersonTradeFormValues) => {
       const parsedCash = parseTradeOfferCashInput(cash);
@@ -156,21 +185,48 @@ export default function InPersonTradeScreen() {
       void queryClient.invalidateQueries({ queryKey: [COLLECTION_CARDS_QUERY_ROOT] });
       AccessibilityInfo.announceForAccessibility(t("tradeOffers.inPerson.recorded"));
       showToast({ message: t("tradeOffers.inPerson.recorded"), tone: "success" });
+      hasRecordedRef.current = true;
       router.back();
     },
   });
 
-  const editReceived = (action: string) => {
-    const card = editingCard;
-    setEditingCard(null);
-    if (!card) return;
-    const update = (patch: Partial<OfferedTradeCard>) =>
-      setReceived((current) => current.map((item) => (item.key === card.key ? { ...item, ...patch } : item)));
-    if (action === "increase") update({ quantity: Math.min(card.quantity + 1, TRADE_OFFER_CARD_QUANTITY_MAX) });
-    else if (action === "decrease") update({ quantity: Math.max(card.quantity - 1, 1) });
-    else if (action === "foil") update({ isFoil: !card.isFoil });
-    else if (action === "remove") setReceived((current) => current.filter((item) => item.key !== card.key));
-    else if (isCardCondition(action)) update({ condition: action });
+  usePreventRemove((hasContent || form.formState.isDirty) && !record.isPending, ({ data }) => {
+    if (hasRecordedRef.current) {
+      navigation.dispatch(data.action);
+      return;
+    }
+    Alert.alert(t("common.discardTitle"), t("tradeOffers.inPerson.discardDescription"), [
+      { text: t("common.keepEditing"), style: "cancel" },
+      { text: t("common.discard"), style: "destructive", onPress: () => navigation.dispatch(data.action) },
+    ]);
+  });
+
+  const receivedCount = received.reduce((sum, card) => sum + card.quantity, 0);
+  const confirmRecord = (values: InPersonTradeFormValues) => {
+    const summaryLines = [
+      t("tradeOffers.inPerson.confirmCards", { give: given.length, get: receivedCount }),
+      ...(cashAmount != null
+        ? [
+            t(
+              cashDirection === "received"
+                ? "tradeOffers.inPerson.confirmCashReceived"
+                : "tradeOffers.inPerson.confirmCashGiven",
+              { amount: formatPriceInCurrency(cashAmount, PRICE_SOURCE_FIELDS[priceSource].currency) },
+            ),
+          ]
+        : []),
+      t("tradeOffers.inPerson.confirmDescription"),
+    ];
+    Alert.alert(t("tradeOffers.inPerson.confirmTitle"), summaryLines.join("\n\n"), [
+      { text: t("common.cancel"), style: "cancel" },
+      { text: t("tradeOffers.inPerson.record"), onPress: () => record.mutate(values) },
+    ]);
+  };
+
+  const chooseReceiveCollection = (guid: string) => {
+    setReceiveCollectionGuid(guid);
+    setReceived([]);
+    setReceivedSearch("");
   };
 
   return (
@@ -187,7 +243,7 @@ export default function InPersonTradeScreen() {
             label={t("tradeOffers.inPerson.record")}
             disabled={!hasContent || (received.length > 0 && !receiveCollection)}
             loading={record.isPending}
-            onPress={form.handleSubmit((values) => record.mutate(values))}
+            onPress={form.handleSubmit(confirmRecord)}
           />
         </>
       }
@@ -274,7 +330,10 @@ export default function InPersonTradeScreen() {
                   imageUrl={result.imageUrl}
                   accessibilityHint={t("trade.tapToAdd")}
                   onPress={() => {
-                    if (given.length >= IN_PERSON_TRADE_GIVEN_CARDS_MAX) return;
+                    if (given.length >= IN_PERSON_TRADE_GIVEN_CARDS_MAX) {
+                      announceCardLimit(IN_PERSON_TRADE_GIVEN_CARDS_MAX);
+                      return;
+                    }
                     setGiven((current) => [
                       ...current,
                       { scanId: result.scanId, name: result.cardName, subtitle, imageUrl: result.imageUrl },
@@ -330,9 +389,7 @@ export default function InPersonTradeScreen() {
 
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader
-          title={t("tradeOffers.inPerson.getTitle", {
-            count: received.reduce((sum, card) => sum + card.quantity, 0),
-          })}
+          title={t("tradeOffers.inPerson.getTitle", { count: receivedCount })}
         />
         <AppText size="xs" tone="secondary">
           {t("tradeOffers.inPerson.getDescription")}
@@ -344,12 +401,26 @@ export default function InPersonTradeScreen() {
           onPress={() => setIsCollectionSheetOpen(true)}
         />
         {receiveCollection ? (
-          <SearchInput
-            value={receivedSearch}
-            onChangeText={setReceivedSearch}
-            placeholder={t("tradeOffers.inPerson.searchCatalog")}
-            accessibilityLabel={t("tradeOffers.inPerson.searchCatalog")}
-          />
+          <>
+            <ListGroup>
+              <ListRow
+                icon="camera"
+                title={t("tradeOffers.inPerson.scanReceived")}
+                onPress={() =>
+                  router.push({
+                    pathname: "/trade/scan",
+                    params: { target: TRADE_SCAN_TARGET_IN_PERSON, collectionGuid: receiveCollection.guid },
+                  })
+                }
+              />
+            </ListGroup>
+            <SearchInput
+              value={receivedSearch}
+              onChangeText={setReceivedSearch}
+              placeholder={t("tradeOffers.inPerson.searchCatalog")}
+              accessibilityLabel={t("tradeOffers.inPerson.searchCatalog")}
+            />
+          </>
         ) : null}
         {catalogMatches.length > 0 ? (
           <ListGroup>
@@ -363,7 +434,10 @@ export default function InPersonTradeScreen() {
                 imageUrl={option.imageUrl}
                 accessibilityHint={t("trade.tapToAdd")}
                 onPress={() => {
-                  if (received.length >= IN_PERSON_TRADE_RECEIVED_CARDS_MAX) return;
+                  if (received.length >= IN_PERSON_TRADE_RECEIVED_CARDS_MAX) {
+                    announceCardLimit(IN_PERSON_TRADE_RECEIVED_CARDS_MAX);
+                    return;
+                  }
                   setReceived((current) => [
                     ...current,
                     { ...option, key: Crypto.randomUUID(), quantity: 1, condition: DEFAULT_CARD_CONDITION, isFoil: false },
@@ -383,17 +457,14 @@ export default function InPersonTradeScreen() {
         {received.length > 0 ? (
           <ListGroup>
             {received.map((card, index) => (
-              <TradeCardRow
+              <OfferedTradeCardRow
                 key={card.key}
-                name={card.name}
-                subtitle={[`×${card.quantity}`, t(`trade.conditions.${card.condition}`), card.isFoil ? t("trade.foil") : null, card.setName]
-                  .filter(Boolean)
-                  .join(" · ")}
-                imageUrl={card.imageUrl}
+                card={card}
                 value={rowPriceLabel(currentQuote?.offeredPrices[index])}
                 valueAccessibilityLabel={rowPriceAccessibilityLabel(currentQuote?.offeredPrices[index])}
-                accessibilityHint={t("tradeOffers.inPerson.editCardHint")}
-                onPress={() => setEditingCard(card)}
+                onQuantityChange={(quantity) => updateReceived(card.key, { quantity })}
+                onEditDetails={() => setEditingCardKey(card.key)}
+                onRemove={() => setReceived((current) => current.filter((item) => item.key !== card.key))}
               />
             ))}
           </ListGroup>
@@ -471,32 +542,31 @@ export default function InPersonTradeScreen() {
         selected={receiveCollectionGuid ? [receiveCollectionGuid] : []}
         onSelect={(guid) => {
           setIsCollectionSheetOpen(false);
-          if (guid !== receiveCollectionGuid) {
-            setReceiveCollectionGuid(guid);
-            setReceived([]);
-            setReceivedSearch("");
+          if (guid === receiveCollectionGuid) return;
+          if (received.length === 0) {
+            chooseReceiveCollection(guid);
+            return;
           }
+          Alert.alert(
+            t("tradeOffers.inPerson.changeCollectionTitle"),
+            t("tradeOffers.inPerson.changeCollectionDescription", { count: receivedCount }),
+            [
+              { text: t("common.cancel"), style: "cancel" },
+              {
+                text: t("tradeOffers.inPerson.changeCollectionConfirm"),
+                style: "destructive",
+                onPress: () => chooseReceiveCollection(guid),
+              },
+            ],
+          );
         }}
         onClose={() => setIsCollectionSheetOpen(false)}
       />
-      <OptionSheet
-        visible={!!editingCard}
-        title={editingCard?.name ?? ""}
-        options={[
-          { value: "increase", label: t("trade.quantityIncrease", { count: (editingCard?.quantity ?? 1) + 1 }) },
-          ...((editingCard?.quantity ?? 1) > 1
-            ? [{ value: "decrease", label: t("trade.quantityDecrease", { count: (editingCard?.quantity ?? 2) - 1 }) }]
-            : []),
-          { value: "foil", label: editingCard?.isFoil ? t("trade.markNotFoil") : t("trade.markFoil") },
-          ...CARD_CONDITIONS.map((condition) => ({
-            value: condition,
-            label: t("trade.conditionOption", { condition: t(`trade.conditions.${condition}`) }),
-          })),
-          { value: "remove", label: t("tradeOffers.inPerson.remove") },
-        ]}
-        selected={editingCard ? [editingCard.condition] : []}
-        onSelect={editReceived}
-        onClose={() => setEditingCard(null)}
+      <OfferedTradeCardDetailsSheet
+        card={editingCard}
+        onToggleFoil={(card) => updateReceived(card.key, { isFoil: !card.isFoil })}
+        onConditionChange={(card, condition) => updateReceived(card.key, { condition })}
+        onClose={() => setEditingCardKey(null)}
       />
     </Screen>
   );

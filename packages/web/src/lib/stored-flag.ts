@@ -1,20 +1,25 @@
 import { useSyncExternalStore } from "react";
+import type { StoredFlagOptions } from "@/lib/interfaces/stored-flag";
 
-export function createStoredFlag(storageKey: string) {
+export function createStoredFlag(
+  storageKey: string,
+  { isEnabledByDefault = false }: StoredFlagOptions = {},
+) {
   const listeners = new Set<() => void>();
 
   const read = (): boolean => {
     try {
-      return localStorage.getItem(storageKey) === "true";
+      const stored = localStorage.getItem(storageKey);
+      return isEnabledByDefault ? stored !== "false" : stored === "true";
     } catch {
-      return false;
+      return isEnabledByDefault;
     }
   };
 
   const write = (value: boolean): void => {
     try {
-      if (value) localStorage.setItem(storageKey, "true");
-      else localStorage.removeItem(storageKey);
+      if (value === isEnabledByDefault) localStorage.removeItem(storageKey);
+      else localStorage.setItem(storageKey, value ? "true" : "false");
     } catch {}
     listeners.forEach((listener) => listener());
   };

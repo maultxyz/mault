@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useKeepAwake } from "expo-keep-awake";
 import { router, useIsFocused, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -35,7 +35,7 @@ import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-ove
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
 import { captureFrame } from "@/features/scanner/lib/frame";
 import { identifyCard } from "@/features/scanner/lib/identify";
-import { warmScanModels } from "@/features/scanner/lib/inference";
+import { useScanModelsReady } from "@/features/storage/api/use-scan-models-ready";
 import { usePickWalk } from "@/features/business/api/use-pick-walk";
 import { pickWalkSpotLabel } from "@/features/business/lib/pick-walk-labels";
 import { useStoragePickList } from "@/features/storage/api/use-storage-pick-list";
@@ -111,20 +111,13 @@ export default function StorageCardScanScreen() {
   latestSource.current = source;
   const photoOutput = usePhotoOutput({ targetResolution: CAPTURE_TARGET_RESOLUTION, qualityPrioritization: "speed" });
   const [frameAspect, setFrameAspect] = useState(CAMERA_ASPECT_RATIO);
-  const [modelsReady, setModelsReady] = useState(false);
-  const [modelError, setModelError] = useState<string | null>(null);
+  const { areModelsReady: modelsReady, haveModelsFailed: modelError, retryModels } = useScanModelsReady();
   const [isIdentifying, setIsIdentifying] = useState(false);
   const [notice, setNotice] = useState<CardScanNotice | null>(null);
   const noticeId = useRef(0);
   const active = cameraMounted && appState === "active" && permission.hasPermission && !!device;
   const scanCollectionGuid = scanCheckCollectionGuid(source.cards, source.checkedScanIds);
   const remaining = source.cards.length - source.checkedCount;
-
-  useEffect(() => {
-    warmScanModels()
-      .then(() => setModelsReady(true))
-      .catch((err: unknown) => setModelError(err instanceof Error ? err.message : String(err)));
-  }, []);
 
   const capture = useCallback(async () => {
     const frame = await captureFrame(photoOutput);
@@ -292,7 +285,13 @@ export default function StorageCardScanScreen() {
         }}
       >
         {modelError ? (
-          <CameraNotice tone="destructive" title={t("scan.modelErrorTitle")} description={modelError} />
+          <CameraNotice
+            tone="destructive"
+            title={t("scan.modelErrorTitle")}
+            description={t("recovery.scannerNotReady")}
+            actionLabel={t("recovery.retry")}
+            onAction={retryModels}
+          />
         ) : notice ? (
           <CameraNotice key={notice.noticeId} tone={CARD_SCAN_NOTICE_TONES[notice.kind]} title={noticeTitle(notice)} />
         ) : (
@@ -317,7 +316,7 @@ export default function StorageCardScanScreen() {
             running={isIdentifying}
             icon="camera"
             label={isVerifying ? t("storage.verify.scan.button") : t("storage.pickList.scan.button")}
-            disabled={!active || !modelsReady || !!modelError || isIdentifying || !scanCollectionGuid}
+            disabled={!active || !modelsReady || modelError || isIdentifying || !scanCollectionGuid}
             onPress={() => void scan()}
           />
         </View>

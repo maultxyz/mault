@@ -2,11 +2,10 @@ import { SCAN_REGION_OFFSET_LIMIT } from "@magic-vault/shared";
 import { SCAN_REGION_COVERAGE_MIN } from "@magic-vault/shared";
 import { router, useNavigation, usePreventRemove } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, Linking, ScrollView, View } from "react-native";
 import { useCameraPermission } from "react-native-vision-camera";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
-import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SliderField } from "@/components/ui/slider-field";
@@ -46,20 +45,29 @@ export default function CalibrationScanRegionScreen() {
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader title={t("calibration.sections.scanRegion.title")} subtitle={sorter.device?.name} onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg + SPACING.xs }}>
-        {draft.saveError ? <Callout tone="destructive" title={t("calibration.saveFailed")} /> : null}
-
         <SettingsSection title={t("calibration.scanRegion.heading")} description={t("calibration.scanRegion.instructions")}>
           <Surface style={{ gap: SPACING.md }}>
             {permission.hasPermission ? (
               <ScanRegionEditor region={draft.region} onChange={draft.setRegion} />
-            ) : (
+            ) : permission.canRequestPermission ? (
               <Button
                 variant="secondary"
                 icon="camera"
                 label={t("scan.allowCamera")}
-                disabled={!permission.canRequestPermission}
                 onPress={() => void permission.requestPermission()}
               />
+            ) : (
+              <>
+                <AppText size="sm" tone="secondary">
+                  {t("scan.cameraPermissionSettings")}
+                </AppText>
+                <Button
+                  variant="secondary"
+                  icon="camera"
+                  label={t("common.openSettings")}
+                  onPress={() => void Linking.openSettings()}
+                />
+              </>
             )}
             <AppText size="xs" tone="secondary">
               {t("calibration.scanRegion.liveDetectionHint")}
@@ -125,7 +133,13 @@ export default function CalibrationScanRegionScreen() {
           />
         </Surface>
       </ScrollView>
-      <SaveBar visible={draft.isDirty} saving={draft.isSaving} onSave={() => void draft.save()} onDiscard={draft.discard} />
+      <SaveBar
+        visible={draft.isDirty}
+        saving={draft.isSaving}
+        onSave={() => void draft.save()}
+        onDiscard={draft.discard}
+        errorMessage={draft.saveError ? t("calibration.saveFailed") : undefined}
+      />
     </View>
   );
 }

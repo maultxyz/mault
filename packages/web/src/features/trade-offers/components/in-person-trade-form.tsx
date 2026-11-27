@@ -1,5 +1,7 @@
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { MissingPrice } from "@/components/missing-price";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import { UnsavedChangesGuardView } from "@/components/unsaved-changes-guard";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -33,6 +35,7 @@ import {
   IN_PERSON_TRADE_RECEIVED_CARDS_MAX,
   PRICE_SOURCE_FIELDS,
   formatPrice,
+  formatPriceInCurrency,
   inPersonTradeBalance,
   inPersonTradeFormSchema,
   parseTradeOfferCashInput,
@@ -42,7 +45,7 @@ import {
 } from "@magic-vault/shared";
 import { IconArrowsExchange, IconCheck, IconLoader2, IconTrash } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -96,13 +99,29 @@ export function InPersonTradeForm() {
   const rowPriceLabel = (price: number | null | undefined) =>
     price === undefined ? null : price == null ? <MissingPrice /> : formatPrice(price, priceSource);
   const hasContent = given.length > 0 || received.length > 0 || cashAmount != null;
+  const receivedCount = received.reduce((sum, draft) => sum + draft.quantity, 0);
+  const [recordedOfferGuid, setRecordedOfferGuid] = useState<string | null>(null);
+  const [confirmingValues, setConfirmingValues] = useState<InPersonTradeFormValues | null>(null);
+  const [pendingReceiveCollectionGuid, setPendingReceiveCollectionGuid] = useState<string | null>(null);
+  const hasUnsavedTrade = recordedOfferGuid === null && (hasContent || form.formState.isDirty);
 
-  const changeReceiveCollection = (nextGuid: string) => {
+  useEffect(() => {
+    if (recordedOfferGuid) navigate(tradeOfferPath(recordedOfferGuid));
+  }, [recordedOfferGuid, navigate]);
+
+  const applyReceiveCollection = (nextGuid: string) => {
     setReceiveCollectionGuid(nextGuid);
     setReceived([]);
   };
+  const changeReceiveCollection = (nextGuid: string) => {
+    if (nextGuid === receiveCollectionGuid) return;
+    if (received.length === 0) applyReceiveCollection(nextGuid);
+    else setPendingReceiveCollectionGuid(nextGuid);
+  };
+  const announceCardLimit = (limit: number) =>
+    toast.error(t("tradeOffers.inPerson.cardLimitReached", { count: limit }));
 
-  const submit = form.handleSubmit(async ({ cash, ...values }) => {
+  const recordTrade = async ({ cash, ...values }: InPersonTradeFormValues) => {
     const parsedCash = parseTradeOfferCashInput(cash);
     try {
       const created = await record.mutateAsync({
@@ -111,14 +130,61 @@ export function InPersonTradeForm() {
         ...(parsedCash != null ? { cashAmount: parsedCash } : {}),
       });
       toast.success(t("tradeOffers.inPerson.recorded"));
-      navigate(tradeOfferPath(created.guid));
+      setConfirmingValues(null);
+      setRecordedOfferGuid(created.guid);
     } catch (error) {
+      setConfirmingValues(null);
       toast.error(error instanceof Error && error.message ? error.message : t("tradeOffers.inPerson.recordFailed"));
     }
-  });
+  };
+  const submit = form.handleSubmit((values) => setConfirmingValues(values));
+  const confirmSummary = [
+    t("tradeOffers.inPerson.confirmCards", { give: given.length, get: receivedCount }),
+    ...(cashAmount != null
+      ? [
+          t(
+            cashDirection === "received"
+              ? "tradeOffers.inPerson.confirmCashReceived"
+              : "tradeOffers.inPerson.confirmCashGiven",
+            { amount: formatPriceInCurrency(cashAmount, cashCurrency) },
+          ),
+        ]
+      : []),
+    t("tradeOffers.inPerson.confirmDescription"),
+  ].join(" ");
 
   return (
     <form id={formId} onSubmit={submit} className="flex min-h-full flex-col">
+      <UnsavedChangesGuardView isDirty={hasUnsavedTrade} />
+      <ConfirmDialog
+        open={confirmingValues !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmingValues(null);
+        }}
+        title={t("tradeOffers.inPerson.confirmTitle")}
+        description={confirmSummary}
+        confirmLabel={t("tradeOffers.inPerson.record")}
+        cancelLabel={t("actions.cancel")}
+        isPending={record.isPending}
+        onConfirm={() => {
+          if (confirmingValues) void recordTrade(confirmingValues);
+        }}
+      />
+      <ConfirmDialog
+        open={pendingReceiveCollectionGuid !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingReceiveCollectionGuid(null);
+        }}
+        title={t("tradeOffers.inPerson.changeCollectionTitle")}
+        description={t("tradeOffers.inPerson.changeCollectionDescription", { count: receivedCount })}
+        confirmLabel={t("tradeOffers.inPerson.changeCollectionConfirm")}
+        cancelLabel={t("actions.cancel")}
+        destructive
+        onConfirm={() => {
+          if (pendingReceiveCollectionGuid) applyReceiveCollection(pendingReceiveCollectionGuid);
+          setPendingReceiveCollectionGuid(null);
+        }}
+      />
       <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 p-4 md:gap-2 md:px-3 md:py-2">
         <TradeOfferPanel
           step={1}
@@ -154,11 +220,13 @@ export function InPersonTradeForm() {
           >
             <InPersonGivenCardSearch
               selectedScanIds={given.map((card) => card.scanId)}
-              onAdd={(card) =>
-                setGiven((current) =>
-                  current.length >= IN_PERSON_TRADE_GIVEN_CARDS_MAX ? current : [...current, card],
-                )
-              }
+              onAdd={(card) => {
+                if (given.length >= IN_PERSON_TRADE_GIVEN_CARDS_MAX) {
+                  announceCardLimit(IN_PERSON_TRADE_GIVEN_CARDS_MAX);
+                  return;
+                }
+                setGiven((current) => [...current, card]);
+              }}
             />
             {given.length === 0 ? (
               <p className="rounded-lg bg-foreground/6 p-4 text-center text-xs text-foreground/70">
@@ -207,9 +275,7 @@ export function InPersonTradeForm() {
           <TradeOfferPanel
             step={3}
             headingId={`${formId}-get`}
-            title={t("tradeOffers.inPerson.getTitle", {
-              count: received.reduce((sum, draft) => sum + draft.quantity, 0),
-            })}
+            title={t("tradeOffers.inPerson.getTitle", { count: receivedCount })}
             description={t("tradeOffers.inPerson.getDescription")}
           >
             <Field>
@@ -236,13 +302,16 @@ export function InPersonTradeForm() {
               <InPersonReceivedCardSearch
                 collectionGuid={receiveCollection.guid}
                 gameKey={receiveCollection.game?.key ?? ""}
-                onAdd={(option) =>
-                  setReceived((current) =>
-                    current.length >= IN_PERSON_TRADE_RECEIVED_CARDS_MAX
-                      ? current
-                      : [...current, { option, quantity: 1, condition: DEFAULT_CARD_CONDITION, isFoil: false }],
-                  )
-                }
+                onAdd={(option) => {
+                  if (received.length >= IN_PERSON_TRADE_RECEIVED_CARDS_MAX) {
+                    announceCardLimit(IN_PERSON_TRADE_RECEIVED_CARDS_MAX);
+                    return;
+                  }
+                  setReceived((current) => [
+                    ...current,
+                    { option, quantity: 1, condition: DEFAULT_CARD_CONDITION, isFoil: false },
+                  ]);
+                }}
               />
             )}
             {received.length === 0 ? (

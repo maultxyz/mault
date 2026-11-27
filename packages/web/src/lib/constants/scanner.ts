@@ -241,7 +241,9 @@ export const MOBILE_SCAN_TOP_SCRIM_CLASS =
 export const MOBILE_SCAN_BOTTOM_SCRIM_CLASS =
   "bg-linear-to-t from-black/60 via-black/60 via-65% to-transparent";
 export const MOBILE_SCAN_SESSION_THUMBNAIL_CLASS =
-  "pointer-events-auto relative block aspect-[5/7] w-9 shrink-0 overflow-hidden rounded-sm border-2 border-white bg-black/55 transition-transform active:scale-95 motion-reduce:active:scale-100";
+  "pointer-events-auto relative block aspect-[5/7] w-11 shrink-0 overflow-hidden rounded-sm border-2 border-white bg-black/55 transition-transform active:scale-95 motion-reduce:active:scale-100";
+export const MOBILE_SCAN_RESULT_CHIP_CLASS =
+  "pointer-events-auto flex min-h-11 items-center gap-2 rounded-lg bg-black/55 px-3 py-1.5 text-white backdrop-blur-md active:bg-black/70";
 export const MOBILE_SCAN_PANEL_CLASS =
   "pointer-events-auto rounded-xl bg-black/60 p-3 text-white backdrop-blur-md";
 

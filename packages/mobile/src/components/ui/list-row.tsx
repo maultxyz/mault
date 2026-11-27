@@ -30,6 +30,8 @@ export function ListRow({
   swipeDestructiveAction,
   accessibilityHint,
   checked,
+  actionLabel,
+  actionTone = "primary",
 }: ListRowProps) {
   const { t } = useTranslation();
   const colors = useTheme();
@@ -39,7 +41,7 @@ export function ListRow({
     <Pressable
       accessible={!rightIsInteractive}
       accessibilityRole={checked != null ? "checkbox" : onPress ? "button" : undefined}
-      accessibilityHint={accessibilityHint}
+      accessibilityHint={accessibilityHint ?? actionLabel}
       accessibilityState={{ disabled, selected: selected ?? undefined, checked }}
       disabled={(!onPress && !onLongPress) || disabled}
       onPress={onPress}
@@ -79,7 +81,19 @@ export function ListRow({
       ) : null}
       {right}
       {selected ? <Icon name="check" size={16} color={colors.primaryText} /> : null}
-      {onPress && selected == null && !right && !destructive ? (
+      {actionLabel ? (
+        <AppText
+          size="sm"
+          weight="semibold"
+          numberOfLines={1}
+          importantForAccessibility="no"
+          accessibilityElementsHidden
+          style={{ flexShrink: 0, color: actionTone === "destructive" ? colors.destructiveForeground : colors.primaryText }}
+        >
+          {actionLabel}
+        </AppText>
+      ) : null}
+      {onPress && !actionLabel && selected == null && !right && !destructive ? (
         <Icon name="chevron" size={16} color={colors.foregroundSecondary} />
       ) : null}
     </Pressable>

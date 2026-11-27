@@ -22,6 +22,7 @@ import { createStorageLocationSeries } from "@/features/storage/api/storage";
 import { useTheme } from "@/hooks/use-theme";
 import { STORAGE_SERIES_DEFAULT_VALUES } from "@/lib/constants/storage";
 import { SPACING } from "@/lib/constants/theme";
+import { storageSaveErrorMessage } from "@/features/storage/lib/storage-save-error";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function StorageSeriesScreen() {
@@ -72,7 +73,7 @@ export default function StorageSeriesScreen() {
         }
       >
         <View style={{ gap: SPACING.lg }}>
-          {save.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
+          {save.isError ? <Callout tone="destructive" title={storageSaveErrorMessage(save.error, t)} /> : null}
           <AppText size="sm" tone="secondary">
             {t("storage.series.description")}
           </AppText>

@@ -10,11 +10,18 @@ import {
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import {
+  INVALID_CREDENTIALS_ERROR,
+  INVALID_CREDENTIALS_HTTP_STATUSES,
+  NEON_EMAIL_NOT_VERIFIED_ERROR_CODE,
+  RATE_LIMITED_ERROR,
+  RATE_LIMITED_HTTP_STATUS,
+  SIGN_IN_FAILED_ERROR,
   NEON_AUTH_SESSION_CHALLENGE_COOKIE_PATTERN,
   NEON_AUTH_SESSION_TOKEN_COOKIE_NAME,
   NEON_AUTH_SESSION_TOKEN_COOKIE_PATTERN,
   SOCIAL_SIGN_IN_CANCELLED_ERROR,
 } from "@/lib/constants/auth";
+import { NeonAuthRequestError } from "@/lib/auth/neon-auth-request-error";
 import { NEON_AUTH_URL, WEB_URL } from "@/lib/constants/config";
 import type { AuthBackend, AuthBackendSignInResult } from "@/lib/interfaces/auth";
 
@@ -32,17 +39,15 @@ function neonHeaders(sessionToken?: string): Record<string, string> {
   };
 }
 
-async function readError(res: Response, fallback: string): Promise<string> {
-  try {
-    const body = (await res.json()) as { message?: string };
-    return body.message ?? fallback;
-  } catch {
-    return fallback;
-  }
+async function signInErrorFrom(res: Response): Promise<string> {
+  const body = (await res.json().catch(() => null)) as { code?: string } | null;
+  if (body?.code === NEON_EMAIL_NOT_VERIFIED_ERROR_CODE) return "verify-email";
+  if (res.status === RATE_LIMITED_HTTP_STATUS) return RATE_LIMITED_ERROR;
+  return INVALID_CREDENTIALS_HTTP_STATUSES.includes(res.status) ? INVALID_CREDENTIALS_ERROR : SIGN_IN_FAILED_ERROR;
 }
 
-async function sessionFrom(res: Response, fallback: string): Promise<AuthBackendSignInResult> {
-  if (!res.ok) return { error: await readError(res, fallback) };
+async function sessionFrom(res: Response): Promise<AuthBackendSignInResult> {
+  if (!res.ok) return { error: await signInErrorFrom(res) };
   const headerToken =
     res.headers.get("set-cookie")?.match(NEON_AUTH_SESSION_TOKEN_COOKIE_PATTERN)?.[1] ??
     res.headers.get("set-auth-token") ??
@@ -168,7 +173,7 @@ export const neonBackend: AuthBackend = {
         headers: neonHeaders(),
         body: JSON.stringify({ email, password }),
       });
-      return await sessionFrom(res, "Sign in failed.");
+      return await sessionFrom(res);
     } catch {
       return { error: "network" };
     }
@@ -200,6 +205,9 @@ export async function neonAuthRequest<T>(path: string, sessionToken: string, bod
     headers: neonHeaders(sessionToken),
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(await readError(res, "Request failed."));
+  if (!res.ok) {
+    const errorBody = (await res.json().catch(() => null)) as { code?: string; message?: string } | null;
+    throw new NeonAuthRequestError(errorBody?.message ?? "Request failed.", errorBody?.code ?? null);
+  }
   return (await res.json()) as T;
 }

@@ -230,7 +230,8 @@
     "searchPlaceholder": "Nach Name suchen...",
     "loadError": "Karten konnten nicht geladen werden",
     "revectorizeTitle": "Neu vektorisieren",
-    "empty": "Keine Karten gefunden"
+    "empty": "Keine Karten gefunden",
+    "searchPrompt": "Suche eine Karte nach Namen, um sie zu laden."
   },
   "syncCardById": {
     "cardIdLabel": "Karten-ID",

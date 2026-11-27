@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import type { OrgApiKey } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
@@ -41,6 +42,9 @@ export default function ApiKeysSettingsScreen() {
     <SettingsPage
       title={t("settings.apiKeys.heading")}
       isLoading={keys.isLoading}
+      isLoadError={keys.isError && !keys.data}
+      isRetryingLoad={keys.isFetching}
+      onRetryLoad={() => void keys.refetch()}
       onRefresh={() => keys.refetch()}
     >
       <AppText size="sm" tone="secondary">
@@ -48,7 +52,13 @@ export default function ApiKeysSettingsScreen() {
       </AppText>
       {locked ? <Callout tone="info" title={t("settings.apiKeys.upgrade")} /> : null}
       {!locked && keys.data && !canManage ? <Callout tone="info" title={t("settings.apiKeys.managersOnly")} /> : null}
-      {keys.isError ? <Callout tone="destructive" title={t("settings.apiKeys.loadFailed")} /> : null}
+      {keys.isError ? (
+        <Callout
+          tone="destructive"
+          title={t("settings.apiKeys.loadFailed")}
+          action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void keys.refetch()} />}
+        />
+      ) : null}
       {revoke.isError ? <Callout tone="destructive" title={t("settings.apiKeys.revokeFailed")} /> : null}
 
       {keys.data && apiKeys.length === 0 ? <EmptyState icon="key" title={t("settings.apiKeys.empty")} /> : null}
@@ -70,8 +80,8 @@ export default function ApiKeysSettingsScreen() {
               subtitleNumberOfLines={3}
               disabled={revoke.isPending && revoke.variables === apiKey.guid}
               onPress={canManage ? () => confirmRevoke(apiKey) : undefined}
-              onLongPress={canManage ? () => confirmRevoke(apiKey) : undefined}
-              longPressLabel={canManage ? t("settings.apiKeys.revoke") : undefined}
+              actionLabel={canManage ? t("settings.apiKeys.revoke") : undefined}
+              actionTone="destructive"
             />
           ))}
           {canCreate ? (

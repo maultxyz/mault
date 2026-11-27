@@ -10,6 +10,7 @@ export interface OrgSettingsDraft {
   isLoadError: boolean;
   isRetryingLoad: boolean;
   retryLoad: () => void;
+  refresh: () => Promise<unknown>;
   isDirty: boolean;
   isSaving: boolean;
   saveError: boolean;
@@ -54,6 +55,7 @@ export interface SettingsPageProps {
   isDirty?: boolean;
   isSaving?: boolean;
   saveError?: boolean;
+  saveErrorMessage?: string;
   isLoading?: boolean;
   isLoadError?: boolean;
   isRetryingLoad?: boolean;
@@ -100,7 +102,7 @@ export interface ShopCatalogSourceSwitchesProps {
 }
 
 export interface SettingsNotice {
-  tone: "success" | "destructive";
+  tone: "success" | "destructive" | "info";
   text: string;
 }
 
@@ -115,4 +117,30 @@ export interface RuleEnabledSwitchProps {
   value: boolean;
   onValueChange: (value: boolean) => void;
   disabled?: boolean;
+}
+
+export interface LeaveGuardOptions {
+  isGuarded: boolean;
+  title: string;
+  description: string;
+  stayLabel: string;
+  leaveLabel: string;
+}
+
+export interface LeaveGuard {
+  leaveWithoutGuard: (leave?: () => void) => void;
+}
+
+export type SecretCopyStatus = "idle" | "copied" | "failed";
+
+export interface SecretRevealProps {
+  title: string;
+  subtitle?: string | null;
+  description: string;
+  secret: string;
+  copyLabel: string;
+  copiedLabel: string;
+  copyFailedLabel: string;
+  shareLabel: string;
+  doneLabel: string;
 }

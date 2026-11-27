@@ -192,7 +192,7 @@ export function ConditionSheet({
       }
       headerAction={
         onRemove && step === "details" ? (
-          <IconButton icon="trash" size={36} variant="plain" accessibilityLabel={t("rules.removeCondition")} onPress={onRemove} />
+          <IconButton icon="trash" size={MIN_TOUCH_TARGET} variant="plain" accessibilityLabel={t("rules.removeCondition")} onPress={onRemove} />
         ) : null
       }
     >
@@ -283,7 +283,12 @@ export function ConditionSheet({
               </View>
             ) : null}
           </ScrollView>
-          <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SPACING.sm }}>
+          <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SPACING.sm, gap: SPACING.sm }}>
+            {hasInvalidDate && typeof draft.value === "string" && draft.value.trim() !== "" ? (
+              <AppText size="xs" tone="destructive" accessibilityRole="alert">
+                {t("rules.invalidDate")}
+              </AppText>
+            ) : null}
             <Button size="lg" label={t("common.done")} disabled={!isConditionComplete(draft) || hasInvalidDate} onPress={() => onSave(draft)} />
           </View>
         </>

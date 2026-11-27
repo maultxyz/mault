@@ -11,7 +11,9 @@ import {
   type NativeSyntheticEvent,
 } from "react-native";
 import { AppText } from "@/components/ui/app-text";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { IconButton } from "@/components/ui/icon-button";
 import { Icon } from "@/components/ui/icon";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
@@ -21,7 +23,9 @@ import { MachinePageDots } from "@/features/machines/components/machine-page-dot
 import { MachinePanel } from "@/features/machines/components/machine-panel";
 import { useMachineStatuses } from "@/features/stream/api/use-app-stream";
 import { useTheme } from "@/hooks/use-theme";
+import { AUTH_PROVIDER } from "@/lib/constants/config";
 import { MACHINES_TABLET_MIN_WIDTH } from "@/lib/constants/machines";
+import { RASPBERRY_PIS_SETTINGS_ROUTE } from "@/lib/constants/raspberry-pis";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { MachineStatus } from "@magic-vault/shared";
 import type { MachinesLayoutProps } from "@/lib/interfaces/machines";
@@ -149,16 +153,45 @@ export default function MachinesScreen() {
   const machines = useMachineStatuses();
   const { width } = useWindowDimensions();
   const isTablet = width >= MACHINES_TABLET_MIN_WIDTH;
+  const showsRaspberryPis = AUTH_PROVIDER !== "local";
 
   return (
     <Screen
       scroll={false}
       padded={false}
-      header={<PageHeader title={t("machines.title")} onBack={() => router.back()} />}
+      header={
+        <PageHeader
+          title={t("machines.title")}
+          onBack={() => router.back()}
+          actions={
+            machines.length > 0 && showsRaspberryPis ? (
+              <IconButton
+                icon="sorter"
+                accessibilityLabel={t("machines.raspberryPis")}
+                onPress={() => router.push(RASPBERRY_PIS_SETTINGS_ROUTE)}
+              />
+            ) : undefined
+          }
+        />
+      }
     >
       {machines.length === 0 ? (
         <View style={{ padding: SCREEN_GUTTER }}>
-          <EmptyState icon="monitor" title={t("machines.empty.title")} description={t("machines.empty.description")} />
+          <EmptyState
+            icon="monitor"
+            title={t("machines.empty.title")}
+            description={t("machines.empty.description")}
+            action={
+              showsRaspberryPis ? (
+                <Button
+                  variant="secondary"
+                  icon="sorter"
+                  label={t("machines.raspberryPis")}
+                  onPress={() => router.push(RASPBERRY_PIS_SETTINGS_ROUTE)}
+                />
+              ) : undefined
+            }
+          />
         </View>
       ) : isTablet ? (
         <TabletMachinesGrid machines={machines} />

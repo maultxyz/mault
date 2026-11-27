@@ -49,9 +49,9 @@ export const GRADIENT_BURST_STOPS = [
 
 export const THEME_PREFERENCES = ["light", "dark", "system"] as const;
 
-export const SHUTTER_SIZE = 48;
-export const SHUTTER_ICON_SIZE = 20;
-export const SCAN_SESSION_THUMBNAIL_WIDTH = 36;
+export const SHUTTER_SIZE = 64;
+export const SHUTTER_ICON_SIZE = 26;
+export const SCAN_SESSION_THUMBNAIL_WIDTH = 44;
 export const CAMERA_TOP_SCRIM_GRADIENT =
   "linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.6) 65%, rgba(0, 0, 0, 0) 100%)";
 export const CAMERA_BOTTOM_SCRIM_GRADIENT =

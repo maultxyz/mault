@@ -30,5 +30,8 @@ export const SORTER_ERROR_BY_OPEN_FAILURE: Record<SorterLinkOpenFailure, SorterE
   failed: "connect-failed",
 };
 export const ANNOUNCED_SORTER_PHASES: SorterPhase[] = ["ready", "idle", "error"];
+export const SIGNAL_STRENGTH_STRONG_MIN_RSSI = -60;
+export const SIGNAL_STRENGTH_GOOD_MIN_RSSI = -75;
+export const SORTER_WIFI_JOIN_TIMEOUT_MS = 30_000;
 export const SORTER_WIFI_STATUS_REFETCH_MS = 3_000;
 export const SORTER_WIFI_RESPONSE_TIMEOUT_MS = 3_000;

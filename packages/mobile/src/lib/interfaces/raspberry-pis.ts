@@ -16,6 +16,10 @@ export type RaspberryPiScanRequest =
   | { kind: "stop" }
   | { kind: "action"; action: PiHostScanAction };
 
+export interface RaspberryPiScanOptions {
+  reportsErrorsInline?: boolean;
+}
+
 export interface RaspberryPiUpdateStatusProps {
   host: PiHostSummary;
   canManage: boolean;

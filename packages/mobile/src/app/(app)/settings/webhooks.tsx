@@ -5,11 +5,13 @@ import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import type { WebhookEndpoint } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
+import { useToast } from "@/components/ui/toast-provider";
 import { deleteWebhook, enableWebhook, testWebhook, webhooksQueryOptions } from "@/features/integrations/api/webhooks";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { SettingsPage } from "@/features/settings/components/settings-page";
@@ -29,9 +31,12 @@ export default function WebhooksSettingsScreen() {
   const canAdd = canManage && !locked;
   const endpoints = list.data?.endpoints ?? [];
   const [actionsFor, setActionsFor] = useState<WebhookEndpoint | null>(null);
-  const [notice, setNotice] = useState<SettingsNotice | null>(null);
+  const { showToast } = useToast();
+  const setNotice = (notice: SettingsNotice | null) => {
+    if (notice) showToast({ message: notice.text, tone: notice.tone === "info" ? "default" : notice.tone });
+  };
   const invalidate = () => void queryClient.invalidateQueries({ queryKey: ["webhooks", orgId] });
-  const fail = (err: Error) => setNotice({ tone: "destructive", text: err.message });
+  const failWith = (text: string) => () => setNotice({ tone: "destructive", text });
 
   const test = useMutation({
     mutationFn: testWebhook,
@@ -45,23 +50,22 @@ export default function WebhooksSettingsScreen() {
             },
       ),
     onSettled: invalidate,
-    onError: fail,
+    onError: failWith(t("settings.webhooks.testFailed")),
   });
   const enable = useMutation({
     mutationFn: enableWebhook,
     onSuccess: () => setNotice({ tone: "success", text: t("settings.webhooks.enabled") }),
     onSettled: invalidate,
-    onError: fail,
+    onError: failWith(t("settings.webhooks.enableFailed")),
   });
   const remove = useMutation({
     mutationFn: deleteWebhook,
     onSuccess: () => setNotice({ tone: "success", text: t("settings.webhooks.deleted") }),
     onSettled: invalidate,
-    onError: fail,
+    onError: failWith(t("settings.webhooks.deleteFailed")),
   });
 
   const openEditor = (endpoint?: WebhookEndpoint) => {
-    setNotice(null);
     router.push({ pathname: "/settings/webhook-edit", params: endpoint ? { guid: endpoint.guid } : {} });
   };
 
@@ -93,6 +97,9 @@ export default function WebhooksSettingsScreen() {
     <SettingsPage
       title={t("settings.webhooks.heading")}
       isLoading={list.isLoading}
+      isLoadError={list.isError && !list.data}
+      isRetryingLoad={list.isFetching}
+      onRetryLoad={() => void list.refetch()}
       onRefresh={() => list.refetch()}
     >
       <AppText size="sm" tone="secondary">
@@ -100,8 +107,13 @@ export default function WebhooksSettingsScreen() {
       </AppText>
       {locked ? <Callout tone="info" title={t("settings.webhooks.upgrade")} /> : null}
       {!locked && list.data && !canManage ? <Callout tone="info" title={t("settings.webhooks.managersOnly")} /> : null}
-      {list.isError ? <Callout tone="destructive" title={t("settings.webhooks.loadFailed")} /> : null}
-      {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
+      {list.isError ? (
+        <Callout
+          tone="destructive"
+          title={t("settings.webhooks.loadFailed")}
+          action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void list.refetch()} />}
+        />
+      ) : null}
 
       {list.data && endpoints.length === 0 ? <EmptyState icon="external" title={t("settings.webhooks.empty")} /> : null}
 
@@ -116,9 +128,9 @@ export default function WebhooksSettingsScreen() {
               subtitleNumberOfLines={3}
               tone={endpoint.isEnabled ? "default" : "destructive"}
               disabled={!canManage}
-              onPress={canManage ? () => openEditor(endpoint) : undefined}
-              onLongPress={canManage ? () => setActionsFor(endpoint) : undefined}
-              longPressLabel={canManage ? t("settings.webhooks.actions") : undefined}
+              onPress={canManage ? () => setActionsFor(endpoint) : undefined}
+              actionLabel={canManage ? t("settings.webhooks.manage") : undefined}
+              accessibilityHint={canManage ? t("settings.webhooks.actions") : undefined}
             />
           ))}
           {canAdd ? <ListRow icon="plus" title={t("settings.webhooks.add")} onPress={() => openEditor()} /> : null}
@@ -129,9 +141,9 @@ export default function WebhooksSettingsScreen() {
         visible={!!actionsFor}
         title={actionsFor?.description || actionsFor?.url || t("settings.webhooks.actions")}
         options={[
+          { value: "edit", label: t("settings.webhooks.edit") },
           { value: "test", label: t("settings.webhooks.sendTest") },
           ...(actionsFor && !actionsFor.isEnabled ? [{ value: "enable", label: t("settings.webhooks.enable") }] : []),
-          { value: "edit", label: t("settings.webhooks.edit") },
           { value: "delete", label: t("settings.webhooks.delete") },
         ]}
         selected={[]}

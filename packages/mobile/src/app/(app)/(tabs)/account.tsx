@@ -4,7 +4,7 @@ import Constants from "expo-constants";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
@@ -43,6 +43,24 @@ export default function AccountScreen() {
 
   const switchOrg = useSwitchOrg();
   const hasBusinessTools = useHasBusinessTools();
+  const confirmSignOut = () =>
+    Alert.alert(
+      t("account.signOutConfirm.title"),
+      pendingCount > 0
+        ? t("account.signOutConfirm.pendingScans", { count: pendingCount })
+        : t("account.signOutConfirm.description"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("account.signOut"),
+          style: "destructive",
+          onPress: () => {
+            queryClient.clear();
+            void signOut();
+          },
+        },
+      ],
+    );
 
   return (
     <Screen header={<PageHeader title={t("tabs.more")} />}>
@@ -175,10 +193,7 @@ export default function AccountScreen() {
           icon="logout"
           tone="destructive"
           title={t("account.signOut")}
-          onPress={() => {
-            queryClient.clear();
-            void signOut();
-          }}
+          onPress={confirmSignOut}
         />
       </ListGroup>
       <OptionSheet

@@ -28,7 +28,11 @@ export function CardsDatabasePanel() {
   const debouncedSearch = useDebouncedValue(searchText.trim(), SEARCH_DEBOUNCE_MS);
   const [pageState, setPageState] = useState({ page: 1, search: "" });
   const page = pageState.search === debouncedSearch ? pageState.page : 1;
-  const catalog = useQuery({ ...catalogCardsQueryOptions(page, debouncedSearch), placeholderData: keepPreviousData });
+  const catalog = useQuery({
+    ...catalogCardsQueryOptions(page, debouncedSearch),
+    enabled: !!debouncedSearch,
+    placeholderData: keepPreviousData,
+  });
   const [revectorizingCardIds, setRevectorizingCardIds] = useState<ReadonlySet<string>>(new Set());
   const [revectorizeResult, setRevectorizeResult] = useState<{ tone: "success" | "destructive"; message: string } | null>(null);
 
@@ -52,7 +56,7 @@ export function CardsDatabasePanel() {
       }),
   });
 
-  const data = catalog.data;
+  const data = debouncedSearch ? catalog.data : undefined;
   const pageCount = data ? Math.max(1, Math.ceil(data.total / data.limit)) : 1;
   const goToPage = (nextPage: number) => setPageState({ page: nextPage, search: debouncedSearch });
 
@@ -77,7 +81,9 @@ export function CardsDatabasePanel() {
         />
         {catalog.isError ? <Callout tone="destructive" title={t("admin.cards.database.loadFailed")} /> : null}
         {revectorizeResult ? <Callout tone={revectorizeResult.tone} title={revectorizeResult.message} /> : null}
-        {catalog.isLoading ? (
+        {!debouncedSearch ? (
+          <EmptyState icon="search" title={t("admin.cards.database.searchPrompt")} />
+        ) : catalog.isLoading ? (
           <ListSkeleton rows={6} leading="none" hasSubtitle />
         ) : data && data.cards.length === 0 ? (
           <EmptyState icon="database" title={t("admin.cards.database.empty")} />

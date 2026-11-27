@@ -29,6 +29,7 @@ import { ColumnChart } from "@/features/stats/components/column-chart";
 import { useScanLocks } from "@/features/stream/api/use-app-stream";
 import { widgetSummaryQueryOptions } from "@/features/widgets/api/widget-summary";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { refreshOrganizations, useSession } from "@/lib/auth/session";
 import { useWarmLastOpenedCollection } from "@/hooks/use-warm-last-opened-collection";
 import { usePricing } from "@/hooks/use-pricing";
 import { HOME_CARD_OF_THE_DAY_TILE_WIDTH, HOME_SKELETON_HEIGHTS, HOME_TOP_CARDS_LIST_COUNT } from "@/lib/constants/home";
@@ -39,6 +40,7 @@ export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const pricing = usePricing();
   const orgId = useActiveOrgId();
+  const hasNoOrganization = useSession().organizations.length === 0;
   const locks = useScanLocks();
   const isScreenFocused = useIsFocused();
   const isAnyScannerRunning = Object.keys(locks).length > 0;
@@ -85,7 +87,9 @@ export default function HomeScreen() {
   };
 
   const refresh = () =>
-    Promise.all([overview.refetch(), summary.refetch(), collections.refetch(), pendingTradeOffers.refetch()]);
+    hasNoOrganization
+      ? refreshOrganizations()
+      : Promise.all([overview.refetch(), summary.refetch(), collections.refetch(), pendingTradeOffers.refetch()]);
 
   return (
     <Screen
@@ -104,7 +108,14 @@ export default function HomeScreen() {
         />
       ) : null}
 
-      {overview.isPending ? (
+      {hasNoOrganization ? (
+        <EmptyState
+          icon="account"
+          title={t("home.noOrganization.title")}
+          description={t("home.noOrganization.description")}
+          action={<Button variant="secondary" label={t("home.noOrganization.refresh")} onPress={() => void refreshOrganizations()} />}
+        />
+      ) : overview.isPending ? (
         <View style={{ gap: SPACING.lg + SPACING.xs }}>
           <Skeleton height={HOME_SKELETON_HEIGHTS.hero} radius={SURFACE_RADIUS} />
           <SectionSkeleton>

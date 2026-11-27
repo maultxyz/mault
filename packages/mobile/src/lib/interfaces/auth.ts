@@ -16,11 +16,14 @@ export interface UserOrganization {
 
 export type SessionStatus = "loading" | "signed-out" | "signed-in";
 
+export type SignedOutReason = "session-expired" | "access-revoked";
+
 export interface SessionSnapshot {
   status: SessionStatus;
   user: SessionUser | null;
   organizations: UserOrganization[];
   activeOrgId: string | null;
+  signedOutReason: SignedOutReason | null;
 }
 
 export interface CachedSessionProfile {

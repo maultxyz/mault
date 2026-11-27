@@ -182,7 +182,6 @@ export default function SortingModeScreen() {
         ) : (
           <>
             {!editable ? <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} /> : null}
-            {save.isError ? <Callout tone="destructive" title={t("rules.mode.saveFailed")} description={upgradeRequiredMessage(save.error)} /> : null}
             {reset.isError ? <Callout tone="destructive" title={t("rules.mode.resetFailed")} /> : null}
 
             <Controller
@@ -429,6 +428,11 @@ export default function SortingModeScreen() {
         saving={save.isPending}
         onSave={form.handleSubmit((values) => save.mutate(values))}
         onDiscard={() => form.reset()}
+        errorMessage={
+          save.isError
+            ? [t("rules.mode.saveFailed"), upgradeRequiredMessage(save.error)].filter(Boolean).join(". ")
+            : undefined
+        }
       />
     </KeyboardAvoidingView>
   );

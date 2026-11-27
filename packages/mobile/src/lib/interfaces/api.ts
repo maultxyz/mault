@@ -5,6 +5,11 @@ export interface LocalAuthResponse {
   data?: { token: string; user: { id: string; name: string | null; email: string } };
 }
 
+export interface LocalAuthRequestResult {
+  status: number;
+  response: LocalAuthResponse;
+}
+
 export interface RequestAuth {
   token: string | null;
   orgId: string | null;

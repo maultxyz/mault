@@ -324,22 +324,23 @@ export async function loadLocations(
   const result = await tx.execute(sql`
     SELECT sl.guid, sl.name, sl.created_at, sl.last_used_at, sl.label_short_code,
       sl.capacity, sl.batch_size,
-      COALESCE(max(cc.location_position), 0)::int AS used_slots,
-      count(cc.id)::int AS card_count,
-      COALESCE(sum(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}) FILTER (WHERE cc.id IS NOT NULL), 0)::float8 AS total_value
+      location_cards.used_slots, location_cards.card_count, location_cards.total_value
     FROM ${storageLocations} sl
-    LEFT JOIN (
-      ${collectionCards} cc
+    CROSS JOIN LATERAL (
+      SELECT COALESCE(max(cc.location_position), 0)::int AS used_slots,
+        count(cc.id)::int AS card_count,
+        COALESCE(sum(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}), 0)::float8 AS total_value
+      FROM ${collectionCards} cc
       JOIN ${collections} col ON col.id = cc.collection_id AND col.is_deleted = false
       LEFT JOIN games g ON g.id = col.game_id
       LEFT JOIN card_prices cp ON cp.game_key = g.key
         AND cp.lang = COALESCE(cc.card_lang, col.lang)
         AND cp.card_id = cc.card_id
-    ) ON cc.location_id = sl.id
+      WHERE cc.location_id = sl.id
+    ) location_cards
     WHERE sl.org_id = ${orgId}
       AND sl.is_deleted = false
       ${guids ? sql`AND sl.guid = ANY(${uuidArraySql(guids)})` : sql``}
-    GROUP BY sl.id
     ORDER BY sl.name, sl.id
   `);
   return (result.rows as unknown as StorageLocationRow[])

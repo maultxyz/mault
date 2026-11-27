@@ -5,6 +5,8 @@ import {
   OWNED_CARD_SEARCH_QUERY_MAX_LENGTH,
 } from "./constants/owned-card-search.constant";
 import { GAME_KEY_PATTERN } from "./constants/games.constant";
+import type { OwnedCardSearchPlacement, OwnedCardSearchResult } from "./interfaces/owned-card-search.interface";
+import { formatStorageSlot } from "./storage-slot";
 
 export function normalizeOwnedCardSearchQuery(rawQuery: string | null | undefined): string {
   return (rawQuery ?? "").trim().slice(0, OWNED_CARD_SEARCH_QUERY_MAX_LENGTH).toLowerCase();
@@ -25,4 +27,15 @@ export function ownedCardSearchOffset(rawOffset: string | null | undefined): num
 export function ownedCardSearchGameKey(rawGameKey: string | null | undefined): string | null {
   const gameKey = (rawGameKey ?? "").trim();
   return gameKey && GAME_KEY_PATTERN.test(gameKey) ? gameKey : null;
+}
+
+export function ownedCardSearchPlacementOf(result: OwnedCardSearchResult): OwnedCardSearchPlacement | null {
+  if (result.locationName) {
+    return {
+      kind: "location",
+      locationName: result.locationName,
+      slot: result.locationPosition != null ? formatStorageSlot(result.locationPosition, result.locationBatchSize) : null,
+    };
+  }
+  return result.binNumber != null ? { kind: "bin", binNumber: result.binNumber } : null;
 }

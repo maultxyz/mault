@@ -1,10 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Share, View } from "react-native";
+import { AccessibilityInfo, View } from "react-native";
 import { WEBHOOK_EVENTS, webhookFormSchema, type WebhookFormValues } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,8 @@ import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { SwitchRowSkeleton } from "@/components/ui/switch-row-skeleton";
 import { TextField } from "@/components/ui/text-field";
-import { Surface } from "@/components/ui/surface";
+import { SecretReveal } from "@/features/integrations/components/secret-reveal";
+import { useDiscardChangesGuard } from "@/features/settings/lib/use-leave-guard";
 import { createWebhook, updateWebhook, webhooksQueryOptions } from "@/features/integrations/api/webhooks";
 import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useActiveOrg } from "@/hooks/use-org";
@@ -44,6 +45,8 @@ export default function WebhookEditScreen() {
     resetOptions: { keepDirtyValues: true },
   });
 
+  const { leaveWithoutGuard } = useDiscardChangesGuard(form.formState.isDirty && !secret);
+
   const save = useMutation({
     mutationFn: (values: WebhookFormValues) => {
       const input = { url: values.url, description: values.description || null, events: values.events };
@@ -57,32 +60,23 @@ export default function WebhookEditScreen() {
         return;
       }
       AccessibilityInfo.announceForAccessibility(t("settings.webhooks.saved"));
-      router.back();
+      leaveWithoutGuard();
     },
   });
 
   if (secret) {
     return (
-      <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
-        <PageHeader title={t("settings.webhooks.secretTitle")} subtitle={org?.name} />
-        <PinnedActionsLayout
-          actions={
-            <>
-              <Button size="lg" icon="share" label={t("settings.webhooks.share")} onPress={() => void Share.share({ message: secret })} />
-              <Button variant="secondary" label={t("settings.apiKeys.revealDone")} onPress={() => router.back()} />
-            </>
-          }
-        >
-          <AppText size="sm" tone="secondary">
-            {t("settings.webhooks.secretDescription")}
-          </AppText>
-          <Surface>
-            <AppText mono selectable>
-              {secret}
-            </AppText>
-          </Surface>
-        </PinnedActionsLayout>
-      </View>
+      <SecretReveal
+        title={t("settings.webhooks.secretTitle")}
+        subtitle={org?.name}
+        description={t("settings.webhooks.secretDescription")}
+        secret={secret}
+        copyLabel={t("settings.webhooks.copySecret")}
+        copiedLabel={t("settings.webhooks.secretCopied")}
+        copyFailedLabel={t("settings.webhooks.copyFailed")}
+        shareLabel={t("settings.webhooks.share")}
+        doneLabel={t("settings.apiKeys.revealDone")}
+      />
     );
   }
 
@@ -103,7 +97,7 @@ export default function WebhookEditScreen() {
           />
         }
       >
-        {save.isError ? <Callout tone="destructive" title={save.error.message} /> : null}
+        {save.isError ? <Callout tone="destructive" title={t("settings.webhooks.saveFailed")} /> : null}
         {isLoadError ? (
           <QueryErrorState onRetry={() => void list.refetch()} isRetrying={list.isFetching} />
         ) : isLoadingEndpoint ? (
@@ -128,6 +122,8 @@ export default function WebhookEditScreen() {
                   onBlur={field.onBlur}
                   onChangeText={field.onChange}
                   autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="url"
                   error={translateFormErrorMessage(t, fieldState.error?.message)}
                 />
               )}

@@ -3,6 +3,7 @@ import type { PillProps } from "@/lib/interfaces/ui";
 
 export const RASPBERRY_PIS_QUERY_KEY = "pi-hosts";
 export const RASPBERRY_PI_LINK_ROUTE = "/settings/raspberry-pi-link";
+export const RASPBERRY_PIS_SETTINGS_ROUTE = "/settings/raspberry-pis";
 export const PI_HOST_REQUEST_ACCEPTED_STATUSES = [400, 404, 409, 500, 503];
 
 export const RASPBERRY_PI_STATUS_TONES: Record<PiHostScanStatusKey, NonNullable<PillProps["tone"]>> = {

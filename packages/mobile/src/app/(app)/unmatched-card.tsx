@@ -88,16 +88,30 @@ export default function UnmatchedCardScreen() {
         subtitle={scan ? formatDateTime(scan.scannedAt, i18n.language) : null}
       />
       <PinnedActionsLayout
+        actionsDirection="row"
         actions={
           scan ? (
-            <Button
-              variant="destructive"
-              icon="trash"
-              label={t("unmatchedCards.remove")}
-              loading={remove.isPending}
-              disabled={identify.isPending}
-              onPress={confirmRemove}
-            />
+            <>
+              <Button
+                style={{ flex: 1 }}
+                variant="destructive"
+                icon="trash"
+                label={t("unmatchedCards.remove")}
+                loading={remove.isPending}
+                disabled={identify.isPending}
+                onPress={confirmRemove}
+              />
+              {nextScanId ? (
+                <Button
+                  style={{ flex: 1 }}
+                  variant="secondary"
+                  label={t("unmatchedCards.skip")}
+                  accessibilityHint={t("unmatchedCards.skipHint")}
+                  disabled={isBusy}
+                  onPress={goToNext}
+                />
+              ) : null}
+            </>
           ) : null
         }
       >

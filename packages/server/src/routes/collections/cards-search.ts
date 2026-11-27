@@ -76,7 +76,8 @@ export const searchOwnedCardsRoute = new Hono<AppEnv>().get(
               sl.guid::text AS location_guid,
               sl.name AS location_name,
               CASE WHEN sl.id IS NULL THEN NULL ELSE cc.location_position END AS location_position,
-              sl.batch_size AS location_batch_size
+              sl.batch_size AS location_batch_size,
+              CASE WHEN cc.location_id IS NULL AND cc.bin_emptied_at IS NULL THEN cc.bin_number END AS bin_number
             FROM collection_cards cc
             JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
             LEFT JOIN games g ON g.id = col.game_id
@@ -113,6 +114,7 @@ export const searchOwnedCardsRoute = new Hono<AppEnv>().get(
           locationName: row.location_name,
           locationPosition: row.location_position,
           locationBatchSize: row.location_batch_size,
+          binNumber: row.bin_number,
         }));
       },
     );

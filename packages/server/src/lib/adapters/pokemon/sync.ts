@@ -11,9 +11,38 @@ import {
 import type {
   PokemonCardBrief,
   PokemonCardDetail,
+  PokemonPricing,
   PokemonSeries,
 } from "../../interfaces/pokemon";
 import { fetchDetail } from "./search";
+
+function withPricingProductIdsOnly(pricing: PokemonPricing): PokemonPricing {
+  const tcgplayer = pricing.tcgplayer
+    ? Object.fromEntries(
+        Object.entries(pricing.tcgplayer).flatMap(([subType, variant]) =>
+          typeof variant === "object" && variant?.productId != null
+            ? [[subType, { productId: variant.productId }]]
+            : [],
+        ),
+      )
+    : undefined;
+  return {
+    tcgplayer,
+    cardmarket: pricing.cardmarket ? { idProduct: pricing.cardmarket.idProduct } : undefined,
+  };
+}
+
+function withoutPokemonVolatileData(data: unknown): unknown {
+  const card = data as PokemonCardDetail | null;
+  if (!card?.pricing && !card?.variants_detailed) return data;
+  return {
+    ...card,
+    pricing: card.pricing && withPricingProductIdsOnly(card.pricing),
+    variants_detailed: card.variants_detailed?.map((variant) =>
+      variant.pricing ? { ...variant, pricing: withPricingProductIdsOnly(variant.pricing) } : variant,
+    ),
+  };
+}
 
 function highResUrl(image: string | undefined): string | undefined {
   return image ? `${image}/high.webp` : undefined;
@@ -146,6 +175,7 @@ async function fetchOne(id: string, baseUrl: string, lang?: string) {
 export const pokemonSyncSource: SyncSource = {
   gameKey: "pokemon",
   label: "Pokémon (TCGdex)",
+  withoutVolatileData: withoutPokemonVolatileData,
   defaultUrl: POKEMON_DEFAULT_URL,
   fetchHeaders: CARD_API_HEADERS,
   languages: [

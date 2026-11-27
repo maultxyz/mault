@@ -20,6 +20,7 @@ import {
   updateStorageLocation,
 } from "@/features/storage/api/storage";
 import { patchStorageLocationInCaches } from "@/features/storage/lib/storage-location-cache";
+import { storageSaveErrorMessage } from "@/features/storage/lib/storage-save-error";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { storageLocationNameFormSchema, type StorageLocationNameFormValues } from "@magic-vault/shared";
@@ -95,7 +96,7 @@ export default function StorageNameScreen() {
         }
       >
         <View style={{ gap: SPACING.lg }}>
-          {save.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
+          {save.isError ? <Callout tone="destructive" title={storageSaveErrorMessage(save.error, t)} /> : null}
           <Controller
             control={form.control}
             name="name"

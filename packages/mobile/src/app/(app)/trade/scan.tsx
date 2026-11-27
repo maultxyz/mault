@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useKeepAwake } from "expo-keep-awake";
-import { router, useIsFocused } from "expo-router";
+import { router, useIsFocused, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -33,15 +33,20 @@ import { TorchBrightness } from "@/features/scanner/components/torch-brightness"
 import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { captureFrame } from "@/features/scanner/lib/frame";
 import { identifyCard } from "@/features/scanner/lib/identify";
-import { warmScanModels } from "@/features/scanner/lib/inference";
+import { useScanModelsReady } from "@/features/storage/api/use-scan-models-ready";
 import { useTradeDraft } from "@/features/trade-offers/api/use-trade-draft";
+import {
+  addInPersonScannedCard,
+  readInPersonScannedCardCount,
+  subscribeToInPersonScannedCards,
+} from "@/features/trade-offers/lib/in-person-received-scans";
 import { toOfferedTradeCard } from "@/features/trade-offers/lib/offered-card";
 import { addOfferedCard } from "@/features/trade-offers/lib/trade-draft";
 import { useAppState } from "@/hooks/use-app-state";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { CAMERA_ASPECT_RATIO, CAPTURE_TARGET_RESOLUTION } from "@/lib/constants/scanner";
-import { TRADE_SCAN_NOTICE_TONES } from "@/lib/constants/trade";
+import { TRADE_SCAN_NOTICE_TONES, TRADE_SCAN_TARGET_IN_PERSON } from "@/lib/constants/trade";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { TradeScanNotice } from "@/lib/interfaces/trade";
 import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
@@ -63,25 +68,21 @@ export default function TradeScanScreen() {
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const scanTarget = useScanTarget();
   const draft = useTradeDraft();
-  const [collectionGuid, setCollectionGuid] = useState<string | null>(null);
+  const params = useLocalSearchParams<{ target?: string; collectionGuid?: string }>();
+  const scansForInPersonTrade = params.target === TRADE_SCAN_TARGET_IN_PERSON;
+  const inPersonScannedCount = useSyncExternalStore(subscribeToInPersonScannedCards, readInPersonScannedCardCount);
+  const [collectionGuid, setCollectionGuid] = useState<string | null>(params.collectionGuid ?? null);
   const [pickingCollection, setPickingCollection] = useState(false);
   const collection =
     scanTarget.collections.find((candidate) => candidate.guid === collectionGuid) ?? scanTarget.collection;
   const photoOutput = usePhotoOutput({ targetResolution: CAPTURE_TARGET_RESOLUTION, qualityPrioritization: "speed" });
   const [frameAspect, setFrameAspect] = useState(CAMERA_ASPECT_RATIO);
-  const [modelsReady, setModelsReady] = useState(false);
-  const [modelError, setModelError] = useState<string | null>(null);
+  const { areModelsReady: modelsReady, haveModelsFailed: modelError, retryModels } = useScanModelsReady();
   const [isIdentifying, setIsIdentifying] = useState(false);
   const [notice, setNotice] = useState<TradeScanNotice | null>(null);
   const noticeId = useRef(0);
   const active = cameraMounted && appState === "active" && permission.hasPermission && !!device;
   const offeredCount = draft.offered.reduce((sum, card) => sum + card.quantity, 0);
-
-  useEffect(() => {
-    warmScanModels()
-      .then(() => setModelsReady(true))
-      .catch((err: unknown) => setModelError(err instanceof Error ? err.message : String(err)));
-  }, []);
 
   const capture = useCallback(async () => {
     const frame = await captureFrame(photoOutput);
@@ -121,7 +122,8 @@ export default function TradeScanScreen() {
         showNotice({ kind: "no-match" });
         return;
       }
-      addOfferedCard(offered);
+      if (scansForInPersonTrade) addInPersonScannedCard(offered);
+      else addOfferedCard(offered);
       showNotice({ kind: "added", cardName: outcome.card.name });
     } catch {
       showNotice({ kind: "failed" });
@@ -132,7 +134,7 @@ export default function TradeScanScreen() {
 
   const noticeTitle = (current: TradeScanNotice) =>
     current.kind === "added"
-      ? t("trade.added", { name: current.cardName ?? "" })
+      ? t(scansForInPersonTrade ? "tradeOffers.inPerson.scanAdded" : "trade.added", { name: current.cardName ?? "" })
       : current.kind === "no-match"
         ? t("trade.scanNoMatch")
         : t("trade.scanFailed");
@@ -182,12 +184,16 @@ export default function TradeScanScreen() {
             <CameraChip
               icon="collections"
               label={collection?.name ?? t("trade.pickCollection")}
-              onPress={() => setPickingCollection(true)}
+              onPress={scansForInPersonTrade ? undefined : () => setPickingCollection(true)}
             />
           </View>
           <CameraChip
-            dotColor={offeredCount > 0 ? colors.success : colors.warning}
-            label={t("trade.givingCount", { count: offeredCount })}
+            dotColor={(scansForInPersonTrade ? inPersonScannedCount : offeredCount) > 0 ? colors.success : colors.warning}
+            label={
+              scansForInPersonTrade
+                ? t("tradeOffers.inPerson.scannedCount", { count: inPersonScannedCount })
+                : t("trade.givingCount", { count: offeredCount })
+            }
           />
           <TorchToggle torch={torch} />
         </View>
@@ -204,12 +210,22 @@ export default function TradeScanScreen() {
         }}
       >
         {modelError ? (
-          <CameraNotice tone="destructive" title={t("scan.modelErrorTitle")} description={modelError} />
+          <CameraNotice
+            tone="destructive"
+            title={t("scan.modelErrorTitle")}
+            description={t("recovery.scannerNotReady")}
+            actionLabel={t("recovery.retry")}
+            onAction={retryModels}
+          />
         ) : notice ? (
           <CameraNotice key={notice.noticeId} tone={TRADE_SCAN_NOTICE_TONES[notice.kind]} title={noticeTitle(notice)} />
         ) : (
           <AppText size="xs" style={{ color: colors.onCamera, textAlign: "center" }}>
-            {modelsReady ? t("trade.scanHint") : t("storage.pickList.scan.loadingModels")}
+            {!modelsReady
+              ? t("storage.pickList.scan.loadingModels")
+              : scansForInPersonTrade
+                ? t("tradeOffers.inPerson.scanHint")
+                : t("trade.scanHint")}
           </AppText>
         )}
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
@@ -218,7 +234,7 @@ export default function TradeScanScreen() {
             running={isIdentifying}
             icon="camera"
             label={t("trade.scanButton")}
-            disabled={!active || !modelsReady || !!modelError || isIdentifying || !collection}
+            disabled={!active || !modelsReady || modelError || isIdentifying || !collection}
             onPress={() => void scan()}
           />
         </View>

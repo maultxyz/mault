@@ -1,20 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as Clipboard from "expo-clipboard";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo } from "react-native";
+import { AccessibilityInfo, Share } from "react-native";
 import { createCardShareLink } from "@/features/share-links/api/card-share-links";
 import { invalidateShareLinks, orgShareLinkUrl } from "@/features/share-links/api/share-links";
 
-export function useCopyCardShareLink() {
+export function useShareCardLink() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (scanId: string) => {
       const link = await createCardShareLink(scanId);
-      await Clipboard.setStringAsync(orgShareLinkUrl({ ...link, kind: "card", subjectGuid: scanId }));
+      const shareLinkUrl = orgShareLinkUrl({ ...link, kind: "card", subjectGuid: scanId });
+      await Share.share({ message: shareLinkUrl, url: shareLinkUrl });
     },
-    onSuccess: () => AccessibilityInfo.announceForAccessibility(t("cardDetail.shareLinkCopied")),
-    onError: () => AccessibilityInfo.announceForAccessibility(t("cardDetail.shareLinkCopyFailed")),
+    onError: () => AccessibilityInfo.announceForAccessibility(t("cardDetail.shareLinkFailed")),
     onSettled: () => invalidateShareLinks(queryClient),
   });
 }

@@ -939,6 +939,11 @@
   },
   "mobileScan": {
     "chooseCollection": "Choisir une collection",
+    "noCollectionsTitle": "Aucune collection pour le moment",
+    "noCollectionsDescription": "Crée une collection pour y scanner des cartes.",
+    "result": {
+      "checkMatch": "Vérifie cette correspondance"
+    },
     "scanningInto": "Scan dans {{name}}",
     "collection": "Collection",
     "options": "Options de scan",

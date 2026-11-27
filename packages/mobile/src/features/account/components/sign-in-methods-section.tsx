@@ -46,10 +46,10 @@ export function SignInMethodsSection({ onMessage }: SignInMethodsSectionProps) {
         tone: "success",
         text: t("account.profile.signInMethods.unlinked", { provider: providerNameOf(account.providerId, passwordLabel) }),
       }),
-    onError: (err: Error, account) =>
+    onError: (_error: Error, account) =>
       onMessage({
         tone: "destructive",
-        text: err.message || t("account.profile.signInMethods.unlinkFailed", { provider: providerNameOf(account.providerId, passwordLabel) }),
+        text: t("account.profile.signInMethods.unlinkFailed", { provider: providerNameOf(account.providerId, passwordLabel) }),
       }),
     onSettled: refreshAccounts,
   });
@@ -97,6 +97,8 @@ export function SignInMethodsSection({ onMessage }: SignInMethodsSectionProps) {
                       : linkedOn
                   }
                   onPress={canUnlink ? () => confirmUnlink(account) : undefined}
+                  actionLabel={canUnlink ? t("account.profile.signInMethods.unlink") : undefined}
+                  actionTone="destructive"
                   accessibilityHint={canUnlink ? t("account.profile.signInMethods.unlinkHint") : undefined}
                   disabled={canUnlink && isBusy}
                 />

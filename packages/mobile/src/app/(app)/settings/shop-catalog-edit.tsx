@@ -32,6 +32,7 @@ import { createShopCatalog, shopCatalogsQueryOptions, updateShopCatalog } from "
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
+import { useDiscardChangesGuard } from "@/features/settings/lib/use-leave-guard";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SPACING } from "@/lib/constants/theme";
@@ -110,6 +111,7 @@ export default function ShopCatalogEditScreen() {
     resetOptions: { keepDirtyValues: true },
   });
   const allowsReservations = form.watch("allowsReservations");
+  const { leaveWithoutGuard } = useDiscardChangesGuard(form.formState.isDirty);
 
   const save = useMutation({
     mutationFn: (values: ShopCatalogFormValues) => (catalog ? updateShopCatalog(catalog.guid, values) : createShopCatalog(values)),
@@ -117,11 +119,11 @@ export default function ShopCatalogEditScreen() {
       await queryClient.invalidateQueries({ queryKey: ["business", "shop-catalogs", orgId] });
       if (isNew) {
         AccessibilityInfo.announceForAccessibility(t("settings.shopCatalogs.created"));
-        router.replace({ pathname: "/settings/shop-catalog-link", params: { guid: saved.guid } });
+        leaveWithoutGuard(() => router.replace({ pathname: "/settings/shop-catalog-link", params: { guid: saved.guid } }));
         return;
       }
       AccessibilityInfo.announceForAccessibility(t("settings.shopCatalogs.saved"));
-      router.back();
+      leaveWithoutGuard();
     },
   });
 

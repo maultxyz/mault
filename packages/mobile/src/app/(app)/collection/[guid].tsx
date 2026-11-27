@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
-import { FlatList, View, type NativeScrollEvent, type NativeSyntheticEvent } from "react-native";
+import { AccessibilityInfo, FlatList, View, type NativeScrollEvent, type NativeSyntheticEvent } from "react-native";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import {
   buildCardGridTiles,
@@ -189,7 +189,12 @@ export default function CollectionScreen() {
     () => cards.data?.pages.flatMap((page) => buildCardGridTiles(page.items, page.unmatched)) ?? [],
     [cards.data],
   );
-  const isUnfilteredView = !debounced && countActiveCardFilters(filters) === 0;
+  const activeFilterCount = countActiveCardFilters(filters);
+  const isUnfilteredView = !debounced && activeFilterCount === 0;
+  const clearFilters = () => {
+    setFilters(EMPTY_CARD_FILTERS);
+    AccessibilityInfo.announceForAccessibility(t("collection.filtersCleared"));
+  };
   const persistViewMemory = () => {
     writeCollectionViewMemory(orgId, guid, {
       grouped,
@@ -346,15 +351,41 @@ export default function CollectionScreen() {
         {stream.errors.map((message, index) => (
           <Callout key={`${index}-${message}`} tone="destructive" title={t("monitor.scanError")} description={message} />
         ))}
-        {cards.isError ? <Callout tone="destructive" title={t("collections.cardsLoadFailed")} /> : null}
+        {cards.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("collections.cardsLoadFailed")}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                label={t("recovery.retry")}
+                loading={cards.isRefetching}
+                onPress={() => void cards.refetch()}
+              />
+            }
+          />
+        ) : null}
       </View>
     ),
     ListEmptyComponent: cards.isPending ? (
       <CollectionGridSkeleton tileWidth={tileWidth} />
     ) : (
       <EmptyState
-        icon={debounced ? "search" : "collections"}
-        title={debounced ? t("collection.noMatches") : t("collection.noCardsYet")}
+        icon={isUnfilteredView ? "collections" : "search"}
+        title={
+          activeFilterCount > 0
+            ? t("collection.noFilterMatches")
+            : debounced
+              ? t("collection.noMatches")
+              : t("collection.noCardsYet")
+        }
+        description={activeFilterCount > 0 ? t("collection.noFilterMatchesDescription") : undefined}
+        action={
+          activeFilterCount > 0 ? (
+            <Button variant="secondary" label={t("collection.clearFilters", { count: activeFilterCount })} onPress={clearFilters} />
+          ) : undefined
+        }
       />
     ),
     ListFooterComponent: cards.isFetchingNextPage ? (
@@ -414,6 +445,15 @@ export default function CollectionScreen() {
           activeSortAndFilterCount={activeSortAndFilterCount}
           onOpenViewOptions={() => setViewOptionsOpen(true)}
         />
+        {activeFilterCount > 0 ? (
+          <View style={{ flexDirection: "row" }}>
+            <PillButton
+              icon="close"
+              label={t("collection.clearFilters", { count: activeFilterCount })}
+              onPress={clearFilters}
+            />
+          </View>
+        ) : null}
         {selection.isSelecting ? (
           <CardSelectionBar
             selectedCount={selection.selectedCount}

@@ -26,6 +26,7 @@ export default function GeneralSettingsScreen() {
       isLoadError={draft.isLoadError}
       isRetryingLoad={draft.isRetryingLoad}
       onRetryLoad={draft.retryLoad}
+      onRefresh={draft.refresh}
       isDirty={draft.isDirty}
       isSaving={draft.isSaving}
       saveError={draft.saveError}

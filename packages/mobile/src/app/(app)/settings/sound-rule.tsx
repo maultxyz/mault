@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -26,6 +26,7 @@ import {
   soundRulesQueryOptions,
   updateSoundRule,
 } from "@/features/sounds/api/sounds";
+import { useDiscardChangesGuard } from "@/features/settings/lib/use-leave-guard";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SPACING } from "@/lib/constants/theme";
@@ -65,11 +66,12 @@ export default function SoundRuleScreen() {
     if (gameGuid) void rules.refetch();
   };
   const rulesKey = soundRulesQueryOptions(orgId, gameGuid).queryKey;
+  const { leaveWithoutGuard } = useDiscardChangesGuard(form.formState.isDirty);
 
   const finish = (latest: Awaited<ReturnType<typeof deleteSoundRule>>) => {
     queryClient.setQueryData(rulesKey, latest);
     void queryClient.invalidateQueries({ queryKey: ["sound-rules", orgId, "count"] });
-    router.back();
+    leaveWithoutGuard();
   };
 
   const save = useMutation({

@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, FlatList, View } from "react-native";
+import { AccessibilityInfo, Alert, FlatList, View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import {
@@ -115,6 +115,22 @@ export default function ReviewGridScreen() {
     if (acceptedCount > 0) {
       AccessibilityInfo.announceForAccessibility(t("reviewGrid.accepted", { count: acceptedCount }));
     }
+  };
+
+  const confirmAcceptAll = () => {
+    if (visibleCards.length <= 1) {
+      void accept(visibleCards);
+      return;
+    }
+    const cardsToAccept = visibleCards;
+    Alert.alert(
+      t("reviewGrid.acceptAllConfirmTitle", { count: cardsToAccept.length }),
+      t("reviewGrid.acceptAllConfirmDescription"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        { text: t("reviewGrid.acceptAll", { count: cardsToAccept.length }), onPress: () => void accept(cardsToAccept) },
+      ],
+    );
   };
 
   const switchLayout = (layout: ReviewLayout) => {
@@ -245,10 +261,16 @@ export default function ReviewGridScreen() {
               <Button
                 icon="checkAll"
                 label={t("reviewGrid.acceptAll", { count: visibleCards.length })}
-                onPress={() => void accept(visibleCards)}
+                onPress={confirmAcceptAll}
               />
             ) : null}
-            {review.isError ? <Callout tone="destructive" title={t("reviewGrid.loadFailed")} /> : null}
+            {review.isError ? (
+              <Callout
+                tone="destructive"
+                title={t("reviewGrid.loadFailed")}
+                action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void review.refetch()} />}
+              />
+            ) : null}
             {acceptFailedCount > 0 ? (
               <Callout tone="destructive" title={t("reviewGrid.acceptFailed", { count: acceptFailedCount })} />
             ) : null}

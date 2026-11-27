@@ -1,19 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { router } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Share, View } from "react-native";
+import { AccessibilityInfo, View } from "react-native";
 import { orgApiKeyFormSchema, type OrgApiKeyFormValues } from "@magic-vault/shared";
-import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
-import { Surface } from "@/components/ui/surface";
+import { SecretReveal } from "@/features/integrations/components/secret-reveal";
+import { useDiscardChangesGuard } from "@/features/settings/lib/use-leave-guard";
 import { createApiKey } from "@/features/integrations/api/api-keys";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
@@ -30,6 +29,7 @@ export default function NewApiKeyScreen() {
     resolver: zodResolver(orgApiKeyFormSchema),
     defaultValues: { name: "", allowWrite: false },
   });
+  useDiscardChangesGuard(form.formState.isDirty && !rawKey);
   const create = useMutation({
     mutationFn: (values: OrgApiKeyFormValues) =>
       createApiKey({ name: values.name.trim(), scope: values.allowWrite ? "read_write" : "read" }),
@@ -42,26 +42,17 @@ export default function NewApiKeyScreen() {
 
   if (rawKey) {
     return (
-      <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
-        <PageHeader title={t("settings.apiKeys.revealTitle")} subtitle={org?.name} />
-        <PinnedActionsLayout
-          actions={
-            <>
-              <Button size="lg" icon="share" label={t("settings.apiKeys.share")} onPress={() => void Share.share({ message: rawKey })} />
-              <Button variant="secondary" label={t("settings.apiKeys.revealDone")} onPress={() => router.back()} />
-            </>
-          }
-        >
-          <AppText size="sm" tone="secondary">
-            {t("settings.apiKeys.revealDescription")}
-          </AppText>
-          <Surface>
-            <AppText mono selectable>
-              {rawKey}
-            </AppText>
-          </Surface>
-        </PinnedActionsLayout>
-      </View>
+      <SecretReveal
+        title={t("settings.apiKeys.revealTitle")}
+        subtitle={org?.name}
+        description={t("settings.apiKeys.revealDescription")}
+        secret={rawKey}
+        copyLabel={t("settings.apiKeys.copy")}
+        copiedLabel={t("settings.apiKeys.copied")}
+        copyFailedLabel={t("settings.apiKeys.copyFailed")}
+        shareLabel={t("settings.apiKeys.share")}
+        doneLabel={t("settings.apiKeys.revealDone")}
+      />
     );
   }
 

@@ -6,7 +6,9 @@ import {
 import { contourToPoints, type CardContour } from "@magic-vault/shared";
 import { createStoredFlag } from "@/lib/stored-flag";
 
-export const useHandScan = createStoredFlag(HAND_SCAN_STORAGE_KEY);
+export const useHandScan = createStoredFlag(HAND_SCAN_STORAGE_KEY, {
+  isEnabledByDefault: true,
+});
 
 export const useHandScanBins = createStoredFlag(HAND_SCAN_BINS_STORAGE_KEY);
 

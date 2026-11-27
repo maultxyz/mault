@@ -12,8 +12,10 @@ import { getPlanPreviewForSignedInAdmin } from "@/lib/auth/plan-preview";
 import {
   getAccessToken,
   getActiveOrgId,
+  getSessionToken,
+  isRejectedSessionUnrecoverable,
   refreshAccessTokenRejectedByApi,
-  signOut,
+  signOutBecause,
 } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/config";
 import type { ApiRequestOptions, RequestAuth } from "@/lib/interfaces/api";
@@ -39,7 +41,7 @@ export async function getAuthHeaders(orgId?: string | null): Promise<Record<stri
 
 export function handleForbidden(res: Response): void {
   if (res.status !== 403) return;
-  void signOut();
+  void signOutBecause("access-revoked");
   throw new ApiStatusError(403);
 }
 
@@ -57,6 +59,7 @@ export async function apiRequest<T>(
   path: string,
   { method = "GET", body, form, orgId, acceptStatuses = [], timeoutMs }: ApiRequestOptions = {},
 ): Promise<T> {
+  const sessionTokenAtRequest = getSessionToken();
   const headers = await getAuthHeaders(orgId);
   if (body !== undefined) headers["Content-Type"] = "application/json";
   const abortController = timeoutMs != null ? new AbortController() : null;
@@ -75,6 +78,13 @@ export async function apiRequest<T>(
       const refreshedToken = await refreshAccessTokenRejectedByApi(rejectedToken);
       if (refreshedToken) {
         res = await sendRequest({ ...headers, Authorization: `Bearer ${refreshedToken}` });
+      } else if (
+        sessionTokenAtRequest &&
+        sessionTokenAtRequest === getSessionToken() &&
+        (await isRejectedSessionUnrecoverable())
+      ) {
+        void signOutBecause("session-expired");
+        throw new ApiStatusError(401);
       }
     }
     handleForbidden(res);

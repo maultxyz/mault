@@ -1,14 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Share, View } from "react-native";
+import { AccessibilityInfo, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
-import { Surface } from "@/components/ui/surface";
+import { SecretReveal } from "@/features/integrations/components/secret-reveal";
 import { generateStatsSyncKey, statsSyncKeyQueryOptions } from "@/features/integrations/api/stats-sync";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
@@ -33,26 +32,17 @@ export default function NewStatsSyncKeyScreen() {
 
   if (rawKey) {
     return (
-      <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
-        <PageHeader title={t("settings.statsSync.key.revealTitle")} subtitle={org?.name} />
-        <PinnedActionsLayout
-          actions={
-            <>
-              <Button size="lg" icon="share" label={t("settings.statsSync.key.share")} onPress={() => void Share.share({ message: rawKey })} />
-              <Button variant="secondary" label={t("settings.statsSync.key.revealDone")} onPress={() => router.back()} />
-            </>
-          }
-        >
-          <AppText size="sm" tone="secondary">
-            {t("settings.statsSync.key.revealDescription")}
-          </AppText>
-          <Surface>
-            <AppText mono selectable>
-              {rawKey}
-            </AppText>
-          </Surface>
-        </PinnedActionsLayout>
-      </View>
+      <SecretReveal
+        title={t("settings.statsSync.key.revealTitle")}
+        subtitle={org?.name}
+        description={t("settings.statsSync.key.revealDescription")}
+        secret={rawKey}
+        copyLabel={t("settings.statsSync.key.copy")}
+        copiedLabel={t("settings.statsSync.key.copied")}
+        copyFailedLabel={t("settings.statsSync.key.copyFailed")}
+        shareLabel={t("settings.statsSync.key.share")}
+        doneLabel={t("settings.statsSync.key.revealDone")}
+      />
     );
   }
 

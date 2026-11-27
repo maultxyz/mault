@@ -16,6 +16,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,6 +30,7 @@ import {
 import { IconButton } from "@/components/ui/icon-button";
 import { SharedLinkFilterSheet } from "@/features/share-links/components/shared-link-filter-sheet";
 import { TradeCardRow } from "@/features/trade-offers/components/trade-card-row";
+import { isInvalidLinkError } from "@/features/trade-offers/lib/link-errors";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { WEB_URL } from "@/lib/constants/config";
@@ -119,6 +121,28 @@ export default function SharedLinkScreen() {
   if (params.shortCode && (shortLink.isLoading || shortLinkTarget)) {
     return loadingScreen;
   }
+  if (params.shortCode && shortLink.isError) {
+    return (
+      <Screen header={header} onRefresh={() => shortLink.refetch()}>
+        <QueryErrorState
+          title={t("sharedLink.linkLoadFailed")}
+          onRetry={() => void shortLink.refetch()}
+          isRetrying={shortLink.isFetching}
+        />
+      </Screen>
+    );
+  }
+  if (link && info.isError && !isInvalidLinkError(info.error)) {
+    return (
+      <Screen header={header} onRefresh={() => info.refetch()}>
+        <QueryErrorState
+          title={t("sharedLink.linkLoadFailed")}
+          onRetry={() => void info.refetch()}
+          isRetrying={info.isFetching}
+        />
+      </Screen>
+    );
+  }
   if (!link || info.isError) {
     return (
       <Screen header={header}>
@@ -131,7 +155,7 @@ export default function SharedLinkScreen() {
   }
 
   return (
-    <Screen header={header}>
+    <Screen header={header} onRefresh={() => Promise.all([info.refetch(), cards.refetch()])}>
       <SearchInput
         value={search}
         onChangeText={setSearch}
@@ -141,7 +165,11 @@ export default function SharedLinkScreen() {
       {cards.isLoading ? (
         loadingCards
       ) : cards.isError ? (
-        <EmptyState icon="share" title={t("sharedLink.loadFailed")} />
+        <QueryErrorState
+          title={t("sharedLink.loadFailed")}
+          onRetry={() => void cards.refetch()}
+          isRetrying={cards.isFetching}
+        />
       ) : entries.length === 0 ? (
         <EmptyState icon="search" title={t("sharedLink.empty")} />
       ) : (

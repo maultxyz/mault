@@ -33,7 +33,7 @@ export const PRICE_TRADE_OFFER_CARD_SORT = "value";
 export const UNPRICED_DEFAULT_TRADE_OFFER_CARD_SORT = "name";
 export const TRADE_OFFER_COLLAPSED_ROW_COUNT = 8;
 export const TRADE_OFFER_FILTER_ROW_THRESHOLD = 8;
-export const TRADE_OFFER_PICK_FLUSH_DELAY_MS = 400;
+export const TRADE_OFFER_PICK_UNDO_WINDOW_MS = 5000;
 
 export const TRADE_OFFER_LOCATION_SECTION_ORDER: Record<TradeOfferLocationSectionKind, number> = {
   storage: 0,

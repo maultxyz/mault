@@ -12,4 +12,5 @@ export interface OwnedCardSearchRow {
   location_name: string | null;
   location_position: number | null;
   location_batch_size: number | null;
+  bin_number: number | null;
 }

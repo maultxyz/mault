@@ -1,5 +1,5 @@
 import { router, useNavigation, usePreventRemove } from "expo-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { computeBinCount } from "@magic-vault/shared";
@@ -41,7 +41,23 @@ export default function CalibrationLayoutScreen() {
     ]);
   });
 
+  const [invalidHeightBinNumbers, setInvalidHeightBinNumbers] = useState<number[]>([]);
+  const setHeightValidity = useCallback((binNumber: number, isValid: boolean) => {
+    setInvalidHeightBinNumbers((current) => {
+      const isListed = current.includes(binNumber);
+      if (isValid) return isListed ? current.filter((listed) => listed !== binNumber) : current;
+      return isListed ? current : [...current, binNumber];
+    });
+  }, []);
+  const [showsInvalidHeightError, setShowsInvalidHeightError] = useState(false);
+  const hasInvalidHeights = invalidHeightBinNumbers.length > 0;
+
   const save = () => {
+    if (hasInvalidHeights) {
+      setShowsInvalidHeightError(true);
+      return;
+    }
+    setShowsInvalidHeightError(false);
     if (!draft.isReducing) {
       void draft.save();
       return;
@@ -66,7 +82,6 @@ export default function CalibrationLayoutScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg + SPACING.xs }}
       >
-        {draft.saveError ? <Callout tone="destructive" title={t("calibration.layoutSaveFailed")} /> : null}
 
         <View style={{ gap: SPACING.sm }}>
           <SectionHeader title={t("calibration.moduleCount.label")} />
@@ -142,6 +157,7 @@ export default function CalibrationLayoutScreen() {
                       height={route ? heightFor(route.binNumber) : undefined}
                       onBinChange={(bin) => draft.assignSlot(module, direction, bin)}
                       onHeightChange={draft.setHeight}
+                      onHeightValidityChange={setHeightValidity}
                     />
                   );
                 })}
@@ -170,6 +186,7 @@ export default function CalibrationLayoutScreen() {
                       height={heightFor(route.binNumber)}
                       onBinChange={(bin) => draft.assignSlot(route.module, "bottom", bin)}
                       onHeightChange={draft.setHeight}
+                      onHeightValidityChange={setHeightValidity}
                     />
                   </View>
                   <OptionSheet
@@ -189,7 +206,21 @@ export default function CalibrationLayoutScreen() {
           ) : null}
         </View>
       </ScrollView>
-      <SaveBar visible={draft.isDirty} saving={draft.isSaving} onSave={save} onDiscard={draft.discard} />
+      <SaveBar
+        visible={draft.isDirty}
+        saving={draft.isSaving}
+        onSave={save}
+        onDiscard={draft.discard}
+        errorMessage={
+          showsInvalidHeightError && hasInvalidHeights
+            ? t("calibration.bins.customHeightBlocksSave", {
+                bins: [...invalidHeightBinNumbers].sort((first, second) => first - second).join(", "),
+              })
+            : draft.saveError
+              ? t("calibration.layoutSaveFailed")
+              : undefined
+        }
+      />
       <OptionSheet
         visible={countOpen}
         title={t("calibration.moduleCount.label")}

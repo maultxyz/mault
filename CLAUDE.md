@@ -167,6 +167,7 @@ pnpm + Turborepo, one root `.env`:
 - Nightly card sync runs on a GitHub runner (`card-catalog-sync.yml`), invisible to the server except via the 60 s signature check.
 - `cards.data` is the source's raw card (read through `normalizeStored`), one entry per artwork; every `cards.data` write also sets `collector_number`.
 - Sync plans through `planCardSync` and writes through `buildCatalogCardRow`. `cards.source_data_hash` sends only changed cards, so a new stored column derived from `data` joins the hash. `hasPartialData` stubs never overwrite a stored row.
+- Source fields that change daily (prices, price timestamps) are left out of the hash via the adapter's `volatileDataKeys`/`withoutVolatileData`, keeping ids; otherwise every sync rewrites the catalog and refills its match flags.
 - Pruning runs only after a complete fetch: a source that skips cards on errors calls `markSyncFetchIncomplete`; prunes over `SYNC_PRUNE_MAX_SHARE_OF_STORED_CARDS` are refused.
 - Catalog images are embedded portrait (`toPortraitCardImage` turns landscape 90° clockwise); a no-detection fallback crop is portrait too (`getDefaultCardDewarpContour`).
 - Every embedding write stamps `CARD_EMBEDDING_VERSION`; bump it when normalization or embedding input changes. Swapping the embedding model is a breaking migration.

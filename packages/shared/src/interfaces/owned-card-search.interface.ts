@@ -12,4 +12,9 @@ export interface OwnedCardSearchResult {
   locationName: string | null;
   locationPosition: number | null;
   locationBatchSize?: number | null;
+  binNumber?: number | null;
 }
+
+export type OwnedCardSearchPlacement =
+  | { kind: "location"; locationName: string; slot: string | null }
+  | { kind: "bin"; binNumber: number };

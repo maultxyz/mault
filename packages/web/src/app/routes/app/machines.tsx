@@ -4,13 +4,16 @@ import { useMachineStatuses } from "@/features/machines/api/use-machine-statuses
 import { MachinePageDots } from "@/features/machines/components/machine-page-dots";
 import { MachinePanel } from "@/features/machines/components/machine-panel";
 import { MachinePicker } from "@/features/machines/components/machine-picker";
+import { Button } from "@/components/ui/button";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { HOME_PATH, MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { IconDeviceDesktopAnalytics } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 function MobileMachinesPager() {
   const machines = useMachineStatuses();
@@ -93,6 +96,13 @@ export default function MachinesPage() {
       title={t("empty.title")}
       description={t("empty.description")}
       className="m-4"
+      action={
+        AUTH_PROVIDER !== "local" ? (
+          <Button variant="secondary" render={<Link to={SETTINGS_PATHS["raspberry-pis"]} />}>
+            {t("raspberryPis")}
+          </Button>
+        ) : undefined
+      }
     />
   );
 

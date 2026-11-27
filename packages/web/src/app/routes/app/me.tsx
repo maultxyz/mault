@@ -1,3 +1,4 @@
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { getInitials } from "@magic-vault/shared";
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobileListRow } from "@/components/mobile-list-row";
@@ -43,6 +44,7 @@ import {
 } from "@tabler/icons-react";
 import { WHATS_NEW_PATH } from "@/lib/constants/feature-highlights";
 import { useTheme } from "next-themes";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
 
@@ -57,6 +59,7 @@ export default function MePage() {
   const { orgs, activeOrg, setActiveOrg } = useOrg();
   const { theme, setTheme } = useTheme();
   const signOut = useSignOut();
+  const [isConfirmingSignOut, setIsConfirmingSignOut] = useState(false);
   const { planLockFor } = usePlanLockedPath();
   const intakeLock = planLockFor(INTAKE_PATH);
   const hasBusinessTools = useHasBusinessTools();
@@ -205,9 +208,22 @@ export default function MePage() {
               icon={<IconLogout />}
               label={t("userMenu.signOut")}
               destructive
-              onClick={() => void signOut()}
+              onClick={() => setIsConfirmingSignOut(true)}
             />
           </div>
+          <ConfirmDialog
+            open={isConfirmingSignOut}
+            onOpenChange={setIsConfirmingSignOut}
+            title={t("userMenu.signOutConfirmTitle")}
+            description={t("userMenu.signOutConfirmDescription")}
+            confirmLabel={t("userMenu.signOut")}
+            cancelLabel={t("actions.cancel")}
+            destructive
+            onConfirm={() => {
+              setIsConfirmingSignOut(false);
+              void signOut();
+            }}
+          />
 
           <p className="text-center text-xs text-foreground/70">
             v{__APP_VERSION__}

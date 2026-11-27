@@ -1462,6 +1462,7 @@ export interface MobileCameraSheetProps {
 export interface MobileCollectionSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreateCollection: () => void;
 }
 
 export interface MobilePresetSheetProps {

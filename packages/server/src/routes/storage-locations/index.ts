@@ -3,6 +3,7 @@ import {
   STORAGE_CARDS_PAGE_SIZE,
   STORAGE_CARDS_PAGE_SIZE_MAX,
   STORAGE_LOCATION_NAME_MAX_LENGTH,
+  STORAGE_LOCATION_NAME_TAKEN_MESSAGE,
   STORAGE_LOCATION_SERIES_COUNT_MAX,
   STORAGE_LOCATION_SERIES_START_MAX,
   storageLocationSeriesNames,
@@ -401,7 +402,7 @@ const router = new Hono<AppEnv>()
         return STORAGE_LOCKED_RESULT;
       }
       if (await locationNameTaken(tx, orgId, name)) {
-        return { success: false, message: "That name is already used." };
+        return { success: false, message: STORAGE_LOCATION_NAME_TAKEN_MESSAGE };
       }
       const [created] = await tx
         .insert(storageLocations)
@@ -446,7 +447,7 @@ const router = new Hono<AppEnv>()
         return STORAGE_LOCKED_RESULT;
       }
       if (await locationNameTaken(tx, orgId, name, guid)) {
-        return { success: false, message: "That name is already used." };
+        return { success: false, message: STORAGE_LOCATION_NAME_TAKEN_MESSAGE };
       }
       const updated = await tx
         .update(storageLocations)

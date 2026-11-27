@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { signInLocal, signUpLocal } from "@/lib/auth";
 import { authPathReturningTo, safeAuthRedirectPath } from "@/lib/auth-redirect";
-import { AUTH_REDIRECT_PARAM, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/constants/auth";
+import { Callout } from "@/components/callout";
+import { AUTH_REDIRECT_PARAM, SIGNED_OUT_PARAM, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/constants/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
@@ -86,6 +88,11 @@ export default function AuthLocalPage() {
       className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-4 outline-none"
     >
       <BrandMark />
+      {!isSignUp && searchParams.has(SIGNED_OUT_PARAM) ? (
+        <Callout variant="warning" title={t("local.signedOutTitle")} className="w-full max-w-sm">
+          {t("local.signedOutDescription")}
+        </Callout>
+      ) : null}
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
@@ -129,9 +136,8 @@ export default function AuthLocalPage() {
                 <FieldLabel htmlFor="password">
                   {t("local.passwordLabel")}
                 </FieldLabel>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   autoComplete="new-password"
                   {...signUpForm.register("password")}
                 />
@@ -172,9 +178,8 @@ export default function AuthLocalPage() {
                     {t("local.forgotPassword")}
                   </button>
                 </div>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   autoComplete="current-password"
                   {...signInForm.register("password")}
                 />

@@ -31,6 +31,14 @@ function keepOnlyReleaseDates(raw: YgoCard): YgoCard {
   return releaseDates.length > 0 ? { ...card, misc_info: releaseDates } : card;
 }
 
+function withoutYugiohVolatileData(data: unknown): unknown {
+  const { card_prices: _cardPrices, ...card } = data as YgoCard;
+  return {
+    ...card,
+    card_sets: card.card_sets?.map(({ set_price: _setPrice, ...printing }) => printing),
+  };
+}
+
 function toArtworkSyncCards(raw: YgoCard): SyncSourceCard[] {
   return (raw.card_images ?? []).map((image) =>
     withRawData(
@@ -109,6 +117,7 @@ async function fetchOne(id: string, baseUrl: string): Promise<FetchOneResult> {
 export const yugiohSyncSource: SyncSource = {
   gameKey: "yugioh",
   label: "Yu-Gi-Oh! (YGOPRODeck API)",
+  withoutVolatileData: withoutYugiohVolatileData,
   defaultUrl: YUGIOH_DEFAULT_URL,
   fetchHeaders: CARD_API_HEADERS,
   languages: ["en"],

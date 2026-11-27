@@ -2,6 +2,7 @@ import { CardImage } from "@/components/card-image";
 import { CompactCount } from "@/components/compact-value";
 import { MobileScanBuyRow } from "@/features/business/components/mobile-scan-buy-row";
 import { Button } from "@/components/ui/button";
+import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { ScanGiftWrap } from "@/features/scanner/components/scan-gift-wrap";
 import { useWrappedScanGiftReveal } from "@/features/scanner/lib/scan-gift-reveal-store";
@@ -16,13 +17,16 @@ import { MobileScanNotice } from "@/features/scanner/components/mobile-scan-noti
 import { MobileScanControlsSheet } from "@/features/scanner/components/mobile-scan-controls-sheet";
 import { MobileScanOptionsSheet } from "@/features/scanner/components/mobile-scan-options-sheet";
 import { MobileSessionScansSheet } from "@/features/scanner/components/mobile-session-scans-sheet";
+import { usePriceSource } from "@/hooks/use-price-source";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
   MOBILE_SCAN_BOTTOM_SCRIM_CLASS,
   MOBILE_SCAN_CHIP_CLASS,
   MOBILE_SCAN_SESSION_THUMBNAIL_CLASS,
   MOBILE_SCAN_TEXT_ROW_CLASS,
+  MOBILE_SCAN_RESULT_CHIP_CLASS,
   MOBILE_SCAN_TOP_SCRIM_CLASS,
+  MONITOR_OPEN_CARD_PARAM,
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
@@ -30,8 +34,10 @@ import type { MobileScanChromeProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
+  IconAlertTriangle,
   IconCamera,
   IconChevronRight,
+  IconCircleCheck,
   IconDots,
   IconHandStop,
   IconPlayerPauseFilled,
@@ -47,7 +53,13 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   const { t } = useTranslation("scanner");
   const { activeCollection } = useCollections();
   const { sessionScanCount } = useScannedCards();
+  const { priceOf, format: formatPrice } = usePriceSource();
   const [collectionsOpen, setCollectionsOpen] = useState(false);
+  const [createCollectionOpen, setCreateCollectionOpen] = useState(false);
+  const [collectionsOpenedFromOptions, setCollectionsOpenedFromOptions] =
+    useState(false);
+  const [resumesHandScanAfterCollections, setResumesHandScanAfterCollections] =
+    useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [presetsOpen, setPresetsOpen] = useState(false);
   const [camerasOpen, setCamerasOpen] = useState(false);
@@ -70,6 +82,43 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   const running = SESSION_TIMER_RUNNING_STATUSES.includes(chrome.status);
   const sorterDriven = chrome.isReady || chrome.handScanActive;
   const canShoot = chrome.isCameraActive && !chrome.isAtScanLimit;
+  const canHoldHandScan = running && chrome.handScanActive && !chrome.isReady;
+  const openCollections = () => {
+    if (canHoldHandScan) {
+      chrome.onPause();
+      setResumesHandScanAfterCollections(true);
+    }
+    setCollectionsOpen(true);
+  };
+  const changeCollectionsOpen = (open: boolean) => {
+    setCollectionsOpen(open);
+    if (open) return;
+    if (resumesHandScanAfterCollections) {
+      setResumesHandScanAfterCollections(false);
+      chrome.onResume();
+    }
+    if (collectionsOpenedFromOptions) {
+      setCollectionsOpenedFromOptions(false);
+      setOptionsOpen(true);
+    }
+  };
+  const returnToOptionsAfter =
+    (setSheetOpen: (open: boolean) => void) => (open: boolean) => {
+      setSheetOpen(open);
+      if (!open) setOptionsOpen(true);
+    };
+  const lastScannedCardPrice = lastScannedCard
+    ? priceOf(
+        lastScannedCard.card,
+        {
+          isFoil: lastScannedCard.isFoil,
+          foilType: lastScannedCard.foilType,
+        },
+        lastScannedCard.condition,
+      )
+    : null;
+  const lastScannedCardNeedsCheck =
+    !!lastScannedCard?.lowConfidenceMatch && !lastScannedCard.reviewed;
 
   const phaseLabel = (() => {
     switch (chrome.status) {
@@ -226,19 +275,21 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <button
               type="button"
-              disabled={running}
+              disabled={running && !canHoldHandScan}
               aria-label={
                 activeCollection
                   ? t("mobileScan.scanningInto", { name: activeCollection.name })
                   : t("mobileScan.chooseCollection")
               }
-              onClick={() => setCollectionsOpen(true)}
+              onClick={openCollections}
               className={cn(MOBILE_SCAN_TEXT_ROW_CLASS, "font-heading text-lg font-semibold")}
             >
               <span className="truncate">
                 {activeCollection?.name ?? t("mobileScan.chooseCollection")}
               </span>
-              {!running && <IconChevronRight aria-hidden className="size-4" />}
+              {(!running || canHoldHandScan) && (
+                <IconChevronRight aria-hidden className="size-4" />
+              )}
             </button>
             {isRemoveModeActive && (
               <button
@@ -267,7 +318,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             onClick={() => setOptionsOpen(true)}
             className={cn(
               MOBILE_SCAN_CHIP_CLASS,
-              "size-9 shrink-0 justify-center px-0",
+              "size-11 shrink-0 justify-center px-0",
             )}
           >
             <IconDots className="size-5" />
@@ -316,6 +367,37 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
                 {t("emergencyStop.stop")}
               </Button>
             </div>
+          )}
+          {lastScannedCard && activeCollection && !isRemoveModeActive && (
+            <Link
+              to={`/app/monitor/${activeCollection.guid}?${MONITOR_OPEN_CARD_PARAM}=${lastScannedCard.scanId}`}
+              className={MOBILE_SCAN_RESULT_CHIP_CLASS}
+            >
+              {lastScannedCardNeedsCheck ? (
+                <IconAlertTriangle aria-hidden className="size-4 shrink-0 text-warning" />
+              ) : (
+                <IconCircleCheck aria-hidden className="size-4 shrink-0 text-success" />
+              )}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-semibold">
+                  {lastScannedCard.card.name}
+                </span>
+                <span className="block truncate text-xs text-white/80">
+                  {[
+                    lastScannedCardNeedsCheck
+                      ? t("mobileScan.result.checkMatch")
+                      : null,
+                    lastScannedCard.card.setName,
+                    lastScannedCardPrice != null
+                      ? formatPrice(lastScannedCardPrice)
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </span>
+              </span>
+              <IconChevronRight aria-hidden className="size-3.5 shrink-0" />
+            </Link>
           )}
           <div className="flex justify-center">
             <span
@@ -385,7 +467,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
                   : chrome.onScanOnce
               }
               className={cn(
-                "pointer-events-auto flex size-12 shrink-0 items-center justify-center rounded-full text-white transition-transform active:scale-95 disabled:opacity-50 motion-reduce:active:scale-100 [&_svg]:size-5",
+                "pointer-events-auto flex size-16 shrink-0 items-center justify-center rounded-full text-white transition-transform active:scale-95 disabled:opacity-50 motion-reduce:active:scale-100 [&_svg]:size-6",
                 running ? "bg-destructive" : "bg-primary",
               )}
             >
@@ -406,7 +488,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
                 onClick={() => setControlsOpen(true)}
                 className={cn(
                   MOBILE_SCAN_CHIP_CLASS,
-                  "size-10 justify-center px-0",
+                  "size-11 justify-center px-0",
                 )}
               >
                 <IconAdjustments className="size-5" />
@@ -417,7 +499,15 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
       </div>
       <MobileCollectionSheet
         open={collectionsOpen}
-        onOpenChange={setCollectionsOpen}
+        onOpenChange={changeCollectionsOpen}
+        onCreateCollection={() => {
+          changeCollectionsOpen(false);
+          setCreateCollectionOpen(true);
+        }}
+      />
+      <CreateCollectionDialog
+        open={createCollectionOpen}
+        onOpenChange={setCreateCollectionOpen}
       />
       <MobileScanOptionsSheet
         open={optionsOpen}
@@ -425,6 +515,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         chrome={chrome}
         onChooseCollection={() => {
           setOptionsOpen(false);
+          setCollectionsOpenedFromOptions(true);
           setCollectionsOpen(true);
         }}
         onChoosePreset={() => {
@@ -436,10 +527,13 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           setCamerasOpen(true);
         }}
       />
-      <MobilePresetSheet open={presetsOpen} onOpenChange={setPresetsOpen} />
+      <MobilePresetSheet
+        open={presetsOpen}
+        onOpenChange={returnToOptionsAfter(setPresetsOpen)}
+      />
       <MobileCameraSheet
         open={camerasOpen}
-        onOpenChange={setCamerasOpen}
+        onOpenChange={returnToOptionsAfter(setCamerasOpen)}
         chrome={chrome}
       />
       <MobileScanControlsSheet
