@@ -1265,6 +1265,11 @@
     "moreUnmatched_one": "{{count}} weiterer nicht erkannter Scan",
     "moreUnmatched_other": "{{count}} weitere nicht erkannte Scans"
   },
+  "cardImageViewer": {
+    "close": "Bild schließen",
+    "opened": "Bild im Vollbild geöffnet. Zum Zoomen zusammenziehen oder doppelt tippen.",
+    "openHint": "Öffnet das Bild im Vollbild"
+  },
   "cardDetail": {
     "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",
     "catalogCardRemovedDescription": "Die Karte, der dieses Exemplar zugeordnet war ({{name}}), wurde aus der Kartendatenbank entfernt, weil ihre Daten fehlerhaft waren. Suche die richtige Druckversion, damit Preis und Details aktuell bleiben.",

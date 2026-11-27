@@ -20,4 +20,5 @@ export const CARD_PRICE_HISTORY_QUERY_KEY = "card-price-history";
 export const CARD_PRICE_HISTORY_STALE_MS = 60 * 60 * 1000;
 
 export const CARD_PRICE_HISTORY_SPARKLINE = { width: 192, height: 48, verticalPadding: 6, strokeWidth: 1.5, dotRadius: 3 } as const;
-
+export const CARD_IMAGE_VIEWER_MAX_SCALE = 5;
+export const CARD_IMAGE_VIEWER_DOUBLE_TAP_SCALE = 2.5;

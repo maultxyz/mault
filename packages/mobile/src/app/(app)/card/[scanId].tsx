@@ -67,6 +67,7 @@ import type { CardCachePatchContext } from "@/lib/interfaces/undo";
 import type { IconName } from "@/lib/interfaces/ui";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardDetailArt, CardImageFrame } from "@/features/cards/components/card-detail-art";
+import { CardImageViewer } from "@/components/cards/card-image-viewer";
 import { CardDetailInfoSections } from "@/features/cards/components/card-detail-info-sections";
 import { CardDetailTitleBlock } from "@/features/cards/components/card-detail-title-block";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
@@ -183,6 +184,7 @@ export default function CardDetailScreen() {
   const card = entry?.card;
   const frontCapturedUrl = absoluteUrl(image.data?.capturedImageUrl);
   const capturedBackUrl = absoluteUrl(image.data?.capturedBackImageUrl);
+  const [capturedViewerOpen, setCapturedViewerOpen] = useState(false);
   const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
   const showsCapturedBackSide = !!capturedBackUrl && backSideScanId === scanId;
   const capturedUrl = showsCapturedBackSide ? capturedBackUrl : frontCapturedUrl;
@@ -750,20 +752,26 @@ export default function CardDetailScreen() {
                       ) : null}
                     </View>
                   </View>
-                  <CardImageFrame>
+                  <CardImageFrame
+                    onPress={capturedUrl ? () => setCapturedViewerOpen(true) : undefined}
+                    accessibilityLabel={
+                      showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan")
+                    }
+                  >
                     {capturedUrl ? (
-                      <Image
-                        source={{ uri: capturedUrl }}
-                        style={{ flex: 1 }}
-                        contentFit="fill"
-                        accessibilityLabel={
-                          showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan")
-                        }
-                      />
+                      <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="fill" accessible={false} />
                     ) : (
                       <Skeleton height="100%" radius={0} />
                     )}
                   </CardImageFrame>
+                  <CardImageViewer
+                    visible={capturedViewerOpen}
+                    imageUrl={capturedUrl ?? null}
+                    accessibilityLabel={
+                      showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan")
+                    }
+                    onClose={() => setCapturedViewerOpen(false)}
+                  />
                 </View>
               ) : null}
               <CardDetailArt card={card} caption={showCaptured ? t("cardDetail.matchedCard") : undefined} />

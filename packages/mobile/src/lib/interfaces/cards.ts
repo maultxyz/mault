@@ -182,6 +182,22 @@ export interface CardDetailTitleBlockProps {
 
 export interface CardImageFrameProps {
   children?: ReactNode;
+  onPress?: () => void;
+  accessibilityLabel?: string;
+}
+
+export interface CardImageViewerProps {
+  visible: boolean;
+  imageUrl: string | null;
+  placeholderUrl?: string | null;
+  accessibilityLabel: string;
+  onClose: () => void;
+}
+
+export interface CardImageViewerTarget {
+  imageUrl: string | null;
+  placeholderUrl?: string | null;
+  accessibilityLabel: string;
 }
 
 export interface CardDetailArtProps {

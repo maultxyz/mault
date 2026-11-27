@@ -1265,6 +1265,11 @@
     "moreUnmatched_one": "{{count}} autre scan non reconnu",
     "moreUnmatched_other": "{{count}} autres scans non reconnus"
   },
+  "cardImageViewer": {
+    "close": "Fermer l'image",
+    "opened": "Image ouverte en plein écran. Pincez ou touchez deux fois pour zoomer.",
+    "openHint": "Ouvre l'image en plein écran"
+  },
   "cardDetail": {
     "catalogCardRemovedTitle": "Carte retirée du catalogue",
     "catalogCardRemovedDescription": "La carte associée à cet exemplaire, {{name}}, a été retirée de la base de cartes car ses données étaient incorrectes. Recherche la bonne impression pour que son prix et ses détails restent à jour.",

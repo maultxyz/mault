@@ -1265,6 +1265,11 @@
     "moreUnmatched_one": "{{count}} more unmatched scan",
     "moreUnmatched_other": "{{count}} more unmatched scans"
   },
+  "cardImageViewer": {
+    "close": "Close image",
+    "opened": "Image opened full screen. Pinch or double-tap to zoom.",
+    "openHint": "Opens the image full screen"
+  },
   "cardDetail": {
     "catalogCardRemovedTitle": "Card no longer in the catalog",
     "catalogCardRemovedDescription": "The card this copy was matched to, {{name}}, was removed from the card database because its data was incorrect. Search for the correct printing so its price and details stay up to date.",
