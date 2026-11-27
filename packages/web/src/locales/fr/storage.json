@@ -251,12 +251,33 @@
       "locations_one": "{{count}} emplacement sélectionné",
       "locations_other": "{{count}} emplacements sélectionnés",
       "selectAll": "Tout sélectionner",
-      "selectNone": "Tout désélectionner"
+      "selectNone": "Tout désélectionner",
+      "kindLabel": "Quoi imprimer",
+      "kinds": {
+        "labels": "Étiquettes",
+        "batchDividers": "Intercalaires de lot"
+      }
     },
     "sheet": {
       "emptyTitle": "Aucun emplacement sélectionné",
       "emptyDescription": "Sélectionnez au moins un emplacement pour prévisualiser son étiquette.",
       "pageDescription": "Planche d'étiquettes, page {{page}} : {{names}}"
+    },
+    "dividers": {
+      "formDescription": "Intercalaires de la largeur d'une carte, un par lot, plus hauts que vos cartes pour que le lot se voie au-dessus.",
+      "printTip": "Imprimez à 100 % (taille réelle) sur du papier cartonné, puis découpez le long des traits pleins. La ligne pointillée indique le haut de vos cartes.",
+      "slotRange": "Emplacements {{first}} à {{last}}",
+      "emptyTitle": "Aucun intercalaire",
+      "emptyDescription": "Saisissez un texte d'intercalaire personnalisé ou sélectionnez un emplacement avec une capacité et une taille de lot.",
+      "skipped_one": "{{names}} n'a pas de capacité ou de taille de lot, il n'aura donc pas d'intercalaires de lot.",
+      "skipped_other": "{{count}} emplacements n'ont pas de capacité ou de taille de lot, ils n'auront donc pas d'intercalaires de lot : {{names}}",
+      "truncated": "Affichage des {{shown}} premiers intercalaires sur {{total}}. Sélectionnez moins d'emplacements pour imprimer le reste.",
+      "pageDescription": "Page d'intercalaires {{page}} : {{names}}",
+      "customLabel": "Intercalaires personnalisés",
+      "customPlaceholder": "Communes\nRares\nClasseur d'échange",
+      "customDescription": "Un intercalaire par ligne. Chacun s'imprime une fois pour chaque emplacement sélectionné, avant ses intercalaires de lot, ou seul si aucun emplacement n'est sélectionné.",
+      "batchTitle": "Lot {{batch}}",
+      "showLocationName": "Afficher le nom de l'emplacement sous le libellé"
     }
   },
   "series": {

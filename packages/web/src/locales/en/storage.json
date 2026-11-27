@@ -251,12 +251,33 @@
       "locations_one": "{{count}} location selected",
       "locations_other": "{{count}} locations selected",
       "selectAll": "Select all",
-      "selectNone": "Select none"
+      "selectNone": "Select none",
+      "kindLabel": "What to print",
+      "kinds": {
+        "labels": "Labels",
+        "batchDividers": "Batch dividers"
+      }
     },
     "sheet": {
       "emptyTitle": "No locations selected",
       "emptyDescription": "Select at least one location to preview its label.",
       "pageDescription": "Label sheet page {{page}}: {{names}}"
+    },
+    "dividers": {
+      "formDescription": "Card-width dividers, one per batch, that stand taller than your cards so the batch shows above them.",
+      "printTip": "Print at 100% scale (actual size) on cardstock, then cut along the solid lines. The dashed line marks the top of your cards.",
+      "slotRange": "Slots {{first}} to {{last}}",
+      "emptyTitle": "No batch dividers",
+      "emptyDescription": "Type custom divider text, or select a location with a capacity and a batch size.",
+      "skipped_one": "{{names}} has no capacity or batch size, so it gets no batch dividers.",
+      "skipped_other": "{{count}} locations have no capacity or batch size, so they get no batch dividers: {{names}}",
+      "truncated": "Showing the first {{shown}} of {{total}} dividers. Select fewer locations to print the rest.",
+      "pageDescription": "Batch divider page {{page}}: {{names}}",
+      "customLabel": "Custom dividers",
+      "customPlaceholder": "Commons\nRares\nTrade binder",
+      "customDescription": "One divider per line. Each prints once for every selected location, before its batch dividers, or on its own when no location is selected.",
+      "batchTitle": "Batch {{batch}}",
+      "showLocationName": "Show location name under the label"
     }
   },
   "series": {
