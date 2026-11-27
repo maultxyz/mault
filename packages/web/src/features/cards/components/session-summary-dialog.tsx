@@ -440,7 +440,9 @@ export function SessionSummaryDialog({
 
   const { collection: activeCollection } = useViewedCollection();
 
-  const { summary, allStats: stats, totalCount } = useCollectionCardsSummary(NEW_CARDS_QUERY);
+  const { summary, allStats: stats, totalCount } = useCollectionCardsSummary(NEW_CARDS_QUERY, {
+    isEnabled: open,
+  });
   const previouslyDownloadedCount = summary
     ? summary.all.totalCount - summary.filtered.totalCount
     : 0;

@@ -123,3 +123,7 @@ export interface ReleaseSessionButtonProps {
 export interface CollectionGameBadgeProps {
   collection: Pick<Collection, "game" | "lang">;
 }
+
+export interface CollectionCardsSummaryOptions {
+  isEnabled?: boolean;
+}

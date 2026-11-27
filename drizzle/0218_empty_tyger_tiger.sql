@@ -1,0 +1,1 @@
+CREATE INDEX "collection_cards_collection_unreviewed_idx" ON "collection_cards" USING btree ("collection_id") WHERE "collection_cards"."is_reviewed" = false;
