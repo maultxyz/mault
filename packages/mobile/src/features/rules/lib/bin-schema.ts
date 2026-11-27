@@ -4,6 +4,8 @@ import {
   formValidationMessage,
   LOW_MATCH_PERCENT_MAX,
   OVERRIDE_PRIORITY_MAX,
+  parseDecklist,
+  PICK_LIST_MAX_ENTRIES,
   type BinRuleGroup,
 } from "@magic-vault/shared";
 
@@ -37,4 +39,15 @@ export const binSchema = z.object({
     .max(CONDITION_NUMERIC_MAX, formValidationMessage("atMost", { max: CONDITION_NUMERIC_MAX }))
     .nullable(),
   maxCopiesBy: z.string(),
+  pickList: z
+    .object({
+      mode: z.enum(["until_found", "all"]),
+      decklist: z
+        .string()
+        .refine(
+          (decklist) => parseDecklist(decklist).length <= PICK_LIST_MAX_ENTRIES,
+          formValidationMessage("atMost", { max: PICK_LIST_MAX_ENTRIES }),
+        ),
+    })
+    .nullable(),
 });

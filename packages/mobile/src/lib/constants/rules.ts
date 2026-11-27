@@ -14,3 +14,6 @@ export const WORKFLOW_OPTION_PREFIX = "workflow:";
 export const STORAGE_PLAN_FILL_BAR_WIDTH = 56;
 export const DEFAULT_MAX_COPIES = 4;
 export const ALLOW_DUPLICATES_OPTION = "$allow";
+export const EMPTY_BIN_NO_LOCATION_OPTION = "$none";
+export const EMPTY_BIN_CLAIMED_LOCATION_OPTION = "$claimed";
+export const BIN_RULES_FILE_MIME_TYPES = ["application/json", "text/json", "text/plain"];

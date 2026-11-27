@@ -68,6 +68,7 @@ export default function AppLayout() {
           <Stack.Screen name="rules/repack" />
           <Stack.Screen name="rules/stages" />
           <Stack.Screen name="rules/history" />
+          <Stack.Screen name="rules/fill" />
           <Stack.Screen name="stats" />
           <Stack.Screen name="machines" />
           <Stack.Screen name="whats-new" />

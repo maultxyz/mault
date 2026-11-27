@@ -19,6 +19,8 @@ import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
 import { deleteBinSet } from "@/features/rules/api/bin-sets";
 import { presetWorkflowsQueryOptions } from "@/features/rules/api/preset-workflows";
+import { useActivePresetWorkflow } from "@/features/rules/api/use-active-preset-workflow";
+import { useBinRulesTransfer } from "@/features/rules/api/use-bin-rules-transfer";
 import { usePresetPicker } from "@/features/rules/api/use-preset-picker";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { AlphabetPassCard } from "@/features/rules/components/alphabet-pass-card";
@@ -38,6 +40,9 @@ export default function RulesScreen() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const picker = usePresetPicker();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [workflowPickerOpen, setWorkflowPickerOpen] = useState(false);
+  const { workflows } = useActivePresetWorkflow();
+  const rulesTransfer = useBinRulesTransfer();
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
   const remove = useMutation({
@@ -59,6 +64,15 @@ export default function RulesScreen() {
           { value: "history", label: t("rules.presetMenu.history") },
         ]
       : []),
+    ...(rulesTransfer.canExport
+      ? [
+          { value: "copyRules", label: t("rules.transferFile.copy") },
+          { value: "exportRules", label: t("rules.transferFile.export") },
+        ]
+      : []),
+    { value: "importRules", label: t("rules.transferFile.import") },
+    ...(activeSet ? [{ value: "newWorkflow", label: t("rules.stages.newTitle") }] : []),
+    ...(workflows.length > 0 ? [{ value: "editWorkflows", label: t("rules.stages.editStages") }] : []),
     ...(activeSet && sets.length > 1 ? [{ value: "delete", label: t("rules.presetMenu.delete") }] : []),
   ];
   const runMenuAction = (action: string) => {
@@ -67,6 +81,19 @@ export default function RulesScreen() {
       openNewPreset(action);
     } else if (action === "rename" && activeSet) {
       router.push({ pathname: "/preset-description", params: { guid: activeSet.guid } });
+    } else if (action === "copyRules") {
+      rulesTransfer.copy();
+    } else if (action === "exportRules") {
+      rulesTransfer.share();
+    } else if (action === "importRules") {
+      rulesTransfer.importFile();
+    } else if (action === "newWorkflow" && activeSet) {
+      router.push({
+        pathname: "/preset-description",
+        params: { mode: "workflow", guid: activeSet.guid, gameGuid: data.gameGuid ?? "" },
+      });
+    } else if (action === "editWorkflows") {
+      setWorkflowPickerOpen(true);
     } else if (action === "history") {
       router.push("/rules/history");
     } else if (action === "delete" && activeSet) {
@@ -158,6 +185,12 @@ export default function RulesScreen() {
                 value={t(`rules.modes.${mode}.title`)}
                 onPress={() => router.push("/rules/mode")}
               />
+              <ListRow
+                icon="storage"
+                title={t("rules.fill.title")}
+                subtitle={t("rules.fill.entrySubtitle")}
+                onPress={() => router.push("/rules/fill")}
+              />
               {mode === "repack" ? (
                 <ListRow
                   icon="rules"
@@ -199,6 +232,17 @@ export default function RulesScreen() {
         selected={[]}
         onSelect={runMenuAction}
         onClose={() => setMenuOpen(false)}
+      />
+      <OptionSheet
+        visible={workflowPickerOpen}
+        title={t("rules.stages.editStages")}
+        options={workflows.map((workflow) => ({ value: workflow.guid, label: workflow.name }))}
+        selected={[]}
+        onSelect={(workflowGuid) => {
+          setWorkflowPickerOpen(false);
+          router.push({ pathname: "/rules/stages", params: { workflow: workflowGuid } });
+        }}
+        onClose={() => setWorkflowPickerOpen(false)}
       />
       <OptionSheet
         visible={pickerOpen}

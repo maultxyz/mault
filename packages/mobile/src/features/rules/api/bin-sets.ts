@@ -2,8 +2,10 @@ import { queryOptions } from "@tanstack/react-query";
 import type {
   BinConfig,
   BinSet,
+  DefaultBinInit,
   EmptyAllBinsInput,
   EmptyAllBinsOptions,
+  EmptyBinOptions,
   PickListFoundInput,
   PickListFoundResult,
   Result,
@@ -34,6 +36,15 @@ export function emptyBins(
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
   const input: EmptyAllBinsInput = { ...options, binNumbers };
   return unwrap(apiPost<Result<BinSet[]>>(`/api/bins/bins/empty-all${params}`, input));
+}
+
+export function emptyBin(
+  binNumber: number,
+  gameGuid: string | undefined,
+  options: EmptyBinOptions,
+): Promise<BinConfig[]> {
+  const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
+  return unwrap(apiPost<Result<BinConfig[]>>(`/api/bins/bins/${binNumber}/empty${params}`, options));
 }
 
 export function saveBinConfig({ binNumber, gameGuid, ...body }: BinSaveInput): Promise<BinConfig[]> {
@@ -83,8 +94,12 @@ export function setSkipSaving(guid: string, skipSaving: boolean): Promise<BinSet
   return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/skip-saving`, { skipSaving }));
 }
 
-export function createBinSet(name: string, gameGuid: string | undefined): Promise<BinSet[]> {
-  return unwrap(apiPost<Result<BinSet[]>>("/api/bins", { name, gameGuid }));
+export function createBinSet(
+  name: string,
+  gameGuid: string | undefined,
+  initialBins?: DefaultBinInit[],
+): Promise<BinSet[]> {
+  return unwrap(apiPost<Result<BinSet[]>>("/api/bins", { name, gameGuid, initialBins }));
 }
 
 export function copyActiveBinSet(name: string, gameGuid: string | undefined): Promise<BinSet[]> {
@@ -117,6 +132,10 @@ export const binSetHistoryQueryOptions = (setGuid: string | undefined) =>
 
 export function revertBinSet(historyGuid: string): Promise<BinSet[]> {
   return unwrap(apiPost<Result<BinSet[]>>(`/api/bins/history/${historyGuid}/revert`));
+}
+
+export function resetBinPickList(binGuid: string): Promise<PickListFoundResult> {
+  return unwrap(apiPost<Result<PickListFoundResult>>(`/api/bins/bins/${binGuid}/pick-list/reset`));
 }
 
 export function updateBinSetDetails(guid: string, name: string, description: string): Promise<BinSet[]> {

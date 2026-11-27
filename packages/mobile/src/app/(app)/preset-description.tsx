@@ -18,7 +18,11 @@ import {
   isBinSetNameAvailable,
   updateBinSetDetails,
 } from "@/features/rules/api/bin-sets";
-import { presetWorkflowsQueryOptions } from "@/features/rules/api/preset-workflows";
+import {
+  createPresetWorkflow,
+  presetWorkflowsQueryOptions,
+  renamePresetWorkflow,
+} from "@/features/rules/api/preset-workflows";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -33,17 +37,29 @@ export default function PresetDetailsScreen() {
   const orgId = useActiveOrgId();
   const setsQuery = binSetsQueryOptions(orgId);
   const { data: sets, isLoading: isLoadingSets } = useQuery(setsQuery);
-  const preset = guid ? sets?.find((set) => set.guid === guid) : undefined;
-  const isNewPreset = mode === "new" || mode === "copy";
+  const isWorkflow = mode === "workflow" || mode === "workflowRename";
+  const workflowsQuery = presetWorkflowsQueryOptions(orgId);
+  const { data: workflows } = useQuery({ ...workflowsQuery, enabled: mode === "workflowRename" });
+  const workflow = mode === "workflowRename" ? workflows?.find((candidate) => candidate.guid === guid) : undefined;
+  const preset = guid && !isWorkflow ? sets?.find((set) => set.guid === guid) : undefined;
+  const isNewPreset = mode === "new" || mode === "copy" || mode === "workflow";
   const presetGameGuid = isNewPreset ? gameGuid || undefined : (preset?.game?.guid ?? undefined);
   const form = useForm<PresetDetailsFormValues>({
     resolver: zodResolver(presetDetailsFormSchema),
-    values: { name: preset?.name ?? "", description: preset?.description ?? "" },
+    values: { name: preset?.name ?? workflow?.name ?? "", description: preset?.description ?? "" },
     resetOptions: { keepDirtyValues: true },
   });
   const save = useMutation({
     mutationFn: async (values: PresetDetailsFormValues) => {
       const name = values.name.trim();
+      if (mode === "workflow" || mode === "workflowRename") {
+        const nextWorkflows =
+          mode === "workflow"
+            ? await createPresetWorkflow(name, guid ?? "", presetGameGuid)
+            : await renamePresetWorkflow(guid ?? "", name);
+        queryClient.setQueryData(workflowsQuery.queryKey, nextWorkflows);
+        return sets ?? queryClient.fetchQuery(setsQuery);
+      }
       if (!(await isBinSetNameAvailable(name, presetGameGuid, preset?.guid))) return null;
       if (mode === "new") return createBinSet(name, presetGameGuid);
       if (mode === "copy") return copyActiveBinSet(name, presetGameGuid);
@@ -61,7 +77,11 @@ export default function PresetDetailsScreen() {
   });
 
   const title =
-    mode === "new"
+    mode === "workflow"
+      ? t("rules.stages.newTitle")
+      : mode === "workflowRename"
+        ? t("rules.stages.rename")
+        : mode === "new"
       ? t("rules.presetDetails.newTitle")
       : mode === "copy"
         ? t("rules.presetDetails.copyTitle")
@@ -76,13 +96,16 @@ export default function PresetDetailsScreen() {
             size="lg"
             label={isNewPreset ? t("rules.presetDetails.create") : t("rules.description.save")}
             loading={save.isPending}
-            disabled={!isNewPreset && !preset}
+            disabled={mode === "workflowRename" ? !workflow : !isNewPreset && !preset}
             onPress={form.handleSubmit((values) => save.mutate(values))}
           />
         }
       >
         {save.isError ? <Callout tone="destructive" title={t("rules.presetDetails.saveFailed")} /> : null}
-        {!isNewPreset && isLoadingSets ? (
+        {mode === "workflow" ? (
+          <Callout tone="info" title={t("rules.stages.newDescription")} />
+        ) : null}
+        {!isNewPreset && !isWorkflow && isLoadingSets ? (
           <MultilineFieldSkeleton />
         ) : (
           <View style={{ gap: SPACING.lg }}>
@@ -100,7 +123,7 @@ export default function PresetDetailsScreen() {
                 />
               )}
             />
-            {isNewPreset ? null : (
+            {isNewPreset || isWorkflow ? null : (
               <Controller
                 control={form.control}
                 name="description"
