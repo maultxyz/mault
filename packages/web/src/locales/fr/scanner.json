@@ -1070,11 +1070,6 @@
     "password": "Mot de passe",
     "passwordHint": "Laisse vide pour un réseau ouvert.",
     "save": "Enregistrer",
-    "validation": {
-      "ssidRequired": "Saisis le nom du réseau.",
-      "ssidTooLong": "Les noms de réseau font au plus {{max}} octets.",
-      "password": "Les mots de passe font de {{min}} à {{max}} caractères, ou restent vides pour un réseau ouvert."
-    },
     "wifiLabel": "Wi-Fi",
     "cloudLabel": "Lien serveur",
     "wifiState": {

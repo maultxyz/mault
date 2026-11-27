@@ -18,10 +18,10 @@ import type {
   SorterWifiControls,
   SorterWifiResult,
 } from "@/lib/interfaces/sorter-wifi";
-import type { SorterWifiFormValues } from "@/schemas/sorter-wifi.schema";
 import {
   isFirmwareFeatureSupported,
   SORTER_LINK_URL_MAX_LENGTH,
+  type SorterWifiFormValues,
   type SorterWifiStatus,
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";

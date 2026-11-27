@@ -579,6 +579,47 @@
     "sorterConnection": "Connexion de la trieuse",
     "manageSection": "Gérer"
   },
+  "sorterWifi": {
+    "title": "Accès à distance en Wi-Fi",
+    "description": "Connecte la trieuse à ton Wi-Fi pour la contrôler de n'importe où, même depuis un téléphone sans Bluetooth.",
+    "connectFirst": "Connectez votre trieuse en Bluetooth pour configurer le Wi-Fi.",
+    "needsWifiBoard": "L'accès à distance en Wi-Fi nécessite une carte ESP32 ou Arduino Uno R4 WiFi. Sur une Uno R4 WiFi, installe le dernier firmware.",
+    "sharesRadio": "Sur l'Uno R4 WiFi, le Wi-Fi et le Bluetooth partagent une seule radio : le Bluetooth est donc désactivé tant que le Wi-Fi est configuré. La trieuse redémarre quand tu configures ou désactives le Wi-Fi.",
+    "changeOverLocal": "Vous êtes connecté en Wi-Fi. Pour changer de réseau, connectez-vous en Bluetooth.",
+    "forget": "Désactiver le Wi-Fi",
+    "unknown": "Vérification…",
+    "forgotten": "Wi-Fi désactivé.",
+    "forgottenLinkKept": "Wi-Fi désactivé. Le serveur n'a pas pu supprimer l'ancien lien : il sera remplacé la prochaine fois que tu configureras le Wi-Fi.",
+    "forgottenRestarting": "Wi-Fi désactivé. La trieuse redémarre avec le Bluetooth réactivé.",
+    "forgetFailed": "Impossible de désactiver le Wi-Fi.",
+    "saved": "Wi-Fi enregistré. La trieuse rejoint le réseau.",
+    "savedRestarting": "Wi-Fi enregistré. La trieuse redémarre pour rejoindre le réseau et le Bluetooth se désactive.",
+    "saveFailed": "Impossible d'enregistrer le Wi-Fi",
+    "saveFailedDescription": "La trieuse n'a pas accepté les réglages. Vérifie qu'elle est toujours connectée et réessaie.",
+    "dialogDescription": "La trieuse mémorise ce réseau et se reconnecte seule au serveur. Elle ne prend en charge que les réseaux 2,4 GHz.",
+    "ssid": "Nom du réseau",
+    "password": "Mot de passe",
+    "passwordHint": "Laisse vide pour un réseau ouvert.",
+    "save": "Enregistrer",
+    "wifiLabel": "Wi-Fi",
+    "cloudLabel": "Lien serveur",
+    "wifiState": {
+      "unconfigured": "Non configuré",
+      "connecting": "Connexion",
+      "connected": "Connecté",
+      "paused": "En pause"
+    },
+    "cloudState": {
+      "unconfigured": "Non configuré",
+      "offline": "Hors ligne",
+      "connecting": "Connexion",
+      "connected": "Connecté",
+      "rejected": "Refusé, reconfigure le Wi-Fi"
+    },
+    "pausedForPower": "La trieuse redémarrait sans cesse à cause de chutes de tension au démarrage du Wi-Fi, donc le Wi-Fi est en pause et l'USB et le Bluetooth fonctionnent toujours. Utilise une alimentation plus puissante ou alimente les servos séparément, puis débranche et rebranche la trieuse ou enregistre à nouveau le Wi-Fi pour réessayer.",
+    "needsFirmwareShort": "Le Wi-Fi nécessite un micrologiciel de trieuse plus récent. Mettez-le à jour depuis l'application web en USB.",
+    "forgetDescription": "La trieuse oublie ce réseau et ne se connecte plus au serveur. Vous pouvez le reconfigurer à tout moment."
+  },
   "sorter": {
     "rename": {
       "title": "Renommer la trieuse",
@@ -3252,6 +3293,9 @@
     "orderLinesRequired": "Garde au moins une carte dans la liste.",
     "decklistRequired": "Saisissez au moins une carte, une par ligne.",
     "deckLinkInvalid": "Saisissez un lien de deck Moxfield ou Archidekt.",
+    "wifiSsidRequired": "Saisis le nom du réseau.",
+    "wifiSsidTooLong": "Les noms de réseau font au plus {{max}} octets.",
+    "wifiPassword": "Les mots de passe font de {{min}} à {{max}} caractères, ou restent vides pour un réseau ouvert.",
     "cardCountRequired": "Saisis un nombre de cartes.",
     "storageLocationRequired": "Choisis où sont allées les cartes.",
     "commandRequired": "Saisis une commande.",

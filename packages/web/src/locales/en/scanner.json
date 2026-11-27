@@ -1070,11 +1070,6 @@
     "password": "Password",
     "passwordHint": "Leave empty for an open network.",
     "save": "Save",
-    "validation": {
-      "ssidRequired": "Enter the network name.",
-      "ssidTooLong": "Network names can be at most {{max}} bytes.",
-      "password": "Passwords are {{min}} to {{max}} characters, or empty for an open network."
-    },
     "wifiLabel": "Wi-Fi",
     "cloudLabel": "Server link",
     "wifiState": {

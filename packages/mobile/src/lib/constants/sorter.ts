@@ -30,3 +30,5 @@ export const SORTER_ERROR_BY_OPEN_FAILURE: Record<SorterLinkOpenFailure, SorterE
   failed: "connect-failed",
 };
 export const ANNOUNCED_SORTER_PHASES: SorterPhase[] = ["ready", "idle", "error"];
+export const SORTER_WIFI_STATUS_REFETCH_MS = 3_000;
+export const SORTER_WIFI_RESPONSE_TIMEOUT_MS = 3_000;

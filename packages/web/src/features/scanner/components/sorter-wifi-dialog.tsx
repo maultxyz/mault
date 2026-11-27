@@ -4,10 +4,7 @@ import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import type { SorterWifiDialogProps } from "@/lib/interfaces/sorter-wifi";
-import {
-  createSorterWifiSchema,
-  type SorterWifiFormValues,
-} from "@/schemas/sorter-wifi.schema";
+import { sorterWifiFormSchema, type SorterWifiFormValues } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect } from "react";
@@ -23,7 +20,7 @@ export function SorterWifiDialog({
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
   const form = useForm<SorterWifiFormValues>({
-    resolver: zodResolver(createSorterWifiSchema(t)),
+    resolver: zodResolver(sorterWifiFormSchema),
     defaultValues: { ssid: defaultSsid ?? "", password: "" },
   });
 

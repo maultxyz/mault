@@ -84,6 +84,7 @@ export default function AppLayout() {
           <Stack.Screen name="storage-bulk-size" options={sheetOptions} />
           <Stack.Screen name="preset-description" options={sheetOptions} />
           <Stack.Screen name="sorter-name" options={sheetOptions} />
+          <Stack.Screen name="sorter-wifi" options={sheetOptions} />
           <Stack.Screen name="share-link" options={sheetOptions} />
           <Stack.Screen name="settings/invite-member" options={sheetOptions} />
           <Stack.Screen name="settings/webhook-edit" options={sheetOptions} />

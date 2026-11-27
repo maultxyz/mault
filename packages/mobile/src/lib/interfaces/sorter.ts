@@ -1,3 +1,4 @@
+import type { SorterWifiFormValues, SorterWifiStatus } from "@magic-vault/shared";
 import type {
   BinRoute,
   RetractCardOutcome,
@@ -84,6 +85,7 @@ export interface SorterStatusReply {
   bleMtu?: number;
   uptimeMs?: number;
   servoDriver?: string;
+  wifi?: string;
 }
 
 export interface SorterContextValue {
@@ -102,6 +104,8 @@ export interface SorterContextValue {
   device: Device | null;
   firmwareVersion: string | null;
   board: string | null;
+  hasWifi: boolean;
+  isCloudConnection: boolean;
   isReady: boolean;
   isConnected: boolean;
   startDiscovery: () => void;
@@ -130,4 +134,20 @@ export interface TestOutcome {
   error: string | null;
   blockedModule: number | null;
   servoDriverMissing: boolean;
+}
+
+export type SorterWifiResult =
+  | { ok: true; restarting: boolean; serverLinkRemovalFailed: boolean }
+  | { ok: false; error: string | null };
+
+export interface SorterWifiControls {
+  isSupported: boolean;
+  needsWifiBoard: boolean;
+  needsFirmware: boolean;
+  sharesRadioWithBluetooth: boolean;
+  canConfigure: boolean;
+  isCloudConnection: boolean;
+  status: SorterWifiStatus | null;
+  configure: (values: SorterWifiFormValues) => Promise<SorterWifiResult>;
+  forget: () => Promise<SorterWifiResult>;
 }

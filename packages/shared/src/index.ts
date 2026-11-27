@@ -210,6 +210,7 @@ export * from "./phone-camera";
 export * from "./serial-session";
 export * from "./sorter-link-connection";
 export * from "./sorter-link-devices";
+export * from "./sorter-wifi";
 export * from "./pi-link";
 export * from "./pi-host-scan";
 export * from "./sorter-name";

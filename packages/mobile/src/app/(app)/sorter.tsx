@@ -146,6 +146,14 @@ export default function SorterScreen() {
               onPress={() => router.push("/calibrate")}
             />
             <ListRow icon="rules" title={t("rules.title")} onPress={() => router.push("/rules")} />
+            {sorter.hasWifi || sorter.board === "esp32" ? (
+              <ListRow
+                icon="wifi"
+                title={t("sorterWifi.title")}
+                subtitle={sorter.isCloudConnection ? t("sorterWifi.changeOverLocal") : undefined}
+                onPress={() => router.push("/sorter-wifi")}
+              />
+            ) : null}
             <ListRow
               icon="edit"
               title={t("sorter.rename.title")}

@@ -579,6 +579,47 @@
     "sorterConnection": "Sortierer-Verbindung",
     "manageSection": "Verwalten"
   },
+  "sorterWifi": {
+    "title": "WLAN-Fernzugriff",
+    "description": "Verbinde den Sortierer mit deinem WLAN, um ihn von überall zu steuern, auch von einem Handy ohne Bluetooth.",
+    "connectFirst": "Verbinde deinen Sortierer über Bluetooth, um WLAN einzurichten.",
+    "needsWifiBoard": "WLAN-Fernzugriff benötigt ein ESP32- oder Arduino-Uno-R4-WiFi-Board. Spiele auf einem Uno R4 WiFi die neueste Firmware auf.",
+    "sharesRadio": "Beim Uno R4 WiFi teilen sich WLAN und Bluetooth ein Funkmodul, daher ist Bluetooth aus, solange WLAN eingerichtet ist. Der Sortierer startet neu, wenn du WLAN einrichtest oder ausschaltest.",
+    "changeOverLocal": "Du bist über WLAN verbunden. Verbinde dich über Bluetooth, um das Netzwerk zu ändern.",
+    "forget": "WLAN ausschalten",
+    "unknown": "Wird geprüft…",
+    "forgotten": "WLAN ausgeschaltet.",
+    "forgottenLinkKept": "WLAN ausgeschaltet. Der Server konnte die alte Verbindung nicht entfernen, sie wird beim nächsten Einrichten des WLANs ersetzt.",
+    "forgottenRestarting": "WLAN ausgeschaltet. Der Sortierer startet neu und Bluetooth ist wieder an.",
+    "forgetFailed": "WLAN konnte nicht ausgeschaltet werden.",
+    "saved": "WLAN gespeichert. Der Sortierer verbindet sich mit dem Netz.",
+    "savedRestarting": "WLAN gespeichert. Der Sortierer startet neu, um sich mit dem Netz zu verbinden, und Bluetooth geht aus.",
+    "saveFailed": "WLAN konnte nicht gespeichert werden",
+    "saveFailedDescription": "Der Sortierer hat die Einstellungen nicht übernommen. Prüfe, ob er noch verbunden ist, und versuche es erneut.",
+    "dialogDescription": "Der Sortierer merkt sich dieses Netz und verbindet sich selbstständig wieder mit dem Server. Er unterstützt nur 2,4-GHz-Netze.",
+    "ssid": "Netzwerkname",
+    "password": "Passwort",
+    "passwordHint": "Für ein offenes Netz leer lassen.",
+    "save": "Speichern",
+    "wifiLabel": "WLAN",
+    "cloudLabel": "Serververbindung",
+    "wifiState": {
+      "unconfigured": "Nicht eingerichtet",
+      "connecting": "Verbindet",
+      "connected": "Verbunden",
+      "paused": "Pausiert"
+    },
+    "cloudState": {
+      "unconfigured": "Nicht eingerichtet",
+      "offline": "Offline",
+      "connecting": "Verbindet",
+      "connected": "Verbunden",
+      "rejected": "Abgelehnt, WLAN erneut einrichten"
+    },
+    "pausedForPower": "Der Sortierer ist beim Start des WLANs wegen Spannungseinbrüchen immer wieder neu gestartet. Daher ist WLAN pausiert, USB und Bluetooth funktionieren weiter. Nutze ein stärkeres Netzteil oder versorge die Servos separat, trenne den Sortierer dann kurz vom Strom oder speichere das WLAN erneut, um es noch einmal zu versuchen.",
+    "needsFirmwareShort": "WLAN braucht eine neuere Sortierer-Firmware. Aktualisiere sie in der Web-App über USB.",
+    "forgetDescription": "Der Sortierer vergisst dieses Netzwerk und verbindet sich nicht mehr mit dem Server. Du kannst es jederzeit wieder einrichten."
+  },
   "sorter": {
     "rename": {
       "title": "Sortierer umbenennen",
@@ -3252,6 +3293,9 @@
     "orderLinesRequired": "Lass mindestens eine Karte in der Pickliste.",
     "decklistRequired": "Gib mindestens eine Karte ein, eine pro Zeile.",
     "deckLinkInvalid": "Gib einen Deck-Link von Moxfield oder Archidekt ein.",
+    "wifiSsidRequired": "Gib den Netzwerknamen ein.",
+    "wifiSsidTooLong": "Netzwerknamen dürfen höchstens {{max}} Bytes lang sein.",
+    "wifiPassword": "Passwörter haben {{min}} bis {{max}} Zeichen oder bleiben für ein offenes Netz leer.",
     "cardCountRequired": "Gib eine Kartenanzahl ein.",
     "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
     "commandRequired": "Gib einen Befehl ein.",
