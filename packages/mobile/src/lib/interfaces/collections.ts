@@ -18,6 +18,9 @@ export interface CollectionCardTileProps {
   onOpen: (scanId: string) => void;
   onPrefetch: (scanId: string) => void;
   onShowActions: (item: GroupedScannedCard) => void;
+  isSelecting?: boolean;
+  isSelected?: boolean;
+  onToggleSelected?: (item: GroupedScannedCard) => void;
 }
 
 export interface CollectionUnmatchedTileProps {

@@ -32,6 +32,7 @@ import {
   cachedStorageLocation,
   downloadStorageLocationCsv,
   fetchFirstUnreviewedStorageCard,
+  loadStorageLocationCardReferences,
   markStorageLocationCardsDownloaded,
   storageLocationCardsPageQueryOptions,
   storageLocationCardsSummaryQueryOptions,
@@ -40,6 +41,10 @@ import {
 } from "@/features/storage/api/storage";
 import { useStorageLocationActions } from "@/features/storage/api/use-storage-location-actions";
 import { ExportSheet } from "@/features/cards/components/export-sheet";
+import { useToast } from "@/components/ui/toast-provider";
+import { useCardSelection } from "@/features/cards/api/use-card-selection";
+import { CardBulkActionsSheet } from "@/features/cards/components/card-bulk-actions-sheet";
+import { CardSelectionBar } from "@/features/cards/components/card-selection-bar";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
 import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
 import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
@@ -121,6 +126,17 @@ export default function StorageLocationScreen() {
   const activeSortAndFilterCount = countActiveCardFilters(filters) + (sort ? 1 : 0);
   const isQueryActive = !!debouncedSearch || activeSortAndFilterCount > 0 || filters.needsAttention;
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.cards) ?? [], [cards.data]);
+  const { showToast } = useToast();
+  const selection = useCardSelection();
+  const [bulkActionsOpen, setBulkActionsOpen] = useState(false);
+  const selectAll = useMutation({
+    mutationFn: () => loadStorageLocationCardReferences(guid, cardsQuery),
+    onSuccess: (references) =>
+      selection.replace(references.map(({ scanId, collectionGuid }) => ({ scanId, collectionGuid }))),
+    onError: () => showToast({ message: t("cardBulk.selectAllFailed"), tone: "destructive" }),
+  });
+  const totalMatchingCards = cards.data?.pages[0]?.total ?? 0;
+  const allSelected = totalMatchingCards > 0 && selection.selectedCount >= totalMatchingCards;
   const [exportOpen, setExportOpen] = useState(false);
   const [combineDuplicates, setCombineDuplicates] = useState(true);
   const [notice, setNotice] = useState<{ tone: "info" | "destructive"; text: string } | null>(null);
@@ -222,9 +238,18 @@ export default function StorageLocationScreen() {
           }
           onBack={() => router.back()}
           actions={
-            menuOptions.length === 0 ? null : (
-            <IconButton icon="more" accessibilityLabel={t("storage.actions")} onPress={() => setMenuOpen(true)} />
-            )
+            <>
+              {hasCards && tab === "cards" ? (
+                <IconButton
+                  icon={selection.isSelecting ? "close" : "checkAll"}
+                  accessibilityLabel={selection.isSelecting ? t("cardBulk.doneSelecting") : t("cardBulk.select")}
+                  onPress={selection.isSelecting ? selection.stopSelecting : selection.startSelecting}
+                />
+              ) : null}
+              {menuOptions.length === 0 ? null : (
+                <IconButton icon="more" accessibilityLabel={t("storage.actions")} onPress={() => setMenuOpen(true)} />
+              )}
+            </>
           }
           tabs={
             <TabStrip<StorageLocationTab>
@@ -241,7 +266,7 @@ export default function StorageLocationScreen() {
       ) : (
         <>
         {hasCards ? (
-          <View style={{ paddingBottom: SPACING.md }}>
+          <View style={{ paddingBottom: SPACING.md, gap: SPACING.sm }}>
             <CardToolbar
               search={search}
               onSearchChange={setSearch}
@@ -250,6 +275,16 @@ export default function StorageLocationScreen() {
               activeSortAndFilterCount={activeSortAndFilterCount}
               onOpenViewOptions={() => setViewOptionsOpen(true)}
             />
+            {selection.isSelecting ? (
+              <CardSelectionBar
+                selectedCount={selection.selectedCount}
+                allSelected={allSelected}
+                selectingAll={selectAll.isPending}
+                actionsDisabled={selectAll.isPending}
+                onToggleSelectAll={() => (allSelected ? selection.clear() : selectAll.mutate())}
+                onOpenActions={() => setBulkActionsOpen(true)}
+              />
+            ) : null}
           </View>
         ) : null}
         <FlatList
@@ -327,9 +362,14 @@ export default function StorageLocationScreen() {
               { isFoil: entry.isFoil, foilType: entry.foilType },
               entry.condition,
             );
+            const isEntrySelected = selection.isSelected([entry.scanId]);
             const openEntry = () =>
-              router.push({ pathname: "/card/[scanId]", params: { scanId: entry.scanId, guid: entry.collectionGuid } });
-            const prefetchEntry = () => prefetchCollectionCard(entry.collectionGuid, entry.scanId);
+              selection.isSelecting
+                ? selection.toggle([{ scanId: entry.scanId, collectionGuid: entry.collectionGuid }])
+                : router.push({ pathname: "/card/[scanId]", params: { scanId: entry.scanId, guid: entry.collectionGuid } });
+            const prefetchEntry = () => {
+              if (!selection.isSelecting) prefetchCollectionCard(entry.collectionGuid, entry.scanId);
+            };
             if (isGrid) {
               return (
                 <View style={{ width: tileWidth }}>
@@ -344,6 +384,7 @@ export default function StorageLocationScreen() {
                       wasCorrected: entry.corrected,
                       isReviewed: entry.reviewed,
                     })}
+                    selected={isEntrySelected}
                     onPress={openEntry}
                     onPressIn={prefetchEntry}
                   />
@@ -359,6 +400,7 @@ export default function StorageLocationScreen() {
                     imageUrl={absoluteUrl(entry.card.image?.small)}
                     price={value != null ? pricing.format(value) : null}
                     lowConfidence={entry.lowConfidenceMatch && !entry.reviewed}
+                    checked={selection.isSelecting ? isEntrySelected : undefined}
                     onPress={openEntry}
                     onPressIn={prefetchEntry}
                   />
@@ -369,6 +411,14 @@ export default function StorageLocationScreen() {
         />
         </>
       )}
+      <CardBulkActionsSheet
+        visible={bulkActionsOpen}
+        references={selection.references}
+        storageLocationGuid={guid}
+        exportName={location?.name ?? "storage"}
+        onClose={() => setBulkActionsOpen(false)}
+        onFinished={selection.stopSelecting}
+      />
       <ExportSheet
         visible={exportOpen}
         title={t("export.title", { name: location?.name ?? "" })}

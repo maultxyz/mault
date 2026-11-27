@@ -11,6 +11,7 @@ import type {
   StorageLocationCard,
   StorageLocationCardContext,
   StorageLocationCardPage,
+  StorageLocationCardReference,
   StorageLocationCardsSummary,
   StorageLocationCsvExportRequest,
   StorageLocationExportSummary,
@@ -82,6 +83,15 @@ export const storageLocationCardsPageQueryOptions = (guid: string, query: Collec
     initialPageParam: 1,
     getNextPageParam: (last) => (last.page * last.pageSize < last.total ? last.page + 1 : undefined),
   });
+
+export function loadStorageLocationCardReferences(
+  guid: string,
+  query: CollectionCardsQuery,
+): Promise<StorageLocationCardReference[]> {
+  const params = new URLSearchParams(collectionCardsQueryParams(query, 0));
+  params.delete("page");
+  return unwrap(apiGet<Result<StorageLocationCardReference[]>>(`/api/storage-locations/${guid}/cards/ids?${params}`));
+}
 
 export const storagePickListQueryOptions = (orgId: string | null, entries: PickListEntryInput[]) =>
   queryOptions({

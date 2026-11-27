@@ -2979,6 +2979,33 @@
       "language": "Sprache"
     }
   },
+  "cardBulk": {
+    "selectedCount_one": "{{count}} Karte ausgewählt",
+    "selectedCount_other": "{{count}} Karten ausgewählt",
+    "select": "Karten auswählen",
+    "doneSelecting": "Auswahl beenden",
+    "selectAll": "Alle auswählen",
+    "clear": "Auswahl aufheben",
+    "actions": "Aktionen",
+    "addTag": "Tag hinzufügen",
+    "removeTag": "Tag entfernen",
+    "removeFromLocation": "Vom Lagerort entfernen",
+    "removeFromLocationTitle_one": "{{count}} Karte von ihrem Lagerort entfernen?",
+    "removeFromLocationTitle_other": "{{count}} Karten von ihren Lagerorten entfernen?",
+    "removeFromLocationDescription": "Die Karten bleiben in ihren Sammlungen. Nur ihre Lagerplätze werden frei.",
+    "removedFromLocation_one": "{{count}} Karte vom Lagerort entfernt",
+    "removedFromLocation_other": "{{count}} Karten von ihren Lagerorten entfernt",
+    "delete": "Karten löschen",
+    "deleteTitle_one": "{{count}} Karte löschen?",
+    "deleteTitle_other": "{{count}} Karten löschen?",
+    "deleteDescription": "Die Karten werden aus ihren Sammlungen entfernt. Das lässt sich nicht rückgängig machen.",
+    "updated_one": "{{count}} Karte aktualisiert",
+    "updated_other": "{{count}} Karten aktualisiert",
+    "movedTo_one": "{{count}} Karte nach {{name}} verschoben",
+    "movedTo_other": "{{count}} Karten nach {{name}} verschoben",
+    "failed": "Die ausgewählten Karten konnten nicht aktualisiert werden",
+    "selectAllFailed": "Es konnten nicht alle Karten ausgewählt werden"
+  },
   "export": {
     "button": "Exportieren",
     "title": "{{name}} exportieren",

@@ -1,4 +1,4 @@
-import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BlurView } from "expo-blur";
@@ -26,9 +26,14 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PillButton } from "@/components/ui/pill-button";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
+import { useToast } from "@/components/ui/toast-provider";
+import { useCardSelection } from "@/features/cards/api/use-card-selection";
+import { CardBulkActionsSheet } from "@/features/cards/components/card-bulk-actions-sheet";
+import { CardSelectionBar } from "@/features/cards/components/card-selection-bar";
 import {
   collectionCardsQueryOptions,
   collectionCardsSummaryQueryOptions,
+  loadCollectionCardIds,
   reviewQueueQueryOptions,
   scanTimelineBucketsQueryOptions,
 } from "@/features/collections/api/collection-cards";
@@ -142,10 +147,30 @@ export default function CollectionScreen() {
   const [actionsOpen, setActionsOpen] = useState(false);
   const collectionActions = useCollectionActions({ onDeleted: () => router.back(), shareLinkCountGuid: guid });
   const { empty, remove } = collectionActions;
+  const { showToast } = useToast();
+  const selection = useCardSelection();
+  const [bulkActionsOpen, setBulkActionsOpen] = useState(false);
+  const selectAll = useMutation({
+    mutationFn: () => loadCollectionCardIds(guid, cardsQuery),
+    onSuccess: (scanIds) => selection.replace(scanIds.map((scanId) => ({ scanId, collectionGuid: guid }))),
+    onError: () => showToast({ message: t("cardBulk.selectAllFailed"), tone: "destructive" }),
+  });
   const runAction = (action: string) => {
     setActionsOpen(false);
+    if (action === "export") {
+      selection.startSelecting();
+      selectAll.mutate(undefined, { onSuccess: () => setBulkActionsOpen(true) });
+      return;
+    }
     collectionActions.runAction({ guid, name: collection?.name ?? "" }, action);
   };
+  const toggleSelectedEntry = useCallback(
+    (entry: GroupedScannedCard) =>
+      selection.toggle(
+        (entry.scanIds?.length ? entry.scanIds : [entry.scanId]).map((scanId) => ({ scanId, collectionGuid: guid })),
+      ),
+    [selection.toggle, guid],
+  );
 
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.items) ?? [], [cards.data]);
   const gridTiles = useMemo(
@@ -263,10 +288,18 @@ export default function CollectionScreen() {
         onOpen={openCard}
         onPrefetch={prefetchCard}
         onShowActions={setActionsEntry}
+        isSelecting={selection.isSelecting}
+        isSelected={selection.isSelected(item.scanIds?.length ? item.scanIds : [item.scanId])}
+        onToggleSelected={toggleSelectedEntry}
       />
     ),
-    [tileWidth, pricing, openCard, prefetchCard],
+    [tileWidth, pricing, openCard, prefetchCard, selection.isSelecting, selection.isSelected, toggleSelectedEntry],
   );
+  const allSelected = totalCards != null && totalCards > 0 && selection.selectedCount >= totalCards;
+  const collectionMenuOptions =
+    totalCards != null && totalCards > 0
+      ? [{ value: "export", label: t("export.button") }, ...collectionActions.options]
+      : collectionActions.options;
 
   const sharedListProps = {
     keyboardShouldPersistTaps: "handled" as const,
@@ -327,6 +360,11 @@ export default function CollectionScreen() {
           collection ? (
             <>
               <IconButton
+                icon={selection.isSelecting ? "close" : "checkAll"}
+                accessibilityLabel={selection.isSelecting ? t("cardBulk.doneSelecting") : t("cardBulk.select")}
+                onPress={selection.isSelecting ? selection.stopSelecting : selection.startSelecting}
+              />
+              <IconButton
                 icon="stats"
                 accessibilityLabel={t("collection.viewStats")}
                 onPress={() => router.push({ pathname: "/stats", params: { collection: guid } })}
@@ -364,6 +402,16 @@ export default function CollectionScreen() {
           activeSortAndFilterCount={activeSortAndFilterCount}
           onOpenViewOptions={() => setViewOptionsOpen(true)}
         />
+        {selection.isSelecting ? (
+          <CardSelectionBar
+            selectedCount={selection.selectedCount}
+            allSelected={allSelected}
+            selectingAll={selectAll.isPending}
+            actionsDisabled={selectAll.isPending}
+            onToggleSelectAll={() => (allSelected ? selection.clear() : selectAll.mutate())}
+            onOpenActions={() => setBulkActionsOpen(true)}
+          />
+        ) : null}
       </PageHeader>
 
       {empty.isError || remove.isError ? (
@@ -374,7 +422,7 @@ export default function CollectionScreen() {
       <OptionSheet
         visible={actionsOpen}
         title={collection?.name ?? t("collections.actions")}
-        options={collectionActions.options}
+        options={collectionMenuOptions}
         selected={[]}
         onSelect={runAction}
         onClose={() => setActionsOpen(false)}
@@ -455,7 +503,7 @@ export default function CollectionScreen() {
           }
         />
       )}
-      {collection ? (
+      {collection && !selection.isSelecting ? (
         <View pointerEvents="box-none" style={{ position: "absolute", right: SCREEN_GUTTER, bottom: SCREEN_GUTTER }}>
           <Button
             icon="scan"
@@ -479,6 +527,13 @@ export default function CollectionScreen() {
         binCount={binCount}
         onChange={setFilters}
         onClose={() => setViewOptionsOpen(false)}
+      />
+      <CardBulkActionsSheet
+        visible={bulkActionsOpen}
+        references={selection.references}
+        exportName={collection?.name ?? "collection"}
+        onClose={() => setBulkActionsOpen(false)}
+        onFinished={selection.stopSelecting}
       />
       <CardActionsSheet
         entry={actionsEntry}

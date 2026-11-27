@@ -12,6 +12,9 @@ export const CollectionCardTile = memo(function CollectionCardTile({
   onOpen,
   onPrefetch,
   onShowActions,
+  isSelecting = false,
+  isSelected = false,
+  onToggleSelected,
 }: CollectionCardTileProps) {
   const price = pricing.priceOf(item.card, { isFoil: item.isFoil, foilType: item.foilType }, item.condition);
   const reviewStatus = cardReviewStatus({
@@ -28,9 +31,10 @@ export const CollectionCardTile = memo(function CollectionCardTile({
         {...cardArtSources(item.card.image)}
         quantity={item.quantity}
         reviewStatus={reviewStatus}
-        onPress={() => onOpen(item.scanId)}
-        onPressIn={() => onPrefetch(item.scanId)}
-        onLongPress={() => onShowActions(item)}
+        selected={isSelected}
+        onPress={() => (isSelecting ? onToggleSelected?.(item) : onOpen(item.scanId))}
+        onPressIn={isSelecting ? undefined : () => onPrefetch(item.scanId)}
+        onLongPress={isSelecting ? undefined : () => onShowActions(item)}
       />
     </View>
   );

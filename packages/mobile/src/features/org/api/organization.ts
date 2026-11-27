@@ -78,5 +78,6 @@ export async function deleteOrganization(orgId: string): Promise<void> {
     await unwrap(apiDelete<Result<unknown>>("/api/local-auth/organizations"));
     return;
   }
+  await unwrap(apiDelete<Result<unknown>>("/api/org-settings/data"));
   await neonAuthRequest("/organization/delete", token(), { organizationId: orgId });
 }

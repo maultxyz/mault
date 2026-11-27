@@ -278,3 +278,52 @@ export interface CardPriceHistoryProps {
   lang: string;
   isFoil: boolean;
 }
+
+export interface CardSelectionReference {
+  scanId: string;
+  collectionGuid: string;
+}
+
+export interface CardSelectionState {
+  isSelecting: boolean;
+  references: CardSelectionReference[];
+  selectedCount: number;
+  isSelected: (scanIds: string[]) => boolean;
+  startSelecting: () => void;
+  stopSelecting: () => void;
+  toggle: (references: CardSelectionReference[]) => void;
+  replace: (references: CardSelectionReference[]) => void;
+  clear: () => void;
+}
+
+export interface CardBulkActionsOptions {
+  references: CardSelectionReference[];
+  storageLocationGuid?: string;
+  exportName: string;
+  onFinished: () => void;
+}
+
+export interface CardBulkActionRun {
+  work: () => Promise<unknown>;
+  successMessage: string;
+}
+
+export interface CardSelectionBarProps {
+  selectedCount: number;
+  allSelected: boolean;
+  selectingAll: boolean;
+  actionsDisabled: boolean;
+  onToggleSelectAll: () => void;
+  onOpenActions: () => void;
+}
+
+export interface CardBulkActionsSheetProps {
+  visible: boolean;
+  references: CardSelectionReference[];
+  storageLocationGuid?: string;
+  exportName: string;
+  onClose: () => void;
+  onFinished: () => void;
+}
+
+export type CardBulkActionsPicker = "export" | "foil" | "condition" | "addTag" | "removeTag" | "location" | "collection";

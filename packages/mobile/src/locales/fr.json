@@ -2979,6 +2979,33 @@
       "language": "Langue"
     }
   },
+  "cardBulk": {
+    "selectedCount_one": "{{count}} carte sélectionnée",
+    "selectedCount_other": "{{count}} cartes sélectionnées",
+    "select": "Sélectionner des cartes",
+    "doneSelecting": "Terminer la sélection",
+    "selectAll": "Tout sélectionner",
+    "clear": "Effacer",
+    "actions": "Actions",
+    "addTag": "Ajouter une étiquette",
+    "removeTag": "Retirer une étiquette",
+    "removeFromLocation": "Retirer de l'emplacement",
+    "removeFromLocationTitle_one": "Retirer {{count}} carte de son emplacement ?",
+    "removeFromLocationTitle_other": "Retirer {{count}} cartes de leurs emplacements ?",
+    "removeFromLocationDescription": "Les cartes restent dans leurs collections. Seuls leurs emplacements de stockage sont libérés.",
+    "removedFromLocation_one": "{{count}} carte retirée de son emplacement",
+    "removedFromLocation_other": "{{count}} cartes retirées de leurs emplacements",
+    "delete": "Supprimer les cartes",
+    "deleteTitle_one": "Supprimer {{count}} carte ?",
+    "deleteTitle_other": "Supprimer {{count}} cartes ?",
+    "deleteDescription": "Les cartes sont retirées de leurs collections. Cette action est irréversible.",
+    "updated_one": "{{count}} carte mise à jour",
+    "updated_other": "{{count}} cartes mises à jour",
+    "movedTo_one": "{{count}} carte déplacée vers {{name}}",
+    "movedTo_other": "{{count}} cartes déplacées vers {{name}}",
+    "failed": "Impossible de mettre à jour les cartes sélectionnées",
+    "selectAllFailed": "Impossible de sélectionner toutes les cartes"
+  },
   "export": {
     "button": "Exporter",
     "title": "Exporter {{name}}",

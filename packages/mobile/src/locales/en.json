@@ -2979,6 +2979,33 @@
       "language": "Language"
     }
   },
+  "cardBulk": {
+    "selectedCount_one": "{{count}} card selected",
+    "selectedCount_other": "{{count}} cards selected",
+    "select": "Select cards",
+    "doneSelecting": "Done selecting",
+    "selectAll": "Select all",
+    "clear": "Clear",
+    "actions": "Actions",
+    "addTag": "Add tag",
+    "removeTag": "Remove tag",
+    "removeFromLocation": "Remove from location",
+    "removeFromLocationTitle_one": "Remove {{count}} card from its location?",
+    "removeFromLocationTitle_other": "Remove {{count}} cards from their locations?",
+    "removeFromLocationDescription": "The cards stay in their collections. Only their storage slots are freed.",
+    "removedFromLocation_one": "{{count}} card removed from its location",
+    "removedFromLocation_other": "{{count}} cards removed from their locations",
+    "delete": "Delete cards",
+    "deleteTitle_one": "Delete {{count}} card?",
+    "deleteTitle_other": "Delete {{count}} cards?",
+    "deleteDescription": "This removes the cards from their collections. It can't be undone.",
+    "updated_one": "{{count}} card updated",
+    "updated_other": "{{count}} cards updated",
+    "movedTo_one": "{{count}} card moved to {{name}}",
+    "movedTo_other": "{{count}} cards moved to {{name}}",
+    "failed": "Couldn't update the selected cards",
+    "selectAllFailed": "Couldn't select all cards"
+  },
   "export": {
     "button": "Export",
     "title": "Export {{name}}",
