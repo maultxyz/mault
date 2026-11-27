@@ -11,6 +11,7 @@ import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { useCardFiltersSearchParams } from "@/hooks/use-card-filters-search-params";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
+  MONITOR_CARD_QUERY_KINDS,
   MONITOR_NEEDS_REVIEW_CARDS_QUERY,
   MONITOR_OPEN_CARD_PARAM,
 } from "@/lib/constants/scanner";
@@ -24,10 +25,17 @@ import type {
   MonitorCardsState,
   SessionMonitorState,
 } from "@/lib/interfaces/scanner";
+import { addScannedCardsToCardCaches } from "@/features/collections/lib/card-page-cache";
+import { createKeyedRefreshThrottle } from "@magic-vault/shared";
+import { SCAN_SAVE_CARD_LISTS_REFRESH_MS } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { setPageSize, usePageSize } from "@/lib/page-size-store";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+
+const throttleScannedCardsReconcile = createKeyedRefreshThrottle(
+  SCAN_SAVE_CARD_LISTS_REFRESH_MS,
+);
 
 export function useMonitorCards(
   session: SessionMonitorState,
@@ -36,7 +44,7 @@ export function useMonitorCards(
   canOpenCards: boolean,
 ): MonitorCardsState {
   const queryClient = useQueryClient();
-  const { collection, cardsVersion } = session;
+  const { collection, cardsVersion, scannedCardsVersion, recentCards } = session;
 
   const fieldDefinitions = useMemo(
     () => collection?.game?.fieldDefinitions ?? [],
@@ -124,6 +132,18 @@ export function useMonitorCards(
     ];
     return () => timers.forEach(clearTimeout);
   }, [cardsVersion, cardsKey, queryClient]);
+
+  useEffect(() => {
+    if (scannedCardsVersion === 0) return;
+    addScannedCardsToCardCaches(queryClient, cardsKey, [...recentCards].reverse());
+    throttleScannedCardsReconcile(JSON.stringify(cardsKey), () => {
+      void queryClient.invalidateQueries({
+        queryKey: cardsKey,
+        predicate: (query) =>
+          MONITOR_CARD_QUERY_KINDS.includes(String(query.queryKey[2])),
+      });
+    });
+  }, [scannedCardsVersion, recentCards, cardsKey, queryClient]);
 
   const pageCount = pageData
     ? Math.max(1, Math.ceil(pageData.totalEntries / pageData.pageSize))

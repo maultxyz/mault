@@ -1,12 +1,12 @@
 {
   "meta": {
     "title": "Télécharger l'application de bureau | Mault",
-    "description": "Télécharge l'application de bureau Mault pour Windows et Linux. Le scan continue en arrière-plan, avec un aperçu flottant, des contrôles dans la barre des tâches et des notifications de bureau."
+    "description": "Télécharge l'application de bureau Mault pour Windows et Linux. Le scan continue en arrière-plan, avec un aperçu flottant, des contrôles dans la barre des tâches et des notifications de bureau. Sous Windows, les scanners de documents sont détectés automatiquement."
   },
   "hero": {
     "eyebrow": "Application de bureau",
     "title": "Continue à trier pendant que tu fais autre chose",
-    "description": "L'application de bureau Mault, c'est l'application web complète dans sa propre fenêtre. Le scan continue quand elle est réduite ou cachée par d'autres applications, et un aperçu flottant garde la trieuse en vue.",
+    "description": "L'application de bureau Mault, c'est l'application web complète dans sa propre fenêtre. Le scan continue quand elle est réduite ou cachée par d'autres applications, et un aperçu flottant garde la trieuse en vue. Sous Windows, branche un scanner de documents et Mault le détecte automatiquement.",
     "downloadFor": "Télécharger pour {{platform}}",
     "otherPlatforms": "Autres plateformes",
     "choosePlatform": "Choisis ta plateforme",
@@ -39,6 +39,10 @@
     "title": "Faite pour les longues sessions de tri",
     "description": "Un navigateur met en pause les onglets qu'il ne voit pas. L'application de bureau garde la trieuse en marche et te permet de la surveiller depuis n'importe où sur ton écran.",
     "items": [
+      {
+        "title": "Prise en charge automatique des scanners",
+        "description": "Sous Windows, branche un scanner à défilement ou à plat et Mault le détecte tout seul. Charge une pile de cartes et chacune est scannée, identifiée et enregistrée."
+      },
       {
         "title": "Scanne en arrière-plan",
         "description": "Réduis la fenêtre ou couvre-la avec d'autres applications : la trieuse continue de scanner et de trier les cartes."

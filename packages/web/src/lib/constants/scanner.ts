@@ -132,6 +132,7 @@ export function collectionReviewPath(collectionGuid: string, isMobile: boolean):
 }
 export const CARD_SETS_STALE_MS = 15 * 60 * 1000;
 export const CARD_SET_PICKER_LIMIT = 100;
+export const MONITOR_CARD_QUERY_KINDS = ["page", "summary", "count"];
 export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
   ...ALL_CARDS_QUERY,
   filters: { ...EMPTY_CARD_FILTERS, needsAttention: true },

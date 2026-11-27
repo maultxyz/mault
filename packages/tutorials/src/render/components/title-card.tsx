@@ -15,7 +15,7 @@ export function TitleCard({
   const frame = useCurrentFrame();
   const { fps, width, height, durationInFrames } = useVideoConfig();
   const isPortrait = height > width;
-  const entrance = spring({ frame, fps, config: { damping: 200 } });
+  const entrance = isClosingCard ? spring({ frame, fps, config: { damping: 200 } }) : 1;
   const fadeFrames = Math.round(fps * 0.35);
   const opacity = isClosingCard
     ? interpolate(frame, [0, fadeFrames], [0, 1], { extrapolateRight: "clamp" })

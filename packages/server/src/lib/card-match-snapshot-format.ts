@@ -1,4 +1,5 @@
 import {
+  CARD_MATCH_ARRAYS_SHARED_WITH_WORKERS,
   CARD_MATCH_SNAPSHOT_ALIGNMENT_BYTES,
   CARD_MATCH_SNAPSHOT_ARRAY_FIELDS,
   CARD_MATCH_SNAPSHOT_FORMAT_VERSION,
@@ -79,7 +80,10 @@ export function decodeCardMatchSnapshot(
   let offset = alignedLength(headerStart + headerLength);
   const arrays = {} as Record<CardMatchSnapshotArrayField, CardMatchSegment[CardMatchSnapshotArrayField]>;
   for (const [field, TypedArray] of CARD_MATCH_SNAPSHOT_ARRAY_FIELDS) {
-    const array = new TypedArray(header.arrayLengths[field]);
+    const length = header.arrayLengths[field];
+    const array = CARD_MATCH_ARRAYS_SHARED_WITH_WORKERS.has(field)
+      ? new TypedArray(new SharedArrayBuffer(length * TypedArray.BYTES_PER_ELEMENT))
+      : new TypedArray(length);
     const end = offset + array.byteLength;
     if (end > snapshot.length) return null;
     new Uint8Array(array.buffer).set(snapshot.subarray(offset, end));

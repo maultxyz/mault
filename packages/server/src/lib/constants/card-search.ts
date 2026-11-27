@@ -211,6 +211,15 @@ export const MATCH_MAX_DISTANCE_RATIO = 0.9;
 export const EXIF_ORIENTATION_TRANSPOSED_FROM = 5;
 
 export const MILO_EMBEDDING_DIM = 128;
+export const CARD_MATCH_SEARCH_MAX_WORKERS = 4;
+export const CARD_MATCH_SEARCH_WORKER_COUNT_ENV = "CARD_MATCH_SEARCH_WORKERS";
+export const CARD_MATCH_ARRAYS_SHARED_WITH_WORKERS: ReadonlySet<string> = new Set([
+  "frontEmbeddings",
+  "frontEmbeddingScales",
+  "backEmbeddings",
+  "backEmbeddingScales",
+  "backFaceIndexByRow",
+]);
 
 export const CARD_SETS_CACHE_TTL_MS = 15 * 60 * 1000;
 

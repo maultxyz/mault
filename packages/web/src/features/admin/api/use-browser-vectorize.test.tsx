@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MILO_INPUT_SIZE, PRINTING_MARK_VERSION } from "@magic-vault/shared";
+import { MILO_INPUT_SIZE, PRINTING_MARK_VERSION, PRINTING_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { useBrowserVectorize } from "./use-browser-vectorize";
 import { loadSyncCanvas } from "../lib/embed-sync-image";
 import { MiloSyncPool } from "../lib/milo-sync-pool";
@@ -25,6 +25,9 @@ function canvas(width = 488, height = 680): HTMLCanvasElement {
   } as unknown as HTMLCanvasElement;
 }
 
+const [mtgFirstRegion] = PRINTING_REGIONS_BY_GAME_KEY.mtg;
+const mtgFirstRegionCellCount = mtgFirstRegion.gridWidth * mtgFirstRegion.gridHeight;
+
 const marks = {
   kind: "printingMarks" as const, gameKey: "mtg", printingMarkVersion: PRINTING_MARK_VERSION,
   cardId: "test-card", name: "Test", imageUrl: "https://example.test/large",
@@ -47,7 +50,7 @@ describe("browser sync printing marks", () => {
     const [results, failures] = vi.mocked(submitBrowserSyncWork).mock.calls[0];
     expect(failures).toEqual([]);
     expect(results[0]).toMatchObject({ kind: "printingMarks", cardId: marks.cardId, version: PRINTING_MARK_VERSION });
-    expect("grids" in results[0] && results[0].grids[0].values).toHaveLength(144);
+    expect("grids" in results[0] && results[0].grids[0].values).toHaveLength(mtgFirstRegionCellCount);
     const signal = vi.mocked(loadSyncCanvas).mock.calls[0][1];
     unmount();
     expect(signal.aborted).toBe(true);

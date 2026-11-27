@@ -473,6 +473,7 @@
     "faceUpHint": "Cards should face right-side up",
     "noCameraTitle": "No camera connected",
     "connectCameraButton": "Connect camera",
+    "connectingScanner": "Connecting a scanner?",
     "waitingForPhoneTitle": "Waiting for your phone",
     "showQrCode": "Show QR code",
     "sensorBlocked": "Module {{module}}'s sensor sees a card, so the self-test didn't run.",

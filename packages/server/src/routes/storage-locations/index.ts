@@ -52,6 +52,7 @@ import { hydrateSavedCards } from "../../lib/saved-cards";
 import { canViewCardCosts } from "../../lib/business-access";
 import { emitToSession } from "../../lib/session-stream";
 import { uuidArraySql } from "../../lib/sql-arrays";
+import { containsLikePattern } from "../../lib/sql-like";
 import { buildCardExport, csvResponse } from "../../lib/card-export";
 import {
   markRequestAsReadOnly,
@@ -168,7 +169,7 @@ const router = new Hono<AppEnv>()
             and(
               eq(storageLocations.orgId, orgId),
               eq(collections.isDeleted, false),
-              sql`strpos(lower(${collectionCards.cardName}), ${query}) > 0`,
+              sql`lower(${collectionCards.cardName}) LIKE ${containsLikePattern(query)}`,
             ),
           )
           .orderBy(

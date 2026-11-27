@@ -1,17 +1,17 @@
 import type { PrintingRegion } from "../interfaces/printing-regions.interface";
 
-export const PRINTING_MARK_VERSION = 4;
+export const PRINTING_MARK_VERSION = 5;
 
 export const PRINTING_REGIONS_BY_GAME_KEY: Record<string, PrintingRegion[]> = {
   mtg: [
     {
       key: "listIcon",
-      x: 0.004,
-      y: 0.945,
-      width: 0.04,
-      height: 0.04,
-      gridWidth: 12,
-      gridHeight: 12,
+      x: 0.024,
+      y: 0.92,
+      width: 0.052,
+      height: 0.06,
+      gridWidth: 13,
+      gridHeight: 20,
     },
   ],
   fab: [

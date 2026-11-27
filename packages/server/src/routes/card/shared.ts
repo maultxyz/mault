@@ -60,7 +60,7 @@ import {
   printedLanguageCodeOfRow,
   printingMarkGroupsOfRow,
   faceDistance,
-  nearestCardFaces,
+  nearestCardFacesOffMainThread,
   normalizedEmbedding,
 } from "../../lib/card-match-search";
 import { cardsWithSimilarName } from "../../lib/card-name-trigrams";
@@ -320,7 +320,7 @@ export async function findCardMatches({
     ? loadedCardMatchSegments(scope)
     : await cardMatchSegments(scope);
   const query = normalizedEmbedding(embeddings.embedding);
-  const nearest = nearestCardFaces(
+  const nearest = await nearestCardFacesOffMainThread(
     segments,
     query,
     CARD_MATCH_RUNNER_UP_SEARCH_LIMIT,
@@ -904,7 +904,7 @@ export async function findCardMatchesByOcr(
     printingMarkGrids,
     printedLanguageCode,
   ] = await Promise.all([
-    ocrRegions(buffer, regions, trace),
+    ocrRegions(buffer, regions, trace, params.refusesWhenOcrIsBusy),
     params.printingMarkGrids ??
       scanGridsFromImageBuffer(params.gameKey, buffer),
     params.printedLanguageCode ??

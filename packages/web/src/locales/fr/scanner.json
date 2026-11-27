@@ -473,6 +473,7 @@
     "faceUpHint": "Les cartes doivent être posées face visible",
     "noCameraTitle": "Aucune caméra connectée",
     "connectCameraButton": "Connecter la caméra",
+    "connectingScanner": "Tu branches un scanner ?",
     "waitingForPhoneTitle": "En attente de ton téléphone",
     "showQrCode": "Afficher le code QR",
     "sensorBlocked": "Le capteur du module {{module}} détecte une carte, l'autotest n'a donc pas été lancé.",

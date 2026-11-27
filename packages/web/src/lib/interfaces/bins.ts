@@ -193,6 +193,7 @@ export interface BinConfigsContextValue {
   selectedBin: number;
   selectedSet?: BinSet;
   setSelectedBin: (bin: number) => void;
+  isBinFormDirty: boolean;
   setBinFormDirty: (dirty: boolean) => void;
   selectedConfig: BinConfig;
   save: (input: BinConfigSaveInput) => void;

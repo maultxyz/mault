@@ -906,6 +906,7 @@ export function BinConfigsProvider({
         hasCatchAll,
         selectedBin,
         setSelectedBin: requestSelectBin,
+        isBinFormDirty,
         setBinFormDirty,
         selectedConfig,
         selectedSet,

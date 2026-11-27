@@ -644,6 +644,7 @@ export interface SessionMonitorState {
   collection: Collection | null;
   recentCards: ScannedCard[];
   cardsVersion: number;
+  scannedCardsVersion: number;
   unmatchedCards: UnmatchedCard[];
   unmatchedCount: number;
   viewers: SessionViewer[];

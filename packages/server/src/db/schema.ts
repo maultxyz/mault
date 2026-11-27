@@ -532,6 +532,9 @@ export const bins = pgTable(
   (table) => [
     unique("bins_guid_idx").on(table.guid),
     index("bins_bin_set_number_idx").on(table.binSet, table.binNumber),
+    index("bins_org_bin_number_live_idx")
+      .on(table.orgId, table.binNumber)
+      .where(sql`${table.isDeleted} = false`),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -914,6 +917,11 @@ export const collectionCards = pgTable(
       .on(table.collectionId)
       .where(sql`${table.isReviewed} = false`),
     index("collection_cards_org_created_idx").on(table.orgId, table.createdAt),
+    index("collection_cards_org_id_idx").on(table.orgId, table.id),
+    index("collection_cards_card_name_trgm_idx").using(
+      "gin",
+      sql`lower(${table.cardName}) gin_trgm_ops`,
+    ),
     index("collection_cards_collection_card_idx").on(
       table.collectionId,
       table.cardId,

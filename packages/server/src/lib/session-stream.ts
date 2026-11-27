@@ -13,7 +13,7 @@ import type {
   ViewerEntry,
   ViewerInfo,
 } from "./interfaces/session-stream";
-import type { PickList } from "@magic-vault/shared";
+import type { CollectionsChangedEvent, PickList } from "@magic-vault/shared";
 import { PICK_LIST_CHANGED_EVENT } from "@magic-vault/shared";
 
 const sessions = new Map<string, SessionEntry>();
@@ -23,6 +23,7 @@ const pendingCollectionCardsChanged = new Map<
   string,
   ReturnType<typeof setTimeout>
 >();
+const pendingCollectionCardsChangeIsOnlyScanSaves = new Map<string, boolean>();
 const lastPickListChangedAt = new Map<string, number>();
 const pendingPickListChanged = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -44,15 +45,32 @@ export function emitToOrg(orgId: string, event: string, data: unknown) {
   }
 }
 
-export function emitCollectionCardsChanged(orgId: string, guid: string) {
+export function emitCollectionCardsChanged(
+  orgId: string,
+  guid: string,
+  cause: { isScanSave: boolean } = { isScanSave: false },
+) {
   invalidateOrgCardReadCaches(orgId);
-  if (pendingCollectionCardsChanged.has(orgId)) return;
+  const isPending = pendingCollectionCardsChanged.has(orgId);
+  pendingCollectionCardsChangeIsOnlyScanSaves.set(
+    orgId,
+    cause.isScanSave &&
+      (!isPending ||
+        pendingCollectionCardsChangeIsOnlyScanSaves.get(orgId) === true),
+  );
+  if (isPending) return;
   const sinceLastEmit =
     Date.now() - (lastCollectionCardsChangedAt.get(orgId) ?? 0);
   const emit = () => {
+    const event: CollectionsChangedEvent = {
+      guid,
+      onlyScanSaves:
+        pendingCollectionCardsChangeIsOnlyScanSaves.get(orgId) === true,
+    };
     pendingCollectionCardsChanged.delete(orgId);
+    pendingCollectionCardsChangeIsOnlyScanSaves.delete(orgId);
     lastCollectionCardsChangedAt.set(orgId, Date.now());
-    emitToOrg(orgId, "collections_changed", { guid });
+    emitToOrg(orgId, "collections_changed", event);
   };
   if (sinceLastEmit >= COLLECTION_CARDS_CHANGED_THROTTLE_MS) {
     emit();

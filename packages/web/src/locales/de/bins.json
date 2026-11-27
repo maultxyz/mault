@@ -116,6 +116,10 @@
     "noConditions": "Keine Bedingungen"
   },
   "presetSelector": {
+    "presetToEdit": "Zu bearbeitende Vorlage",
+    "activeBadge": "Aktiv",
+    "makeActive": "Aktivieren",
+    "saveBeforeMakingActive": "Speichere deine Änderungen, bevor du diese Vorlage aktivierst.",
     "catchAll": "Auffangfach",
     "noRules": "keine Regeln",
     "conditionCount_one": "{{count}} Bedingung",

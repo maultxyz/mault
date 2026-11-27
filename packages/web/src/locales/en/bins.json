@@ -116,6 +116,10 @@
     "noConditions": "No conditions"
   },
   "presetSelector": {
+    "presetToEdit": "Preset to edit",
+    "activeBadge": "Active",
+    "makeActive": "Make active",
+    "saveBeforeMakingActive": "Save your changes before making this preset active.",
     "catchAll": "catch-all",
     "noRules": "no rules",
     "conditionCount_one": "{{count}} condition",

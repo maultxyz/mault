@@ -33,6 +33,7 @@ import {
 import { PI_SCAN_PENDING_SAVE_EVENT } from "../../lib/constants/pi-scan";
 import { toPendingSaveEvent } from "../../lib/scan-host/pending-save";
 import { loadSets } from "../bins/shared";
+import { OcrBusyError } from "../../lib/ocr";
 import { attachMatchedCards, findCardMatches, findCardMatchesByOcr } from "../card/shared";
 import { loadCollections } from "../collections/shared";
 
@@ -113,7 +114,12 @@ export const scanHostRouter = new Hono<AppEnv>()
       ...body.scope,
       embeddings: { embedding: body.embedding },
       preferredSetCodes: body.preferredSetCodes ?? [],
+      refusesWhenOcrIsBusy: true,
+    }).catch((error: unknown) => {
+      if (error instanceof OcrBusyError) return null;
+      throw error;
     });
+    if (!result) return c.json({ success: true, data: null });
     const attached = await attachMatchedCards(result, body.scope.gameKey, body.scope.lang);
     const data = body.tagsGame ? tagWithGame(attached, body.scope.gameKey) : attached;
     return c.json({ success: true, data: { ...data, ocr: result.ocr ?? null } });

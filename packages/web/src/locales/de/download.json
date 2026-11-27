@@ -1,12 +1,12 @@
 {
   "meta": {
     "title": "Desktop-App herunterladen | Mault",
-    "description": "Lade die Mault-Desktop-App für Windows und Linux herunter. Das Scannen läuft im Hintergrund weiter, mit schwebender Vorschau, Taskleisten-Steuerung und Desktop-Benachrichtigungen."
+    "description": "Lade die Mault-Desktop-App für Windows und Linux herunter. Das Scannen läuft im Hintergrund weiter, mit schwebender Vorschau, Taskleisten-Steuerung und Desktop-Benachrichtigungen. Unter Windows werden Dokumentenscanner automatisch erkannt."
   },
   "hero": {
     "eyebrow": "Desktop-App",
     "title": "Sortier weiter, während du etwas anderes machst",
-    "description": "Die Mault-Desktop-App ist die vollständige Web-App in einem eigenen Fenster. Das Scannen läuft weiter, wenn sie minimiert oder von anderen Apps verdeckt ist, und eine schwebende Vorschau behält den Sortierer im Blick.",
+    "description": "Die Mault-Desktop-App ist die vollständige Web-App in einem eigenen Fenster. Das Scannen läuft weiter, wenn sie minimiert oder von anderen Apps verdeckt ist, und eine schwebende Vorschau behält den Sortierer im Blick. Unter Windows schließt du einen Dokumentenscanner an, und Mault findet ihn automatisch.",
     "downloadFor": "Für {{platform}} herunterladen",
     "otherPlatforms": "Andere Plattformen",
     "choosePlatform": "Plattform wählen",
@@ -39,6 +39,10 @@
     "title": "Gemacht für lange Sortier-Sessions",
     "description": "Ein Browser pausiert Tabs, die er nicht sieht. Die Desktop-App hält den Sortierer am Laufen und lässt dich ihn von überall auf deinem Bildschirm beobachten.",
     "items": [
+      {
+        "title": "Automatische Scanner-Unterstützung",
+        "description": "Unter Windows schließt du einen Einzugs- oder Flachbettscanner an, und Mault findet ihn von selbst. Leg einen Kartenstapel ein, und jede Karte wird gescannt, erkannt und gespeichert."
+      },
       {
         "title": "Scannt im Hintergrund",
         "description": "Minimier das Fenster oder verdeck es mit anderen Apps, und der Sortierer scannt und sortiert weiter."

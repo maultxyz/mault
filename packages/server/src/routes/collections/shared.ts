@@ -13,6 +13,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import { collectionCards, collections, games } from "../../db/schema";
 import { cardCatalogJoinSql } from "../../lib/card-catalog-sql";
+import { integerArraySql } from "../../lib/sql-arrays";
 import { CC_ALIAS_SQL_COLUMNS } from "../../lib/constants/card-prices";
 import { COLLECTION_PREVIEW_SCAN_WINDOW } from "../../lib/constants/collections";
 import { CATALOG_CC_ALIAS_COLUMNS } from "../../lib/constants/saved-cards";
@@ -130,14 +131,18 @@ export function toUnmatchedCard(row: {
 export async function loadCollections(
   tx: Transaction,
   orgId: string,
+  storedCardCountsByCollectionId: ReadonlyMap<number, number> = new Map(),
 ): Promise<{ success: true; data: Collection[] }> {
+  const collectionIdsWithStoredCardCount = integerArraySql([
+    ...storedCardCountsByCollectionId.keys(),
+  ]);
   const rows = await tx
     .select({
       id: collections.id,
       guid: collections.guid,
       name: collections.name,
       isActive: collections.isActive,
-      cardCount: sql<number>`(SELECT count(*)::int FROM ${collectionCards} cc WHERE cc.collection_id = ${collections.id})`,
+      cardCount: sql<number>`CASE WHEN ${collections.id} = ANY(${collectionIdsWithStoredCardCount}) THEN 0 ELSE (SELECT count(*)::int FROM ${collectionCards} cc WHERE cc.collection_id = ${collections.id}) END`,
       lang: collections.lang,
       matchAllLanguages: collections.matchAllLanguages,
       createdAt: collections.createdAt,
@@ -194,6 +199,7 @@ export async function loadCollections(
     data: rows.map((row) =>
       toCollection({
         ...row,
+        cardCount: storedCardCountsByCollectionId.get(row.id) ?? row.cardCount,
         previewImages: imagesByGuid.get(row.guid ?? "") ?? [],
       }),
     ),
