@@ -9,6 +9,7 @@ import {
   IconPictureInPicture,
   IconPlayerPlay,
   IconRefresh,
+  IconScan,
 } from "@tabler/icons-react";
 
 export const DOWNLOAD_PATH = MARKETING_PAGE_PATHS.download;
@@ -29,6 +30,7 @@ export const DESKTOP_DOWNLOADS: DesktopDownload[] = [
 ];
 
 export const DESKTOP_FEATURE_ICONS = [
+  IconScan,
   IconPlayerPlay,
   IconPictureInPicture,
   IconLayoutBottombar,

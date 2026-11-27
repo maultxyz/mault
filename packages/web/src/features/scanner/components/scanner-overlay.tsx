@@ -23,6 +23,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { DOWNLOAD_PATH } from "@/lib/constants/download";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
 import { CameraMenuItems } from "@/features/scanner/components/camera-menu-items";
 import { flatbedInstruction } from "@/features/scanner/lib/flatbed-instruction";
@@ -196,6 +197,12 @@ export function ScannerOverlay({
                     <CameraMenuItems {...cameraMenu} />
                   </DropdownMenuContent>
                 </DropdownMenu>
+              )}
+              {!isPhoneMode && !window.maultDesktop && (
+                <Button variant="ghost" render={<Link to={DOWNLOAD_PATH} />}>
+                  <IconScan />
+                  {t("scannerOverlay.connectingScanner")}
+                </Button>
               )}
             </div>
           </div>

@@ -473,6 +473,7 @@
     "faceUpHint": "Karten sollten mit der Vorderseite nach oben liegen",
     "noCameraTitle": "Keine Kamera verbunden",
     "connectCameraButton": "Kamera verbinden",
+    "connectingScanner": "Scanner anschließen?",
     "waitingForPhoneTitle": "Warte auf dein Telefon",
     "showQrCode": "QR-Code anzeigen",
     "sensorBlocked": "Der Sensor von Modul {{module}} erkennt eine Karte, daher wurde der Selbsttest nicht ausgeführt.",

@@ -1,12 +1,12 @@
 {
   "meta": {
     "title": "Download the Desktop App | Mault",
-    "description": "Download the Mault desktop app for Windows and Linux. Scanning keeps running in the background, with a floating preview, taskbar controls and desktop notifications."
+    "description": "Download the Mault desktop app for Windows and Linux. Scanning keeps running in the background, with a floating preview, taskbar controls and desktop notifications. On Windows, document scanners are detected automatically."
   },
   "hero": {
     "eyebrow": "Desktop app",
     "title": "Keep sorting while you do something else",
-    "description": "The Mault desktop app is the full web app in its own window. Scanning keeps running when it is minimized or behind other apps, and a floating preview keeps the sorter in view.",
+    "description": "The Mault desktop app is the full web app in its own window. Scanning keeps running when it is minimized or behind other apps, and a floating preview keeps the sorter in view. On Windows, plug in a document scanner and Mault finds it automatically.",
     "downloadFor": "Download for {{platform}}",
     "otherPlatforms": "Other platforms",
     "choosePlatform": "Choose your platform",
@@ -39,6 +39,10 @@
     "title": "Built for long sorting sessions",
     "description": "A browser pauses tabs it can't see. The desktop app keeps the sorter running and lets you watch it from anywhere on your screen.",
     "items": [
+      {
+        "title": "Automatic scanner support",
+        "description": "On Windows, plug in a sheet-fed or flatbed document scanner and Mault finds it on its own. Load a stack of cards and each one is scanned, identified and saved."
+      },
       {
         "title": "Scans in the background",
         "description": "Minimize the window or cover it with other apps and the sorter keeps scanning and routing cards."
