@@ -34,7 +34,7 @@ export function CardImageFrame({ children, onPress, accessibilityLabel }: CardIm
   );
 }
 
-export function CardDetailArt({ card, caption }: CardDetailArtProps) {
+export function CardDetailArt({ card, caption, onOpenImage }: CardDetailArtProps) {
   const { t } = useTranslation();
   const [backSideCardId, setBackSideCardId] = useState<string | null>(null);
   const backImage = card?.backImage ?? null;
@@ -42,6 +42,13 @@ export function CardDetailArt({ card, caption }: CardDetailArtProps) {
   const [viewerOpen, setViewerOpen] = useState(false);
   const shownSources = cardArtSources(showsBackSide ? backImage : card?.image);
   const shownLabel = card ? (showsBackSide ? t("cardDetail.backSideAlt", { name: card.name }) : card.name) : "";
+  const shownImage = {
+    title: t("cardDetail.matchedCard"),
+    imageUrl: shownSources.imageUrl,
+    placeholderUrl: shownSources.placeholderUrl,
+    accessibilityLabel: shownLabel,
+  };
+  const openImage = () => (onOpenImage ? onOpenImage(shownImage) : setViewerOpen(true));
 
   return (
     <View style={{ flex: 1, gap: 6 }}>
@@ -67,7 +74,7 @@ export function CardDetailArt({ card, caption }: CardDetailArtProps) {
         </View>
       ) : null}
       <CardImageFrame
-        onPress={shownSources.imageUrl ? () => setViewerOpen(true) : undefined}
+        onPress={shownSources.imageUrl ? openImage : undefined}
         accessibilityLabel={shownLabel}
       >
         {card ? (
@@ -80,13 +87,9 @@ export function CardDetailArt({ card, caption }: CardDetailArtProps) {
           />
         ) : null}
       </CardImageFrame>
-      <CardImageViewer
-        visible={viewerOpen}
-        imageUrl={shownSources.imageUrl}
-        placeholderUrl={shownSources.placeholderUrl}
-        accessibilityLabel={shownLabel}
-        onClose={() => setViewerOpen(false)}
-      />
+      {onOpenImage ? null : (
+        <CardImageViewer visible={viewerOpen} images={[shownImage]} onClose={() => setViewerOpen(false)} />
+      )}
     </View>
   );
 }

@@ -55,8 +55,10 @@ import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-d
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import { CardDetailSkeleton } from "@/features/cards/components/card-detail-skeleton";
+import { cardArtSources } from "@/lib/card-art";
 import type {
   CardDetailSheet,
+  CardImageViewerImage,
   CardReviewAccept,
   CardReviewAcceptState,
   CardTagToggle,
@@ -184,11 +186,28 @@ export default function CardDetailScreen() {
   const card = entry?.card;
   const frontCapturedUrl = absoluteUrl(image.data?.capturedImageUrl);
   const capturedBackUrl = absoluteUrl(image.data?.capturedBackImageUrl);
-  const [capturedViewerOpen, setCapturedViewerOpen] = useState(false);
+  const [viewerImages, setViewerImages] = useState<CardImageViewerImage[] | null>(null);
+  const [viewerIndex, setViewerIndex] = useState(0);
   const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
   const showsCapturedBackSide = !!capturedBackUrl && backSideScanId === scanId;
   const capturedUrl = showsCapturedBackSide ? capturedBackUrl : frontCapturedUrl;
   const showCaptured = image.isPending || !!capturedUrl;
+  const capturedViewerImage: CardImageViewerImage = {
+    title: t("cardDetail.capturedScan"),
+    imageUrl: capturedUrl ?? null,
+    accessibilityLabel: showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan"),
+  };
+  const referenceSources = cardArtSources(card?.image);
+  const referenceViewerImage: CardImageViewerImage = {
+    title: t("cardDetail.matchedCard"),
+    imageUrl: referenceSources.imageUrl,
+    placeholderUrl: referenceSources.placeholderUrl,
+    accessibilityLabel: card?.name ?? t("cardDetail.matchedCard"),
+  };
+  const openImageViewer = (images: CardImageViewerImage[], startIndex: number) => {
+    setViewerIndex(startIndex);
+    setViewerImages(images);
+  };
   const canConfirm = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
   const isReviewed = !!entry?.reviewed || !!entry?.corrected;
   const tagsSet = entry ? cardTagsSetOn(entry) : [];
@@ -753,7 +772,7 @@ export default function CardDetailScreen() {
                     </View>
                   </View>
                   <CardImageFrame
-                    onPress={capturedUrl ? () => setCapturedViewerOpen(true) : undefined}
+                    onPress={capturedUrl ? () => openImageViewer(referenceViewerImage.imageUrl ? [capturedViewerImage, referenceViewerImage] : [capturedViewerImage], 0) : undefined}
                     accessibilityLabel={
                       showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan")
                     }
@@ -764,17 +783,22 @@ export default function CardDetailScreen() {
                       <Skeleton height="100%" radius={0} />
                     )}
                   </CardImageFrame>
-                  <CardImageViewer
-                    visible={capturedViewerOpen}
-                    imageUrl={capturedUrl ?? null}
-                    accessibilityLabel={
-                      showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan")
-                    }
-                    onClose={() => setCapturedViewerOpen(false)}
-                  />
+
                 </View>
               ) : null}
-              <CardDetailArt card={card} caption={showCaptured ? t("cardDetail.matchedCard") : undefined} />
+              <CardDetailArt
+                card={card}
+                caption={showCaptured ? t("cardDetail.matchedCard") : undefined}
+                onOpenImage={(reference) =>
+                  openImageViewer(capturedUrl ? [capturedViewerImage, reference] : [reference], capturedUrl ? 1 : 0)
+                }
+              />
+              <CardImageViewer
+                visible={!!viewerImages}
+                images={viewerImages ?? []}
+                initialIndex={viewerIndex}
+                onClose={() => setViewerImages(null)}
+              />
             </View>
 
             {candidates.length > 1 ? (

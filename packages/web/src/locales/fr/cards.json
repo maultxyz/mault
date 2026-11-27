@@ -110,7 +110,8 @@
     "name": "Nom",
     "moveToLocation": "Déplacer vers un emplacement",
     "moveToCollection": "Déplacer vers une collection",
-    "backSideAlt": "{{name}}, verso"
+    "backSideAlt": "{{name}}, verso",
+    "imageViewerTabs": "Image à afficher"
   },
   "cardFilterPopover": {
     "color": "Couleur",

@@ -186,23 +186,24 @@ export interface CardImageFrameProps {
   accessibilityLabel?: string;
 }
 
-export interface CardImageViewerProps {
-  visible: boolean;
+export interface CardImageViewerImage {
+  title: string;
   imageUrl: string | null;
   placeholderUrl?: string | null;
   accessibilityLabel: string;
-  onClose: () => void;
 }
 
-export interface CardImageViewerTarget {
-  imageUrl: string | null;
-  placeholderUrl?: string | null;
-  accessibilityLabel: string;
+export interface CardImageViewerProps {
+  visible: boolean;
+  images: CardImageViewerImage[];
+  initialIndex?: number;
+  onClose: () => void;
 }
 
 export interface CardDetailArtProps {
   card: PlayingCard | undefined;
   caption?: string;
+  onOpenImage?: (image: CardImageViewerImage) => void;
 }
 
 export interface CardDetailInfoSectionsProps {

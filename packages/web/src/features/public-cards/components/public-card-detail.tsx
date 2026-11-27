@@ -19,6 +19,7 @@ import { CardPriceDetails } from "@/features/cards/components/card-price-details
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useTradeOfferContext } from "@/lib/trade-offer-context";
+import type { CardImageViewerView } from "@/lib/interfaces/cards";
 import type { PublicCardDetailViewProps } from "@/lib/interfaces/public-cards";
 import {
   DEFAULT_CARD_LANGUAGE,
@@ -49,6 +50,7 @@ export function PublicCardDetailView({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerView, setViewerView] = useState<CardImageViewerView>("scan");
   const { data: detail, isPending, isError, error, refetch } = useQuery(
     publicCardDetailQueryOptions(source, scanId),
   );
@@ -159,7 +161,10 @@ export function PublicCardDetailView({
           </div>
           <button
             type="button"
-            onClick={() => setViewerOpen(true)}
+            onClick={() => {
+              setViewerView("scan");
+              setViewerOpen(true);
+            }}
             aria-label={tCards("cardDetailPanel.enlargeImage")}
             title={tCards("cardDetailPanel.enlargeImage")}
             className="relative aspect-[2.5/3.5] w-56 cursor-zoom-in overflow-hidden rounded-lg bg-muted transition-shadow hover:ring-2 hover:ring-primary/60 motion-reduce:transition-none max-md:w-full"
@@ -199,7 +204,11 @@ export function PublicCardDetailView({
         <CardImageViewer
           open={viewerOpen}
           onOpenChange={setViewerOpen}
+          view={viewerView}
+          onViewChange={setViewerView}
           capturedImageUrl={shownScanUrl}
+          referenceImageUrl={card.image?.normal || card.image?.small || null}
+          referenceAlt={card.name}
           download={scanImageDownload}
           showOcrRegions={false}
         />
