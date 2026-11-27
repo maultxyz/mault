@@ -1,9 +1,7 @@
 import type { StoredScanImage } from "./scan-images";
 
 export interface FindCardToResortInput {
-  orgId: string;
   collectionId: number;
-  gameId: number | null;
   cardId: string;
   scanIsFoil: boolean;
 }

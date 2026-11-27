@@ -7,6 +7,10 @@ export const DEVICE_OFFLINE_ALERT_WINDOW_MS = 10 * 60_000;
 export const SCAN_LOCK_TTL_MS = 5 * 60 * 1000;
 export const SCAN_SAVE_LOCK_TIMEOUT_MS = 5000;
 export const SCAN_SAVE_STATEMENT_TIMEOUT_MS = 10_000;
+export const SCAN_SAVE_TRANSACTION_SETTINGS = {
+  lock_timeout: String(SCAN_SAVE_LOCK_TIMEOUT_MS),
+  statement_timeout: String(SCAN_SAVE_STATEMENT_TIMEOUT_MS),
+} as const;
 export const SLOW_SCAN_SAVE_LOG_THRESHOLD_MS = 1000;
 export const STRIPE_PRICE_CACHE_TTL_MS = 60 * 60 * 1000;
 export const HEALTH_CACHE_TTL_MS = 20_000;

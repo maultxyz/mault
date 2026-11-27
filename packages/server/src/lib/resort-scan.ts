@@ -1,9 +1,7 @@
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
 import { collectionCards } from "../db/schema";
-import { activeBinSetWhere } from "../routes/bins/shared";
 import { lateSaveBinEmptiedAtSql } from "./bin-emptying";
-import { activeWorkflowStepResorts } from "./preset-workflows";
 import type {
   CardToResort,
   FindCardToResortInput,
@@ -12,17 +10,8 @@ import type {
 
 export async function findCardToResort(
   tx: Transaction,
-  { orgId, collectionId, gameId, cardId, scanIsFoil }: FindCardToResortInput,
+  { collectionId, cardId, scanIsFoil }: FindCardToResortInput,
 ): Promise<CardToResort | null> {
-  const activeSet = await tx.query.binSets.findFirst({
-    where: (t) => activeBinSetWhere(t, orgId, gameId),
-    columns: { guid: true, isResortMode: true, skipSaving: true },
-  });
-  if (!activeSet || activeSet.skipSaving) return null;
-  const resorts =
-    activeSet.isResortMode ||
-    (await activeWorkflowStepResorts(tx, orgId, gameId, activeSet.guid!));
-  if (!resorts) return null;
   const [candidate] = await tx
     .select({
       id: collectionCards.id,

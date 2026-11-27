@@ -1,5 +1,5 @@
 import { computeBinCapacity } from "@magic-vault/shared";
-import { sql } from "drizzle-orm";
+import { sql, type SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import {
   binHeights,
@@ -10,31 +10,22 @@ import {
   games,
   unmatchedCards,
 } from "../../db/schema";
-import type { BinLimitStatus } from "../../lib/interfaces/collections";
+import type {
+  BinFill,
+  BinFillSqlInput,
+  BinLimitStatus,
+} from "../../lib/interfaces/collections";
 
-export async function findFullBin(
-  tx: Transaction,
-  orgId: string,
-  gameId: number | null,
-  collectionId: number,
-  binNumber: number,
-  deviceGuid: string | undefined,
-): Promise<BinLimitStatus | null> {
-  const result = await tx.execute(sql`
-    WITH target AS (
-      SELECT b.id
-      FROM ${bins} b
-      JOIN ${binSets} s ON s.id = b.bin_set
-      WHERE s.is_active
-        AND s.is_deleted = false
-        AND b.is_deleted = false
-        AND s.org_id = ${orgId}
-        AND ${gameId === null ? sql`s.game_id IS NULL` : sql`s.game_id = ${gameId}`}
-        AND b.bin_number = ${binNumber}
-      LIMIT 1
-    )
-    SELECT
-      (
+export function binFillSql({
+  orgId,
+  gameId,
+  collectionId,
+  binNumber,
+  deviceGuid,
+}: BinFillSqlInput): SQL {
+  return sql`(
+    SELECT json_build_object(
+      'height', (
         SELECT bh.height
         FROM ${binHeights} bh
         WHERE bh.bin_number = ${binNumber}
@@ -48,9 +39,9 @@ export async function findFullBin(
             LIMIT 1
           )
         LIMIT 1
-      ) AS height,
-      ${gameId === null ? sql`NULL::double precision` : sql`(SELECT g.card_thickness FROM ${games} g WHERE g.id = ${gameId})`} AS card_thickness,
-      (
+      ),
+      'card_thickness', (SELECT g.card_thickness FROM ${games} g WHERE g.id = ${gameId}),
+      'count', (
         SELECT count(*)::int FROM ${collectionCards} c
         WHERE c.collection_id = ${collectionId}
           AND c.bin_number = ${binNumber}
@@ -62,22 +53,49 @@ export async function findFullBin(
           AND u.bin_number = ${binNumber}
           AND u.is_deleted = false
           AND u.bin_emptied_at IS NULL
-      ) AS count
-    FROM target t
-  `);
-  const row = result.rows[0] as
-    | {
-        height: number | null;
-        card_thickness: number | null;
-        count: number;
-      }
-    | undefined;
-  if (!row) return null;
+      )
+    )
+    FROM ${bins} b
+    JOIN ${binSets} s ON s.id = b.bin_set
+    WHERE s.is_active
+      AND s.is_deleted = false
+      AND b.is_deleted = false
+      AND s.org_id = ${orgId}
+      AND s.game_id IS NOT DISTINCT FROM ${gameId}
+      AND b.bin_number = ${binNumber}
+    LIMIT 1
+  )`;
+}
 
-  const effectiveCapacity = computeBinCapacity(row.height, row.card_thickness);
+export function fullBinFromFill(
+  binNumber: number,
+  fill: BinFill | null,
+): BinLimitStatus | null {
+  if (!fill) return null;
+  const effectiveCapacity = computeBinCapacity(fill.height, fill.card_thickness);
   if (effectiveCapacity == null) return null;
-
-  const count = Number(row.count);
+  const count = Number(fill.count);
   if (count < effectiveCapacity) return null;
   return { binNumber, capacity: effectiveCapacity, count };
+}
+
+export async function findFullBin(
+  tx: Transaction,
+  orgId: string,
+  gameId: number | null,
+  collectionId: number,
+  binNumber: number,
+  deviceGuid: string | undefined,
+): Promise<BinLimitStatus | null> {
+  const result = await tx.execute(sql`
+    SELECT ${binFillSql({
+      orgId,
+      gameId: sql`${gameId}::int`,
+      collectionId: sql`${collectionId}`,
+      binNumber,
+      deviceGuid,
+    })} AS bin_fill
+  `);
+  const row = result.rows[0] as { bin_fill: BinFill | null } | undefined;
+  return fullBinFromFill(binNumber, row?.bin_fill ?? null);
 }

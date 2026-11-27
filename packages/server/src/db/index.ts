@@ -82,16 +82,22 @@ async function switchesToAuthenticatedRole(): Promise<boolean> {
 export async function authQuery<T>(
   jwtClaims: string,
   callback: (tx: Transaction) => Promise<T>,
+  transactionSettings: Readonly<Record<string, string>> = {},
 ): Promise<T> {
   const isLocalAuth = process.env.AUTH_PROVIDER === "local";
   const switchesRole = await switchesToAuthenticatedRole();
+  const extraSettings = sql.join(
+    Object.entries(transactionSettings).map(
+      ([name, value]) => sql`, set_config(${name}, ${value}, true)`,
+    ),
+  );
   return db.transaction(async (tx) => {
     await tx.execute(
       !switchesRole
-        ? sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true)`
+        ? sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true)${extraSettings}`
         : isLocalAuth
-          ? sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true), set_config('role', 'authenticated', true)`
-          : sql`SELECT auth.user_id() IS NULL, set_config('request.jwt.claims', ${jwtClaims}, true), set_config('role', 'authenticated', true)`,
+          ? sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true), set_config('role', 'authenticated', true)${extraSettings}`
+          : sql`SELECT auth.user_id() IS NULL, set_config('request.jwt.claims', ${jwtClaims}, true), set_config('role', 'authenticated', true)${extraSettings}`,
     );
     return callback(tx);
   });

@@ -43,6 +43,20 @@ export interface CardsCollection extends CardSortScope {
   pricing: OrgPricing;
 }
 
+export interface BinFill {
+  height: number | null;
+  card_thickness: number | null;
+  count: number;
+}
+
+export interface BinFillSqlInput {
+  orgId: string;
+  gameId: SQL;
+  collectionId: SQL;
+  binNumber: number;
+  deviceGuid: string | undefined;
+}
+
 export interface BinLimitStatus {
   binNumber: number;
   capacity: number;

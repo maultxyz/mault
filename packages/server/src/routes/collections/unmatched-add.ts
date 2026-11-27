@@ -22,10 +22,8 @@ import { findFullBin } from "./bin-limit";
 import { isScanSaved } from "./scan-saved";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
 import { databaseErrorResponse } from "../../lib/database-error-response";
-import {
-  applyScanSaveTimeouts,
-  startScanSaveTimer,
-} from "../../lib/scan-save-timing";
+import { startScanSaveTimer } from "../../lib/scan-save-timing";
+import { SCAN_SAVE_TRANSACTION_SETTINGS } from "../../lib/constants/timing";
 
 export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched",
@@ -75,7 +73,6 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         saveTimer.markStage("databaseConnectionAcquired");
-        await applyScanSaveTimeouts(tx);
         const collection = await tx.query.collections.findFirst({
           where: (t, { eq, and }) =>
             and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
@@ -144,7 +141,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
             diagnostics,
           } as UnmatchedCard,
         };
-      });
+      }, SCAN_SAVE_TRANSACTION_SETTINGS);
       saveTimer.markStage("transactionCommitted");
       saveTimer.finish(scanId, result.success ? "saved" : "rejected");
       if (!result.success) deleteScanImages([storedImage.key, storedBackImage.key]);

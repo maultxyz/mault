@@ -1,8 +1,11 @@
+import type { BinFill } from "./collections";
+
 export interface ScanSaveContextInput {
   orgId: string;
   collectionGuid: string;
   scanId: string;
   deviceGuid: string | undefined;
+  binNumberToCheck: number | null;
 }
 
 export interface ScanSaveContextRow {
@@ -16,6 +19,8 @@ export interface ScanSaveContextRow {
   is_already_saved: boolean;
   scanned_by_device_id: number | null;
   open_intake_lot_id: number | null;
+  bin_fill: BinFill | null;
+  resorts_matching_cards: boolean | null;
 }
 
 export interface ScanSaveContext {
@@ -31,4 +36,6 @@ export interface ScanSaveContext {
   isAlreadySaved: boolean;
   scannedByDeviceId: number | null;
   openIntakeLotId: number | null;
+  binFill: BinFill | null;
+  resortsMatchingCards: boolean;
 }
