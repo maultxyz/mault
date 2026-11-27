@@ -116,6 +116,10 @@
     "noConditions": "Aucune condition"
   },
   "presetSelector": {
+    "presetToEdit": "Préréglage à modifier",
+    "activeBadge": "Actif",
+    "makeActive": "Activer",
+    "saveBeforeMakingActive": "Enregistrez vos modifications avant d'activer ce préréglage.",
     "catchAll": "fourre-tout",
     "noRules": "aucune règle",
     "conditionCount_one": "{{count}} condition",

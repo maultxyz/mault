@@ -5,6 +5,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { EditingPresetMenu } from "@/features/bins/components/editing-preset-menu";
 import { PresetActionDialogs } from "@/features/bins/components/preset-action-dialogs";
 import type { PresetDialog } from "@/lib/interfaces/bins";
 import { IconClockHour3, IconPencil, IconPlus } from "@tabler/icons-react";
@@ -40,9 +41,7 @@ export function PresetActionsBar() {
   return (
     <>
       <div className="flex shrink-0 items-center gap-1.5">
-        <span className="min-w-0 flex-1 truncate px-1 text-sm font-semibold text-foreground">
-          {selectedSet?.name}
-        </span>
+        <EditingPresetMenu />
         {actions.map((action) => (
           <Tooltip key={action.dialog}>
             <TooltipTrigger
