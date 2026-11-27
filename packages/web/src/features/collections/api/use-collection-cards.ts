@@ -9,6 +9,7 @@ import {
   toScanStats,
 } from "@/features/scanner/lib/compute-stats";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
+import type { CollectionCardsSummaryOptions } from "@/lib/interfaces/collections";
 import type { BinCardCounts } from "@/lib/interfaces/scanner";
 import type { BinWindow, CollectionCardsQuery } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -16,6 +17,7 @@ import { useMemo } from "react";
 
 export function useCollectionCardsSummary(
   query: CollectionCardsQuery = ALL_CARDS_QUERY,
+  { isEnabled = true }: CollectionCardsSummaryOptions = {},
 ) {
   const { collection: activeCollection } = useViewedCollection();
   const gameKey = activeCollection?.game?.key;
@@ -31,7 +33,7 @@ export function useCollectionCardsSummary(
     refetch,
   } = useQuery({
     ...summaryQueryOptions,
-    enabled: !!activeCollection?.guid && areSecondaryRequestsEnabled,
+    enabled: isEnabled && !!activeCollection?.guid && areSecondaryRequestsEnabled,
   });
 
   const allStats = useMemo(

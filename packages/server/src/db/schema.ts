@@ -910,6 +910,9 @@ export const collectionCards = pgTable(
         sql`${table.isReviewed} = false AND (${table.capturedImageKey} IS NOT NULL OR ${table.capturedImageDataUrl} IS NOT NULL)`,
       ),
     index("collection_cards_card_id_idx").on(table.cardId),
+    index("collection_cards_collection_unreviewed_idx")
+      .on(table.collectionId)
+      .where(sql`${table.isReviewed} = false`),
     index("collection_cards_org_created_idx").on(table.orgId, table.createdAt),
     index("collection_cards_collection_card_idx").on(
       table.collectionId,
