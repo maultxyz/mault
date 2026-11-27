@@ -813,7 +813,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
     clearCards();
   }, [clearCards]);
 
-  if (viewedCollection && pagePending) {
+  if (viewedCollection && pagePending && !isCardListHidden) {
     return (
       <>
         <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
