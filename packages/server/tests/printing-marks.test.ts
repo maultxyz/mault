@@ -51,8 +51,8 @@ function card(seed: number, listIcon: boolean): RgbaImage {
     }
   }
   if (listIcon) {
-    for (let y = Math.round(HEIGHT * 0.955); y < HEIGHT * 0.972; y++) {
-      for (let x = Math.round(WIDTH * 0.012); x < WIDTH * 0.034; x++) {
+    for (let y = Math.round(HEIGHT * 0.935); y < HEIGHT * 0.968; y++) {
+      for (let x = Math.round(WIDTH * 0.037); x < WIDTH * 0.065; x++) {
         const offset = (y * WIDTH + x) * 4;
         data[offset] = 240;
         data[offset + 1] = 240;
