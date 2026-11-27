@@ -33,6 +33,8 @@ import {
   MY_CARD_RESERVATIONS_CHANGED_EVENT,
   MY_TRADE_OFFERS_CHANGED_EVENT,
   type CardReservationsChangedEvent,
+  type CollectionsChangedEvent,
+  SCAN_SAVE_COLLECTIONS_REFRESH_MS,
   type TradeOffersChangedEvent,
   type DeployNotice,
   type MachineStatus,
@@ -64,7 +66,11 @@ import {
   ORG_OVERVIEW_QUERY_KEY,
   WIDGET_SUMMARY_QUERY_KEY,
 } from "@/lib/constants/home";
-import { createKeyedRefreshThrottle } from "@/lib/keyed-refresh-throttle";
+import { createKeyedRefreshThrottle } from "@magic-vault/shared";
+
+const throttleScanSaveCollectionsRefresh = createKeyedRefreshThrottle(
+  SCAN_SAVE_COLLECTIONS_REFRESH_MS,
+);
 
 const throttleOrgOverviewRefresh = createKeyedRefreshThrottle(
   ORG_OVERVIEW_REFRESH_MS,
@@ -296,11 +302,20 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
           ) as { binGuid: string; pickList: PickList | null };
           if (binGuid) setBinPickListInCache(queryClient, binGuid, pickList);
         });
-        es.addEventListener("collections_changed", () => {
-          queryClient.invalidateQueries({
-            queryKey: collectionsQueryOptions.queryKey,
-            exact: true,
-          });
+        es.addEventListener("collections_changed", (e) => {
+          const refreshCollections = () =>
+            void queryClient.invalidateQueries({
+              queryKey: collectionsQueryOptions.queryKey,
+              exact: true,
+            });
+          const changed = JSON.parse(
+            (e as MessageEvent).data,
+          ) as CollectionsChangedEvent;
+          if (changed.onlyScanSaves) {
+            throttleScanSaveCollectionsRefresh(orgId, refreshCollections);
+          } else {
+            refreshCollections();
+          }
           throttleOrgOverviewRefresh(orgId, () => {
             void queryClient.invalidateQueries({
               queryKey: [ORG_OVERVIEW_QUERY_KEY],

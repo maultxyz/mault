@@ -223,6 +223,7 @@ export interface CardTextMatchParams {
   printedPromo?: boolean | null;
   printedLanguageCode?: boolean | null;
   printingMarkGrids?: PrintingMarkScanGrids | null;
+  refusesWhenOcrIsBusy?: boolean;
 }
 
 export interface CardTextMatchResult extends CardMatchSearchResult {

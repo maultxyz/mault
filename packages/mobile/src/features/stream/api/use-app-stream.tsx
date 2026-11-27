@@ -19,6 +19,9 @@ import {
   MY_TRADE_OFFERS_CHANGED_EVENT,
   PI_HOST_STATUS_EVENT,
   applyPiHostStatusEvent,
+  SCAN_SAVE_COLLECTIONS_REFRESH_MS,
+  createKeyedRefreshThrottle,
+  type CollectionsChangedEvent,
   type DeployNotice,
   type PiHostStatusEvent,
 } from "@magic-vault/shared";
@@ -37,6 +40,8 @@ import type { ScanLockInfo } from "@/lib/interfaces/stream";
 const ScanLocksContext = createContext<Record<string, ScanLockInfo>>({});
 const DeployNoticeContext = createContext<DeployNotice | null>(null);
 const MachineStatusesContext = createContext<MachineStatus[]>([]);
+
+const throttleScanSaveCollectionsRefresh = createKeyedRefreshThrottle(SCAN_SAVE_COLLECTIONS_REFRESH_MS);
 
 function parse<T>(data: string | null | undefined): T | null {
   if (!data) return null;
@@ -112,7 +117,14 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
         const lock = parse<{ guid: string }>(data);
         if (lock) setLocks((prev) => without(prev, lock.guid));
       });
-      on("collections_changed", () => void queryClient.invalidateQueries({ queryKey: ["collections"] }));
+      on("collections_changed", (data) => {
+        const refreshCollections = () => void queryClient.invalidateQueries({ queryKey: ["collections"] });
+        if (parse<CollectionsChangedEvent>(data)?.onlyScanSaves) {
+          throttleScanSaveCollectionsRefresh(activeOrgId, refreshCollections);
+        } else {
+          refreshCollections();
+        }
+      });
       on(ORDERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: BUSINESS_ORDERS_QUERY_KEY }));
       on(PICK_LIST_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: ["bin-sets", activeOrgId] }));
       on(TRADE_OFFERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] }));

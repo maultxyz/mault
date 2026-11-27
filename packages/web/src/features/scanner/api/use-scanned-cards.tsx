@@ -85,10 +85,12 @@ import {
 } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
+  addScannedCardToCollectionCardCaches,
   findInCardPages,
   invalidateBinCounts,
   invalidateCollectionCards,
   invalidateUnmatchedCards,
+  refreshCollectionCardsAfterScanSave,
   removeFromCardPages,
   updateInCardPages,
 } from "@/features/collections/lib/card-page-cache";
@@ -951,6 +953,11 @@ export function ScannedCardsProvider({
                 collection.guid,
               );
               if (giftReveal) showScanGiftReveal(giftReveal);
+              addScannedCardToCollectionCardCaches(
+                queryClient,
+                collection.guid,
+                record,
+              );
               return;
             }
             binContentsRef.current = binContentsRef.current.filter(
@@ -1007,7 +1014,7 @@ export function ScannedCardsProvider({
           })
           .finally(() => {
             settlePendingBinCard(record.scanId);
-            void invalidateCollectionCards(queryClient, collection.guid);
+            refreshCollectionCardsAfterScanSave(queryClient, collection.guid);
             if (decision.pickListUpdate)
               void queryClient.invalidateQueries({
                 queryKey: binsQueryOptions.queryKey,

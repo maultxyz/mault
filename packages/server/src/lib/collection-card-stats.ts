@@ -1,7 +1,11 @@
 import type { CardStatsAggregate, OrgPricing } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { db, singleStatementDb } from "../db";
-import { collectionCardStats, collectionCardStatsDirty } from "../db/schema";
+import {
+  collectionCardStats,
+  collectionCardStatsDirty,
+  collections,
+} from "../db/schema";
 import { loadAllCardStats } from "../routes/collections/cards-query";
 import {
   COLLECTION_CARD_STATS_ADVISORY_LOCK_NAME,
@@ -18,6 +22,28 @@ import {
   toStoredSnapshot,
   utcTimestampTextSql,
 } from "./stored-snapshots";
+
+export async function loadStoredCollectionCardCounts(
+  orgId: string,
+): Promise<Map<number, number>> {
+  const result = await singleStatementDb.execute(sql`
+    SELECT c.id, (s.stats ->> 'totalCount')::int AS card_count
+    FROM ${collections} c
+    JOIN ${collectionCardStats} s ON s.collection_id = c.id
+    WHERE c.org_id = ${orgId}
+      AND c.is_deleted = false
+      AND s.stats ->> 'totalCount' IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM ${collectionCardStatsDirty} d WHERE d.collection_id = c.id
+      )
+  `);
+  return new Map(
+    (result.rows as { id: number; card_count: number }[]).map((row) => [
+      row.id,
+      row.card_count,
+    ]),
+  );
+}
 
 export function readStoredCardStats(
   collection: CatalogJoinScope & { id: number },

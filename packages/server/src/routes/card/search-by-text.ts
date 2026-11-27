@@ -12,6 +12,7 @@ import {
 import { isOcrEnabledForOrg } from "../../lib/card-search/org-ocr-setting";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { MILO_EMBEDDING_DIM } from "../../lib/constants/card-search";
+import { OcrBusyError } from "../../lib/ocr";
 import { scanLog } from "../../lib/scan-log";
 import {
   markRequestAsReadOnly,
@@ -105,6 +106,7 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
           ...resolved,
           embeddings: { embedding },
           preferredSetCodes: parsePreferredSetCodes(body),
+          refusesWhenOcrIsBusy: true,
         },
       );
       const { readout } = result.ocr;
@@ -114,6 +116,9 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
       const attached = await attachMatchedCards(result, gameKey, lang);
       return c.json(scopes.length > 1 ? tagWithGame(attached, gameKey) : attached);
     } catch (err) {
+      if (err instanceof OcrBusyError) {
+        return c.json({ success: false, message: err.message });
+      }
       console.error(err);
       return c.json({ success: false, message: "Text search failed." }, 500);
     }

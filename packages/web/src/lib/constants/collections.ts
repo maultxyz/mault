@@ -45,3 +45,7 @@ export function monitorCollectionPath(guid: string): string {
 }
 
 export const CARD_QUERY_KINDS_REFRESHED_SEPARATELY = ["summary", "export"];
+export const CARD_QUERY_KINDS_KEPT_BY_SCAN_SAVE_RECONCILE = [
+  "export",
+  "bin-counts",
+];

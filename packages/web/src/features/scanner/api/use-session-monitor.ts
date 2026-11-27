@@ -36,6 +36,7 @@ export function useSessionEvents(
   const [collection, setCollection] = useState<Collection | null>(null);
   const [recentCards, setRecentCards] = useState<ScannedCard[]>([]);
   const [cardsVersion, setCardsVersion] = useState(0);
+  const [scannedCardsVersion, setScannedCardsVersion] = useState(0);
   const initializedRef = useRef(false);
   const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
   const [unmatchedCount, setUnmatchedCount] = useState(0);
@@ -113,7 +114,7 @@ export function useSessionEvents(
       setRecentCards((prev) =>
         [card, ...prev].slice(0, RECENT_SCANNED_CARDS_COUNT),
       );
-      cardsChanged();
+      setScannedCardsVersion((version) => version + 1);
     });
 
     on(scoped("card_updated"), (e) => {
@@ -268,6 +269,7 @@ export function useSessionEvents(
     collection,
     recentCards,
     cardsVersion,
+    scannedCardsVersion,
     unmatchedCards,
     unmatchedCount,
     viewers,

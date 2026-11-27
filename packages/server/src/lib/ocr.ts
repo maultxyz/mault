@@ -7,6 +7,7 @@ import sharp from "sharp";
 import {
   OCR_DETECTION_BAND_PADDING_Y,
   OCR_MIN_LINE_CONFIDENCE,
+  OCR_QUEUE_MAX_WAITING_SCAN_JOBS,
   PADDLE_OCR_SAME_LINE_MAX_GAP_RATIO,
   PADDLE_OCR_SAME_LINE_MIN_OVERLAP,
   REGION_MARGIN_X,
@@ -33,6 +34,7 @@ import {
 import { readTextBoxes, recognizeRectangle } from "./paddle-ocr";
 
 let queue: Promise<unknown> = Promise.resolve();
+let unfinishedJobCount = 0;
 
 function boxRectangle(
   box: OcrBox,
@@ -241,8 +243,24 @@ async function readPageLines(buffer: Buffer): Promise<OcrPageLine[]> {
   return toPageLines(await readTextBoxes(buffer));
 }
 
-function enqueue<T>(task: () => Promise<T>): Promise<T> {
-  const run = queue.then(task);
+export class OcrBusyError extends Error {
+  constructor() {
+    super("Text reading is busy.");
+    this.name = "OcrBusyError";
+  }
+}
+
+function enqueue<T>(
+  task: () => Promise<T>,
+  refusesWhenBusy = false,
+): Promise<T> {
+  if (refusesWhenBusy && unfinishedJobCount > OCR_QUEUE_MAX_WAITING_SCAN_JOBS) {
+    return Promise.reject(new OcrBusyError());
+  }
+  unfinishedJobCount++;
+  const run = queue.then(task).finally(() => {
+    unfinishedJobCount--;
+  });
   queue = run.catch(() => undefined);
   return run;
 }
@@ -251,8 +269,9 @@ export function ocrRegions(
   buffer: Buffer,
   regions: OcrRegion[],
   trace?: OcrRegionTrace[],
+  refusesWhenBusy = false,
 ): Promise<OcrRegionReadouts> {
-  return enqueue(() => readRegions(buffer, regions, trace));
+  return enqueue(() => readRegions(buffer, regions, trace), refusesWhenBusy);
 }
 
 export function ocrPageLines(buffer: Buffer): Promise<OcrPageLine[]> {

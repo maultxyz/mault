@@ -161,6 +161,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       deleteScanImages([storedImage.key, storedBackImage.key]);
     };
     try {
+      const [storedImage, storedBackImage] = await storedImagesRequest;
       const { result, collectionName, gameName, gameId } = await authQuery<{
         result: AddCardResult;
         collectionName: string | undefined;
@@ -293,7 +294,6 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
                 cardId: (card as PlayingCardWithDistance).id,
                 scanIsFoil: isFoil ?? false,
               });
-        const [storedImage, storedBackImage] = await storedImagesRequest;
         if (cardToResort) {
           await moveResortedCard(tx, {
             rowId: cardToResort.id,
@@ -430,7 +430,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         );
         void recordDeviceSorted(orgId, deviceGuid);
         emitToSession(orgId, guid, "card_added", result.data);
-        emitCollectionCardsChanged(orgId, guid);
+        emitCollectionCardsChanged(orgId, guid, { isScanSave: true });
 
         notifyCardScanned({
           orgId,

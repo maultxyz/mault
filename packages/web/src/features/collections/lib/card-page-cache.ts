@@ -3,16 +3,26 @@ import {
   unmatchedCardsKeys,
 } from "@/features/collections/api/collection-cards";
 import {
+  cardsPageWithScannedCard,
+  cardsQueryListsNewestScansFirst,
+  cardsSummaryWithScannedCards,
   COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM,
+  SCAN_SAVE_CARD_LISTS_REFRESH_MS,
   type CollectionCardsPage,
+  type CollectionCardsQuery,
+  type CollectionCardsSummary,
   type GroupedScannedCard,
+  type ScannedCard,
 } from "@magic-vault/shared";
-import { CARD_QUERY_KINDS_REFRESHED_SEPARATELY } from "@/lib/constants/collections";
+import {
+  CARD_QUERY_KINDS_KEPT_BY_SCAN_SAVE_RECONCILE,
+  CARD_QUERY_KINDS_REFRESHED_SEPARATELY,
+} from "@/lib/constants/collections";
 import {
   CARDS_LIST_REFRESH_THROTTLE_MS,
   CARDS_SUMMARY_REFRESH_THROTTLE_MS,
 } from "@/lib/constants/timing";
-import { createKeyedRefreshThrottle } from "@/lib/keyed-refresh-throttle";
+import { createKeyedRefreshThrottle } from "@magic-vault/shared";
 import type { InfiniteData, Query, QueryClient } from "@tanstack/react-query";
 
 const throttleSummaryRefresh = createKeyedRefreshThrottle(
@@ -20,6 +30,9 @@ const throttleSummaryRefresh = createKeyedRefreshThrottle(
 );
 const throttleCardListRefresh = createKeyedRefreshThrottle(
   CARDS_LIST_REFRESH_THROTTLE_MS,
+);
+const throttleScanSaveReconcile = createKeyedRefreshThrottle(
+  SCAN_SAVE_CARD_LISTS_REFRESH_MS,
 );
 const latestCardWriteAt = new Map<string, number>();
 const fetchStartTrackedClients = new WeakSet<QueryClient>();
@@ -115,6 +128,67 @@ export function invalidateUnmatchedCards(
   });
   return queryClient.invalidateQueries({
     queryKey: unmatchedCardsKeys.all(guid),
+  });
+}
+
+export function addScannedCardsToCardCaches(
+  queryClient: QueryClient,
+  cardsKey: readonly unknown[],
+  cardsOldestFirst: ScannedCard[],
+) {
+  if (cardsOldestFirst.length === 0) return;
+  const queryCache = queryClient.getQueryCache();
+  let addedCardCount = 0;
+  for (const query of queryCache.findAll({ queryKey: [...cardsKey, "page"] })) {
+    const cardsQuery = query.queryKey[cardsKey.length + 1] as CollectionCardsQuery;
+    if (query.queryKey[cardsKey.length + 2] !== 0) continue;
+    if (!cardsQueryListsNewestScansFirst(cardsQuery)) continue;
+    queryClient.setQueryData<CollectionCardsPage>(query.queryKey, (old) => {
+      if (!old) return old;
+      const patched = cardsOldestFirst.reduce(cardsPageWithScannedCard, old);
+      addedCardCount = Math.max(
+        addedCardCount,
+        patched.totalCards - old.totalCards,
+      );
+      return patched;
+    });
+  }
+  if (addedCardCount === 0) return;
+  for (const query of queryCache.findAll({ queryKey: [...cardsKey, "summary"] })) {
+    const cardsQuery = query.queryKey[cardsKey.length + 1] as CollectionCardsQuery;
+    queryClient.setQueryData<CollectionCardsSummary>(query.queryKey, (old) =>
+      old ? cardsSummaryWithScannedCards(old, cardsQuery, addedCardCount) : old,
+    );
+  }
+}
+
+export function addScannedCardToCollectionCardCaches(
+  queryClient: QueryClient,
+  guid: string,
+  card: ScannedCard,
+) {
+  addScannedCardsToCardCaches(queryClient, collectionCardsKeys.all(guid), [card]);
+}
+
+export function refreshCollectionCardsAfterScanSave(
+  queryClient: QueryClient,
+  guid: string,
+) {
+  void queryClient.invalidateQueries({
+    queryKey: [...collectionCardsKeys.all(guid), "export"],
+    refetchType: "none",
+  });
+  throttleCardListRefresh(`${guid}:bin-counts`, () => {
+    void invalidateBinCounts(queryClient, guid);
+  });
+  throttleScanSaveReconcile(guid, () => {
+    void queryClient.invalidateQueries({
+      queryKey: collectionCardsKeys.all(guid),
+      predicate: (query) =>
+        !CARD_QUERY_KINDS_KEPT_BY_SCAN_SAVE_RECONCILE.includes(
+          String(query.queryKey[2]),
+        ),
+    });
   });
 }
 

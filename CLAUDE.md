@@ -120,6 +120,8 @@ pnpm + Turborepo, one root `.env`:
 - Repeated org reads use `createOrgReadCache`: keys carry every input; per-role filtering runs after.
 - `requireOrg` bumps the org data generation after every non-GET unless `markRequestAsReadOnly`; writers outside `requireOrg` call `invalidateOrgReadCaches`.
 - `invalidateOrgCardReadCaches` spares `isUnaffectedByCardWrites` caches; a new cache is card-dependent unless no card save can change it.
+- `emitToOrg` flushes the org's read caches unless the event is in `ORG_EVENTS_WITHOUT_DATA_CHANGES`: status-only events (machine status, Pi state) belong there.
+- `GET /collections` takes card counts from `collection_card_stats` only for collections with no dirty mark (`loadStoredCollectionCardCounts`) and counts the rest exactly.
 
 ### Plans and billing
 
@@ -204,6 +206,7 @@ Scan decisions live in `shared` (`runScanWorkflow`, `runScanDisposition`, scan p
 
 - Matching is in-memory (`lib/card-match-index.ts`, brute-force cosine per game and lang, never SQL). `cardDistanceSql` only scores an explicit id list; a new SQL nearest-neighbour query needs its own index and `hnsw.iterative_scan`.
 - Segments hold int8 embeddings and interned text: read rows via `cardIdOfRow`/`nameOfRow`/`setCodeOfRow`/`collectorNumberOfRow`.
+- Identify's nearest-face search runs in `worker_threads` (`lib/card-match-search-pool.ts`, `CARD_MATCH_SEARCH_WORKERS`, 0 keeps it on the main thread). The arrays in `CARD_MATCH_ARRAYS_SHARED_WITH_WORKERS` must stay `SharedArrayBuffer`-backed or the search falls back to the main thread; `card-match-worker.ts` is its own tsup entry and imports only `card-match-nearest.ts`.
 - Loading uses `backgroundLoadDb` (own pool, intentional RLS bypass). A 60 s signature check reloads changed games; `refreshStoredData` sets `updated_at` so other processes notice.
 - Snapshots (`lib/card-match-snapshots.ts`): bump `CARD_MATCH_SNAPSHOT_FORMAT_VERSION` when segment fields, quantization or interning change.
 - Adapter match flags are stored on `cards` and refilled in the background when stale; sync never writes them, so every write to `data`, `set_code` or `card_id` must set `updated_at`.
@@ -217,6 +220,7 @@ Scan decisions live in `shared` (`runScanWorkflow`, `runScanDisposition`, scan p
 - `scanOcrMode`: `when-unsure` reads text only after an unsure image match; `every-scan` always.
 - OCR replaces the image match only when unsure or OCR confirms the printing (`prefersTextMatch`), never on an unconfirmed name; thresholds `UNCONFIRMED_TEXT_MATCH_MAX_DISTANCE_GAP`, `OCR_MATCH_MAX_IMAGE_DISTANCE`.
 - Text and printed-number matching use the in-memory index; `lib/card-name-trigrams.ts` must stay score-identical to pg_trgm `similarity()`.
+- OCR runs one job at a time. Scan reads pass `refusesWhenOcrIsBusy` and get `OcrBusyError` past `OCR_QUEUE_MAX_WAITING_SCAN_JOBS`: `/cards/by-text` then answers 200 `success: false` (never 5xx, which clients retry) so the image match stands.
 - Server OCR is PaddleOCR on onnxruntime-node (`lib/paddle-ocr.ts`). The v5 recognizer needs input height 48; the small v3 detector is deliberate (v5 server is ~9x slower on a Pi).
 - Printing marks separate same-art printings (`PRINTING_REGIONS_BY_GAME_KEY`, adapter `printingMarkGroups`); clients sample them from the camera frame (`printingMarksPayload`), never the 448 px image. Changing an area, channel or grid bumps `PRINTING_MARK_VERSION`.
 
@@ -234,7 +238,8 @@ Scan decisions live in `shared` (`runScanWorkflow`, `runScanDisposition`, scan p
 - Web, mobile and Pi route through shared `resolveScanBin` (`scan-routing.ts`); corrected or hand-added cards use `resolveCorrectedScanBin`.
 - Saves go through `PendingScanSavesProvider` over shared `PendingSaveQueue`, never directly. The Pi host keeps its own file-backed queue, persisted under the Mault state directory before API submission.
 - Web starts the save with the route command and feeds on the route reply without waiting for the save (~2 s per card otherwise). The Pi host keeps confirmed route, then save.
-- Save transactions call `applyScanSaveTimeouts` first, so a locked save fails with a retryable 500.
+- Save transactions call `applyScanSaveTimeouts` first, so a locked save fails with a retryable 500. Scan images are uploaded before the transaction opens, never awaited inside it.
+- A saved scan is patched into client caches (shared `cardsPageWithScannedCard`, only newest-first unfiltered first pages) and lists reconcile every `SCAN_SAVE_CARD_LISTS_REFRESH_MS`; bin counts keep their fast refresh because routing reads them. `collections_changed` with `onlyScanSaves` refreshes the collections list at most every `SCAN_SAVE_COLLECTIONS_REFRESH_MS`.
 - Re-sort presets (`is_resort_mode`) are applied by the server save (`lib/resort-scan.ts`); clients send ordinary saves.
 - A card is in its bin while `bin_emptied_at` and `location_id` are both null (a manual move to a location takes it out; removing it from a location stamps `bin_emptied_at`); `markBinsEmptied` stamps cards, so presets hold no fill state.
 - Bin capacity is the smallest of physical size, `chaosBinSize`, `maxCards` and the claimed location's free slots (`scanBinCapacity`).

@@ -14,13 +14,21 @@ import {
   CARD_MATCH_INDEX_UUID_BYTES,
   MILO_EMBEDDING_DIM,
 } from "./constants/card-search";
+import {
+  backFaceDistance,
+  frontFaceDistance,
+  nearestCardFaceRows,
+} from "./card-match-nearest";
+import { nearestCardFaceRowsOffMainThread } from "./card-match-search-pool";
 import type {
   CardFaceMatch,
   CardMatchSegment,
+  NearestCardFaceRow,
   CardMatchSegmentBuilder,
   CardMatchSegmentCapacity,
   CardMatchSourceRow,
   GrowableTypedArray,
+  SharedTypedArrayConstructor,
 } from "./interfaces/card-match-index";
 
 export function normalizedEmbedding(
@@ -78,6 +86,15 @@ function withCapacity<T extends GrowableTypedArray>(
   );
   grown.set(buffer as never);
   return grown;
+}
+
+function sharedCopyOf<T extends GrowableTypedArray>(source: T, length: number): T {
+  const TypedArray = source.constructor as SharedTypedArrayConstructor<T>;
+  const copy = new TypedArray(
+    new SharedArrayBuffer(length * TypedArray.BYTES_PER_ELEMENT),
+  );
+  copy.set(source.subarray(0, length) as never);
+  return copy;
 }
 
 function createStringTable() {
@@ -292,17 +309,17 @@ export function createCardMatchSegmentBuilder(
           0,
           rowCount * regionCount,
         ),
-        frontEmbeddings: frontEmbeddings.slice(
-          0,
+        frontEmbeddings: sharedCopyOf(
+          frontEmbeddings,
           rowCount * MILO_EMBEDDING_DIM,
         ),
-        frontEmbeddingScales: frontEmbeddingScales.slice(0, rowCount),
-        backEmbeddings: backEmbeddings.slice(
-          0,
+        frontEmbeddingScales: sharedCopyOf(frontEmbeddingScales, rowCount),
+        backEmbeddings: sharedCopyOf(
+          backEmbeddings,
           backFaceCount * MILO_EMBEDDING_DIM,
         ),
-        backEmbeddingScales: backEmbeddingScales.slice(0, backFaceCount),
-        backFaceIndexByRow: backFaceIndexByRow.slice(0, rowCount),
+        backEmbeddingScales: sharedCopyOf(backEmbeddingScales, backFaceCount),
+        backFaceIndexByRow: sharedCopyOf(backFaceIndexByRow, rowCount),
       };
     },
   };
@@ -382,54 +399,6 @@ export function collectorNumberOfRow(
   return index < 0 ? null : segment.collectorNumberTable[index];
 }
 
-function quantizedCosineDistance(
-  embeddings: Int8Array,
-  offset: number,
-  scale: number,
-  query: Float32Array,
-): number {
-  let sum0 = 0;
-  let sum1 = 0;
-  let sum2 = 0;
-  let sum3 = 0;
-  for (let i = 0; i < MILO_EMBEDDING_DIM; i += 4) {
-    sum0 += embeddings[offset + i] * query[i];
-    sum1 += embeddings[offset + i + 1] * query[i + 1];
-    sum2 += embeddings[offset + i + 2] * query[i + 2];
-    sum3 += embeddings[offset + i + 3] * query[i + 3];
-  }
-  return 1 - (sum0 + sum1 + sum2 + sum3) * scale;
-}
-
-function frontFaceDistance(
-  segment: CardMatchSegment,
-  row: number,
-  query: Float32Array,
-): number {
-  return quantizedCosineDistance(
-    segment.frontEmbeddings,
-    row * MILO_EMBEDDING_DIM,
-    segment.frontEmbeddingScales[row],
-    query,
-  );
-}
-
-function backFaceDistance(
-  segment: CardMatchSegment,
-  row: number,
-  query: Float32Array,
-): number {
-  const backFaceIndex = segment.backFaceIndexByRow[row];
-  return backFaceIndex < 0
-    ? Infinity
-    : quantizedCosineDistance(
-        segment.backEmbeddings,
-        backFaceIndex * MILO_EMBEDDING_DIM,
-        segment.backEmbeddingScales[backFaceIndex],
-        query,
-      );
-}
-
 function closestFaceOfRow(
   segment: CardMatchSegment,
   row: number,
@@ -458,22 +427,30 @@ export function nearestCardFaces(
   query: Float32Array,
   limit: number,
 ): CardFaceMatch[] {
-  const nearest: CardFaceMatch[] = [];
-  for (const segment of segments) {
-    for (let row = 0; row < segment.rowCount; row++) {
-      const distance = cardRowDistance(segment, row, query);
-      if (nearest.length === limit && distance >= nearest[limit - 1].distance) {
-        continue;
-      }
-      let position = Math.min(nearest.length, limit - 1);
-      while (position > 0 && distance < nearest[position - 1].distance) {
-        position--;
-      }
-      nearest.splice(position, 0, closestFaceOfRow(segment, row, query));
-      if (nearest.length > limit) nearest.pop();
-    }
-  }
-  return nearest;
+  return toCardFaceMatches(segments, nearestCardFaceRows(segments, query, limit));
+}
+
+export async function nearestCardFacesOffMainThread(
+  segments: CardMatchSegment[],
+  query: Float32Array,
+  limit: number,
+): Promise<CardFaceMatch[]> {
+  return toCardFaceMatches(
+    segments,
+    await nearestCardFaceRowsOffMainThread(segments, query, limit),
+  );
+}
+
+function toCardFaceMatches(
+  segments: CardMatchSegment[],
+  rows: NearestCardFaceRow[],
+): CardFaceMatch[] {
+  return rows.map(({ segmentIndex, row, isBackFace, distance }) => ({
+    segment: segments[segmentIndex],
+    row,
+    isBackFace,
+    distance,
+  }));
 }
 
 function dequantizedFaceEmbedding(face: CardFaceMatch): Float32Array {

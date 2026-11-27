@@ -11,6 +11,11 @@ import {
   COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
   COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS,
   EMPTY_CARD_FILTERS,
+  SCAN_SAVE_CARD_LISTS_REFRESH_MS,
+  cardsPageWithScannedCard,
+  cardsQueryListsNewestScansFirst,
+  cardsSummaryWithScannedCards,
+  createKeyedRefreshThrottle,
   type SetCardTagsRequest,
   type CardCondition,
   type CollectionCsvExportRequest,
@@ -27,7 +32,8 @@ import {
   type ScanTimelineGrouping,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPostText, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
-import { CARD_EDIT_REFRESH_DELAY_MS, SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
+import { UNFILTERED_CARDS_QUERY } from "@/lib/constants/collections";
+import { CARD_EDIT_REFRESH_DELAY_MS, SCAN_IMAGE_STALE_MS } from "@/lib/constants/query";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { ScanImageResponse } from "@/lib/interfaces/collections";
 import { collectionCardDetailKeys, loadThroughCardDetails } from "@/features/collections/api/card-details";
@@ -193,20 +199,30 @@ export function invalidateCollectionCardsAfterEdits(queryClient: QueryClient, gu
   );
 }
 
-const scanSaveRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
-const lastScanSaveRefresh = new Map<string, number>();
+const throttleScanSaveRefresh = createKeyedRefreshThrottle(SCAN_SAVE_CARD_LISTS_REFRESH_MS);
+
+export function addScannedCardToCardCaches(queryClient: QueryClient, guid: string, card: ScannedCard): void {
+  let addedCardCount = 0;
+  for (const query of queryClient.getQueryCache().findAll({ queryKey: ["collection-cards", guid, "list"] })) {
+    if (!cardsQueryListsNewestScansFirst(query.queryKey[3] as CollectionCardsQuery)) continue;
+    queryClient.setQueryData<InfiniteData<CollectionCardsPage>>(query.queryKey, (old) => {
+      const firstPage = old?.pages[0];
+      if (!old || !firstPage) return old;
+      const patchedFirstPage = cardsPageWithScannedCard(firstPage, card);
+      addedCardCount = Math.max(addedCardCount, patchedFirstPage.totalCards - firstPage.totalCards);
+      return { ...old, pages: [patchedFirstPage, ...old.pages.slice(1)] };
+    });
+  }
+  if (addedCardCount === 0) return;
+  queryClient.setQueryData<CollectionCardsSummary>(collectionCardsSummaryQueryOptions(guid).queryKey, (old) =>
+    old ? cardsSummaryWithScannedCards(old, UNFILTERED_CARDS_QUERY, addedCardCount) : old,
+  );
+}
 
 export function invalidateAfterScanSave(queryClient: QueryClient, guid: string): void {
-  if (scanSaveRefreshTimers.has(guid)) return;
-  const wait = Math.max(0, SCAN_SAVE_REFRESH_THROTTLE_MS - (Date.now() - (lastScanSaveRefresh.get(guid) ?? 0)));
-  scanSaveRefreshTimers.set(
-    guid,
-    setTimeout(() => {
-      scanSaveRefreshTimers.delete(guid);
-      lastScanSaveRefresh.set(guid, Date.now());
-      void queryClient.invalidateQueries({ queryKey: ["collection-cards", guid] });
-    }, wait),
-  );
+  throttleScanSaveRefresh(guid, () => {
+    void queryClient.invalidateQueries({ queryKey: ["collection-cards", guid] });
+  });
 }
 
 export const cardScanOriginQueryOptions = (guid: string, scanId: string) =>

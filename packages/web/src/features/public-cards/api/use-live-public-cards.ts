@@ -3,15 +3,23 @@ import { monitorCardsKey, monitorCardsSummaryQueryOptions } from "@/features/sca
 import { toScanStats } from "@/features/scanner/lib/compute-stats";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { MONITOR_REFRESH_THROTTLE_MS } from "@/lib/constants/timing";
+import { PUBLIC_CARD_QUERY_KINDS_REFRESHED_BY_SCANS } from "@/lib/constants/public-cards";
 import type { PublicCardsSource } from "@/lib/interfaces/public-cards";
+import { createKeyedRefreshThrottle } from "@magic-vault/shared";
+import { SCAN_SAVE_CARD_LISTS_REFRESH_MS } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef } from "react";
+
+const throttleScannedCardsRefresh = createKeyedRefreshThrottle(
+  SCAN_SAVE_CARD_LISTS_REFRESH_MS,
+);
 
 export function useLivePublicCards(
   source: PublicCardsSource,
   token: string,
   collectionGuid: string,
   cardsVersion: number,
+  scannedCardsVersion: number,
 ) {
   const queryClient = useQueryClient();
   const monitorSource = useMemo(
@@ -37,6 +45,20 @@ export function useLivePublicCards(
     );
     return () => clearTimeout(timer);
   }, [cardsVersion, queryClient, source, monitorSource]);
+
+  useEffect(() => {
+    if (scannedCardsVersion === 0) return;
+    throttleScannedCardsRefresh(JSON.stringify(publicCardsKeys.root(source)), () => {
+      void queryClient.invalidateQueries({
+        queryKey: publicCardsKeys.root(source),
+        predicate: (query) =>
+          PUBLIC_CARD_QUERY_KINDS_REFRESHED_BY_SCANS.includes(
+            String(query.queryKey[3]),
+          ),
+      });
+      void queryClient.invalidateQueries({ queryKey: monitorCardsKey(monitorSource) });
+    });
+  }, [scannedCardsVersion, queryClient, source, monitorSource]);
 
   return {
     stats: summary ? toScanStats(summary.all) : null,

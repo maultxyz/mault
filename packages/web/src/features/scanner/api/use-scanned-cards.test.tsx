@@ -108,6 +108,8 @@ vi.mock("@/features/collections/api/collections", async (importOriginal) => ({
 }));
 vi.mock("@/features/collections/lib/card-page-cache", () => ({
   invalidateCollectionCards: vi.fn(),
+  addScannedCardToCollectionCardCaches: vi.fn(),
+  refreshCollectionCardsAfterScanSave: vi.fn(),
   invalidateBinCounts: vi.fn(),
   invalidateUnmatchedCards: vi.fn(),
 }));

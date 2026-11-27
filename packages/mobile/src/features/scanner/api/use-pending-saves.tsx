@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { AppState } from "react-native";
-import { invalidateAfterScanSave } from "@/features/collections/api/collection-cards";
+import { addScannedCardToCardCaches, invalidateAfterScanSave } from "@/features/collections/api/collection-cards";
 import { unmatchedCardsQueryOptions } from "@/features/collections/api/unmatched-cards";
 import { sendScanSave } from "@/features/scanner/api/scan-saves";
 import {
@@ -68,10 +68,13 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
   const submit = useCallback(
     async (save: PendingScanSave): Promise<CardSaveResult> => {
       const result = await queue.submit(save);
+      if (result.success && save.kind === "card") {
+        addScannedCardToCardCaches(queryClient, save.collectionGuid, save.record);
+      }
       invalidateAfterSave(save);
       return result;
     },
-    [invalidateAfterSave, queue],
+    [invalidateAfterSave, queryClient, queue],
   );
 
   const saveCard = useCallback<PendingSavesContextValue["saveCard"]>(

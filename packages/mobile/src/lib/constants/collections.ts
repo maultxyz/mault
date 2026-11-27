@@ -1,4 +1,11 @@
+import { EMPTY_CARD_FILTERS, type CollectionCardsQuery } from "@magic-vault/shared";
 import type { CardViewMode, CollectionScanTimeline } from "@/lib/interfaces/collections";
+export const UNFILTERED_CARDS_QUERY: CollectionCardsQuery = {
+  search: "",
+  sort: null,
+  filters: EMPTY_CARD_FILTERS,
+  grouped: true,
+};
 export const SEARCH_DEBOUNCE_MS = 300;
 export const LIST_END_THRESHOLD = 1.5;
 export const CARD_GRID_LIST_WINDOW_SIZE = 11;

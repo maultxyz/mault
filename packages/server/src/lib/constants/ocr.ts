@@ -50,5 +50,8 @@ export const OCR_MIN_LINE_CONFIDENCE = 0.5;
 export const OCR_ANCHOR_HEIGHT_WEIGHT = 0.5;
 export const OCR_ANCHOR_MIN_LINE_HEIGHT_RATIO = 0.3;
 export const OCR_DETECTION_BAND_PADDING_Y = 0.02;
+export const OCR_QUEUE_MAX_WAITING_SCAN_JOBS = parseInt(
+  process.env.OCR_QUEUE_MAX_WAITING_SCAN_JOBS ?? "8",
+);
 
 export const OCR_RGB_CHANNELS = 3;

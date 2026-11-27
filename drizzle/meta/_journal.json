@@ -1534,6 +1534,13 @@
       "when": 1795755270713,
       "tag": "0218_empty_tyger_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 219,
+      "version": "7",
+      "when": 1795792942713,
+      "tag": "0219_faithful_rattler",
+      "breakpoints": true
     }
   ]
 }

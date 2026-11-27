@@ -15,6 +15,7 @@ export const PUBLIC_CARDS_SOURCE_PATHS = {
   profile: "org-profile",
 } as const;
 export const PUBLIC_CARDS_QUERY_KEY = "public-cards";
+export const PUBLIC_CARD_QUERY_KINDS_REFRESHED_BY_SCANS = ["cards", "facets"];
 export const PUBLIC_TRADE_OFFER_PARAM = "trade";
 export const PUBLIC_TRADE_OFFER_PARAM_VALUE = "1";
 export const PUBLIC_CARD_SEARCH_QUERY_PARAM = "q";

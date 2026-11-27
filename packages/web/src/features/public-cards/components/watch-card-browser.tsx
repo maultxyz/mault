@@ -27,7 +27,13 @@ export function WatchCardBrowser({
     [token],
   );
   const { data: info } = useQuery(publicCardsInfoQueryOptions(source));
-  const live = useLivePublicCards(source, token, collectionGuid, session.cardsVersion);
+  const live = useLivePublicCards(
+    source,
+    token,
+    collectionGuid,
+    session.cardsVersion,
+    session.scannedCardsVersion,
+  );
 
   if (!info) return <PublicCardsLoadingScreen />;
 

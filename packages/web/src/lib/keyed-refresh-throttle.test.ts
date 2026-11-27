@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createKeyedRefreshThrottle } from "@/lib/keyed-refresh-throttle";
+import { createKeyedRefreshThrottle } from "@magic-vault/shared";
 
 describe("createKeyedRefreshThrottle", () => {
   beforeEach(() => vi.useFakeTimers());

@@ -1,3 +1,4 @@
+import type { Worker } from "node:worker_threads";
 import type { SQL } from "drizzle-orm";
 import type { PrintingMarkGroups } from "@magic-vault/shared";
 export interface CardMatchSourceRow {
@@ -35,10 +36,48 @@ export type CardMatchEmbeddingDecoder = (
   sentBytes: Uint8Array | null,
 ) => Float32Array | null;
 
-export interface CardMatchSegment {
+export interface CardMatchEmbeddingArrays {
+  rowCount: number;
+  frontEmbeddings: Int8Array;
+  frontEmbeddingScales: Float32Array;
+  backEmbeddings: Int8Array;
+  backEmbeddingScales: Float32Array;
+  backFaceIndexByRow: Int32Array;
+}
+
+export interface NearestCardFaceRow {
+  segmentIndex: number;
+  row: number;
+  isBackFace: boolean;
+  distance: number;
+}
+
+export interface CardMatchWorkerRequest {
+  requestId: number;
+  segments: CardMatchEmbeddingArrays[];
+  query: Float32Array;
+  limit: number;
+}
+
+export interface CardMatchWorkerReply {
+  requestId: number;
+  rows: NearestCardFaceRow[];
+}
+
+export interface CardMatchSearchJob {
+  request: CardMatchWorkerRequest;
+  resolve: (rows: NearestCardFaceRow[]) => void;
+  reject: (error: Error) => void;
+}
+
+export interface CardMatchSearchWorker {
+  worker: Worker;
+  job: CardMatchSearchJob | null;
+}
+
+export interface CardMatchSegment extends CardMatchEmbeddingArrays {
   gameKey: string;
   lang: string;
-  rowCount: number;
   cardIdReferenceByRow: Int32Array;
   cardIdUuidBytes: Uint8Array;
   cardIdTextBlob: string;
@@ -57,11 +96,6 @@ export interface CardMatchSegment {
   printingMarkRegionKeys: string[];
   printingMarkGroupKeys: string[];
   printingMarkGroupIds: Int32Array;
-  frontEmbeddings: Int8Array;
-  frontEmbeddingScales: Float32Array;
-  backEmbeddings: Int8Array;
-  backEmbeddingScales: Float32Array;
-  backFaceIndexByRow: Int32Array;
 }
 
 export type GrowableTypedArray =
@@ -69,6 +103,11 @@ export type GrowableTypedArray =
   | Int32Array
   | Int8Array
   | Uint8Array;
+
+export interface SharedTypedArrayConstructor<T extends GrowableTypedArray> {
+  new (buffer: SharedArrayBuffer): T;
+  readonly BYTES_PER_ELEMENT: number;
+}
 
 export interface CardMatchSegmentCapacity {
   expectedRows: number;

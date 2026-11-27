@@ -13,6 +13,11 @@ export interface Collection {
   updatedAt: Date;
 }
 
+export interface CollectionsChangedEvent {
+  guid?: string;
+  onlyScanSaves?: boolean;
+}
+
 export interface MoveCardsToCollectionResult {
   moved: number;
 }
