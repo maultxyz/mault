@@ -4,7 +4,7 @@ import Constants from "expo-constants";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
+import { Alert, Linking, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
@@ -18,6 +18,7 @@ import { Surface } from "@/components/ui/surface";
 import { useRole } from "@/hooks/use-role";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { useHasBusinessTools } from "@/features/business/api/use-has-business-tools";
+import { usePublishedOrgProfileUrl } from "@/features/org-profile/api/use-published-org-profile-url";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useLanguagePreference } from "@/hooks/use-language-preference";
 import { useSwitchOrg } from "@/hooks/use-org";
@@ -43,6 +44,7 @@ export default function AccountScreen() {
 
   const switchOrg = useSwitchOrg();
   const hasBusinessTools = useHasBusinessTools();
+  const publicProfileUrl = usePublishedOrgProfileUrl();
   const confirmSignOut = () =>
     Alert.alert(
       t("account.signOutConfirm.title"),
@@ -145,6 +147,9 @@ export default function AccountScreen() {
             subtitle={t("settings.entrySubtitle")}
             onPress={() => router.push("/settings")}
           />
+          {publicProfileUrl ? (
+            <ListRow icon="external" title={t("account.viewPublicProfile")} onPress={() => void Linking.openURL(publicProfileUrl)} />
+          ) : null}
           <ListRow
             icon="account"
             title={t("account.settingsRow")}

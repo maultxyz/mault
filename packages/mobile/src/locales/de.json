@@ -593,6 +593,7 @@
     "settingsRow": "Kontoeinstellungen",
     "settingsRowSubtitle": "Name, E-Mail, Passwort und Sitzungen",
     "settingsRowSubtitleLocal": "Dein Name und deine E-Mail",
+    "viewPublicProfile": "Öffentliches Profil ansehen",
     "language": "Sprache",
     "languageSystem": "Sprache des Telefons",
     "sorterConnection": "Sortierer-Verbindung",
@@ -2340,7 +2341,7 @@
       },
       "business": {
         "title": "Business",
-        "description": "Ankaufsangebote, Rechte für Mitglieder und Shop-Kataloge"
+        "description": "Ankaufsangebote und Rechte für Mitglieder"
       },
       "raspberryPis": {
         "title": "Raspberry Pis",
@@ -2840,7 +2841,7 @@
       }
     },
     "business": {
-      "description": "Bestimme, was Mitglieder sehen und tun dürfen, und teile deine Shop-Kataloge.",
+      "description": "Bestimme, was Mitglieder sehen und tun dürfen.",
       "managersOnly": "Nur Inhaber und Admins können diese Einstellungen ändern.",
       "buylist": {
         "tiers": "Preisstufen",
@@ -2883,6 +2884,7 @@
     "shopCatalogs": {
       "heading": "Shop-Kataloge",
       "description": "Lass Kunden deinen Bestand auf einem Tablet im Laden oder auf deiner Website durchsuchen. Jeder Katalog zeigt die Karten aus den gewählten Sammlungen und Lagerorten, über einen Link, der funktioniert, bis du ihn zurücksetzt.",
+      "managersOnly": "Nur Inhaber und Admins können Shop-Kataloge verwalten.",
       "add": "Neuer Katalog",
       "addTitle": "Neuer Shop-Katalog",
       "editTitle": "Shop-Katalog bearbeiten",
@@ -2922,7 +2924,7 @@
       "actions": "Katalogaktionen",
       "photo": {
         "heading": "Shop-Foto",
-        "description": "Erscheint oben in jedem Shop-Katalog. JPEG, PNG oder WebP, bis 10 MB.",
+        "description": "Erscheint auf deinen Shop-Katalogen, deinem öffentlichen Profil, Anzeige-Links und Lieferscheinen.",
         "upload": "Foto hochladen",
         "replace": "Ersetzen",
         "remove": "Entfernen",
@@ -2933,7 +2935,9 @@
         "wrongType": "Lade ein JPEG-, PNG- oder WebP-Foto hoch.",
         "tooLarge": "Das Foto ist zu groß. Lade eines unter 10 MB hoch.",
         "removeConfirmTitle": "Shop-Foto entfernen?",
-        "removeConfirmDescription": "Deine Kataloge werden ohne Foto angezeigt."
+        "removeConfirmDescription": "Deine Kataloge werden ohne Foto angezeigt.",
+        "formats": "JPEG, PNG oder WebP, bis 10 MB.",
+        "upgrade": "Das Shop-Foto ist Teil des Business-Tarifs."
       },
       "isPublic": "Öffentlich",
       "isPublicDescription": "Jeder kann diesen Katalog über seine normale Adresse öffnen, ohne den privaten Link.",
@@ -2947,7 +2951,12 @@
       "reservationHoldDescription": "Danach läuft die Reservierung ab und die nächste Person in der Reihe bekommt die Karte.",
       "reservationsOn": "Nimmt Reservierungen an",
       "reservationsRequireAccount": "Konto zum Reservieren verlangen",
-      "reservationsRequireAccountDescription": "Nur angemeldete Kunden können Karten reservieren. Sie bekommen Updates und sehen ihre Reservierungen auf jedem Gerät."
+      "reservationsRequireAccountDescription": "Nur angemeldete Kunden können Karten reservieren. Sie bekommen Updates und sehen ihre Reservierungen auf jedem Gerät.",
+      "detailsHeading": "Details",
+      "visibilityHeading": "Wer ihn sehen kann",
+      "reservationsHeading": "Reservierungen",
+      "contentsHeading": "Inhalt",
+      "notFound": "Diesen Katalog gibt es nicht mehr."
     },
     "orgProfile": {
       "description": "Eine öffentliche Link-in-Bio-Seite für deine Organisation mit deinen Links, Shop-Katalogen und einer Vitrine mit Karten.",
@@ -4822,13 +4831,19 @@
       "salesSection": {
         "description": "Jede verkaufte Karte mit Einkaufspreis und Gewinn.",
         "link": "Zu den Verkäufen"
+      },
+      "catalogs": {
+        "summary_one": "{{count}} Katalog für Kunden",
+        "summary_other": "{{count}} Kataloge für Kunden",
+        "link": "Zu den Katalogen"
       }
     },
     "views": {
       "intake": "Wareneingang",
       "picks": "Picks",
       "reservations": "Reservierungen",
-      "sales": "Verkäufe"
+      "sales": "Verkäufe",
+      "catalogs": "Kataloge"
     },
     "status": {
       "open": "Offen",
@@ -5558,6 +5573,21 @@
       "list": {
         "title": "Jeder Verkauf",
         "description": "Die Liste zeigt jede verkaufte Karte aus abgeschlossenen Picks und Reservierungsabholungen."
+      }
+    },
+    "catalogs": {
+      "title": "So funktionieren Shop-Kataloge",
+      "create": {
+        "title": "Inhalt auswählen",
+        "description": "Jeder Katalog zeigt die Karten aus den Sammlungen und Lagerorten, die du auswählst."
+      },
+      "share": {
+        "title": "Link teilen",
+        "description": "Tippe auf einen Katalog, um Link und QR-Code für ein Tablet im Laden oder deine Website zu zeigen."
+      },
+      "manage": {
+        "title": "Bearbeiten oder zurücksetzen",
+        "description": "Halte einen Katalog gedrückt, um ihn zu bearbeiten, den Link zurückzusetzen oder ihn zu löschen."
       }
     },
     "scanBuy": {

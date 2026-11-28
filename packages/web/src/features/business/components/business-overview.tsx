@@ -11,6 +11,7 @@ import {
   businessOverviewQueryOptions,
   inventoryMarginQueryOptions,
 } from "@/features/business/api/business";
+import { shopCatalogsQueryOptions } from "@/features/business/api/shop-catalogs";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { AccuracyReportView } from "@/features/business/components/accuracy-report";
 import {
@@ -36,6 +37,7 @@ import {
   BUSINESS_OVERVIEW_VIEW_PARAM,
   BUSINESS_OVERVIEW_VIEWS,
   BUSINESS_SECTION_PATHS,
+  SHOP_CATALOGS_PATH,
   INTAKE_PATH,
   intakeLotPath,
   PICKS_PATH,
@@ -133,6 +135,8 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
     statsReportQueryOptions(canViewCosts ? orgId : undefined, STATS_DEFAULT_RANGE, null),
   );
   const inventoryMargin = useQuery(inventoryMarginQueryOptions(orgId, canViewCosts));
+  const canManageCatalogs = access?.canManageSettings ?? false;
+  const shopCatalogs = useQuery(shopCatalogsQueryOptions(canManageCatalogs ? orgId : undefined));
   const { intake, picks, sales } = overview;
   const attention = businessOverviewAttentionItems(overview);
   const inventoryReport =
@@ -299,6 +303,24 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
                 />
               ))}
           </BusinessOverviewListPanel>
+          {canManageCatalogs && shopCatalogs.data && (
+            <BusinessOverviewListPanel
+              heading={t("shopCatalogs.heading")}
+              description={t("overview.catalogs.summary", { count: shopCatalogs.data.length })}
+              to={SHOP_CATALOGS_PATH}
+              linkLabel={t("overview.catalogs.link")}
+              emptyText={t("shopCatalogs.empty")}
+            >
+              {shopCatalogs.data.length > 0 &&
+                shopCatalogs.data.map((catalog) => (
+                  <BusinessOverviewRow
+                    key={catalog.guid}
+                    to={SHOP_CATALOGS_PATH}
+                    title={catalog.name}
+                  />
+                ))}
+            </BusinessOverviewListPanel>
+          )}
         </div>
       </section>
 

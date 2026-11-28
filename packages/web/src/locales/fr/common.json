@@ -62,7 +62,8 @@
     "trigger": "Menu du compte",
     "signOut": "Se déconnecter",
     "theme": "Thème",
-    "language": "Langue"
+    "language": "Langue",
+    "viewPublicProfile": "Voir le profil public"
   },
   "emailVerification": {
     "banner": "Merci de vérifier ton adresse e-mail ({{email}}) pour sécuriser ton compte.",

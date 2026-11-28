@@ -3,16 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { useMemo } from "react";
 import { AccessibilityInfo, View } from "react-native";
 import {
   CARD_RESERVATION_HOLD_DAY_CHOICES,
-  DEFAULT_CARD_RESERVATION_HOLD_DAYS,
-  DEFAULT_SHARE_LINK_SHOWS_PRICES,
-  DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
-  DEFAULT_SHOP_CATALOG_RESERVATIONS_REQUIRE_ACCOUNT,
-  DEFAULT_SHOP_CATALOG_IS_PUBLIC,
   shopCatalogFormSchema,
-  toCardReservationHoldDays,
+  toShopCatalogFormValues,
   type ShopCatalogFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
@@ -20,8 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
-import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { QueryErrorState } from "@/components/ui/query-error-state";
+import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SectionSkeleton } from "@/components/ui/section-skeleton";
 import { SegmentedControl } from "@/components/ui/segmented-control";
@@ -32,10 +28,10 @@ import { createShopCatalog, shopCatalogsQueryOptions, updateShopCatalog } from "
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useDiscardChangesGuard } from "@/features/settings/lib/use-leave-guard";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { SPACING } from "@/lib/constants/theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 import type { ShopCatalogSourceSwitchesProps } from "@/lib/interfaces/settings";
 
@@ -83,31 +79,10 @@ export default function ShopCatalogEditScreen() {
     void access.refetch();
     if (access.data?.canManageSettings) void list.refetch();
   };
+  const savedValues = useMemo(() => toShopCatalogFormValues(catalog), [catalog]);
   const form = useForm<ShopCatalogFormValues>({
     resolver: zodResolver(shopCatalogFormSchema),
-    defaultValues: {
-      name: "",
-      showsPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
-      isPublic: DEFAULT_SHOP_CATALOG_IS_PUBLIC,
-      allowsReservations: DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
-      reservationsRequireAccount: DEFAULT_SHOP_CATALOG_RESERVATIONS_REQUIRE_ACCOUNT,
-      reservationHoldDays: DEFAULT_CARD_RESERVATION_HOLD_DAYS,
-      collectionGuids: [],
-      storageLocationGuids: [],
-    },
-    values: catalog
-      ? {
-          name: catalog.name,
-          showsPrices: catalog.showsPrices,
-          isPublic: catalog.isPublic,
-          allowsReservations: catalog.allowsReservations ?? DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
-          reservationsRequireAccount:
-            catalog.reservationsRequireAccount ?? DEFAULT_SHOP_CATALOG_RESERVATIONS_REQUIRE_ACCOUNT,
-          reservationHoldDays: toCardReservationHoldDays(catalog.reservationHoldDays),
-          collectionGuids: catalog.collections.map((source) => source.guid),
-          storageLocationGuids: catalog.storageLocations.map((source) => source.guid),
-        }
-      : undefined,
+    values: savedValues,
     resetOptions: { keepDirtyValues: true },
   });
   const allowsReservations = form.watch("allowsReservations");
@@ -119,7 +94,7 @@ export default function ShopCatalogEditScreen() {
       await queryClient.invalidateQueries({ queryKey: ["business", "shop-catalogs", orgId] });
       if (isNew) {
         AccessibilityInfo.announceForAccessibility(t("settings.shopCatalogs.created"));
-        leaveWithoutGuard(() => router.replace({ pathname: "/settings/shop-catalog-link", params: { guid: saved.guid } }));
+        leaveWithoutGuard(() => router.replace({ pathname: "/business/shop-catalog-link", params: { guid: saved.guid } }));
         return;
       }
       AccessibilityInfo.announceForAccessibility(t("settings.shopCatalogs.saved"));
@@ -128,41 +103,45 @@ export default function ShopCatalogEditScreen() {
   });
 
   return (
-    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
-      <PageHeader
-        title={isNew ? t("settings.shopCatalogs.addTitle") : t("settings.shopCatalogs.editTitle")}
-        subtitle={t("settings.shopCatalogs.dialogDescription")}
-      />
-      <PinnedActionsLayout
-        actions={
-          <Button
-            size="lg"
-            label={isNew ? t("settings.shopCatalogs.add") : t("settings.shopCatalogs.save")}
-            loading={save.isPending}
-            disabled={isLoadError || (!isNew && !catalog)}
-            onPress={form.handleSubmit((values) => save.mutate(values))}
-          />
-        }
-      >
-        {save.isError ? <Callout tone="destructive" title={save.error.message} /> : null}
-        {isLoadError ? (
-          <QueryErrorState
-            onRetry={retryLoad}
-            isRetrying={access.isFetching || list.isFetching || collections.isFetching || storageLocations.isFetching}
-          />
-        ) : isLoadingForm ? (
-          <>
-            <FormSkeleton fields={1} />
-            {Array.from({ length: 3 }).map((_, index) => (
-              <SwitchRowSkeleton key={index} hasDescription />
-            ))}
-            <SectionSkeleton>
-              <SwitchRowSkeleton />
-              <SwitchRowSkeleton />
-            </SectionSkeleton>
-          </>
-        ) : (
-          <>
+    <Screen
+      header={
+        <PageHeader
+          title={isNew ? t("settings.shopCatalogs.addTitle") : t("settings.shopCatalogs.editTitle")}
+          onBack={() => router.back()}
+        />
+      }
+      footer={
+        <Button
+          size="lg"
+          label={isNew ? t("settings.shopCatalogs.add") : t("settings.shopCatalogs.save")}
+          loading={save.isPending}
+          disabled={isLoadError || isLoadingForm || (!isNew && !catalog)}
+          onPress={form.handleSubmit((values) => save.mutate(values))}
+        />
+      }
+    >
+      {save.isError ? <Callout tone="destructive" title={save.error.message} /> : null}
+      {isLoadError ? (
+        <QueryErrorState
+          onRetry={retryLoad}
+          isRetrying={access.isFetching || list.isFetching || collections.isFetching || storageLocations.isFetching}
+        />
+      ) : isLoadingForm ? (
+        <>
+          <FormSkeleton fields={1} />
+          {Array.from({ length: 3 }).map((_, index) => (
+            <SwitchRowSkeleton key={index} hasDescription />
+          ))}
+          <SectionSkeleton>
+            <SwitchRowSkeleton />
+            <SwitchRowSkeleton />
+          </SectionSkeleton>
+        </>
+      ) : !isNew && !catalog ? (
+        <Callout tone="info" title={t("settings.shopCatalogs.notFound")} />
+      ) : (
+        <>
+          <SettingsSection title={t("settings.shopCatalogs.detailsHeading")}>
             <Controller
               control={form.control}
               name="name"
@@ -178,6 +157,8 @@ export default function ShopCatalogEditScreen() {
                 />
               )}
             />
+          </SettingsSection>
+          <SettingsSection title={t("settings.shopCatalogs.visibilityHeading")}>
             <Controller
               control={form.control}
               name="showsPrices"
@@ -202,6 +183,8 @@ export default function ShopCatalogEditScreen() {
                 />
               )}
             />
+          </SettingsSection>
+          <SettingsSection title={t("settings.shopCatalogs.reservationsHeading")}>
             <Controller
               control={form.control}
               name="allowsReservations"
@@ -219,8 +202,10 @@ export default function ShopCatalogEditScreen() {
                 control={form.control}
                 name="reservationHoldDays"
                 render={({ field }) => (
-                  <View style={{ gap: SPACING.sm }}>
-                    <SectionHeader title={t("settings.shopCatalogs.reservationHoldLabel")} />
+                  <>
+                    <AppText size="sm" weight="semibold">
+                      {t("settings.shopCatalogs.reservationHoldLabel")}
+                    </AppText>
                     <SegmentedControl
                       options={CARD_RESERVATION_HOLD_DAY_CHOICES.map((days) => ({
                         value: String(days),
@@ -232,7 +217,7 @@ export default function ShopCatalogEditScreen() {
                     <AppText size="xs" tone="secondary">
                       {t("settings.shopCatalogs.reservationHoldDescription")}
                     </AppText>
-                  </View>
+                  </>
                 )}
               />
             ) : null}
@@ -250,11 +235,16 @@ export default function ShopCatalogEditScreen() {
                 )}
               />
             ) : null}
+          </SettingsSection>
+          <SettingsSection
+            title={t("settings.shopCatalogs.contentsHeading")}
+            description={t("settings.shopCatalogs.dialogDescription")}
+          >
             <Controller
               control={form.control}
               name="collectionGuids"
               render={({ field, fieldState }) => (
-                <View style={{ gap: SPACING.sm }}>
+                <View>
                   <SectionHeader title={t("settings.shopCatalogs.collectionsLabel")} />
                   <ShopCatalogSourceSwitches
                     options={(collections.data ?? []).map((collection) => ({ guid: collection.guid, name: collection.name }))}
@@ -274,7 +264,7 @@ export default function ShopCatalogEditScreen() {
               control={form.control}
               name="storageLocationGuids"
               render={({ field }) => (
-                <View style={{ gap: SPACING.sm }}>
+                <View>
                   <SectionHeader title={t("settings.shopCatalogs.storageLocationsLabel")} />
                   <ShopCatalogSourceSwitches
                     options={(storageLocations.data ?? []).map((location) => ({ guid: location.guid, name: location.name }))}
@@ -288,9 +278,9 @@ export default function ShopCatalogEditScreen() {
             <AppText size="xs" tone="secondary">
               {t("settings.shopCatalogs.inventoryNote")}
             </AppText>
-          </>
-        )}
-      </PinnedActionsLayout>
-    </View>
+          </SettingsSection>
+        </>
+      )}
+    </Screen>
   );
 }

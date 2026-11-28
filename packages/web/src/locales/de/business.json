@@ -120,6 +120,11 @@
       "link": "Zu den Picks",
       "summary": "{{picks}} offen, {{cards}} zu picken"
     },
+    "catalogs": {
+      "summary_one": "{{count}} Katalog für Kunden",
+      "summary_other": "{{count}} Kataloge für Kunden",
+      "link": "Zu den Katalogen"
+    },
     "views": {
       "overview": "Zusammenfassung",
       "staff": "Team",
@@ -205,7 +210,8 @@
     "picks": "Picks",
     "labels": "Etiketten",
     "reservations": "Reservierungen",
-    "sales": "Verkäufe"
+    "sales": "Verkäufe",
+    "catalogs": "Kataloge"
   },
   "offerEditor": {
     "title": "Angebot für {{name}}",
@@ -895,6 +901,7 @@
   "shopCatalogs": {
     "heading": "Shop-Kataloge",
     "description": "Lass Kunden deinen Bestand auf einem Tablet im Laden oder auf deiner Website durchsuchen. Jeder Katalog zeigt die Karten aus den gewählten Sammlungen und Lagerorten, über einen Link, der funktioniert, bis du ihn zurücksetzt.",
+    "managersOnly": "Nur Inhaber und Admins können Shop-Kataloge verwalten.",
     "add": "Neuer Katalog",
     "addTitle": "Neuer Shop-Katalog",
     "editTitle": "Shop-Katalog bearbeiten",
@@ -941,7 +948,7 @@
     },
     "photo": {
       "heading": "Shop-Foto",
-      "description": "Erscheint oben in jedem Shop-Katalog. JPEG, PNG oder WebP, bis 10 MB.",
+      "description": "Erscheint auf deinen Shop-Katalogen, deinem öffentlichen Profil, Anzeige-Links und Lieferscheinen.",
       "upload": "Foto hochladen",
       "replace": "Ersetzen",
       "remove": "Shop-Foto entfernen",
@@ -951,7 +958,9 @@
       "removed": "Shop-Foto entfernt",
       "removeFailed": "Shop-Foto konnte nicht entfernt werden.",
       "wrongType": "Lade ein JPEG-, PNG- oder WebP-Foto hoch.",
-      "tooLarge": "Das Foto ist zu groß. Lade eines unter 10 MB hoch."
+      "tooLarge": "Das Foto ist zu groß. Lade eines unter 10 MB hoch.",
+      "formats": "JPEG, PNG oder WebP, bis 10 MB.",
+      "upgrade": "Das Shop-Foto ist Teil des Business-Tarifs."
     },
     "isPublic": "Öffentlich",
     "isPublicDescription": "Jeder kann diesen Katalog über seine normale Adresse öffnen, ohne den privaten Link. Ausschalten, um den privaten Link zu verlangen.",
@@ -965,7 +974,14 @@
     "reservationHoldDescription": "Danach läuft die Reservierung ab und die nächste Person in der Reihe bekommt die Karte.",
     "reservationsOn": "Nimmt Reservierungen an",
     "reservationsRequireAccount": "Konto zum Reservieren verlangen",
-    "reservationsRequireAccountDescription": "Nur angemeldete Kunden können Karten reservieren. Sie bekommen Updates und sehen ihre Reservierungen auf jedem Gerät."
+    "reservationsRequireAccountDescription": "Nur angemeldete Kunden können Karten reservieren. Sie bekommen Updates und sehen ihre Reservierungen auf jedem Gerät.",
+    "editor": {
+      "detailsHeading": "Details",
+      "visibilityHeading": "Wer ihn sehen kann",
+      "reservationsHeading": "Reservierungen",
+      "contentsHeading": "Inhalt",
+      "notFound": "Diesen Katalog gibt es nicht mehr."
+    }
   },
   "priceLabels": {
     "title": "Preisetiketten",
@@ -1020,7 +1036,7 @@
     }
   },
   "reservations": {
-    "howItWorks": "Schalte Reservierungen pro Shop-Katalog in den Einstellungen ein. Eine Reservierung läuft von selbst ab, sobald die für ihren Katalog eingestellte Zeit vorbei ist.",
+    "howItWorks": "Schalte Reservierungen pro Shop-Katalog unter Kataloge ein. Eine Reservierung läuft von selbst ab, sobald die für ihren Katalog eingestellte Zeit vorbei ist.",
     "listLabel": "Reservierungsliste",
     "lists": {
       "active": "Offen",

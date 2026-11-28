@@ -94,6 +94,9 @@ import {
   PRICE_LABELS_PATH,
   RESERVATIONS_PATH,
   SALES_PATH,
+  SHOP_CATALOGS_PATH,
+  SHOP_CATALOG_EDIT_ROUTE_PATH,
+  SHOP_CATALOG_NEW_PATH,
   picksPath,
   LEGACY_REPORTS_PATH,
 } from "@/lib/constants/business";
@@ -365,6 +368,8 @@ const PicksPage = lazyRoute(() => import("@/app/routes/app/picks"));
 const PriceLabelsPage = lazyRoute(() => import("@/app/routes/app/price-labels"));
 const ReservationsPage = lazyRoute(() => import("@/app/routes/app/reservations"));
 const SalesPage = lazyRoute(() => import("@/app/routes/app/sales"));
+const ShopCatalogsPage = lazyRoute(() => import("@/app/routes/app/shop-catalogs"));
+const ShopCatalogEditorPage = lazyRoute(() => import("@/app/routes/app/shop-catalog-editor"));
 const PickBatchPage = lazyRoute(() => import("@/app/routes/app/pick-batch"));
 const PackingSlipsPage = lazyRoute(() => import("@/app/routes/app/packing-slips"));
 const PickImportPage = lazyRoute(
@@ -959,6 +964,18 @@ export const routes: RouteObject[] = [
               {
                 path: SALES_PATH,
                 element: <SalesPage />,
+              },
+              {
+                path: SHOP_CATALOGS_PATH,
+                element: <ShopCatalogsPage />,
+              },
+              {
+                path: SHOP_CATALOG_NEW_PATH,
+                element: <ShopCatalogEditorPage />,
+              },
+              {
+                path: SHOP_CATALOG_EDIT_ROUTE_PATH,
+                element: <ShopCatalogEditorPage />,
               },
               {
                 path: PICK_BATCH_PATH,

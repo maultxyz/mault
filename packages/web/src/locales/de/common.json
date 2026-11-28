@@ -62,7 +62,8 @@
     "trigger": "Kontomenü",
     "signOut": "Abmelden",
     "theme": "Design",
-    "language": "Sprache"
+    "language": "Sprache",
+    "viewPublicProfile": "Öffentliches Profil ansehen"
   },
   "emailVerification": {
     "banner": "Bitte bestätige deine E-Mail-Adresse ({{email}}), um dein Konto abzusichern.",

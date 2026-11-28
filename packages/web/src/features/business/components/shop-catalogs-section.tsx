@@ -13,14 +13,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ShopCatalogsSkeleton } from "@/features/business/components/shop-catalogs-skeleton";
 import { useShopCatalogs } from "@/features/business/api/use-shop-catalogs";
-import { ShopCatalogDialog } from "@/features/business/components/shop-catalog-dialog";
-import { ShopPhotoSettings } from "@/features/business/components/shop-photo-settings";
 import { ShopCatalogLinkDialog } from "@/features/business/components/shop-catalog-link-dialog";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import {
+  SHOP_CATALOG_LINK_PARAM,
+  SHOP_CATALOG_NEW_PATH,
+  shopCatalogEditPath,
+} from "@/lib/constants/business";
 import type { ShopCatalog } from "@magic-vault/shared";
 import { IconBuildingStore, IconDots, IconPlus, IconQrcode } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 export function ShopCatalogsSection() {
   const { t } = useTranslation("business");
@@ -32,19 +36,24 @@ export function ShopCatalogsSection() {
     isLoading,
     isError,
     refetch,
-    create,
-    update,
     resetLink,
     remove,
-    photoUrl,
-    uploadPhoto,
-    removePhoto,
   } = useShopCatalogs();
-  const [dialogTarget, setDialogTarget] = useState<ShopCatalog | "new" | null>(null);
-  const [linkTargetGuid, setLinkTargetGuid] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [deleteTarget, setDeleteTarget] = useState<ShopCatalog | null>(null);
-  const editing = dialogTarget === "new" ? null : dialogTarget;
+  const linkTargetGuid = searchParams.get(SHOP_CATALOG_LINK_PARAM);
   const linkTarget = catalogs.find((catalog) => catalog.guid === linkTargetGuid) ?? null;
+  const setLinkTargetGuid = (guid: string | null) =>
+    setSearchParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        if (guid) next.set(SHOP_CATALOG_LINK_PARAM, guid);
+        else next.delete(SHOP_CATALOG_LINK_PARAM);
+        return next;
+      },
+      { replace: true },
+    );
 
   function sourceSummary(catalog: ShopCatalog): string {
     return [...catalog.collections, ...catalog.storageLocations]
@@ -55,11 +64,14 @@ export function ShopCatalogsSection() {
   return (
     <SettingsSection
       heading={t("shopCatalogs.heading")}
-      description={t("shopCatalogs.description")}
       action={
         canManage &&
         !isLocked && (
-          <Button type="button" variant="outline" onClick={() => setDialogTarget("new")}>
+          <Button
+            variant="outline"
+            render={<Link to={SHOP_CATALOG_NEW_PATH} />}
+            nativeButton={false}
+          >
             <IconPlus />
             {t("shopCatalogs.add")}
           </Button>
@@ -68,16 +80,6 @@ export function ShopCatalogsSection() {
     >
       {isLocked && (
         <PlanNotice message={t("shopCatalogs.upgrade")} linkLabel={t("upgrade.link")} />
-      )}
-      {canManage && (
-        <ShopPhotoSettings
-          photoUrl={photoUrl}
-          canEdit={!isLocked}
-          isUploading={uploadPhoto.isPending}
-          isRemoving={removePhoto.isPending}
-          onUpload={(file) => uploadPhoto.mutate(file)}
-          onRemove={() => removePhoto.mutate()}
-        />
       )}
       {isError && (
         <LoadErrorCallout
@@ -150,7 +152,7 @@ export function ShopCatalogsSection() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
                         disabled={isLocked}
-                        onClick={() => setDialogTarget(catalog)}
+                        onClick={() => navigate(shopCatalogEditPath(catalog.guid))}
                       >
                         {t("shopCatalogs.edit")}
                       </DropdownMenuItem>
@@ -168,30 +170,6 @@ export function ShopCatalogsSection() {
           })}
         </div>
       )}
-
-      <ShopCatalogDialog
-        open={dialogTarget !== null}
-        onOpenChange={(open) => {
-          if (!open) setDialogTarget(null);
-        }}
-        catalog={editing}
-        isSaving={create.isPending || update.isPending}
-        onSubmit={(input) => {
-          if (editing) {
-            update.mutate(
-              { guid: editing.guid, input },
-              { onSuccess: () => setDialogTarget(null) },
-            );
-          } else {
-            create.mutate(input, {
-              onSuccess: (created) => {
-                setDialogTarget(null);
-                setLinkTargetGuid(created.guid);
-              },
-            });
-          }
-        }}
-      />
 
       <ShopCatalogLinkDialog
         catalog={linkTarget}

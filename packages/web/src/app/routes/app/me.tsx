@@ -9,6 +9,7 @@ import { MobileSegmentedControl } from "@/components/mobile-segmented-control";
 import { useSignOut } from "@/features/account/api/use-sign-out";
 import { useHasBusinessTools } from "@/features/business/api/use-has-business-tools";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { usePublishedOrgProfileUrl } from "@/features/org-profile/api/use-published-org-profile-url";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useAuthSession } from "@/lib/auth";
@@ -41,6 +42,7 @@ import {
   IconSettings,
   IconSparkles,
   IconUserCircle,
+  IconWorld,
 } from "@tabler/icons-react";
 import { WHATS_NEW_PATH } from "@/lib/constants/feature-highlights";
 import { useTheme } from "next-themes";
@@ -63,6 +65,7 @@ export default function MePage() {
   const { planLockFor } = usePlanLockedPath();
   const intakeLock = planLockFor(INTAKE_PATH);
   const hasBusinessTools = useHasBusinessTools();
+  const publicProfileUrl = usePublishedOrgProfileUrl();
 
   if (!isMobile) return <Navigate to={SETTINGS_PATHS.root} replace />;
 
@@ -131,6 +134,13 @@ export default function MePage() {
               label={t("nav.settings")}
               to={SETTINGS_PATHS.root}
             />
+            {publicProfileUrl && (
+              <MobileListRow
+                icon={<IconWorld />}
+                label={t("userMenu.viewPublicProfile")}
+                href={publicProfileUrl}
+              />
+            )}
             <MobileListRow
               icon={<IconUserCircle />}
               label={t("breadcrumb.account")}

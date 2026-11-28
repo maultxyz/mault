@@ -593,6 +593,7 @@
     "settingsRow": "Paramètres du compte",
     "settingsRowSubtitle": "Nom, e-mail, mot de passe et sessions",
     "settingsRowSubtitleLocal": "Ton nom et ton e-mail",
+    "viewPublicProfile": "Voir le profil public",
     "language": "Langue",
     "languageSystem": "Langue du téléphone",
     "sorterConnection": "Connexion de la trieuse",
@@ -2340,7 +2341,7 @@
       },
       "business": {
         "title": "Business",
-        "description": "Offres de rachat, droits des membres et catalogues boutique"
+        "description": "Offres de rachat et droits des membres"
       },
       "raspberryPis": {
         "title": "Raspberry Pi",
@@ -2840,7 +2841,7 @@
       }
     },
     "business": {
-      "description": "Choisissez ce que les membres peuvent voir et faire, et partagez vos catalogues de boutique.",
+      "description": "Choisissez ce que les membres peuvent voir et faire.",
       "managersOnly": "Seuls les propriétaires et les admins peuvent modifier ces réglages.",
       "buylist": {
         "tiers": "Paliers de prix",
@@ -2883,6 +2884,7 @@
     "shopCatalogs": {
       "heading": "Catalogues boutique",
       "description": "Laissez vos clients parcourir votre stock sur une tablette en boutique ou sur votre site. Chaque catalogue montre les cartes des collections et emplacements choisis, via un lien qui fonctionne jusqu'à ce que vous le réinitialisiez.",
+      "managersOnly": "Seuls les propriétaires et les admins peuvent gérer les catalogues boutique.",
       "add": "Nouveau catalogue",
       "addTitle": "Nouveau catalogue boutique",
       "editTitle": "Modifier le catalogue boutique",
@@ -2922,7 +2924,7 @@
       "actions": "Actions du catalogue",
       "photo": {
         "heading": "Photo de la boutique",
-        "description": "Affichée en haut de chaque catalogue boutique. JPEG, PNG ou WebP, jusqu'à 10 Mo.",
+        "description": "Affichée sur vos catalogues boutique, votre profil public, vos liens d'affichage et vos bons de livraison.",
         "upload": "Importer une photo",
         "replace": "Remplacer",
         "remove": "Supprimer",
@@ -2933,7 +2935,9 @@
         "wrongType": "Importez une photo JPEG, PNG ou WebP.",
         "tooLarge": "Cette photo est trop lourde. Importez-en une de moins de 10 Mo.",
         "removeConfirmTitle": "Supprimer la photo de la boutique ?",
-        "removeConfirmDescription": "Vos catalogues s'afficheront sans photo."
+        "removeConfirmDescription": "Vos catalogues s'afficheront sans photo.",
+        "formats": "JPEG, PNG ou WebP, jusqu'à 10 Mo.",
+        "upgrade": "La photo de la boutique fait partie de l'offre Business."
       },
       "isPublic": "Public",
       "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé.",
@@ -2947,7 +2951,12 @@
       "reservationHoldDescription": "Passé ce délai, la réservation expire et la personne suivante dans la file obtient la carte.",
       "reservationsOn": "Accepte les réservations",
       "reservationsRequireAccount": "Exiger un compte pour réserver",
-      "reservationsRequireAccountDescription": "Seuls les clients connectés peuvent réserver des cartes. Ils reçoivent des mises à jour et voient leurs réservations sur tous leurs appareils."
+      "reservationsRequireAccountDescription": "Seuls les clients connectés peuvent réserver des cartes. Ils reçoivent des mises à jour et voient leurs réservations sur tous leurs appareils.",
+      "detailsHeading": "Détails",
+      "visibilityHeading": "Qui peut le voir",
+      "reservationsHeading": "Réservations",
+      "contentsHeading": "Contenu",
+      "notFound": "Ce catalogue n'existe plus."
     },
     "orgProfile": {
       "description": "Une page publique de type lien en bio pour votre organisation, avec vos liens, vos catalogues de boutique et une vitrine de cartes.",
@@ -4822,13 +4831,19 @@
       "salesSection": {
         "description": "Chaque carte vendue, avec son coût et son bénéfice.",
         "link": "Aller aux ventes"
+      },
+      "catalogs": {
+        "summary_one": "{{count}} catalogue pour vos clients",
+        "summary_other": "{{count}} catalogues pour vos clients",
+        "link": "Aller aux catalogues"
       }
     },
     "views": {
       "intake": "Entrées de stock",
       "picks": "Préparations",
       "reservations": "Réservations",
-      "sales": "Ventes"
+      "sales": "Ventes",
+      "catalogs": "Catalogues"
     },
     "status": {
       "open": "Ouvert",
@@ -5558,6 +5573,21 @@
       "list": {
         "title": "Chaque vente",
         "description": "La liste montre chaque carte vendue, issue des préparations terminées et des retraits de réservations."
+      }
+    },
+    "catalogs": {
+      "title": "Fonctionnement des catalogues boutique",
+      "create": {
+        "title": "Choisir le contenu",
+        "description": "Chaque catalogue montre les cartes des collections et emplacements de stockage que vous choisissez."
+      },
+      "share": {
+        "title": "Partager le lien",
+        "description": "Touchez un catalogue pour afficher son lien et son QR code pour une tablette en boutique ou votre site."
+      },
+      "manage": {
+        "title": "Modifier ou réinitialiser",
+        "description": "Maintenez un catalogue appuyé pour le modifier, réinitialiser son lien ou le supprimer."
       }
     },
     "scanBuy": {

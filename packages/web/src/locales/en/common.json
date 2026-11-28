@@ -62,7 +62,8 @@
     "signOutConfirmDescription": "You will need to sign in again to use Mault on this device.",
     "signOut": "Sign out",
     "theme": "Theme",
-    "language": "Language"
+    "language": "Language",
+    "viewPublicProfile": "View public profile"
   },
   "emailVerification": {
     "banner": "Please verify your email address ({{email}}) to secure your account.",

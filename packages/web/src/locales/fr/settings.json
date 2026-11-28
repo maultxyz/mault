@@ -97,7 +97,7 @@
     "sounds": "Joue un son quand une carte scannée correspond à une règle, par exemple pour les cartes de valeur.",
     "notifications": "Relie ton serveur Discord et choisis quels scans et alertes sont publiés et où.",
     "integrations": "Crée des clés API et des webhooks pour que ta boutique ou d'autres outils sachent où tes cartes sont rangées.",
-    "business": "Choisissez ce que les membres peuvent voir et faire, et partagez vos catalogues.",
+    "business": "Choisissez ce que les membres peuvent voir et faire.",
     "raspberry-pis": "Associez un trieur Raspberry Pi à cette organisation, puis lancez et arrêtez ses scans depuis cette page.",
     "profile": "Votre page publique sur mault.xyz/@handle avec vos liens, catalogues de boutique et cartes favorites."
   },

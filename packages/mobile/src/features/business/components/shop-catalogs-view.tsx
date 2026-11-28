@@ -1,38 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as DocumentPicker from "expo-document-picker";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Alert, View } from "react-native";
-import { SHOP_PHOTO_MAX_UPLOAD_BYTES, SHOP_PHOTO_MIME_TYPES, type ShopCatalog } from "@magic-vault/shared";
-import { AppText } from "@/components/ui/app-text";
+import { AccessibilityInfo, Alert } from "react-native";
+import type { ShopCatalog } from "@magic-vault/shared";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { Surface } from "@/components/ui/surface";
 import {
   deleteShopCatalog,
-  removeShopPhoto,
   resetShopCatalogLink,
   shopCatalogsQueryOptions,
-  shopPhotoQueryOptions,
-  uploadShopPhoto,
 } from "@/features/business/api/shop-catalogs";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useActiveOrg } from "@/hooks/use-org";
-import { useTheme } from "@/hooks/use-theme";
-import { SHOP_PHOTO_PREVIEW_HEIGHT, SHOP_PHOTO_PREVIEW_WIDTH } from "@/lib/constants/shop-catalogs";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { SettingsNotice } from "@/lib/interfaces/settings";
 
-export function ShopCatalogsSettings() {
+export function ShopCatalogsView() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const queryClient = useQueryClient();
   const org = useActiveOrg();
   const orgId = org?.id ?? null;
@@ -40,7 +29,6 @@ export function ShopCatalogsSettings() {
   const canManage = !!access.data?.canManageSettings;
   const locked = !!access.data?.isLocked;
   const list = useQuery(shopCatalogsQueryOptions(orgId, canManage));
-  const photo = useQuery(shopPhotoQueryOptions(orgId, canManage));
   const [actionsFor, setActionsFor] = useState<ShopCatalog | null>(null);
   const [notice, setNotice] = useState<SettingsNotice | null>(null);
   const catalogs = list.data ?? [];
@@ -52,10 +40,10 @@ export function ShopCatalogsSettings() {
   };
   const fail = (error: Error) => setNotice({ tone: "destructive", text: error.message });
 
-  const showLink = (catalogGuid: string) => router.push({ pathname: "/settings/shop-catalog-link", params: { guid: catalogGuid } });
+  const showLink = (catalogGuid: string) => router.push({ pathname: "/business/shop-catalog-link", params: { guid: catalogGuid } });
   const openEditor = (catalog?: ShopCatalog) => {
     setNotice(null);
-    router.push({ pathname: "/settings/shop-catalog-edit", params: catalog ? { guid: catalog.guid } : {} });
+    router.push({ pathname: "/business/shop-catalog-edit", params: catalog ? { guid: catalog.guid } : {} });
   };
 
   const resetLink = useMutation({
@@ -73,47 +61,6 @@ export function ShopCatalogsSettings() {
     onSettled: invalidate,
     onError: fail,
   });
-
-  const invalidatePhoto = () => void queryClient.invalidateQueries({ queryKey: ["business", "shop-photo", orgId] });
-  const uploadPhoto = useMutation({
-    mutationFn: uploadShopPhoto,
-    onSuccess: () => succeed(t("settings.shopCatalogs.photo.uploaded")),
-    onSettled: invalidatePhoto,
-    onError: fail,
-  });
-  const removePhoto = useMutation({
-    mutationFn: removeShopPhoto,
-    onSuccess: () => succeed(t("settings.shopCatalogs.photo.removed")),
-    onSettled: invalidatePhoto,
-    onError: fail,
-  });
-
-  const pickPhoto = async () => {
-    setNotice(null);
-    try {
-      const result = await DocumentPicker.getDocumentAsync({ type: SHOP_PHOTO_MIME_TYPES, copyToCacheDirectory: true });
-      const asset = result.canceled ? null : result.assets[0];
-      if (!asset) return;
-      const mimeType = asset.mimeType ?? "";
-      if (!SHOP_PHOTO_MIME_TYPES.includes(mimeType)) {
-        fail(new Error(t("settings.shopCatalogs.photo.wrongType")));
-        return;
-      }
-      if (asset.size != null && asset.size > SHOP_PHOTO_MAX_UPLOAD_BYTES) {
-        fail(new Error(t("settings.shopCatalogs.photo.tooLarge")));
-        return;
-      }
-      uploadPhoto.mutate({ uri: asset.uri, fileName: asset.name, mimeType });
-    } catch {
-      fail(new Error(t("settings.shopCatalogs.photo.uploadFailed")));
-    }
-  };
-
-  const confirmRemovePhoto = () =>
-    Alert.alert(t("settings.shopCatalogs.photo.removeConfirmTitle"), t("settings.shopCatalogs.photo.removeConfirmDescription"), [
-      { text: t("settings.shopCatalogs.cancel"), style: "cancel" },
-      { text: t("settings.shopCatalogs.photo.remove"), style: "destructive", onPress: () => removePhoto.mutate() },
-    ]);
 
   const runAction = (action: string) => {
     const catalog = actionsFor;
@@ -138,58 +85,14 @@ export function ShopCatalogsSettings() {
     [...catalog.collections, ...catalog.storageLocations].map((source) => source.name).join(", ") ||
     t("settings.shopCatalogs.noLiveSources");
 
-  if (!canManage) return null;
+  if (access.data && !canManage) return <Callout tone="info" title={t("settings.shopCatalogs.managersOnly")} />;
+  if (!canManage) return <ListSkeleton rows={2} hasSubtitle hasTrailing={false} />;
 
   return (
     <>
       {locked ? <Callout tone="info" title={t("settings.shopCatalogs.upgrade")} /> : null}
       {list.isError ? <Callout tone="destructive" title={t("settings.shopCatalogs.loadFailed")} /> : null}
       {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
-
-      <SettingsSection title={t("settings.shopCatalogs.photo.heading")}>
-        <Surface style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
-          <View
-            style={{
-              width: SHOP_PHOTO_PREVIEW_WIDTH,
-              height: SHOP_PHOTO_PREVIEW_HEIGHT,
-              borderRadius: RADIUS.md,
-              overflow: "hidden",
-              backgroundColor: colors.muted,
-            }}
-          >
-            {photo.data?.url ? (
-              <Image
-                source={{ uri: photo.data.url }}
-                style={{ width: "100%", height: "100%" }}
-                contentFit="cover"
-                accessibilityLabel={t("settings.shopCatalogs.photo.previewAlt")}
-              />
-            ) : null}
-          </View>
-          <AppText size="xs" tone="secondary" style={{ flex: 1 }}>
-            {t("settings.shopCatalogs.photo.description")}
-          </AppText>
-        </Surface>
-        {!locked ? (
-          <ListGroup>
-            <ListRow
-              icon="upload"
-              title={photo.data?.url ? t("settings.shopCatalogs.photo.replace") : t("settings.shopCatalogs.photo.upload")}
-              disabled={uploadPhoto.isPending}
-              onPress={() => void pickPhoto()}
-            />
-            {photo.data?.url ? (
-              <ListRow
-                icon="trash"
-                tone="destructive"
-                title={t("settings.shopCatalogs.photo.remove")}
-                disabled={removePhoto.isPending}
-                onPress={confirmRemovePhoto}
-              />
-            ) : null}
-          </ListGroup>
-        ) : null}
-      </SettingsSection>
 
       <SettingsSection title={t("settings.shopCatalogs.heading")} description={t("settings.shopCatalogs.description")}>
         {list.isLoading ? <ListSkeleton rows={2} hasSubtitle hasTrailing={false} /> : null}

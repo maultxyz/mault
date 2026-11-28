@@ -1,11 +1,9 @@
 import type { ShopCatalog, ShopCatalogInput } from "@magic-vault/shared";
 
-export interface ShopCatalogDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+export interface ShopCatalogEditorFormProps {
   catalog: ShopCatalog | null;
   isSaving: boolean;
-  onSubmit: (input: ShopCatalogInput) => void;
+  onSubmit: (input: ShopCatalogInput, onSaved: (savedGuid: string) => void) => void;
 }
 
 export interface ShopCatalogLinkDialogProps {
