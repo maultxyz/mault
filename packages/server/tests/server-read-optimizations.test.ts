@@ -269,6 +269,8 @@ test("the scan save context maps one row to the values the save needs", () => {
       is_already_saved: false,
       scanned_by_device_id: null,
       open_intake_lot_id: 3,
+      bin_fill: { height: 50, card_thickness: 0.3, count: 12 },
+      resorts_matching_cards: null,
     }),
     {
       collection: {
@@ -283,6 +285,8 @@ test("the scan save context maps one row to the values the save needs", () => {
       isAlreadySaved: false,
       scannedByDeviceId: null,
       openIntakeLotId: 3,
+      binFill: { height: 50, card_thickness: 0.3, count: 12 },
+      resortsMatchingCards: false,
     },
   );
 });

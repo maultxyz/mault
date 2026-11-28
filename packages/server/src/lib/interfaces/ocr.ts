@@ -15,6 +15,11 @@ export interface OcrRectangle {
   height: number;
 }
 
+export interface RotatedOcrImage {
+  buffer: Buffer;
+  rectangle: OcrRectangle;
+}
+
 export interface OcrAnchor {
   box: OcrBox;
   text: string;

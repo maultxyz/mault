@@ -7,6 +7,7 @@ import type {
   CONTROL_CARD_TOGGLE_VALUES,
 } from "@/lib/constants/control-cards";
 import type { ControlCardFormValues } from "@/schemas/control-cards.schema";
+import type { CardSheetGrid } from "@/lib/interfaces/card-sheets";
 
 export type ScannerTFunction = TFunction<"scanner">;
 
@@ -106,14 +107,7 @@ export interface ControlCardRenderLayout {
   outputQuality: number;
 }
 
-export interface ControlCardSheetLayout {
-  pageWidth: number;
-  pageHeight: number;
-  columns: number;
-  rows: number;
-  tileWidth: number;
-  tileHeight: number;
-  bleed: number;
+export interface ControlCardSheetLayout extends CardSheetGrid {
   cutLineWidth: number;
   cutLineColor: string;
   logo: {
@@ -124,15 +118,6 @@ export interface ControlCardSheetLayout {
     wordmarkFontSize: number;
     wordmarkGap: number;
   };
-}
-
-export interface ControlCardSheetGeometry {
-  gridLeft: number;
-  gridTop: number;
-  gridWidth: number;
-  gridHeight: number;
-  trimXs: number[];
-  trimYs: number[];
 }
 
 export interface ControlCardSheetEntry {

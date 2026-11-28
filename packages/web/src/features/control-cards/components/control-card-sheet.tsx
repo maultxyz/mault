@@ -1,10 +1,8 @@
 import { BrandIcon } from "@/components/brand-icon";
 import { EmptyState } from "@/components/empty-state";
 import { ControlCardTile } from "@/features/control-cards/components/control-card-tile";
-import {
-  controlCardSheetGeometry,
-  percentOf,
-} from "@/features/control-cards/lib/control-card-sheet";
+import { CardSheetCutLines } from "@/components/card-sheet-cut-lines";
+import { cardSheetGeometry, percentOf } from "@/lib/card-sheet";
 import {
   CONTROL_CARD_SHEET_LAYOUT,
   CONTROL_CARDS_PER_PAGE,
@@ -16,7 +14,7 @@ import { useTranslation } from "react-i18next";
 export function ControlCardSheet({ entries, onRemove }: ControlCardSheetProps) {
   const { t } = useTranslation("scanner");
   const layout = CONTROL_CARD_SHEET_LAYOUT;
-  const geometry = controlCardSheetGeometry(layout);
+  const geometry = cardSheetGeometry(layout);
   if (entries.length === 0) {
     return (
       <EmptyState
@@ -35,8 +33,6 @@ export function ControlCardSheet({ entries, onRemove }: ControlCardSheetProps) {
         (pageIndex + 1) * CONTROL_CARDS_PER_PAGE,
       ),
   );
-  const gridBottom = geometry.gridTop + geometry.gridHeight;
-  const gridRight = geometry.gridLeft + geometry.gridWidth;
   return (
     <div className="flex flex-col gap-6 md:gap-2 print:block">
       {pages.map((pageEntries) => (
@@ -50,30 +46,12 @@ export function ControlCardSheet({ entries, onRemove }: ControlCardSheetProps) {
             viewBox={`0 0 ${layout.pageWidth} ${layout.pageHeight}`}
             aria-hidden
           >
-            <g stroke={layout.cutLineColor} strokeWidth={layout.cutLineWidth}>
-              {geometry.trimXs.map((trimX) => (
-                <g key={`x-${trimX}`}>
-                  <line x1={trimX} x2={trimX} y1={0} y2={geometry.gridTop} />
-                  <line
-                    x1={trimX}
-                    x2={trimX}
-                    y1={gridBottom}
-                    y2={layout.pageHeight}
-                  />
-                </g>
-              ))}
-              {geometry.trimYs.map((trimY) => (
-                <g key={`y-${trimY}`}>
-                  <line x1={0} x2={geometry.gridLeft} y1={trimY} y2={trimY} />
-                  <line
-                    x1={gridRight}
-                    x2={layout.pageWidth}
-                    y1={trimY}
-                    y2={trimY}
-                  />
-                </g>
-              ))}
-            </g>
+            <CardSheetCutLines
+              grid={layout}
+              geometry={geometry}
+              color={layout.cutLineColor}
+              width={layout.cutLineWidth}
+            />
             <g
               className="text-black"
               transform={`translate(${layout.logo.originX} ${layout.logo.originY}) rotate(-90)`}

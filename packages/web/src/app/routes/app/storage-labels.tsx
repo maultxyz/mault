@@ -3,17 +3,20 @@ import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
+import { PanelBackButton } from "@/components/panel-back-button";
 import { SkeletonStatus } from "@/components/skeleton-status";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage-locations";
+import { BatchDividerSheet } from "@/features/storage-labels/components/batch-divider-sheet";
 import { StorageLabelOptionsForm } from "@/features/storage-labels/components/storage-label-options-form";
 import { StorageLabelSheet } from "@/features/storage-labels/components/storage-label-sheet";
 import {
   LabelSheetPreviewSkeleton,
   StorageLabelOptionsFormSkeleton,
 } from "@/features/storage-labels/components/storage-labels-skeletons";
+import { planBatchDividers } from "@/features/storage-labels/lib/batch-dividers";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   MOBILE_NAV_SCROLL_PADDING_CLASS,
@@ -64,21 +67,49 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
       locations.map((location) => location.guid).filter((guid) => requestedGuids.has(guid)),
     );
   }, [form, isPending, locations, searchParams]);
-  const [locationGuids, templateId, startPosition] = useWatch({
+  const [
+    sheetKind,
+    locationGuids,
+    customDividerText,
+    showsDividerLocationName,
+    templateId,
+    startPosition,
+  ] = useWatch({
     control: form.control,
-    name: ["locationGuids", "templateId", "startPosition"],
+    name: [
+      "sheetKind",
+      "locationGuids",
+      "customDividerText",
+      "showsDividerLocationName",
+      "templateId",
+      "startPosition",
+    ],
   });
+  const printsBatchDividers = sheetKind === "batchDividers";
   const selectedGuids = new Set(locationGuids);
   const selectedLocations = locations.filter((location) => selectedGuids.has(location.guid));
   const template = LABEL_SHEET_TEMPLATES[templateId];
-  const canPrint = selectedLocations.length > 0 && form.formState.isValid;
-  const sheet = (
+  const dividerPlan = planBatchDividers(selectedLocations, customDividerText);
+  const canPrint = printsBatchDividers
+    ? dividerPlan.dividers.length > 0
+    : selectedLocations.length > 0 && form.formState.isValid;
+  const sheet = printsBatchDividers ? (
+    <BatchDividerSheet
+      dividers={dividerPlan.dividers}
+      showsLocationName={showsDividerLocationName}
+    />
+  ) : (
     <StorageLabelSheet
       template={template}
       locations={selectedLocations}
       orgId={orgId}
       startPosition={startPosition}
     />
+  );
+  const printTip = (
+    <Callout icon={IconInfoCircle}>
+      {printsBatchDividers ? t("labels.dividers.printTip") : tCommon("labelSheets.printTip")}
+    </Callout>
   );
   const printButton = (
     <Button disabled={!canPrint} onClick={() => window.print()}>
@@ -87,7 +118,7 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
     </Button>
   );
 
-  const sheetPreview =
+  const labelSheetPreview =
     selectedLocations.length > 0 ? (
       sheet
     ) : (
@@ -97,9 +128,44 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
         description={t("labels.sheet.emptyDescription")}
       />
     );
+  const { skippedLocationNames } = dividerPlan;
+  const batchDividerPreview = (
+    <>
+      {skippedLocationNames.length > 0 && (
+        <Callout icon={IconInfoCircle}>
+          {t("labels.dividers.skipped", {
+            count: skippedLocationNames.length,
+            names: skippedLocationNames.join(", "),
+          })}
+        </Callout>
+      )}
+      {dividerPlan.totalDividers > dividerPlan.dividers.length && (
+        <Callout icon={IconInfoCircle}>
+          {t("labels.dividers.truncated", {
+            shown: dividerPlan.dividers.length,
+            total: dividerPlan.totalDividers,
+          })}
+        </Callout>
+      )}
+      {dividerPlan.dividers.length > 0 ? (
+        sheet
+      ) : (
+        <EmptyState
+          icon={IconPrinter}
+          title={t("labels.dividers.emptyTitle")}
+          description={t("labels.dividers.emptyDescription")}
+        />
+      )}
+    </>
+  );
   const emptyLocations = (
     <EmptyState icon={IconBox} title={t("page.emptyTitle")} description={t("page.emptyDescription")} />
   );
+  const sheetPreview = printsBatchDividers
+    ? batchDividerPreview
+    : locations.length === 0
+      ? emptyLocations
+      : labelSheetPreview;
   const printPortal = createPortal(
     <div className="hidden bg-white print:block">{sheet}</div>,
     document.body,
@@ -123,11 +189,9 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
               <StorageLabelOptionsFormSkeleton />
               <LabelSheetPreviewSkeleton />
             </SkeletonStatus>
-          ) : locations.length === 0 ? (
-            emptyLocations
           ) : (
             <>
-              <Callout icon={IconInfoCircle}>{tCommon("labelSheets.printTip")}</Callout>
+              {printTip}
               <StorageLabelOptionsForm form={form} locations={locations} />
               {sheetPreview}
             </>
@@ -143,20 +207,19 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
       <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
       <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-y-auto border-r bg-sidebar/70 p-2 lg:col-span-3">
+          <PanelBackButton to={STORAGE_PATH} label={t("pickList.back")} />
           {isPending ? (
             <SkeletonStatus>
               <StorageLabelOptionsFormSkeleton />
             </SkeletonStatus>
           ) : (
-            locations.length > 0 && <StorageLabelOptionsForm form={form} locations={locations} />
+            <StorageLabelOptionsForm form={form} locations={locations} />
           )}
         </section>
         <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">
           <PageHeader
             title={t("labels.page.title")}
             description={t("labels.page.description")}
-            backTo={STORAGE_PATH}
-            backLabel={t("pickList.back")}
             actions={printButton}
             spansFullWidth
           />
@@ -166,11 +229,9 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
                 <Skeleton className="h-12 w-full rounded-lg" />
                 <LabelSheetPreviewSkeleton />
               </div>
-            ) : locations.length === 0 ? (
-              emptyLocations
             ) : (
               <>
-                <Callout icon={IconInfoCircle}>{tCommon("labelSheets.printTip")}</Callout>
+                {printTip}
                 {sheetPreview}
               </>
             )}

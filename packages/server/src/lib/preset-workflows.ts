@@ -210,31 +210,3 @@ export async function findLivePreset(
     columns: { id: true, gameId: true },
   });
 }
-
-
-export async function activeWorkflowStepResorts(
-  tx: Transaction,
-  orgId: string,
-  gameId: number | null,
-  activePresetGuid: string,
-): Promise<boolean> {
-  const [step] = await tx
-    .select({ isResortMode: presetWorkflowSteps.isResortMode })
-    .from(presetWorkflows)
-    .innerJoin(
-      presetWorkflowSteps,
-      eq(presetWorkflowSteps.guid, presetWorkflows.activeStepGuid),
-    )
-    .where(
-      and(
-        eq(presetWorkflows.orgId, orgId),
-        eq(presetWorkflows.isActive, true),
-        eq(presetWorkflows.isDeleted, false),
-        gameWhere(gameId),
-        eq(presetWorkflowSteps.isDeleted, false),
-        eq(presetWorkflowSteps.presetGuid, activePresetGuid),
-      ),
-    )
-    .limit(1);
-  return !!step?.isResortMode;
-}

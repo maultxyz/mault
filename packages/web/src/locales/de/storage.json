@@ -251,12 +251,33 @@
       "locations_one": "{{count}} Lagerort ausgewählt",
       "locations_other": "{{count}} Lagerorte ausgewählt",
       "selectAll": "Alle auswählen",
-      "selectNone": "Keine auswählen"
+      "selectNone": "Keine auswählen",
+      "kindLabel": "Was drucken",
+      "kinds": {
+        "labels": "Etiketten",
+        "batchDividers": "Stapeltrenner"
+      }
     },
     "sheet": {
       "emptyTitle": "Keine Lagerorte ausgewählt",
       "emptyDescription": "Wähle mindestens einen Lagerort, um sein Etikett in der Vorschau zu sehen.",
       "pageDescription": "Etikettenbogen Seite {{page}}: {{names}}"
+    },
+    "dividers": {
+      "formDescription": "Trenner in Kartenbreite, einer pro Stapel, die höher als deine Karten sind, sodass der Stapel darüber sichtbar ist.",
+      "printTip": "Drucke in 100 % Größe (tatsächliche Größe) auf Karton und schneide entlang der durchgezogenen Linien. Die gestrichelte Linie markiert die Oberkante deiner Karten.",
+      "slotRange": "Plätze {{first}} bis {{last}}",
+      "emptyTitle": "Keine Stapeltrenner",
+      "emptyDescription": "Gib eigenen Trennertext ein oder wähle einen Lagerort mit Kapazität und Stapelgröße.",
+      "skipped_one": "{{names}} hat keine Kapazität oder Stapelgröße und bekommt daher keine Stapeltrenner.",
+      "skipped_other": "{{count}} Lagerorte haben keine Kapazität oder Stapelgröße und bekommen daher keine Stapeltrenner: {{names}}",
+      "truncated": "Die ersten {{shown}} von {{total}} Trennern werden angezeigt. Wähle weniger Lagerorte, um den Rest zu drucken.",
+      "pageDescription": "Stapeltrenner Seite {{page}}: {{names}}",
+      "customLabel": "Eigene Trenner",
+      "customPlaceholder": "Häufige\nSeltene\nTauschordner",
+      "customDescription": "Ein Trenner pro Zeile. Jeder wird für jeden ausgewählten Lagerort vor dessen Stapeltrennern gedruckt, oder einzeln, wenn kein Lagerort ausgewählt ist.",
+      "batchTitle": "Stapel {{batch}}",
+      "showLocationName": "Lagerortnamen unter der Beschriftung anzeigen"
     }
   },
   "series": {

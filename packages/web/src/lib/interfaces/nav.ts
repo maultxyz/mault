@@ -158,6 +158,11 @@ export interface MobileTabStripProps<T extends string> {
   label?: string;
 }
 
+export interface PanelBackButtonProps {
+  to: string;
+  label: string;
+}
+
 export interface PageHeaderProps {
   title: string;
   description?: string;

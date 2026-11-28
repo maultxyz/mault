@@ -36,7 +36,7 @@ import {
   requireOrg,
   type AppEnv,
 } from "../../middleware/auth";
-import { findFullBin } from "./bin-limit";
+import { fullBinFromFill } from "./bin-limit";
 import { isScanSaved } from "./scan-saved";
 import {
   emitCardScannedWebhook,
@@ -45,10 +45,8 @@ import {
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 import { databaseErrorResponse } from "../../lib/database-error-response";
-import {
-  applyScanSaveTimeouts,
-  startScanSaveTimer,
-} from "../../lib/scan-save-timing";
+import { startScanSaveTimer } from "../../lib/scan-save-timing";
+import { SCAN_SAVE_TRANSACTION_SETTINGS } from "../../lib/constants/timing";
 import { toSavedCardSnapshots } from "../../lib/saved-cards";
 import { findCardToResort, moveResortedCard } from "../../lib/resort-scan";
 import {
@@ -169,12 +167,12 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         gameId: number | null;
       }>(c.get("jwtClaims"), async (tx) => {
         saveTimer.markStage("databaseConnectionAcquired");
-        await applyScanSaveTimeouts(tx);
         const saveContext = await loadScanSaveContext(tx, {
           orgId,
           collectionGuid: guid,
           scanId,
           deviceGuid,
+          binNumberToCheck: isRetry ? null : (binNumber ?? null),
         });
         if (!saveContext)
           return {
@@ -189,6 +187,8 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           isAlreadySaved: alreadySaved,
           scannedByDeviceId,
           openIntakeLotId: intakeLotId,
+          binFill,
+          resortsMatchingCards,
         } = saveContext;
 
         const savedCardSnapshotsRequest = toSavedCardSnapshots(
@@ -257,14 +257,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         }
 
         if (binNumber != null && !isRetry) {
-          const fullBin = await findFullBin(
-            tx,
-            orgId,
-            collection.gameId,
-            collection.id,
-            binNumber,
-            deviceGuid,
-          );
+          const fullBin = fullBinFromFill(binNumber, binFill);
           if (fullBin) {
             return {
               result: {
@@ -280,20 +273,19 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           }
         }
 
-        if (!alreadySaved && !(await consumeDailyScan(orgId, plan))) {
-          return scanLimitReachedResult;
-        }
-
-        const cardToResort =
-          alreadySaved || storageLocationId !== null
+        const [dailyScanConsumed, cardToResort] = await Promise.all([
+          alreadySaved || consumeDailyScan(orgId, plan),
+          alreadySaved || storageLocationId !== null || !resortsMatchingCards
             ? null
-            : await findCardToResort(tx, {
-                orgId,
+            : findCardToResort(tx, {
                 collectionId: collection.id,
-                gameId: collection.gameId,
                 cardId: (card as PlayingCardWithDistance).id,
                 scanIsFoil: isFoil ?? false,
-              });
+              }),
+        ]);
+        if (!dailyScanConsumed) {
+          return scanLimitReachedResult;
+        }
         if (cardToResort) {
           await moveResortedCard(tx, {
             rowId: cardToResort.id,
@@ -411,7 +403,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           gameName: collection.gameName ?? undefined,
           gameId: collection.gameId,
         };
-      });
+      }, SCAN_SAVE_TRANSACTION_SETTINGS);
       saveTimer.markStage("transactionCommitted");
       saveTimer.finish(scanId, result.success ? "saved" : "rejected");
       if (!result.success || keepOnlyExistingImage) {

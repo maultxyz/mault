@@ -17,7 +17,10 @@ function regionBox(region: OcrRegion) {
 
 function describeRegion(region: OcrRegion): string {
   const multiline = region.multiline ? ", multiline" : "";
-  return `x ${region.x}, y ${region.y}, w ${region.width}, h ${region.height}${multiline}`;
+  const rotation = region.rotationDegrees
+    ? `, rotated ${region.rotationDegrees}°`
+    : "";
+  return `x ${region.x}, y ${region.y}, w ${region.width}, h ${region.height}${multiline}${rotation}`;
 }
 
 function percent(value: number): string {

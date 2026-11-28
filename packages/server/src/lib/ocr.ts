@@ -8,6 +8,7 @@ import {
   OCR_DETECTION_BAND_PADDING_Y,
   OCR_MIN_LINE_CONFIDENCE,
   OCR_QUEUE_MAX_WAITING_SCAN_JOBS,
+  OCR_ROTATION_BACKGROUND,
   PADDLE_OCR_SAME_LINE_MAX_GAP_RATIO,
   PADDLE_OCR_SAME_LINE_MIN_OVERLAP,
   REGION_MARGIN_X,
@@ -23,6 +24,7 @@ import type {
   OcrRegionLocation,
   OcrRegionReadouts,
   OcrTextBox,
+  RotatedOcrImage,
 } from "./interfaces/ocr";
 import {
   acceptsLineText,
@@ -132,10 +134,29 @@ async function readRectangleText(
     : "";
 }
 
+async function rotatedRegionImage(
+  buffer: Buffer,
+  rectangle: OcrRectangle,
+  rotationDegrees: number,
+): Promise<RotatedOcrImage> {
+  const { data, info } = await sharp(buffer)
+    .extract(rectangle)
+    .rotate(-rotationDegrees, { background: OCR_ROTATION_BACKGROUND })
+    .png()
+    .toBuffer({ resolveWithObject: true });
+  return {
+    buffer: data,
+    rectangle: { left: 0, top: 0, width: info.width, height: info.height },
+  };
+}
+
 function locateRegion(
   region: OcrRegion,
   lines: OcrPageLine[],
 ): OcrRegionLocation {
+  if (region.rotationDegrees) {
+    return { box: regionBox(region), anchored: false, anchorText: null };
+  }
   const anchor = anchorRegion(region, lines);
   return anchor
     ? { box: anchor.box, anchored: true, anchorText: anchor.text }
@@ -194,7 +215,12 @@ async function readRegions(
   const { width = 0, height = 0 } = await sharp(buffer).metadata();
   if (width === 0 || height === 0) return readouts;
   const lines = toPageLines(
-    await readRegionBandTextBoxes(buffer, regions, width, height),
+    await readRegionBandTextBoxes(
+      buffer,
+      regions.filter((region) => !region.rotationDegrees),
+      width,
+      height,
+    ),
   );
 
   for (const region of regions) {
@@ -207,9 +233,14 @@ async function readRegions(
       REGION_MARGIN_Y,
     );
     if (rectangle.width <= 0 || rectangle.height <= 0) continue;
+    const rotated = region.rotationDegrees
+      ? await rotatedRegionImage(buffer, rectangle, region.rotationDegrees)
+      : null;
     const text =
       anchorText ??
-      (await readRectangleText(buffer, rectangle, region));
+      (rotated
+        ? await readRectangleText(rotated.buffer, rotated.rectangle, region)
+        : await readRectangleText(buffer, rectangle, region));
     const readRegion = {
       field: region.field,
       fallback: !!region.fallback,
@@ -223,7 +254,9 @@ async function readRegions(
     };
     readouts.regions.push(readRegion);
     if (trace) {
-      const crop = await sharp(buffer).extract(rectangle).png().toBuffer();
+      const crop =
+        rotated?.buffer ??
+        (await sharp(buffer).extract(rectangle).png().toBuffer());
       trace.push({
         ...readRegion,
         anchorText,

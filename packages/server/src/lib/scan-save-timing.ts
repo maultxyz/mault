@@ -1,21 +1,9 @@
-import { sql } from "drizzle-orm";
-import type { Transaction } from "../db";
-import {
-  SCAN_SAVE_LOCK_TIMEOUT_MS,
-  SCAN_SAVE_STATEMENT_TIMEOUT_MS,
-  SLOW_SCAN_SAVE_LOG_THRESHOLD_MS,
-} from "./constants/timing";
+import { SLOW_SCAN_SAVE_LOG_THRESHOLD_MS } from "./constants/timing";
 import type {
   ScanSaveKind,
   ScanSaveOutcome,
   ScanSaveStage,
 } from "./interfaces/scan-save-timing";
-
-export async function applyScanSaveTimeouts(tx: Transaction): Promise<void> {
-  await tx.execute(
-    sql`SELECT set_config('lock_timeout', ${String(SCAN_SAVE_LOCK_TIMEOUT_MS)}, true), set_config('statement_timeout', ${String(SCAN_SAVE_STATEMENT_TIMEOUT_MS)}, true)`,
-  );
-}
 
 export function startScanSaveTimer(
   kind: ScanSaveKind,

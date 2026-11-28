@@ -1,4 +1,5 @@
 import { LabelSheetOptionFields } from "@/components/label-sheet-option-fields";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,14 +9,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { STORAGE_LABEL_SHEET_KINDS } from "@/lib/constants/storage-labels";
 import type { StorageLabelOptionsFormProps } from "@/lib/interfaces/storage-labels";
 import { Controller, useController } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 export function StorageLabelOptionsForm({ form, locations }: StorageLabelOptionsFormProps) {
   const { t } = useTranslation("storage");
+  const { field: sheetKindField } = useController({ control: form.control, name: "sheetKind" });
   const { field: templateField } = useController({ control: form.control, name: "templateId" });
+  const printsBatchDividers = sheetKindField.value === "batchDividers";
   const { field: startPositionField, fieldState: startPositionState } = useController({
     control: form.control,
     name: "startPosition",
@@ -24,18 +30,61 @@ export function StorageLabelOptionsForm({ form, locations }: StorageLabelOptions
     <Card>
       <CardHeader>
         <CardTitle>{t("labels.form.title")}</CardTitle>
-        <CardDescription>{t("labels.form.description")}</CardDescription>
+        <CardDescription>
+          {printsBatchDividers ? t("labels.dividers.formDescription") : t("labels.form.description")}
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 md:gap-2">
-        <div className="flex flex-col gap-3 md:gap-2">
-          <LabelSheetOptionFields
-            idPrefix="storage-label"
-            templateId={templateField.value}
-            onTemplateIdChange={templateField.onChange}
-            startPositionField={startPositionField}
-            startPositionError={startPositionState.error}
+        <ResponsiveSegmented
+          label={t("labels.form.kindLabel")}
+          items={STORAGE_LABEL_SHEET_KINDS.map((kind) => ({
+            key: kind,
+            label: t(`labels.form.kinds.${kind}`),
+          }))}
+          value={sheetKindField.value}
+          onChange={sheetKindField.onChange}
+        />
+        {printsBatchDividers && (
+          <Field>
+            <FieldLabel htmlFor="storage-label-custom-dividers">
+              {t("labels.dividers.customLabel")}
+            </FieldLabel>
+            <Textarea
+              id="storage-label-custom-dividers"
+              placeholder={t("labels.dividers.customPlaceholder")}
+              {...form.register("customDividerText")}
+            />
+            <FieldDescription>{t("labels.dividers.customDescription")}</FieldDescription>
+          </Field>
+        )}
+        {printsBatchDividers && (
+          <Controller
+            control={form.control}
+            name="showsDividerLocationName"
+            render={({ field }) => (
+              <label className="flex items-center justify-between gap-3">
+                <span className="text-sm">{t("labels.dividers.showLocationName")}</span>
+                <Switch
+                  aria-label={t("labels.dividers.showLocationName")}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </label>
+            )}
           />
-        </div>
+        )}
+        {!printsBatchDividers && (
+          <div className="flex flex-col gap-3 md:gap-2">
+            <LabelSheetOptionFields
+              idPrefix="storage-label"
+              templateId={templateField.value}
+              onTemplateIdChange={templateField.onChange}
+              startPositionField={startPositionField}
+              startPositionError={startPositionState.error}
+            />
+          </div>
+        )}
+        {locations.length > 0 && (
         <Controller
           name="locationGuids"
           control={form.control}
@@ -83,6 +132,7 @@ export function StorageLabelOptionsForm({ form, locations }: StorageLabelOptions
             );
           }}
         />
+        )}
       </CardContent>
     </Card>
   );
