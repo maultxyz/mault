@@ -2,31 +2,31 @@ import { CompactPrice } from "@/components/compact-value";
 import { IconBadge } from "@/components/icon-badge";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
-import { BusinessPageHeader } from "@/features/business/components/business-page-header";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import { SettingsSection } from "@/components/settings-section";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
-import { BusinessOverviewSkeleton } from "@/features/business/components/business-overview-skeleton";
-import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   businessOverviewQueryOptions,
   inventoryMarginQueryOptions,
 } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { AccuracyReportView } from "@/features/business/components/accuracy-report";
-import { BusinessInventoryCosts } from "@/features/business/components/business-inventory-costs";
 import {
-  BusinessReservationsChart,
-  BusinessSalesChart,
-} from "@/features/business/components/business-overview-charts";
+  BusinessInventoryCosts,
+  BusinessInventoryValueChart,
+} from "@/features/business/components/business-inventory-costs";
+import { BusinessSalesChart } from "@/features/business/components/business-overview-charts";
+import { BusinessOverviewSkeleton } from "@/features/business/components/business-overview-skeleton";
+import { BusinessPageHeader } from "@/features/business/components/business-page-header";
 import { BusinessTour } from "@/features/business/components/business-tour";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
+import { StaffReportView } from "@/features/business/components/staff-report";
 import { BUSINESS_OVERVIEW_TOUR } from "@/features/business/lib/business-tours";
 import { salesMarginPercent } from "@/features/business/lib/sales-report";
-import { StaffReportView } from "@/features/business/components/staff-report";
 import { statsReportQueryOptions } from "@/features/stats/api/stats";
-import { StatsHighlights } from "@/features/stats/components/stats-highlights";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { usePriceSource } from "@/hooks/use-price-source";
 import {
   BUSINESS_ATTENTION_ICONS,
   BUSINESS_OVERVIEW_CHECK_PARAM,
@@ -40,21 +40,20 @@ import {
   intakeLotPath,
   PICKS_PATH,
   picksPath,
-  PRICE_LABELS_PATH,
-  RESERVATIONS_PATH,
   SALES_PATH,
 } from "@/lib/constants/business";
 import {
   MOBILE_CIRCLE_BUTTON_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
 } from "@/lib/constants/nav";
+import { STATS_PATH } from "@/lib/constants/stats";
 import type {
   BusinessOverviewBodyProps,
+  BusinessOverviewListPanelProps,
   BusinessOverviewRowProps,
-  BusinessOverviewSectionProps,
   BusinessOverviewView,
 } from "@/lib/interfaces/business";
-import type { StatsInsight } from "@/lib/interfaces/stats";
+import type { StatGroupTile } from "@/lib/interfaces/stat-group";
 import { cn } from "@/lib/utils";
 import {
   BUSINESS_OVERVIEW_SALES_DAYS,
@@ -62,240 +61,213 @@ import {
   STATS_DEFAULT_RANGE,
   STATS_RANGES,
 } from "@magic-vault/shared";
-import {
-  IconBookmark,
-  IconCash,
-  IconChartLine,
-  IconChevronRight,
-  IconCircleCheck,
-  IconClock,
-  IconCoins,
-  IconListCheck,
-  IconPackageExport,
-  IconReceipt,
-  IconShoppingCart,
-  IconTag,
-  IconTruckDelivery,
-} from "@tabler/icons-react";
+import { IconChevronRight, IconCircleCheck } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 
-function BusinessOverviewRow({ to, title, detail }: BusinessOverviewRowProps) {
+function BusinessOverviewRow({
+  to,
+  title,
+  detail,
+  description,
+  icon: RowIcon,
+}: BusinessOverviewRowProps) {
   return (
     <li>
       <Link
         to={to}
-        className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-foreground/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-foreground/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:gap-2"
       >
-        <span className="min-w-0 flex-1 truncate text-sm">{title}</span>
-        <span className="shrink-0 text-xs text-foreground/70">{detail}</span>
+        {RowIcon && (
+          <IconBadge aria-hidden size="compact">
+            <RowIcon className="size-4" />
+          </IconBadge>
+        )}
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-sm font-medium">{title}</span>
+          {description && (
+            <span className="text-xs text-foreground/70">{description}</span>
+          )}
+        </span>
+        {detail && <span className="shrink-0 text-xs text-foreground/70">{detail}</span>}
         <IconChevronRight aria-hidden className="size-3.5 shrink-0 text-foreground/70" />
       </Link>
     </li>
   );
 }
 
-function BusinessOverviewSection({
-  icon: SectionIcon,
-  title,
+function BusinessOverviewListPanel({
+  heading,
   description,
   to,
   linkLabel,
+  emptyText,
   children,
-}: BusinessOverviewSectionProps) {
+}: BusinessOverviewListPanelProps) {
   return (
-    <section className="flex flex-col gap-3 rounded-card bg-card p-4 md:gap-2 md:p-2.5">
-      <div className="flex items-start gap-3">
-        <IconBadge aria-hidden>
-          <SectionIcon className="size-4" />
-        </IconBadge>
-        <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-semibold">{title}</h2>
-          <p className="text-xs text-foreground/70">{description}</p>
-        </div>
-      </div>
-      {children}
-      <Button
-        variant="outline"
-        className="mt-auto self-start"
-        render={<Link to={to} />}
-        nativeButton={false}
-      >
-        {linkLabel}
-        <IconChevronRight />
-      </Button>
-    </section>
+    <SettingsSection
+      heading={heading}
+      description={description}
+      action={
+        <Button variant="outline" render={<Link to={to} />} nativeButton={false}>
+          {linkLabel}
+          <IconChevronRight />
+        </Button>
+      }
+    >
+      {children ? (
+        <ul className="-mx-2 flex flex-col">{children}</ul>
+      ) : (
+        <p className="text-sm text-foreground/70">{emptyText}</p>
+      )}
+    </SettingsSection>
   );
 }
 
 function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
   const { t } = useTranslation("business");
-  const isMobile = useIsMobile();
   const { orgId, access } = useBusinessAccess();
-  const { format } = usePriceSource();
+  const canViewCosts = access?.canViewCosts ?? false;
   const costReport = useQuery(
-    statsReportQueryOptions(access?.canViewCosts ? orgId : undefined, STATS_DEFAULT_RANGE, null),
+    statsReportQueryOptions(canViewCosts ? orgId : undefined, STATS_DEFAULT_RANGE, null),
   );
-  const inventoryMargin = useQuery(
-    inventoryMarginQueryOptions(orgId, access?.canViewCosts ?? false),
-  );
-  const { intake, picks, reservations, sales } = overview;
+  const inventoryMargin = useQuery(inventoryMarginQueryOptions(orgId, canViewCosts));
+  const { intake, picks, sales } = overview;
   const attention = businessOverviewAttentionItems(overview);
-  const insights: StatsInsight[] =
-    attention.length > 0
-      ? attention.map((item) => ({
-          key: item.key,
-          icon: BUSINESS_ATTENTION_ICONS[item.key],
-          title: t(`overview.attention.${item.key}.title`, { count: item.count }),
-          detail: t(`overview.attention.${item.key}.detail`, { count: item.count }),
-          to: BUSINESS_SECTION_PATHS[item.section],
-        }))
-      : [
+  const inventoryReport =
+    costReport.data?.costsVisible && costReport.data.totals.cardCount > 0
+      ? costReport.data
+      : null;
+  const isInventoryLoading = canViewCosts && costReport.isPending;
+  const margin = inventoryMargin.data?.costedCount ? inventoryMargin.data : null;
+  const salesPeriod = t("overview.tiles.lastDays", { days: BUSINESS_OVERVIEW_SALES_DAYS });
+
+  const performanceTiles: StatGroupTile[] = [
+    sales.total != null
+      ? {
+          key: "revenue",
+          to: SALES_PATH,
+          label: t("overview.tiles.revenue"),
+          value: <CompactPrice value={sales.total} />,
+          detail: t("overview.tiles.salesPeriod", {
+            cards: t("overview.cards", { count: sales.cardCount }),
+            days: BUSINESS_OVERVIEW_SALES_DAYS,
+          }),
+        }
+      : {
+          key: "soldCards",
+          to: SALES_PATH,
+          label: t("overview.tiles.soldCards"),
+          value: sales.cardCount,
+          detail: salesPeriod,
+        },
+    ...(sales.profit != null
+      ? [
           {
-            key: "allClear",
-            icon: IconCircleCheck,
-            title: t("overview.attention.allClear.title"),
-            detail: t("overview.attention.allClear.detail"),
+            key: "profit",
+            to: SALES_PATH,
+            label: t("overview.tiles.profit"),
+            value: <CompactPrice value={sales.profit} />,
+            detail:
+              sales.costedCount > 0 && sales.costOfSold != null
+                ? t("overview.tiles.profitMarginPeriod", {
+                    percent: salesMarginPercent(sales.profit, sales.costOfSold),
+                    days: BUSINESS_OVERVIEW_SALES_DAYS,
+                  })
+                : t("overview.tiles.profitNoCosts"),
           },
-        ];
+        ]
+      : []),
+    ...(isInventoryLoading || inventoryReport
+      ? [
+          {
+            key: "inventoryValue",
+            to: STATS_PATH,
+            label: t("overview.inventory.value"),
+            value: inventoryReport ? (
+              <CompactPrice value={inventoryReport.totals.totalValue} />
+            ) : (
+              <Skeleton className="my-1 h-5 w-20" />
+            ),
+            detail: inventoryReport
+              ? t("overview.cards", { count: inventoryReport.totals.cardCount })
+              : null,
+          },
+          {
+            key: "unrealizedProfit",
+            label: t("overview.inventory.unrealizedProfit"),
+            value: margin ? (
+              <CompactPrice value={margin.unrealizedProfit} />
+            ) : isInventoryLoading || inventoryMargin.isPending ? (
+              <Skeleton className="my-1 h-5 w-20" />
+            ) : (
+              "-"
+            ),
+            detail:
+              margin?.marginPercent != null
+                ? t("overview.inventory.marginPercent", { percent: margin.marginPercent })
+                : margin || isInventoryLoading
+                  ? null
+                  : t("overview.tiles.profitNoCosts"),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <>
-      <div className="grid gap-4 md:gap-1.5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <StatGroup
-          heading={t("overview.now.heading")}
-          dataTour="business-now"
-          live
-          gridClassName="grid-cols-2 sm:grid-cols-3"
-          tiles={[
-            {
-              key: "openIntake",
-              to: INTAKE_PATH,
-              icon: IconCash,
-              label: t("overview.tiles.openIntake"),
-              value: intake.openLotCount,
-              detail: t("overview.cards", { count: intake.openCardCount }),
-            },
-            {
-              key: "openPicks",
-              to: PICKS_PATH,
-              icon: IconTruckDelivery,
-              label: t("overview.tiles.openPicks"),
-              value: picks.openPickCount,
-              detail: t("overview.tiles.readyToComplete", { count: picks.readyToCompleteCount }),
-            },
-            {
-              key: "cardsToPick",
-              to: PICKS_PATH,
-              icon: IconListCheck,
-              label: t("overview.tiles.cardsToPick"),
-              value: picks.cardsToPick,
-            },
-            ...(reservations
-              ? [
-                  {
-                    key: "readyForPickup",
-                    to: RESERVATIONS_PATH,
-                    icon: IconBookmark,
-                    label: t("reservations.stages.readyForPickup"),
-                    value: reservations.readyForPickup,
-                    detail: t("overview.tiles.requests", { count: reservations.readyForPickup }),
-                  },
-                  {
-                    key: "toPull",
-                    to: RESERVATIONS_PATH,
-                    icon: IconPackageExport,
-                    label: t("reservations.stages.toPull"),
-                    value: reservations.toPull,
-                    detail: t("overview.tiles.beingPicked", { count: reservations.beingPicked }),
-                  },
-                  {
-                    key: "waiting",
-                    to: RESERVATIONS_PATH,
-                    icon: IconClock,
-                    label: t("reservations.stages.waiting"),
-                    value: reservations.waiting,
-                    detail: t("overview.tiles.requests", { count: reservations.waiting }),
-                  },
-                ]
-              : []),
-          ]}
-        />
-        <StatGroup
-          heading={t("overview.sales.heading", { days: BUSINESS_OVERVIEW_SALES_DAYS })}
-          gridClassName={sales.profit != null ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2"}
-          tiles={[
-            {
-              key: "soldCards",
-              to: SALES_PATH,
-              icon: IconShoppingCart,
-              label: t("overview.tiles.soldCards"),
-              value: sales.cardCount,
-              detail: t("overview.tiles.perDay", {
-                count: Math.round((sales.cardCount / BUSINESS_OVERVIEW_SALES_DAYS) * 10) / 10,
-              }),
-            },
-            ...(sales.total != null
-              ? [
-                  {
-                    key: "revenue",
-                    to: SALES_PATH,
-                    icon: IconCoins,
-                    label: t("overview.tiles.revenue"),
-                    value: <CompactPrice value={sales.total} />,
-                    detail:
-                      sales.cardCount > 0
-                        ? t("overview.tiles.averageSale", {
-                            value: format(sales.total / sales.cardCount),
-                          })
-                        : null,
-                  },
-                ]
-              : []),
-            ...(sales.profit != null
-              ? [
-                  {
-                    key: "profit",
-                    to: SALES_PATH,
-                    icon: IconChartLine,
-                    label: t("overview.tiles.profit"),
-                    value: <CompactPrice value={sales.profit} />,
-                    detail:
-                      sales.costedCount > 0 && sales.costOfSold != null
-                        ? t("overview.tiles.profitMargin", {
-                            percent: salesMarginPercent(sales.profit, sales.costOfSold),
-                          })
-                        : t("overview.tiles.profitNoCosts"),
-                  },
-                ]
-              : []),
-          ]}
-        />
-      </div>
-
-      <StatsHighlights
-        heading={t("overview.attention.heading")}
-        insights={insights}
-        dataTour="business-attention"
-      />
-
-      <div data-tour="business-charts" className="grid gap-4 md:gap-1.5 lg:grid-cols-2 [&>*]:min-w-0">
-        <BusinessSalesChart sales={sales} />
-        {reservations && <BusinessReservationsChart reservations={reservations} />}
-      </div>
-
-      <div data-tour="business-sections" className="grid gap-4 md:grid-cols-2 md:gap-1.5">
-        <BusinessOverviewSection
-          icon={IconCash}
-          title={t("views.intake")}
-          description={t("overview.intake.description")}
-          to={INTAKE_PATH}
-          linkLabel={t("overview.intake.link")}
+      <section
+        data-tour="business-todo"
+        aria-labelledby="business-todo-heading"
+        className="flex flex-col gap-2"
+      >
+        <h2
+          id="business-todo-heading"
+          className="font-heading text-base font-semibold text-foreground md:text-sm"
         >
-          {intake.latestOpenLots.length > 0 ? (
-            <ul className="-mx-2 flex flex-col">
-              {intake.latestOpenLots.map((lot) => (
+          {t("overview.todo.heading")}
+        </h2>
+        <div className="rounded-card bg-card p-3 md:p-2">
+          {attention.length > 0 ? (
+            <ul className="flex flex-col">
+              {attention.map((item) => (
+                <BusinessOverviewRow
+                  key={item.key}
+                  to={BUSINESS_SECTION_PATHS[item.section]}
+                  icon={BUSINESS_ATTENTION_ICONS[item.key]}
+                  title={t(`overview.attention.${item.key}.title`, { count: item.count })}
+                  description={t(`overview.attention.${item.key}.detail`, { count: item.count })}
+                />
+              ))}
+            </ul>
+          ) : (
+            <div role="status" className="flex items-center gap-3 px-2 py-1.5 md:gap-2">
+              <IconBadge aria-hidden size="compact">
+                <IconCircleCheck className="size-4" />
+              </IconBadge>
+              <span className="flex flex-col">
+                <span className="text-sm font-medium">{t("overview.attention.allClear.title")}</span>
+                <span className="text-xs text-foreground/70">
+                  {t("overview.attention.allClear.detail")}
+                </span>
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 md:gap-1.5 [&>*]:min-w-0">
+          <BusinessOverviewListPanel
+            heading={t("overview.tiles.openIntake")}
+            description={t("overview.intake.summary", {
+              lots: intake.openLotCount,
+              cards: t("overview.cards", { count: intake.openCardCount }),
+            })}
+            to={INTAKE_PATH}
+            linkLabel={t("overview.intake.link")}
+            emptyText={t("overview.intake.empty")}
+          >
+            {intake.latestOpenLots.length > 0 &&
+              intake.latestOpenLots.map((lot) => (
                 <BusinessOverviewRow
                   key={lot.guid}
                   to={intakeLotPath(lot.guid)}
@@ -303,21 +275,19 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
                   detail={t("overview.cards", { count: lot.cardCount })}
                 />
               ))}
-            </ul>
-          ) : (
-            <p className="text-xs text-foreground/70">{t("overview.intake.empty")}</p>
-          )}
-        </BusinessOverviewSection>
-        <BusinessOverviewSection
-          icon={IconTruckDelivery}
-          title={t("views.picks")}
-          description={t("overview.picks.description")}
-          to={PICKS_PATH}
-          linkLabel={t("overview.picks.link")}
-        >
-          {picks.latestOpenPicks.length > 0 ? (
-            <ul className="-mx-2 flex flex-col">
-              {picks.latestOpenPicks.map((pick) => (
+          </BusinessOverviewListPanel>
+          <BusinessOverviewListPanel
+            heading={t("overview.tiles.openPicks")}
+            description={t("overview.picks.summary", {
+              picks: picks.openPickCount,
+              cards: t("overview.cards", { count: picks.cardsToPick }),
+            })}
+            to={PICKS_PATH}
+            linkLabel={t("overview.picks.link")}
+            emptyText={t("overview.picks.empty")}
+          >
+            {picks.latestOpenPicks.length > 0 &&
+              picks.latestOpenPicks.map((pick) => (
                 <BusinessOverviewRow
                   key={pick.guid}
                   to={picksPath(pick.guid)}
@@ -328,40 +298,32 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
                   })}
                 />
               ))}
-            </ul>
-          ) : (
-            <p className="text-xs text-foreground/70">{t("overview.picks.empty")}</p>
-          )}
-        </BusinessOverviewSection>
-        <BusinessOverviewSection
-          icon={IconReceipt}
-          title={t("views.sales")}
-          description={t("overview.salesSection.description")}
-          to={SALES_PATH}
-          linkLabel={t("overview.salesSection.link")}
-        />
-        {reservations && (
-          <BusinessOverviewSection
-            icon={IconBookmark}
-            title={t("views.reservations")}
-            description={t("overview.reservations.description")}
-            to={RESERVATIONS_PATH}
-            linkLabel={t("overview.reservations.link")}
-          />
+          </BusinessOverviewListPanel>
+        </div>
+      </section>
+
+      <StatGroup
+        heading={t("overview.performance.heading")}
+        dataTour="business-performance"
+        prominent
+        gridClassName={cn(
+          "grid-cols-2",
+          performanceTiles.length === 3 && "sm:grid-cols-3",
+          performanceTiles.length === 4 && "lg:grid-cols-4",
         )}
-        {!isMobile && (
-          <BusinessOverviewSection
-            icon={IconTag}
-            title={t("views.labels")}
-            description={t("overview.labels.description")}
-            to={PRICE_LABELS_PATH}
-            linkLabel={t("overview.labels.link")}
-          />
-        )}
+        tiles={performanceTiles}
+      />
+
+      <div
+        data-tour="business-charts"
+        className={cn("grid gap-4 md:gap-1.5 [&>*]:min-w-0", inventoryReport && "lg:grid-cols-2")}
+      >
+        <BusinessSalesChart sales={sales} />
+        {inventoryReport && <BusinessInventoryValueChart report={inventoryReport} />}
       </div>
 
-      {costReport.data?.costsVisible && costReport.data.totals.cardCount > 0 && (
-        <BusinessInventoryCosts report={costReport.data} margin={inventoryMargin.data ?? null} />
+      {inventoryReport && (
+        <BusinessInventoryCosts report={inventoryReport} margin={inventoryMargin.data ?? null} />
       )}
     </>
   );

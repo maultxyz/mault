@@ -106,57 +106,37 @@
   "overview": {
     "back": "Übersicht",
     "title": "An- & Verkauf",
-    "description": "Was bei Wareneingängen, Picks und Reservierungen ansteht.",
+    "description": "Was heute ansteht und wie dein Laden läuft.",
     "cards_one": "{{count}} Karte",
     "cards_other": "{{count}} Karten",
     "intake": {
-      "description": "Nimm neuen Bestand von Kundschaft, Händlern, Bulk-Posten oder geöffnetem Produkt auf. Scanne ihn direkt in deinen Bestand und schließe den Wareneingang dann ab.",
       "empty": "Keine offenen Wareneingänge.",
-      "link": "Zu den Wareneingängen"
+      "link": "Zu den Wareneingängen",
+      "summary": "{{lots}} offen, {{cards}}"
     },
     "picks": {
-      "description": "Verkaufte Karten aus dem Lager ziehen und den Verkauf abschließen.",
       "empty": "Keine offenen Picks.",
       "progress": "{{picked}} von {{total}} gepickt",
-      "link": "Zu den Picks"
-    },
-    "reservations": {
-      "description": "Karten, die Kunden in deinen Shop-Katalogen reserviert haben.",
-      "link": "Zu den Reservierungen"
-    },
-    "labels": {
-      "description": "Preisetiketten für eine Sammlung, einen Lagerort oder einen Wareneingang drucken.",
-      "link": "Zu den Etiketten"
+      "link": "Zu den Picks",
+      "summary": "{{picks}} offen, {{cards}} zu picken"
     },
     "views": {
       "overview": "Zusammenfassung",
       "staff": "Team",
       "accuracy": "Genauigkeit"
     },
-    "now": {
-      "heading": "Aktuell"
-    },
-    "share": "{{percent}} %",
     "tiles": {
       "openIntake": "Offene Wareneingänge",
       "openPicks": "Offene Picks",
-      "cardsToPick": "Karten zu picken",
-      "readyToComplete_one": "{{count}} abschlussbereit",
-      "readyToComplete_other": "{{count}} abschlussbereit",
-      "requests_one": "{{count}} Anfrage",
-      "requests_other": "{{count}} Anfragen",
-      "beingPicked_one": "{{count}} wird gepickt",
-      "beingPicked_other": "{{count}} werden gepickt",
       "soldCards": "Verkaufte Karten",
-      "perDay": "Im Schnitt {{count}} pro Tag",
       "revenue": "Umsatz",
-      "averageSale": "{{value}} pro Karte",
       "profit": "Gewinn",
-      "profitMargin": "{{percent}} % Marge",
-      "profitNoCosts": "Keine Einkaufspreise erfasst"
+      "profitNoCosts": "Keine Einkaufspreise erfasst",
+      "lastDays": "Letzte {{days}} Tage",
+      "salesPeriod": "{{cards}} in den letzten {{days}} Tagen verkauft",
+      "profitMarginPeriod": "{{percent}} % Marge, letzte {{days}} Tage"
     },
     "sales": {
-      "heading": "Letzte {{days}} Tage",
       "title": "Verkäufe",
       "description": "Verkaufte Karten pro Tag in den letzten {{days}} Tagen, aus Picks und abgeholten Reservierungen.",
       "metrics": {
@@ -192,18 +172,9 @@
         "detail": "Gerade gibt es nichts zu tun."
       }
     },
-    "reservationsChart": {
-      "title": "Reservierungen nach Stand",
-      "description": "Offene Reservierungsanfragen und wo jede gerade steht.",
-      "none": "Keine offenen Reservierungen.",
-      "requests_one": "Anfrage",
-      "requests_other": "Anfragen"
-    },
     "inventory": {
-      "heading": "Bestandskosten",
       "value": "Bestandswert",
       "uncosted": "Karten ohne Kosten",
-      "uncostedDetail": "Kosten eintragen, um sie in Margen einzubeziehen",
       "historyDescription": "Täglicher Marktwert von allem, was du besitzt, ohne Karten in offenen Wareneingängen.",
       "collectionsTitle": "Kosten nach Sammlung",
       "collectionsDescription": "Was du für jede Sammlung bezahlt hast, verglichen mit ihrem aktuellen Wert.",
@@ -217,13 +188,15 @@
       },
       "setCostsHint": "Um festzuhalten, was du bezahlt hast, wähle Karten in einer Sammlung aus und nutze Preise festlegen.",
       "sellValueOfCosted": "Verkaufswert",
-      "sellValueDetail": "Karten mit Einkaufspreis, zu deinen Verkaufspreisen",
       "unrealizedProfit": "Nicht realisierter Gewinn",
-      "marginPercent": "{{percent}} % Marge"
+      "marginPercent": "{{percent}} % Marge",
+      "uncostedValue": "{{cards}} ({{percent}} %)"
     },
-    "salesSection": {
-      "description": "Jede verkaufte Karte mit ihrem Einkaufspreis und dem Gewinn.",
-      "link": "Zu den Verkäufen"
+    "todo": {
+      "heading": "Zu erledigen"
+    },
+    "performance": {
+      "heading": "Leistung"
     }
   },
   "views": {

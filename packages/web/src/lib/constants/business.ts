@@ -75,12 +75,6 @@ export const BUSINESS_OVERVIEW_CHECK_PARAM = "check";
 export const BUSINESS_OVERVIEW_MAIN_VIEW = "overview";
 export const BUSINESS_OVERVIEW_VIEWS = [BUSINESS_OVERVIEW_MAIN_VIEW, "staff", "accuracy"] as const;
 export const BUSINESS_SALES_METRICS = ["count", "revenue"] as const;
-export const BUSINESS_RESERVATION_STAGE_COLORS = {
-  readyForPickup: "var(--success)",
-  beingPicked: "var(--info)",
-  toPull: "var(--warning)",
-  waiting: "var(--muted-foreground)",
-} as const;
 export const BUSINESS_ATTENTION_ICONS = {
   readyForPickup: IconBookmark,
   readyToComplete: IconPackageExport,
@@ -255,11 +249,13 @@ export const INTAKE_CARDS_SKELETON_COLUMNS: readonly TableSkeletonColumn[] = [
 
 export const BUSINESS_TABLE_SKELETON_ROWS = 6;
 export const BUSINESS_DETAIL_SKELETON_ROWS = 8;
-export const BUSINESS_OVERVIEW_SECTION_SKELETON_COUNT = 4;
 export const PICK_SKELETON_ROWS = 4;
 export const FLEET_DEVICE_SKELETON_COUNT = 3;
 export const FLEET_ALERT_SKELETON_ROWS = 3;
-export const BUSINESS_OVERVIEW_HIGHLIGHT_SKELETON_COUNT = 2;
 export const BUSINESS_OVERVIEW_CHART_SKELETON_COUNT = 2;
+export const BUSINESS_OVERVIEW_PERFORMANCE_SKELETON_TILES = 4;
+export const BUSINESS_OVERVIEW_TODO_SKELETON_ROWS = 2;
+export const BUSINESS_OVERVIEW_LIST_SKELETON_ROWS = 3;
+export const BUSINESS_OVERVIEW_LIST_SKELETON_PANELS = 2;
 export const SCANNER_BUY_RECENT_CARDS_SKELETON_ROWS = 3;
 export const SHOP_CATALOG_SKELETON_ROWS = 2;

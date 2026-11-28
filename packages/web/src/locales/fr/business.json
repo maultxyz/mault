@@ -106,57 +106,37 @@
   "overview": {
     "back": "Vue d’ensemble",
     "title": "Achat & vente",
-    "description": "Ce qui reste à faire pour les entrées de stock, les préparations et les réservations.",
+    "description": "Ce qui reste à faire aujourd’hui et comment se porte votre boutique.",
     "cards_one": "{{count}} carte",
     "cards_other": "{{count}} cartes",
     "intake": {
-      "description": "Faites entrer du nouveau stock de clients, de fournisseurs, de lots en vrac ou de produits ouverts. Scannez-le directement dans votre stock, puis terminez l’entrée de stock.",
       "empty": "Aucune entrée de stock ouverte.",
-      "link": "Aller aux entrées de stock"
+      "link": "Aller aux entrées de stock",
+      "summary": "{{lots}} en cours, {{cards}}"
     },
     "picks": {
-      "description": "Sortez les cartes vendues du stock et terminez la vente.",
       "empty": "Aucune préparation ouverte.",
       "progress": "{{picked}} sur {{total}} préparées",
-      "link": "Aller aux préparations"
-    },
-    "reservations": {
-      "description": "Cartes réservées par vos clients dans vos catalogues.",
-      "link": "Aller aux réservations"
-    },
-    "labels": {
-      "description": "Imprimez des étiquettes de prix pour une collection, un emplacement ou une entrée de stock.",
-      "link": "Aller aux étiquettes"
+      "link": "Aller aux préparations",
+      "summary": "{{picks}} en cours, {{cards}} à préparer"
     },
     "views": {
       "overview": "Résumé",
       "staff": "Équipe",
       "accuracy": "Précision"
     },
-    "now": {
-      "heading": "En ce moment"
-    },
-    "share": "{{percent}} %",
     "tiles": {
       "openIntake": "Entrées de stock ouvertes",
       "openPicks": "Préparations ouvertes",
-      "cardsToPick": "Cartes à préparer",
-      "readyToComplete_one": "{{count}} prête à terminer",
-      "readyToComplete_other": "{{count}} prêtes à terminer",
-      "requests_one": "{{count}} demande",
-      "requests_other": "{{count}} demandes",
-      "beingPicked_one": "{{count}} en préparation",
-      "beingPicked_other": "{{count}} en préparation",
       "soldCards": "Cartes vendues",
-      "perDay": "{{count}} par jour en moyenne",
       "revenue": "Chiffre d’affaires",
-      "averageSale": "{{value}} par carte",
       "profit": "Bénéfice",
-      "profitMargin": "Marge de {{percent}} %",
-      "profitNoCosts": "Aucun coût enregistré"
+      "profitNoCosts": "Aucun coût enregistré",
+      "lastDays": "{{days}} derniers jours",
+      "salesPeriod": "{{cards}} vendues sur les {{days}} derniers jours",
+      "profitMarginPeriod": "Marge de {{percent}} %, {{days}} derniers jours"
     },
     "sales": {
-      "heading": "{{days}} derniers jours",
       "title": "Ventes",
       "description": "Cartes vendues chaque jour sur les {{days}} derniers jours, préparations et retraits de réservations compris.",
       "metrics": {
@@ -192,18 +172,9 @@
         "detail": "Rien ne demande votre attention pour le moment."
       }
     },
-    "reservationsChart": {
-      "title": "Réservations par étape",
-      "description": "Demandes de réservation ouvertes et leur avancement.",
-      "none": "Aucune réservation ouverte.",
-      "requests_one": "Demande",
-      "requests_other": "Demandes"
-    },
     "inventory": {
-      "heading": "Coûts du stock",
       "value": "Valeur du stock",
       "uncosted": "Cartes sans coût",
-      "uncostedDetail": "Ajoutez un coût pour les inclure dans les marges",
       "historyDescription": "Valeur de marché quotidienne de tout ce que vous possédez, hors cartes des entrées de stock ouvertes.",
       "collectionsTitle": "Coûts par collection",
       "collectionsDescription": "Ce que vous avez payé pour chaque collection face à sa valeur actuelle.",
@@ -217,13 +188,15 @@
       },
       "setCostsHint": "Pour enregistrer ce que vous avez payé, sélectionnez des cartes dans une collection et utilisez Définir les prix.",
       "sellValueOfCosted": "Valeur de vente",
-      "sellValueDetail": "Cartes avec un coût, à vos prix de vente",
       "unrealizedProfit": "Bénéfice latent",
-      "marginPercent": "Marge de {{percent}} %"
+      "marginPercent": "Marge de {{percent}} %",
+      "uncostedValue": "{{cards}} ({{percent}} %)"
     },
-    "salesSection": {
-      "description": "Chaque carte vendue, avec son coût et le bénéfice.",
-      "link": "Aller aux ventes"
+    "todo": {
+      "heading": "À faire"
+    },
+    "performance": {
+      "heading": "Performances"
     }
   },
   "views": {

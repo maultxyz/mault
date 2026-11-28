@@ -191,21 +191,17 @@
         "title": "Bienvenue dans Achat & vente",
         "content": "C’est ici que vous gérez votre boutique. Faites entrer des cartes de clients, de fournisseurs, de lots en vrac ou de produits ouverts, préparez et expédiez les commandes, réservez des cartes pour vos clients, imprimez des étiquettes de prix et suivez vos ventes. Passez à tout moment et relancez ceci depuis l’icône d’aide."
       },
-      "now": {
-        "title": "En ce moment",
-        "content": "Ces tuiles montrent ce qui est en cours : entrées de stock, préparations et réservations. Cliquez sur une tuile pour ouvrir la page correspondante."
+      "todo": {
+        "title": "À faire",
+        "content": "Vos prochaines tâches, par exemple les préparations à terminer ou les réservations à retirer, avec vos entrées de stock et préparations en cours juste en dessous. Cliquez sur une ligne pour y aller directement."
       },
-      "attention": {
-        "title": "À traiter",
-        "content": "Vos prochaines tâches s'affichent ici, par exemple les préparations à terminer ou les cartes à sortir. Cliquez dessus pour y aller directement."
+      "performance": {
+        "title": "Performances",
+        "content": "Chiffre d’affaires et bénéfice des 30 derniers jours, à côté de la valeur actuelle de votre stock et du bénéfice qu’il contient encore."
       },
       "charts": {
-        "title": "Ventes et réservations",
-        "content": "Voyez combien vous avez vendu ces dernières semaines et comment évoluent les réservations."
-      },
-      "sections": {
-        "title": "Chaque partie de la boutique",
-        "content": "Chaque carte ouvre un espace : Entrées de stock, Préparations, Réservations, Étiquettes et Ventes. Les entrées de stock et préparations en cours sont listées ici."
+        "title": "Ventes et valeur du stock",
+        "content": "Voyez combien vous avez vendu chaque jour et comment évolue la valeur de votre stock."
       },
       "views": {
         "title": "Équipe et précision",

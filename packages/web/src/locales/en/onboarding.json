@@ -191,21 +191,17 @@
         "title": "Welcome to Buy & sell",
         "content": "This is where you run your store. Bring cards in from customers, vendors, bulk lots or opened product, pick and ship orders, hold cards for customers, print price labels and track your sales. Skip anytime and replay this from the help icon."
       },
-      "now": {
-        "title": "Right now",
-        "content": "These tiles show what is open today: intakes, picks and reservations. Click a tile to jump to that page."
+      "todo": {
+        "title": "To do",
+        "content": "Your next jobs, like picks ready to complete or reservations waiting for pickup, with your open intakes and picks below. Click any row to go straight to it."
       },
-      "attention": {
-        "title": "Needs attention",
-        "content": "Your next jobs show up here, like picks ready to complete or cards waiting to be pulled. Click one to go straight to it."
+      "performance": {
+        "title": "Performance",
+        "content": "Revenue and profit from the last 30 days next to what your stock is worth now and the profit still in it."
       },
       "charts": {
-        "title": "Sales and reservations",
-        "content": "See how much you sold over the last weeks and how reservations are moving."
-      },
-      "sections": {
-        "title": "Every part of the store",
-        "content": "Each card opens one area: Intake, Picks, Reservations, Labels and Sales. Open intakes and picks are listed right here."
+        "title": "Sales and stock value",
+        "content": "See how much you sold each day and how the value of your stock changes over time."
       },
       "views": {
         "title": "Staff and accuracy",

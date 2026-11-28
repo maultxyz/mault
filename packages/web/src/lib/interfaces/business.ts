@@ -15,7 +15,6 @@ import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type { PickImportFormValues } from "@/schemas/business.schema";
 import type {
   BusinessOverview,
-  BusinessOverviewReservations,
   BusinessSettingsDraftValues,
   AccuracyCheckStatus,
   DeviceHealth,
@@ -550,8 +549,8 @@ export interface BusinessSalesChartProps {
   sales: BusinessOverview["sales"];
 }
 
-export interface BusinessReservationsChartProps {
-  reservations: BusinessOverviewReservations;
+export interface BusinessInventoryValueChartProps {
+  report: StatsReport;
 }
 
 export interface BusinessInventoryCostsProps {
@@ -559,19 +558,21 @@ export interface BusinessInventoryCostsProps {
   margin: InventoryMargin | null;
 }
 
-export interface BusinessOverviewSectionProps {
-  icon: ComponentType<{ className?: string }>;
-  title: string;
+export interface BusinessOverviewListPanelProps {
+  heading: string;
   description: string;
   to: string;
   linkLabel: string;
+  emptyText: string;
   children?: ReactNode;
 }
 
 export interface BusinessOverviewRowProps {
   to: string;
   title: string;
-  detail: string;
+  detail?: string;
+  description?: string;
+  icon?: ComponentType<{ className?: string }>;
 }
 
 export interface OrdersWorkspaceProps {

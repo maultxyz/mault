@@ -36,6 +36,7 @@ export interface StatGroupSkeletonProps {
   gridClassName?: string;
   hasIcons?: boolean;
   hasDetails?: boolean;
+  prominent?: boolean;
 }
 
 export interface TableSkeletonColumn {

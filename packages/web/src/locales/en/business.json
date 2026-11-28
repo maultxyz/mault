@@ -106,57 +106,37 @@
   "overview": {
     "back": "Overview",
     "title": "Buy & sell",
-    "description": "What needs doing across intakes, picks and reservations.",
+    "description": "What needs doing today and how your store is performing.",
     "cards_one": "{{count}} card",
     "cards_other": "{{count}} cards",
     "intake": {
-      "description": "Bring in new inventory from customers, vendors, bulk lots or opened product. Scan it straight into your stock, then finish the intake.",
       "empty": "No open intakes.",
-      "link": "Go to intakes"
+      "link": "Go to intakes",
+      "summary": "{{lots}} open, {{cards}}"
     },
     "picks": {
-      "description": "Pull sold cards from storage and complete the sale.",
       "empty": "No open picks.",
       "progress": "{{picked}} of {{total}} picked",
-      "link": "Go to picks"
-    },
-    "reservations": {
-      "description": "Cards customers reserved from your shop catalogs.",
-      "link": "Go to reservations"
-    },
-    "labels": {
-      "description": "Print price labels for a collection, storage location or intake.",
-      "link": "Go to labels"
+      "link": "Go to picks",
+      "summary": "{{picks}} open, {{cards}} to pick"
     },
     "views": {
       "overview": "Summary",
       "staff": "Staff",
       "accuracy": "Accuracy"
     },
-    "now": {
-      "heading": "Right now"
-    },
-    "share": "{{percent}}%",
     "tiles": {
       "openIntake": "Open intakes",
       "openPicks": "Open picks",
-      "cardsToPick": "Cards to pick",
-      "readyToComplete_one": "{{count}} ready to complete",
-      "readyToComplete_other": "{{count}} ready to complete",
-      "requests_one": "{{count}} request",
-      "requests_other": "{{count}} requests",
-      "beingPicked_one": "{{count}} being picked",
-      "beingPicked_other": "{{count}} being picked",
       "soldCards": "Cards sold",
-      "perDay": "{{count}} a day on average",
       "revenue": "Revenue",
-      "averageSale": "{{value}} per card",
       "profit": "Profit",
-      "profitMargin": "{{percent}}% margin",
-      "profitNoCosts": "No costs recorded"
+      "profitNoCosts": "No costs recorded",
+      "lastDays": "Last {{days}} days",
+      "salesPeriod": "{{cards}} sold in the last {{days}} days",
+      "profitMarginPeriod": "{{percent}}% margin, last {{days}} days"
     },
     "sales": {
-      "heading": "Last {{days}} days",
       "title": "Sales",
       "description": "Cards sold each day over the last {{days}} days, from picks and reservation pickups.",
       "metrics": {
@@ -192,18 +172,9 @@
         "detail": "Nothing needs your attention right now."
       }
     },
-    "reservationsChart": {
-      "title": "Reservations by stage",
-      "description": "Open reservation requests and where each one is.",
-      "none": "No open reservations.",
-      "requests_one": "Request",
-      "requests_other": "Requests"
-    },
     "inventory": {
-      "heading": "Inventory costs",
       "value": "Inventory value",
       "uncosted": "Cards without a cost",
-      "uncostedDetail": "Set a cost to include them in margins",
       "historyDescription": "Daily market value of everything you own, with cards in open intakes left out.",
       "collectionsTitle": "Costs by collection",
       "collectionsDescription": "What you paid for each collection against what it is worth now.",
@@ -217,13 +188,15 @@
       },
       "setCostsHint": "To record what you paid, select cards in a collection and use Set prices.",
       "sellValueOfCosted": "Sell value",
-      "sellValueDetail": "Cards with a cost, at your sell prices",
       "unrealizedProfit": "Unrealized profit",
-      "marginPercent": "{{percent}}% margin"
+      "marginPercent": "{{percent}}% margin",
+      "uncostedValue": "{{cards}} ({{percent}}%)"
     },
-    "salesSection": {
-      "description": "Every card you sold, with what it cost you and the profit.",
-      "link": "Go to sales"
+    "todo": {
+      "heading": "To do"
+    },
+    "performance": {
+      "heading": "Performance"
     }
   },
   "views": {

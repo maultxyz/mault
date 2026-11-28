@@ -191,21 +191,17 @@
         "title": "Willkommen bei An- & Verkauf",
         "content": "Hier führst du deinen Laden. Nimm Karten von Kundschaft, Händlern, Bulk-Posten oder geöffnetem Produkt auf, picke und versende Bestellungen, lege Karten für Kundschaft zurück, drucke Preisetiketten und behalte deine Verkäufe im Blick. Du kannst jederzeit überspringen und das hier über das Hilfe-Symbol erneut abspielen."
       },
-      "now": {
-        "title": "Aktuell",
-        "content": "Diese Kacheln zeigen, was gerade offen ist: Wareneingänge, Picks und Reservierungen. Klicke auf eine Kachel, um zur passenden Seite zu springen."
-      },
-      "attention": {
+      "todo": {
         "title": "Zu erledigen",
-        "content": "Hier erscheinen deine nächsten Aufgaben, zum Beispiel Picks zum Abschließen oder Karten, die geholt werden müssen. Klicke darauf, um direkt hinzugelangen."
+        "content": "Deine nächsten Aufgaben, zum Beispiel Picks zum Abschließen oder Reservierungen, die abgeholt werden, darunter deine offenen Wareneingänge und Picks. Klicke auf eine Zeile, um direkt hinzugelangen."
+      },
+      "performance": {
+        "title": "Leistung",
+        "content": "Umsatz und Gewinn der letzten 30 Tage neben dem aktuellen Wert deines Bestands und dem Gewinn, der noch darin steckt."
       },
       "charts": {
-        "title": "Verkäufe und Reservierungen",
-        "content": "Sieh, wie viel du in den letzten Wochen verkauft hast und wie sich die Reservierungen entwickeln."
-      },
-      "sections": {
-        "title": "Alle Bereiche des Ladens",
-        "content": "Jede Karte öffnet einen Bereich: Wareneingang, Picks, Reservierungen, Etiketten und Verkäufe. Offene Wareneingänge und Picks stehen direkt hier."
+        "title": "Verkäufe und Bestandswert",
+        "content": "Sieh, wie viel du pro Tag verkauft hast und wie sich der Wert deines Bestands entwickelt."
       },
       "views": {
         "title": "Team und Genauigkeit",

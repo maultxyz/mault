@@ -13,12 +13,14 @@ export interface StatGroupTile {
 
 export interface StatTileContentProps {
   tile: StatGroupTile;
+  prominent?: boolean;
 }
 
 export interface StatGroupProps {
   heading: string;
   tiles: StatGroupTile[];
   live?: boolean;
+  prominent?: boolean;
   gridClassName?: string;
   dataTour?: string;
 }

@@ -36,10 +36,9 @@ export const BUSINESS_OVERVIEW_TOUR: BusinessTourDefinition = {
   triggerTooltipKey: "businessTours.overview.triggerTooltip",
   steps: [
     businessTourWelcomeStep("overview"),
-    businessTourStep("overview", "now", '[data-tour="business-now"]'),
-    businessTourStep("overview", "attention", '[data-tour="business-attention"]'),
+    businessTourStep("overview", "todo", '[data-tour="business-todo"]'),
+    businessTourStep("overview", "performance", '[data-tour="business-performance"]'),
     businessTourStep("overview", "charts", '[data-tour="business-charts"]'),
-    businessTourStep("overview", "sections", '[data-tour="business-sections"]'),
     businessTourStep("overview", "views", '[data-tour="business-overview-views"]'),
     businessTourStep("overview", "nav", '[data-tour="business-nav"]', "right"),
   ],
