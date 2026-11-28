@@ -4,6 +4,7 @@ import { buildPriceLabelItems, toPriceLabelSource } from "./price-labels";
 
 const card = (scanId: string, sellPrice: number | null): PriceLabelCard => ({
   scanId,
+  sku: `MTG-SET-1-EN-N-NM-${scanId}`,
   name: "Card",
   setName: "Set",
   setCode: "set",

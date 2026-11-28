@@ -18,6 +18,7 @@ import { BusinessPageHeader } from "@/features/business/components/business-page
 import { PriceLabelCardList } from "@/features/business/components/price-label-card-list";
 import { PriceLabelOptionsForm } from "@/features/business/components/price-label-options-form";
 import { PriceLabelSheet } from "@/features/business/components/price-label-sheet";
+import { PosExportMenu } from "@/features/business/components/pos-export-menu";
 import {
   buildPriceLabelItems,
   labelPriceFormatter,
@@ -74,7 +75,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
     },
     mode: "onChange",
   });
-  const [source, sourceGuid, deselectedScanIds, customPrices, templateId, startPosition, showsPrices] =
+  const [source, sourceGuid, deselectedScanIds, customPrices, templateId, startPosition, showsPrices, showsBarcodes] =
     useWatch({
       control: form.control,
       name: [
@@ -85,6 +86,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
         "templateId",
         "startPosition",
         "showsPrices",
+        "showsBarcodes",
       ],
     });
   const cardsQuery = useQuery(
@@ -107,6 +109,14 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
       startPosition={startPosition}
       formatLabelPrice={formatLabelPrice}
       showsPrices={showsPrices}
+      showsBarcodes={showsBarcodes}
+    />
+  );
+  const posExportMenu = (
+    <PosExportMenu
+      disabled={!canPrint}
+      request={{ source, sourceGuid, deselectedScanIds, customPrices }}
+      items={selectedItems}
     />
   );
   const printButton = (
@@ -189,7 +199,10 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
             <BusinessTour tour={BUSINESS_LABELS_TOUR} className={MOBILE_CIRCLE_BUTTON_CLASS} />
           }
         >
-          {printButton}
+          <div className="flex gap-1.5">
+            {posExportMenu}
+            {printButton}
+          </div>
         </MobilePageHeader>
         <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
           <div className="flex flex-col gap-4 p-4">
@@ -214,6 +227,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
         actions={
           <>
             <BusinessTour tour={BUSINESS_LABELS_TOUR} />
+            {posExportMenu}
             {printButton}
           </>
         }

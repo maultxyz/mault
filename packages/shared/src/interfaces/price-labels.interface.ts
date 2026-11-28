@@ -10,6 +10,7 @@ export type PriceLabelRoundingMode = (typeof PRICE_LABEL_ROUNDING_MODES)[number]
 
 export interface PriceLabelCard {
   scanId: string;
+  sku: string;
   name: string;
   setName: string;
   setCode: string;

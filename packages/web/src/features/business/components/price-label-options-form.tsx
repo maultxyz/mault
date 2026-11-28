@@ -45,6 +45,7 @@ export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLa
   const { field: sourceField } = useController({ control: form.control, name: "source" });
   const { field: sourceGuidField } = useController({ control: form.control, name: "sourceGuid" });
   const { field: showsPricesField } = useController({ control: form.control, name: "showsPrices" });
+  const { field: showsBarcodesField } = useController({ control: form.control, name: "showsBarcodes" });
   const { field: templateField } = useController({ control: form.control, name: "templateId" });
   const { field: startPositionField, fieldState: startPositionState } = useController({
     control: form.control,
@@ -160,6 +161,17 @@ export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLa
               />
             </p>
           )}
+          <label className="flex items-center justify-between gap-3">
+            <span className="flex flex-col">
+              <span className="text-control font-medium">{t("priceLabels.form.showBarcodes")}</span>
+              <span className="text-xs text-foreground/70">{t("priceLabels.form.showBarcodesHint")}</span>
+            </span>
+            <Switch
+              aria-label={t("priceLabels.form.showBarcodes")}
+              checked={showsBarcodesField.value}
+              onCheckedChange={showsBarcodesField.onChange}
+            />
+          </label>
         </div>
         <div data-tour="labels-sheet" className="flex flex-col gap-3 md:gap-2">
           <LabelSheetOptionFields

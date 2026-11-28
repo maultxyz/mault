@@ -1,6 +1,6 @@
 import type { LabelSheetTemplate } from "@/lib/interfaces/label-sheets";
 import type { PriceLabelOptionsFormValues } from "@/schemas/price-labels.schema";
-import type { PriceLabelCard } from "@magic-vault/shared";
+import type { PosExportRequest, PriceLabelCard } from "@magic-vault/shared";
 import type { UseFormReturn } from "react-hook-form";
 
 export interface PriceLabelItem {
@@ -33,6 +33,7 @@ export interface PriceLabelSheetProps {
   startPosition: number;
   formatLabelPrice: (price: number) => string;
   showsPrices: boolean;
+  showsBarcodes: boolean;
 }
 
 export interface PriceLabelProps {
@@ -40,6 +41,19 @@ export interface PriceLabelProps {
   item: PriceLabelItem;
   formatLabelPrice: (price: number) => string;
   showsPrices: boolean;
+  showsBarcodes: boolean;
+}
+
+export interface PriceLabelBarcodeProps {
+  sku: string;
+  height: number;
+  skuFontSize: number;
+}
+
+export interface PosExportMenuProps {
+  disabled: boolean;
+  request: Omit<PosExportRequest, "format">;
+  items: PriceLabelItem[];
 }
 
 export interface PriceLabelsViewProps {
