@@ -57,8 +57,8 @@
     "account": "Compte"
   },
   "userMenu": {
-  "signOutConfirmTitle": "Se déconnecter ?",
-  "signOutConfirmDescription": "Tu devras te reconnecter pour utiliser Mault sur cet appareil.",
+    "signOutConfirmTitle": "Se déconnecter ?",
+    "signOutConfirmDescription": "Tu devras te reconnecter pour utiliser Mault sur cet appareil.",
     "trigger": "Menu du compte",
     "signOut": "Se déconnecter",
     "theme": "Thème",
@@ -509,7 +509,11 @@
     "poweredBy": "Propulsé par",
     "poweredByLabel": "Propulsé par {{site}} (s'ouvre dans un nouvel onglet)",
     "requireGuestAccount": "Exiger un compte",
-    "requireGuestAccountDescription": "Seules les personnes connectées peuvent envoyer une offre d'échange via ce lien."
+    "requireGuestAccountDescription": "Seules les personnes connectées peuvent envoyer une offre d'échange via ce lien.",
+    "displayTitle": "Affichage TV",
+    "displayDescription": "Ouvre ceci sur une TV ou un grand écran pour afficher chaque carte en grand dès qu'elle est scannée.",
+    "copyDisplay": "Copier le lien de l'affichage TV",
+    "openDisplay": "Ouvrir l'affichage"
   },
   "tradeOffers": {
     "declined": "Offre d'échange refusée",

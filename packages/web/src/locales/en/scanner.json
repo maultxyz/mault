@@ -1373,5 +1373,19 @@
     "loading": "Loading connected sorters…",
     "unavailable": "Could not list connected sorters",
     "stopBeforeSwitching": "Stop the Pi scan before switching its sorter or camera."
+  },
+  "watchDisplay": {
+    "latest": "Just scanned",
+    "recent": "Recently scanned",
+    "cardCount_one": "{{formattedCount}} card",
+    "cardCount_other": "{{formattedCount}} cards",
+    "waitingTitle": "Waiting for the first card",
+    "waitingDescription": "Cards show up here the moment they're scanned.",
+    "scanToBrowse": "Scan to browse every card",
+    "browseQrAlt": "QR code that opens this collection on your phone",
+    "enterFullscreen": "Full screen",
+    "exitFullscreen": "Exit full screen",
+    "reconnecting": "Reconnecting...",
+    "newestAnnouncement": "Just scanned: {{name}}"
   }
 }

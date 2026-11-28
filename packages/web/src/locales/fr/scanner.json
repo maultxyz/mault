@@ -1373,5 +1373,19 @@
     "loading": "Chargement des trieurs connectés…",
     "unavailable": "Impossible de lister les trieurs connectés",
     "stopBeforeSwitching": "Arrêtez la numérisation du Pi avant de changer de trieur ou de caméra."
+  },
+  "watchDisplay": {
+    "latest": "Tout juste scannée",
+    "recent": "Scannées récemment",
+    "cardCount_one": "{{formattedCount}} carte",
+    "cardCount_other": "{{formattedCount}} cartes",
+    "waitingTitle": "En attente de la première carte",
+    "waitingDescription": "Les cartes apparaissent ici dès qu'elles sont scannées.",
+    "scanToBrowse": "Scanne pour parcourir toutes les cartes",
+    "browseQrAlt": "Code QR qui ouvre cette collection sur ton téléphone",
+    "enterFullscreen": "Plein écran",
+    "exitFullscreen": "Quitter le plein écran",
+    "reconnecting": "Reconnexion...",
+    "newestAnnouncement": "Tout juste scannée : {{name}}"
   }
 }

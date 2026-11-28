@@ -509,7 +509,11 @@
     "poweredBy": "Powered by",
     "poweredByLabel": "Powered by {{site}} (opens in a new tab)",
     "requireGuestAccount": "Require an account",
-    "requireGuestAccountDescription": "Only people who log in can send a trade offer on this link."
+    "requireGuestAccountDescription": "Only people who log in can send a trade offer on this link.",
+    "displayTitle": "TV display",
+    "displayDescription": "Open this on a TV or large screen to show each card big as it's scanned.",
+    "copyDisplay": "Copy TV display link",
+    "openDisplay": "Open display"
   },
   "tradeOffers": {
     "declined": "Trade offer declined",

@@ -1,6 +1,8 @@
 import { verifyMonitorLink } from "@/features/collections/api/monitor-links";
 import { useSharedSessionMonitor } from "@/features/scanner/api/use-shared-session-monitor";
 import { WatchCardBrowser } from "@/features/public-cards/components/watch-card-browser";
+import { WatchDisplay } from "@/features/public-cards/components/watch-display";
+import { WATCH_DISPLAY_ROUTE_PATH } from "@/lib/constants/public-cards";
 import { PriceSourceProvider } from "@/hooks/use-price-source";
 import { ShareLinkStatusScreen } from "@/features/public-cards/components/share-link-status-screen";
 import {
@@ -14,11 +16,12 @@ import type { WatchLinkState } from "@/lib/interfaces/collections";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useMatch, useParams, useSearchParams } from "react-router-dom";
 
 export default function WatchPage() {
   const { t } = useTranslation("scanner");
   const { collectionGuid } = useParams<{ collectionGuid: string }>();
+  const isDisplay = !!useMatch(WATCH_DISPLAY_ROUTE_PATH);
   const [searchParams] = useSearchParams();
   const token = searchParams.get(SHARE_LINK_TOKEN_PARAM);
   const [link, setLink] = useState<WatchLinkState>({ status: "checking" });
@@ -83,6 +86,14 @@ export default function WatchPage() {
   return (
     <QueryClientProvider client={publicQueryClient}>
       <PriceSourceProvider value={pricing}>
+        {isDisplay ? (
+          <WatchDisplay
+            token={token ?? ""}
+            collectionGuid={collectionGuid ?? ""}
+            collectionName={link.info.collectionName}
+            session={session}
+          />
+        ) : (
           <WatchCardBrowser
             token={token ?? ""}
             collectionGuid={collectionGuid ?? ""}
@@ -92,6 +103,7 @@ export default function WatchPage() {
             requiresGuestAccount={link.info.requiresGuestAccount === true}
             session={session}
           />
+        )}
       </PriceSourceProvider>
     </QueryClientProvider>
   );

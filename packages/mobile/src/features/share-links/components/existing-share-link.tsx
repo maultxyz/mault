@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { TextLineSkeleton } from "@/components/ui/text-line-skeleton";
-import { orgShareLinkUrl, shareLinksQueryOptions } from "@/features/share-links/api/share-links";
+import { orgShareLinkDisplayUrl, orgShareLinkUrl, shareLinksQueryOptions } from "@/features/share-links/api/share-links";
 import { useConfirmRevokeShareLink } from "@/features/share-links/api/use-confirm-revoke-share-link";
 import { useRevokeShareLink } from "@/features/share-links/api/use-revoke-share-link";
 import { ShareLinkQr } from "@/features/share-links/components/share-link-qr";
@@ -22,12 +22,21 @@ export function ExistingShareLink({ linkGuid, subjectGuid, onClose }: ExistingSh
   const revoke = useRevokeShareLink(onClose);
   const confirmRevoke = useConfirmRevokeShareLink();
   const url = link ? orgShareLinkUrl(link) : null;
+  const displayUrl = link ? orgShareLinkDisplayUrl(link) : null;
 
   return (
     <PinnedActionsLayout
       actions={
         <>
           {url ? <Button icon="share" label={t("shareLink.share")} onPress={() => void Share.share({ message: url, url })} /> : null}
+          {displayUrl ? (
+            <Button
+              variant="secondary"
+              icon="desktop"
+              label={t("shareLink.shareDisplay")}
+              onPress={() => void Share.share({ message: displayUrl, url: displayUrl })}
+            />
+          ) : null}
           {link ? (
             <Button
               variant="destructive"
@@ -57,6 +66,11 @@ export function ExistingShareLink({ linkGuid, subjectGuid, onClose }: ExistingSh
             ].join(" · ")}
           </AppText>
           <ShareLinkQr url={url} expiresAt={link.expiresAt} />
+          {displayUrl ? (
+            <AppText size="sm" tone="secondary">
+              {t("shareLink.displayDescription")}
+            </AppText>
+          ) : null}
         </>
       ) : null}
     </PinnedActionsLayout>

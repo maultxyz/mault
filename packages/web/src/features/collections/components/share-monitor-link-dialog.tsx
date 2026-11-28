@@ -4,7 +4,7 @@ import {
   createMonitorLink,
   revokeMonitorLinks,
 } from "@/features/collections/api/monitor-links";
-import { shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
+import { shareLinkDisplayUrl, shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { ShareMonitorLinkDialogProps } from "@/lib/interfaces/collections";
 import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
@@ -39,13 +39,15 @@ export function ShareMonitorLinkDialog({
         requireGuestAccount,
       );
       if (!result.success || !result.data) throw new Error(result.message);
+      const link = {
+        ...result.data,
+        kind: "collection" as const,
+        subjectGuid: collectionGuid,
+      };
       return {
         guid: result.data.guid,
-        url: shareLinkUrl({
-          ...result.data,
-          kind: "collection",
-          subjectGuid: collectionGuid,
-        }),
+        url: shareLinkUrl(link),
+        displayUrl: shareLinkDisplayUrl(link),
         expiresAt: result.data.expiresAt,
       };
     },

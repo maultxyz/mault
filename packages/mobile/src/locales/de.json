@@ -219,7 +219,9 @@
     "monitorTypeDescription": "Eine Ansicht der Karten, live während du scannst. Besucher können keine Angebote senden.",
     "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
     "requireGuestAccount": "Konto verlangen",
-    "requireGuestAccountDescription": "Nur wer sich anmeldet, kann über diesen Link ein Tauschangebot senden."
+    "requireGuestAccountDescription": "Nur wer sich anmeldet, kann über diesen Link ein Tauschangebot senden.",
+    "shareDisplay": "Link zur TV-Anzeige teilen",
+    "displayDescription": "Öffne das auf einem Fernseher oder großen Bildschirm, um jede Karte groß anzuzeigen, sobald sie gescannt wird."
   },
   "shareLinks": {
     "detailDescription": "Jeder mit diesem Link oder QR-Code kann ihn ohne Anmeldung öffnen.",

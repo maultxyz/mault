@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  buildShareLinkDisplayUrl,
   buildShareLinkUrl,
   buildShopCatalogLinkUrl,
   buildShortenerUrl,
@@ -111,4 +112,20 @@ test("shop catalog links: public without a token, private with one, else none", 
 test("adds the share token to a target path", () => {
   assert.equal(shareLinkPathWithToken(`/watch/${GUID}`, "a+b"), `/watch/${GUID}?t=a%2Bb`);
   assert.equal(shareLinkPathWithToken("/shop/x", null), "/shop/x");
+});
+
+test("builds TV display links only for collection links, ignoring short urls", () => {
+  assert.equal(
+    buildShareLinkDisplayUrl("https://mault.xyz/", {
+      kind: "collection",
+      subjectGuid: GUID,
+      token: "abc.def",
+      shortUrl: "https://s.mault.xyz/abcdefgh",
+    }),
+    `https://mault.xyz/watch/${GUID}/display?t=abc.def`,
+  );
+  assert.equal(
+    buildShareLinkDisplayUrl("https://mault.xyz", { kind: "storage", subjectGuid: GUID, token: "abc" }),
+    null,
+  );
 });

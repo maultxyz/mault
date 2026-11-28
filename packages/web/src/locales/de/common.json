@@ -57,8 +57,8 @@
     "account": "Konto"
   },
   "userMenu": {
-  "signOutConfirmTitle": "Abmelden?",
-  "signOutConfirmDescription": "Du musst dich erneut anmelden, um Mault auf diesem Gerät zu nutzen.",
+    "signOutConfirmTitle": "Abmelden?",
+    "signOutConfirmDescription": "Du musst dich erneut anmelden, um Mault auf diesem Gerät zu nutzen.",
     "trigger": "Kontomenü",
     "signOut": "Abmelden",
     "theme": "Design",
@@ -509,7 +509,11 @@
     "poweredBy": "Bereitgestellt von",
     "poweredByLabel": "Bereitgestellt von {{site}} (öffnet in einem neuen Tab)",
     "requireGuestAccount": "Konto verlangen",
-    "requireGuestAccountDescription": "Nur wer sich anmeldet, kann über diesen Link ein Tauschangebot senden."
+    "requireGuestAccountDescription": "Nur wer sich anmeldet, kann über diesen Link ein Tauschangebot senden.",
+    "displayTitle": "TV-Anzeige",
+    "displayDescription": "Öffne das auf einem Fernseher oder großen Bildschirm, um jede Karte groß anzuzeigen, sobald sie gescannt wird.",
+    "copyDisplay": "Link zur TV-Anzeige kopieren",
+    "openDisplay": "Anzeige öffnen"
   },
   "tradeOffers": {
     "declined": "Tauschangebot abgelehnt",

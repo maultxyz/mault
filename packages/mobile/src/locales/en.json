@@ -219,7 +219,9 @@
     "monitorTypeDescription": "A view of the cards, live while you scan. Visitors can't send offers.",
     "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications.",
     "requireGuestAccount": "Require an account",
-    "requireGuestAccountDescription": "Only people who log in can send a trade offer on this link."
+    "requireGuestAccountDescription": "Only people who log in can send a trade offer on this link.",
+    "shareDisplay": "Share TV display link",
+    "displayDescription": "Open this on a TV or large screen to show each card big as it's scanned."
   },
   "shareLinks": {
     "detailDescription": "Anyone with this link or QR code can open it without logging in.",

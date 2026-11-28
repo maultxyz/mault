@@ -14,6 +14,7 @@ import {
   MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
 import type { LegacyMonitorRedirectProps } from "@/lib/interfaces/collections";
+import { WATCH_DISPLAY_ROUTE_PATH } from "@/lib/constants/public-cards";
 import {
   COLLECTIONS_PATH,
   collectionViewPath,
@@ -567,6 +568,10 @@ export const routes: RouteObject[] = [
         children: [
           {
             path: "/watch/:collectionGuid",
+            element: <WatchPage />,
+          },
+          {
+            path: WATCH_DISPLAY_ROUTE_PATH,
             element: <WatchPage />,
           },
           {
