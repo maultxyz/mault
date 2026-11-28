@@ -3,7 +3,6 @@ import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
-import { PanelBackButton } from "@/components/panel-back-button";
 import { SkeletonStatus } from "@/components/skeleton-status";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -205,9 +204,16 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden text-foreground">
       <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
+      <PageHeader
+        title={t("labels.page.title")}
+        description={t("labels.page.description")}
+        backTo={STORAGE_PATH}
+        backLabel={t("pickList.back")}
+        actions={printButton}
+        spansFullWidth
+      />
       <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-y-auto border-r bg-sidebar/70 p-2 lg:col-span-3">
-          <PanelBackButton to={STORAGE_PATH} label={t("pickList.back")} />
           {isPending ? (
             <SkeletonStatus>
               <StorageLabelOptionsFormSkeleton />
@@ -217,12 +223,6 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
           )}
         </section>
         <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">
-          <PageHeader
-            title={t("labels.page.title")}
-            description={t("labels.page.description")}
-            actions={printButton}
-            spansFullWidth
-          />
           <div className="flex flex-col gap-2 px-3 py-2">
             {isPending ? (
               <div aria-hidden="true" className="flex flex-col gap-2">

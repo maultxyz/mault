@@ -21,6 +21,9 @@ export const PUBLIC_GAMES_QUERY_KEY = "public-games";
 export const GUEST_TRADE_OFFERS_ACCORDION_VALUE = "sent-offers";
 export const TRADES_PATH = "/app/trades";
 export const TRADE_OFFERS_SKELETON_ROWS = 4;
+export const TRADE_OFFER_ROW_THUMBNAIL_LIMIT = 4;
+export const TRADE_OFFER_ROW_GRID_CLASS =
+  "grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(8rem,auto)] items-center gap-4";
 export const TRADE_OFFER_PATH = `${TRADES_PATH}/:offerGuid`;
 export const IN_PERSON_TRADE_PATH = `${TRADES_PATH}/new`;
 export const IN_PERSON_TRADE_QUOTE_QUERY_KEY = "in-person-trade-quote";

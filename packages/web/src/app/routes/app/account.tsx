@@ -69,7 +69,7 @@ export default function AccountPage() {
         )}
       >
         {!isMobile && (
-          <PageHeader title={t("title")} description={t("subtitle")} />
+          <PageHeader title={t("title")} description={t("subtitle")} maxWidthClassName="max-w-4xl" />
         )}
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 md:gap-2 p-4 md:px-3 md:py-2">
           <SettingsSections>

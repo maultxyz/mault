@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardGrid } from "@/features/cards/components/card-grid";
@@ -18,12 +19,9 @@ import {
   monitorCollectionPath,
 } from "@/lib/constants/collections";
 import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
-import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { STATS_COLLECTION_PARAM, STATS_PATH } from "@/lib/constants/stats";
-import { cn } from "@/lib/utils";
 import {
   IconAlbum,
-  IconArrowLeft,
   IconChartBar,
   IconHeartRateMonitor,
   IconPlayerPlay,
@@ -112,51 +110,46 @@ export default function CollectionViewPage() {
 
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b px-4 py-2 md:gap-x-1.5 md:px-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label={t("view.back")}
-          render={
-            <Link to={COLLECTIONS_PATH}>
-              <IconArrowLeft />
-            </Link>
-          }
-        />
-        <div className="min-w-0 flex-1 basis-40">
-          <h1 className={cn(PAGE_TITLE_CLASS, "truncate")}>{collection.name}</h1>
-          <p className="text-xs text-foreground/70">{t("view.subtitle")}</p>
-        </div>
-        <Button
-          variant="outline"
-          render={
-            <Link
-              to={`${STATS_PATH}?${new URLSearchParams({ [STATS_COLLECTION_PARAM]: collection.guid })}`}
+      <PageHeader
+        title={collection.name}
+        description={t("view.subtitle")}
+        backTo={COLLECTIONS_PATH}
+        backLabel={t("view.back")}
+        spansFullWidth
+        actions={
+          <>
+            <Button
+              variant="outline"
+              render={
+                <Link
+                  to={`${STATS_PATH}?${new URLSearchParams({ [STATS_COLLECTION_PARAM]: collection.guid })}`}
+                >
+                  <IconChartBar />
+                  {t("page.viewStats")}
+                </Link>
+              }
+            />
+            <ShareMonitorLinkDialog collectionGuid={collection.guid} />
+            <Button
+              variant="outline"
+              render={
+                <Link to={monitorCollectionPath(collection.guid)}>
+                  <IconHeartRateMonitor />
+                  {t("page.liveView")}
+                </Link>
+              }
+            />
+            <Button
+              variant="outline"
+              disabled={isActivating}
+              onClick={() => activateCollection(collection.guid)}
             >
-              <IconChartBar />
-              {t("page.viewStats")}
-            </Link>
-          }
-        />
-        <ShareMonitorLinkDialog collectionGuid={collection.guid} />
-        <Button
-          variant="outline"
-          render={
-            <Link to={monitorCollectionPath(collection.guid)}>
-              <IconHeartRateMonitor />
-              {t("page.liveView")}
-            </Link>
-          }
-        />
-        <Button
-          variant="outline"
-          disabled={isActivating}
-          onClick={() => activateCollection(collection.guid)}
-        >
-          <IconPlayerPlay />
-          {t("page.setActiveCollection")}
-        </Button>
-      </div>
+              <IconPlayerPlay />
+              {t("page.setActiveCollection")}
+            </Button>
+          </>
+        }
+      />
       <section className="flex flex-1 min-h-0 flex-col overflow-y-auto @container">
         <ViewedCollectionContext value={collection}>
           {unmatchedView.isOpen ? (

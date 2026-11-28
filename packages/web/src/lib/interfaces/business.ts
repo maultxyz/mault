@@ -2,6 +2,7 @@ import type { SelectToggleOptions } from "@/lib/interfaces/cards";
 import type {
   BUSINESS_INVENTORY_COLUMNS,
   BUSINESS_OVERVIEW_VIEWS,
+  BUSINESS_PAGE_VIEWS,
   BUSINESS_SALES_METRICS,
   BUSINESS_SECTION_VIEWS,
   PICK_IMPORT_CREATE_MODES,
@@ -474,6 +475,15 @@ export interface ServiceIntervalDialogProps {
 export type BusinessView = (typeof BUSINESS_SECTION_VIEWS)[number];
 
 export type BusinessOverviewView = (typeof BUSINESS_OVERVIEW_VIEWS)[number];
+
+export type BusinessPageView = (typeof BUSINESS_PAGE_VIEWS)[number];
+
+export interface BusinessPageHeaderProps {
+  view: BusinessPageView;
+  description: string;
+  actions?: ReactNode;
+  children?: ReactNode;
+}
 export type BusinessSalesMetric = (typeof BUSINESS_SALES_METRICS)[number];
 export type BusinessInventoryColumn = (typeof BUSINESS_INVENTORY_COLUMNS)[number];
 
@@ -565,7 +575,7 @@ export interface BusinessOverviewRowProps {
 }
 
 export interface OrdersWorkspaceProps {
-  backToOverview: ReactNode;
+  mobileBackToOverview: ReactNode;
 }
 
 export interface IntakeCardDetailProps {

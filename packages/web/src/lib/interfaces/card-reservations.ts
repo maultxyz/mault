@@ -96,7 +96,7 @@ export interface CardReservationRequestSectionProps extends CardReservationActio
 }
 
 export interface ReservationsWorkspaceProps {
-  backToOverview: ReactNode;
+  mobileBackToOverview: ReactNode;
 }
 
 export type CardReservationConfirmation = {

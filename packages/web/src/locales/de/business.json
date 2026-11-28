@@ -129,7 +129,7 @@
       "link": "Zu den Etiketten"
     },
     "views": {
-      "overview": "Übersicht",
+      "overview": "Zusammenfassung",
       "staff": "Team",
       "accuracy": "Genauigkeit"
     },
@@ -227,6 +227,7 @@
     }
   },
   "views": {
+    "overview": "Übersicht",
     "intake": "Wareneingang",
     "picks": "Picks",
     "labels": "Etiketten",
@@ -243,6 +244,7 @@
     "edit": "Angebot für {{name}} ändern"
   },
   "intake": {
+    "description": "Erfasse jeden Ankauf, vom Thekenankauf bis zur Händlerlieferung, mit dem Einkaufspreis jeder Karte.",
     "subtitle": "Scannt in {{collection}} · gestartet {{date}}",
     "new": "Neuer Wareneingang",
     "newTitle": "Wareneingang starten",
@@ -400,6 +402,7 @@
     "staffSignature": "Unterschrift Mitarbeiter"
   },
   "orders": {
+    "description": "Ziehe Karten für Bestellungen und Reservierungen mit Box und Position jeder Karte.",
     "pickCopy": "{{name}} als gepickt markieren",
     "printing": "{{setName}} ({{set}}) Nr. {{number}}",
     "removeLastCopyTitle": "Pick abbrechen?",

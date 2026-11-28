@@ -2,11 +2,10 @@ import { IconBadge } from "@/components/icon-badge";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
-import { PageHeader } from "@/components/page-header";
 import { SkeletonStatus } from "@/components/skeleton-status";
 import { StatGroupSkeleton } from "@/components/stat-group-skeleton";
-import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
-import { LibraryValueModeTabs } from "@/features/library/components/library-value-mode-tabs";
+import { LibraryPageHeader } from "@/features/library/components/library-page-header";
+import { LibraryValueModeSwitch } from "@/features/library/components/library-value-mode-switch";
 import { useCollectionChanges } from "@/features/library/api/use-collection-changes";
 import type { LibraryValueMode } from "@/lib/interfaces/library";
 import { Button } from "@/components/ui/button";
@@ -48,7 +47,6 @@ import type { Collection } from "@magic-vault/shared";
 
 export default function CollectionsPage() {
   const { t } = useTranslation("collections");
-  const { t: tCommon } = useTranslation("common");
   const {
     collections,
     activeCollection,
@@ -224,10 +222,9 @@ export default function CollectionsPage() {
         MOBILE_NAV_SCROLL_PADDING_CLASS,
       )}
     >
-      <PageHeader
-        title={tCommon("nav.library")}
+      <LibraryPageHeader
+        view="collections"
         description={t("page.subtitle")}
-        tabs={<LibraryViewTabs value="collections" />}
         actions={
           <CreateCollectionDialog
             trigger={({ disabled }) => (
@@ -238,6 +235,13 @@ export default function CollectionsPage() {
             )}
           />
         }
+      />
+
+      <div
+        className={cn(
+          "flex w-full flex-col gap-5 md:gap-2 p-4 md:px-3 md:py-2",
+          liveSelectedGuids.length > 0 && "pb-24 md:pb-24",
+        )}
       >
         {!isLoading && collections.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
@@ -253,26 +257,15 @@ export default function CollectionsPage() {
                 className="pl-8"
               />
             </div>
-            <LibraryValueModeTabs value={valueMode} onChange={setValueMode} />
+            <LibraryValueModeSwitch value={valueMode} onChange={setValueMode} />
           </div>
         )}
         {isLoading && (
           <div className="flex flex-wrap items-center gap-2">
             <Skeleton className="h-11 min-w-48 flex-1 rounded-lg md:h-7" />
-            <div className="flex h-11 items-center gap-6 md:h-7 md:gap-4">
-              <Skeleton className="h-3 w-12" />
-              <Skeleton className="h-3 w-12" />
-            </div>
+            <Skeleton className="h-11 w-36 rounded-lg md:h-7" />
           </div>
         )}
-      </PageHeader>
-
-      <div
-        className={cn(
-          "mx-auto flex w-full max-w-6xl flex-col gap-5 md:gap-2 p-4 md:px-3 md:py-2",
-          liveSelectedGuids.length > 0 && "pb-24 md:pb-24",
-        )}
-      >
         {!isLoading && collections.length > 0 && (
           <StatGroup
             heading={t("page.stats.heading")}

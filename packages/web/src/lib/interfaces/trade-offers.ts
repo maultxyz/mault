@@ -52,6 +52,15 @@ export interface TradeOfferDraftSnapshot {
 
 export type TradesBox = (typeof TRADES_BOXES)[number];
 
+export interface TradesBoxSwitchProps {
+  box: TradesBox;
+  onChange: (box: TradesBox) => void;
+}
+
+export interface TradeOfferLibraryProps {
+  box: TradesBox;
+}
+
 export interface OutgoingTradeOfferRowProps {
   offer: OutgoingTradeOffer;
 }
@@ -154,6 +163,36 @@ export interface GuestTradeOfferListProps {
 
 export interface TradeOfferLibraryRowProps {
   offer: TradeOffer;
+}
+
+export interface TradeOfferCardStackCard {
+  key: string;
+  name: string;
+  imageUrl: string | null;
+}
+
+export interface TradeOfferCardStackProps {
+  cards: TradeOfferCardStackCard[];
+}
+
+export interface TradeOfferRowSideProps {
+  label: string;
+  cards: TradeOfferCardStackCard[];
+  cardCount: number;
+  value?: ReactNode;
+  cash?: string | null;
+}
+
+export interface TradeOfferRowBalanceProps {
+  offer: TradeOffer;
+}
+
+export interface TradeOfferStatsProps {
+  offers: TradeOffer[];
+}
+
+export interface OutgoingTradeOfferStatsProps {
+  offers: OutgoingTradeOffer[];
 }
 
 export interface TradeOfferLibrarySectionProps {

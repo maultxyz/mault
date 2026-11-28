@@ -1,12 +1,12 @@
 import type { TradeOfferValueSummaryProps } from "@/lib/interfaces/trade-offers";
 import { cn } from "@/lib/utils";
-import { formatPrice } from "@magic-vault/shared";
+import { formatPrice, tradeOfferValueDifference } from "@magic-vault/shared";
 import { IconScale } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function TradeOfferValueSummary({ offer }: TradeOfferValueSummaryProps) {
   const { t } = useTranslation("common");
-  const difference = Math.round((offer.offeredValue - offer.wantedValue) * 100) / 100;
+  const difference = tradeOfferValueDifference(offer);
   const format = (value: number) => formatPrice(value, offer.priceSource);
   const hasMissingPrices =
     offer.wantedPrices.some((price) => price == null) ||

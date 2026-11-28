@@ -47,7 +47,7 @@ export default function WhatsNewPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <PageHeader title={title} />
+      <PageHeader title={title} maxWidthClassName="max-w-2xl" />
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto flex w-full max-w-2xl flex-col p-4 md:px-3 md:py-2">
           {timeline}

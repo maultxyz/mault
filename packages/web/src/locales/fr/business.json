@@ -129,7 +129,7 @@
       "link": "Aller aux étiquettes"
     },
     "views": {
-      "overview": "Vue d’ensemble",
+      "overview": "Résumé",
       "staff": "Équipe",
       "accuracy": "Précision"
     },
@@ -227,6 +227,7 @@
     }
   },
   "views": {
+    "overview": "Vue d’ensemble",
     "intake": "Entrées de stock",
     "picks": "Préparations",
     "labels": "Étiquettes",
@@ -243,6 +244,7 @@
     "edit": "Modifier l'offre pour {{name}}"
   },
   "intake": {
+    "description": "Enregistrez chaque achat, du comptoir aux livraisons de fournisseurs, avec le coût de chaque carte.",
     "subtitle": "Scan dans {{collection}} · commencé {{date}}",
     "new": "Nouvelle entrée de stock",
     "newTitle": "Démarrer une entrée de stock",
@@ -400,6 +402,7 @@
     "staffSignature": "Signature du vendeur"
   },
   "orders": {
+    "description": "Sortez les cartes des commandes et réservations avec la boîte et la position de chaque carte.",
     "pickCopy": "Marquer {{name}} comme prélevée",
     "printing": "{{setName}} ({{set}}) n° {{number}}",
     "removeLastCopyTitle": "Annuler la préparation ?",

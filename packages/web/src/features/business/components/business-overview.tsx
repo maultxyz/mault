@@ -2,11 +2,11 @@ import { CompactPrice } from "@/components/compact-value";
 import { IconBadge } from "@/components/icon-badge";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
-import { PageHeader } from "@/components/page-header";
+import { BusinessPageHeader } from "@/features/business/components/business-page-header";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
 import { BusinessOverviewSkeleton } from "@/features/business/components/business-overview-skeleton";
-import { ViewTabs } from "@/components/view-tabs";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import {
   businessOverviewQueryOptions,
   inventoryMarginQueryOptions,
@@ -395,29 +395,29 @@ export function BusinessOverviewDashboard() {
       { replace: true },
     );
 
-  const viewTabs = (
-    <ViewTabs<BusinessOverviewView>
-      label={title}
-      className="border-b-0"
-      dataTour="business-overview-views"
-      items={BUSINESS_OVERVIEW_VIEWS.map((value) => ({
-        key: value,
-        label: t(`overview.views.${value}`),
-      }))}
-      value={view}
-      onChange={(value) =>
-        setParams(
-          (previous) => {
-            const next = new URLSearchParams(previous);
-            if (value === BUSINESS_OVERVIEW_MAIN_VIEW) next.delete(BUSINESS_OVERVIEW_VIEW_PARAM);
-            else next.set(BUSINESS_OVERVIEW_VIEW_PARAM, value);
-            next.delete(BUSINESS_OVERVIEW_CHECK_PARAM);
-            return next;
-          },
-          { replace: true },
-        )
-      }
-    />
+  const viewSwitch = (
+    <div data-tour="business-overview-views" className="self-start">
+      <ResponsiveSegmented<BusinessOverviewView>
+        label={title}
+        items={BUSINESS_OVERVIEW_VIEWS.map((value) => ({
+          key: value,
+          label: t(`overview.views.${value}`),
+        }))}
+        value={view}
+        onChange={(value) =>
+          setParams(
+            (previous) => {
+              const next = new URLSearchParams(previous);
+              if (value === BUSINESS_OVERVIEW_MAIN_VIEW) next.delete(BUSINESS_OVERVIEW_VIEW_PARAM);
+              else next.set(BUSINESS_OVERVIEW_VIEW_PARAM, value);
+              next.delete(BUSINESS_OVERVIEW_CHECK_PARAM);
+              return next;
+            },
+            { replace: true },
+          )
+        }
+      />
+    </div>
   );
 
   const body =
@@ -457,15 +457,15 @@ export function BusinessOverviewDashboard() {
           }
         />
       ) : (
-        <PageHeader
-          title={title}
+        <BusinessPageHeader
+          view="overview"
           description={description}
           actions={<BusinessTour tour={BUSINESS_OVERVIEW_TOUR} />}
-          tabs={viewTabs}
         />
       )}
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 md:gap-2 md:px-3 md:py-2">
+      <div className="flex w-full flex-col gap-6 p-4 md:gap-2 md:px-3 md:py-2">
         {access?.isLocked && <BusinessUpgradeCallout />}
+        {!isMobile && viewSwitch}
         {body}
       </div>
     </div>

@@ -543,6 +543,20 @@
     "evenValue": "Beide Seiten sind gleich viel wert.",
     "missingPrices": "Einige Karten haben keinen Preis, die Summen können daher zu niedrig sein.",
     "library": {
+      "nothing": "Nichts",
+      "cardCount_one": "{{count}} Karte",
+      "cardCount_other": "{{count}} Karten",
+      "balanceGain": "{{amount}} zu deinen Gunsten",
+      "balanceLose": "{{amount}} zu deinen Ungunsten",
+      "balanceEven": "Ausgeglichener Tausch",
+      "balanceUnpriced": "Ohne Preise",
+      "receivedOn": "Eingegangen am {{date}}",
+      "answeredOn": "Beantwortet am {{date}}",
+      "note": "„{{note}}“",
+      "stats": {
+        "heading": "Erhaltene Angebote",
+        "picking": "Wird gepickt"
+      },
       "subtitle": "Tauschangebote über deine Tauschlinks",
       "open": "Offen",
       "answered": "Beantwortet",
@@ -632,6 +646,9 @@
       "reservations": "Meine Reservierungen"
     },
     "sent": {
+      "stats": {
+        "heading": "Gesendete Angebote"
+      },
       "title": "Gesendetes Tauschangebot",
       "unknownRecipient": "Ein geteilter Link",
       "rowDetails": "{{wanted}} angefragt · {{offered}} angeboten",

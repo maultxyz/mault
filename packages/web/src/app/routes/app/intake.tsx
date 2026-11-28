@@ -22,6 +22,7 @@ import { UnmovedBuysCallout } from "@/features/business/components/unmoved-buys-
 import { ListSearchInput } from "@/components/list-search-input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { BusinessOverviewBackButton } from "@/features/business/components/business-overview-back-button";
+import { BusinessPageHeader } from "@/features/business/components/business-page-header";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import {
@@ -270,21 +271,15 @@ export default function IntakePage() {
     );
   }
 
-  const showsLotHeading =
-    !!selectedGuid && !(openScanId && selectedLot) && !isGridReviewing;
-
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-      {!showsLotHeading && (
-        <h1 className="sr-only">{t("views.intake")}</h1>
-      )}
-      <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
-        <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-          <BusinessOverviewBackButton />
-          <div className="flex gap-1.5">
+      <BusinessPageHeader
+        view="intake"
+        description={t("intake.description")}
+        actions={
+          <>
+            <BusinessTour tour={BUSINESS_BUYS_TOUR} />
             <Button
-              variant="outline"
-              className="min-w-0 flex-1"
               data-tour="intake-new"
               disabled={access?.isLocked}
               onClick={() => setCreateOpen(true)}
@@ -292,8 +287,11 @@ export default function IntakePage() {
               <IconPlus />
               {t("intake.new")}
             </Button>
-            <BusinessTour tour={BUSINESS_BUYS_TOUR} />
-          </div>
+          </>
+        }
+      />
+      <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
+        <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
           <UnmovedBuysCallout />
           {listSearchInput}
           <IntakeLotList

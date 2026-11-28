@@ -129,7 +129,7 @@
       "link": "Go to labels"
     },
     "views": {
-      "overview": "Overview",
+      "overview": "Summary",
       "staff": "Staff",
       "accuracy": "Accuracy"
     },
@@ -227,6 +227,7 @@
     }
   },
   "views": {
+    "overview": "Overview",
     "intake": "Intake",
     "picks": "Picks",
     "labels": "Labels",
@@ -243,6 +244,7 @@
     "edit": "Change offer for {{name}}"
   },
   "intake": {
+    "description": "Record every buy, from counter purchases to vendor deliveries, with what each card cost.",
     "subtitle": "Scanning into {{collection}} · started {{date}}",
     "new": "New intake",
     "newTitle": "Start an intake",
@@ -400,6 +402,7 @@
     "staffSignature": "Staff signature"
   },
   "orders": {
+    "description": "Pull cards for orders and reservations with each card's box and position.",
     "pickCopy": "Mark {{name}} as picked",
     "printing": "{{setName}} ({{set}}) #{{number}}",
     "removeLastCopyTitle": "Cancel the pick?",

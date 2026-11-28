@@ -2,5 +2,5 @@ import { BusinessOverviewBackButton } from "@/features/business/components/busin
 import { OrdersWorkspace } from "@/features/business/components/orders-workspace";
 
 export default function PicksPage() {
-  return <OrdersWorkspace backToOverview={<BusinessOverviewBackButton />} />;
+  return <OrdersWorkspace mobileBackToOverview={<BusinessOverviewBackButton />} />;
 }

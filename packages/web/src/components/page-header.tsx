@@ -15,6 +15,7 @@ export function PageHeader({
   tabs,
   children,
   spansFullWidth = false,
+  maxWidthClassName = "max-w-6xl",
 }: PageHeaderProps) {
   const { t } = useTranslation("common");
   const backButtonLabel = backLabel ?? t("mobileMenu.back");
@@ -27,8 +28,8 @@ export function PageHeader({
     >
       <div
         className={cn(
-          "mx-auto flex w-full flex-col gap-2 px-4 pt-2.5 md:pt-2",
-          spansFullWidth ? "md:px-3" : "max-w-6xl md:px-5",
+          "mx-auto flex w-full flex-col gap-2 px-4 pt-2.5 md:px-3 md:pt-2",
+          !spansFullWidth && maxWidthClassName,
         )}
       >
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">

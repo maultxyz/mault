@@ -543,6 +543,20 @@
     "evenValue": "Les deux côtés ont la même valeur.",
     "missingPrices": "Certaines cartes n'ont pas de prix, les totaux peuvent donc être bas.",
     "library": {
+      "nothing": "Rien",
+      "cardCount_one": "{{count}} carte",
+      "cardCount_other": "{{count}} cartes",
+      "balanceGain": "{{amount}} en votre faveur",
+      "balanceLose": "{{amount}} en votre défaveur",
+      "balanceEven": "Échange équilibré",
+      "balanceUnpriced": "Sans prix",
+      "receivedOn": "Reçue le {{date}}",
+      "answeredOn": "Répondue le {{date}}",
+      "note": "« {{note}} »",
+      "stats": {
+        "heading": "Offres reçues",
+        "picking": "En préparation"
+      },
       "subtitle": "Offres d'échange reçues via vos liens d'échange",
       "open": "En cours",
       "answered": "Répondues",
@@ -632,6 +646,9 @@
       "reservations": "Mes réservations"
     },
     "sent": {
+      "stats": {
+        "heading": "Offres envoyées"
+      },
       "title": "Offre d'échange envoyée",
       "unknownRecipient": "Un lien partagé",
       "rowDetails": "{{wanted}} demandées · {{offered}} proposées",

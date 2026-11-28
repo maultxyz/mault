@@ -5,7 +5,6 @@ import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
-import { PageHeader } from "@/components/page-header";
 import { SkeletonStatus } from "@/components/skeleton-status";
 import { TableSkeleton } from "@/components/table-skeleton";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import { priceLabelCardsQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
 import { BusinessOverviewBackButton } from "@/features/business/components/business-overview-back-button";
+import { BusinessPageHeader } from "@/features/business/components/business-page-header";
 import { PriceLabelCardList } from "@/features/business/components/price-label-card-list";
 import { PriceLabelOptionsForm } from "@/features/business/components/price-label-options-form";
 import { PriceLabelSheet } from "@/features/business/components/price-label-sheet";
@@ -208,23 +208,21 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
+      <BusinessPageHeader
+        view="labels"
+        description={t("priceLabels.description")}
+        actions={
+          <>
+            <BusinessTour tour={BUSINESS_LABELS_TOUR} />
+            {printButton}
+          </>
+        }
+      />
       <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-y-auto border-r bg-sidebar/70 p-2 lg:col-span-3">
-          <BusinessOverviewBackButton />
           {optionsForm}
         </section>
         <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">
-          <PageHeader
-            title={t("priceLabels.title")}
-            description={t("priceLabels.description")}
-            actions={
-              <>
-                <BusinessTour tour={BUSINESS_LABELS_TOUR} />
-                {printButton}
-              </>
-            }
-            spansFullWidth
-          />
           <div className="flex flex-col gap-2 px-3 py-2">
             {access?.isLocked && <BusinessUpgradeCallout />}
             <Callout icon={IconInfoCircle}>{tCommon("labelSheets.printTip")}</Callout>

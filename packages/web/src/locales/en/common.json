@@ -543,6 +543,20 @@
     "evenValue": "Both sides are worth the same.",
     "missingPrices": "Some cards have no price, so the totals may be low.",
     "library": {
+      "nothing": "Nothing",
+      "cardCount_one": "{{count}} card",
+      "cardCount_other": "{{count}} cards",
+      "balanceGain": "{{amount}} in your favor",
+      "balanceLose": "{{amount}} against you",
+      "balanceEven": "Even trade",
+      "balanceUnpriced": "Not priced",
+      "receivedOn": "Received on {{date}}",
+      "answeredOn": "Answered on {{date}}",
+      "note": "“{{note}}”",
+      "stats": {
+        "heading": "Received offers",
+        "picking": "Being picked"
+      },
       "subtitle": "Trade offers sent through your trade links",
       "open": "Open",
       "answered": "Answered",
@@ -632,6 +646,9 @@
       "reservations": "My reservations"
     },
     "sent": {
+      "stats": {
+        "heading": "Sent offers"
+      },
       "title": "Sent trade offer",
       "unknownRecipient": "A shared link",
       "rowDetails": "{{wanted}} asked for · {{offered}} offered",
