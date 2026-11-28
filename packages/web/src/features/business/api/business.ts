@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiGetBlob, apiPost, apiPut } from "@/lib/api/client";
+import { apiDelete, apiGet, apiGetBlob, apiPost, apiPostBlob, apiPut } from "@/lib/api/client";
 import { pageRequestParams } from "@/lib/api/page-request";
 import {
   FLEET_REFETCH_MS,
@@ -65,6 +65,7 @@ import type {
   SorterPickReleaseInput,
   SorterPickReleaseResult,
   StatsRange,
+  PosExportRequest,
 } from "@magic-vault/shared";
 import {
   SALES_REPORT_BUY_PARAM,
@@ -675,6 +676,15 @@ export const salesReportQueryOptions = (
     enabled: !!orgId && enabled,
     placeholderData: keepPreviousData,
   });
+
+export async function downloadPosExportCsv(request: PosExportRequest): Promise<Blob> {
+  const blob = await apiPostBlob("/api/business/price-labels/pos-export", request);
+  if (blob.type.includes("json")) {
+    const result = JSON.parse(await blob.text()) as Result<unknown>;
+    throw new Error(result.message);
+  }
+  return blob;
+}
 
 export function downloadSalesReportCsv(filters: SalesReportFilters): Promise<Blob> {
   return apiGetBlob(`/api/business/sales/export?${salesReportParams(filters).toString()}`);

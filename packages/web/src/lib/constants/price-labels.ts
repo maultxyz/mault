@@ -20,6 +20,7 @@ export const PRICE_LABEL_DEFAULT_VALUES: PriceLabelOptionsFormValues = {
   deselectedScanIds: [],
   customPrices: {},
   showsPrices: true,
+  showsBarcodes: true,
   templateId: LABEL_SHEET_DEFAULT_TEMPLATE_ID,
   startPosition: 1,
 };
@@ -45,3 +46,9 @@ export const PRICE_LABEL_PRICE_MAX_FONT_SIZE = 14;
 export const PRICE_LABEL_PRICE_COLUMN_RATIO = 0.36;
 
 export const PRICE_LABEL_TEXT_GAP = 2;
+
+export const PRICE_LABEL_BARCODE_HEIGHT_RATIO = 0.38;
+
+export const PRICE_LABEL_BARCODE_BAR_RATIO = 0.72;
+
+export const PRICE_LABEL_SKU_FONT_SIZE_PER_BARCODE_HEIGHT = 0.2;

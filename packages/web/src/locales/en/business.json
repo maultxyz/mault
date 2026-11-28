@@ -993,6 +993,8 @@
       "source": "Cards from",
       "showPrices": "Show prices",
       "showPricesHint": "Turn off to print labels with the card and its storage code only.",
+      "showBarcodes": "Show barcodes",
+      "showBarcodesHint": "Prints a Code 128 barcode of the card's SKU. Import the SKUs into your POS with Export for POS, then scan labels at the register.",
       "sellPriceHint": "Labels print each card's sell price, set in <settingsLink>Settings > Pricing</settingsLink> and with Set prices on selected cards. Type a custom price below to override one."
     },
     "sources": {
@@ -1033,6 +1035,19 @@
     },
     "sheet": {
       "pageDescription": "Price label sheet page {{page}}: {{labels}}"
+    },
+    "posExport": {
+      "trigger": "Export for POS",
+      "formats": {
+        "shopify": "Shopify products CSV",
+        "square": "Square item library CSV",
+        "sku": "SKU inventory CSV (Lightspeed, Clover and others)"
+      },
+      "exported_one": "Exported {{count}} SKU",
+      "exported_other": "Exported {{count}} SKUs",
+      "mixedPrices_one": "{{count}} SKU has copies with different prices. The file uses the first copy's price.",
+      "mixedPrices_other": "{{count}} SKUs have copies with different prices. The file uses the first copy's price.",
+      "failed": "Couldn't export the file."
     }
   },
   "reservations": {

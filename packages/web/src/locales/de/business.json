@@ -993,6 +993,8 @@
       "source": "Karten aus",
       "showPrices": "Preise anzeigen",
       "showPricesHint": "Ausschalten, um Etiketten nur mit der Karte und ihrem Lagercode zu drucken.",
+      "showBarcodes": "Barcodes anzeigen",
+      "showBarcodesHint": "Druckt einen Code-128-Barcode mit der SKU der Karte. Importiere die SKUs mit Für Kasse exportieren in dein Kassensystem und scanne die Etiketten an der Kasse.",
       "sellPriceHint": "Etiketten zeigen den Verkaufspreis jeder Karte, festgelegt unter <settingsLink>Einstellungen > Preise</settingsLink> und mit Preise festlegen für ausgewählte Karten. Gib unten einen eigenen Preis ein, um ihn zu überschreiben."
     },
     "sources": {
@@ -1033,6 +1035,19 @@
     },
     "sheet": {
       "pageDescription": "Preisetikettenbogen Seite {{page}}: {{labels}}"
+    },
+    "posExport": {
+      "trigger": "Für Kasse exportieren",
+      "formats": {
+        "shopify": "Shopify-Produkt-CSV",
+        "square": "Square-Artikelbibliothek-CSV",
+        "sku": "SKU-Bestands-CSV (Lightspeed, Clover und andere)"
+      },
+      "exported_one": "{{count}} SKU exportiert",
+      "exported_other": "{{count}} SKUs exportiert",
+      "mixedPrices_one": "{{count}} SKU hat Exemplare mit unterschiedlichen Preisen. Die Datei nutzt den Preis des ersten Exemplars.",
+      "mixedPrices_other": "{{count}} SKUs haben Exemplare mit unterschiedlichen Preisen. Die Datei nutzt den Preis des ersten Exemplars.",
+      "failed": "Die Datei konnte nicht exportiert werden."
     }
   },
   "reservations": {

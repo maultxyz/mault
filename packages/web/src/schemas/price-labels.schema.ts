@@ -25,6 +25,7 @@ export const priceLabelOptionsSchema = z
         ),
     ),
     showsPrices: z.boolean(),
+    showsBarcodes: z.boolean(),
     ...labelSheetOptionsShape,
   })
   .superRefine(refineLabelSheetStartPosition);

@@ -993,6 +993,8 @@
       "source": "Cartes de",
       "showPrices": "Afficher les prix",
       "showPricesHint": "Désactivez pour imprimer des étiquettes avec seulement la carte et son code de rangement.",
+      "showBarcodes": "Afficher les codes-barres",
+      "showBarcodesHint": "Imprime un code-barres Code 128 avec le SKU de la carte. Importez les SKU dans votre caisse avec Exporter pour la caisse, puis scannez les étiquettes en caisse.",
       "sellPriceHint": "Les étiquettes affichent le prix de vente de chaque carte, défini dans <settingsLink>Paramètres > Prix</settingsLink> et avec Définir les prix sur les cartes sélectionnées. Saisissez un prix personnalisé ci-dessous pour le remplacer."
     },
     "sources": {
@@ -1033,6 +1035,19 @@
     },
     "sheet": {
       "pageDescription": "Planche d'étiquettes de prix, page {{page}} : {{labels}}"
+    },
+    "posExport": {
+      "trigger": "Exporter pour la caisse",
+      "formats": {
+        "shopify": "CSV de produits Shopify",
+        "square": "CSV de bibliothèque d'articles Square",
+        "sku": "CSV de stock par SKU (Lightspeed, Clover et autres)"
+      },
+      "exported_one": "{{count}} SKU exporté",
+      "exported_other": "{{count}} SKU exportés",
+      "mixedPrices_one": "{{count}} SKU a des exemplaires à des prix différents. Le fichier utilise le prix du premier exemplaire.",
+      "mixedPrices_other": "{{count}} SKU ont des exemplaires à des prix différents. Le fichier utilise le prix du premier exemplaire.",
+      "failed": "Impossible d'exporter le fichier."
     }
   },
   "reservations": {
