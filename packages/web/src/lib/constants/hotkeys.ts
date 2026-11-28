@@ -79,6 +79,7 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   cardPrevious: { group: "cardDetail", keys: [{ key: "arrowleft" }] },
   cardNext: { group: "cardDetail", keys: [{ key: "arrowright" }] },
   cardCorrect: { group: "cardDetail", keys: [{ key: "c" }] },
+  cardMarkCorrect: { group: "cardDetail", keys: [{ key: "arrowup" }] },
   cardToggleFoil: { group: "cardDetail", keys: [{ key: "f" }] },
   cardConditionNM: { group: "cardDetail", keys: [{ key: "1" }] },
   cardConditionLP: { group: "cardDetail", keys: [{ key: "2" }] },

@@ -278,6 +278,7 @@
       "cardPrevious": "Vorherige Karte",
       "cardNext": "Nächste Karte",
       "cardCorrect": "Karte korrigieren (Pfeiltasten wählen ein Ergebnis, Enter übernimmt, Umschalt Enter bleibt beim Prüfen auf der Karte)",
+      "cardMarkCorrect": "Treffer als richtig markieren, wenn es ähnliche Treffer gibt",
       "cardToggleFoil": "Foil umschalten (erste Foil-Art oder zurück zu Nicht-Foil)",
       "cardConditionNM": "Zustand auf NM setzen",
       "cardConditionLP": "Zustand auf LP setzen",

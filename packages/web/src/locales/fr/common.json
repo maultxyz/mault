@@ -278,6 +278,7 @@
       "cardPrevious": "Carte précédente",
       "cardNext": "Carte suivante",
       "cardCorrect": "Corriger la carte (les flèches choisissent un résultat, Entrée valide, Maj Entrée reste sur la carte pendant la vérification)",
+      "cardMarkCorrect": "Marquer la correspondance comme correcte quand il y a des correspondances proches",
       "cardToggleFoil": "Basculer en foil (premier type de foil, ou retour en non-foil)",
       "cardConditionNM": "Définir l'état sur NM",
       "cardConditionLP": "Définir l'état sur LP",

@@ -38,6 +38,7 @@ export type HotkeyId =
   | "cardPrevious"
   | "cardNext"
   | "cardCorrect"
+  | "cardMarkCorrect"
   | "cardToggleFoil"
   | "cardConditionNM"
   | "cardConditionLP"

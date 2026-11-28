@@ -278,6 +278,7 @@
       "cardPrevious": "Previous card",
       "cardNext": "Next card",
       "cardCorrect": "Correct the card (arrows pick a result, Enter selects, Shift Enter stays while reviewing)",
+      "cardMarkCorrect": "Mark the match as correct when there are close matches",
       "cardToggleFoil": "Toggle foil (first foil type, or back to non-foil)",
       "cardConditionNM": "Set condition to NM",
       "cardConditionLP": "Set condition to LP",
