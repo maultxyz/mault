@@ -17,7 +17,7 @@ import { useCollectionChanges } from "@/features/library/api/use-collection-chan
 import { CollectionChangeTrend } from "@/features/library/components/collection-change-trend";
 import { LibraryValueModeSwitch } from "@/features/library/components/library-value-mode-switch";
 import type { LibraryValueMode } from "@/lib/interfaces/library";
-import { MOBILE_HOME_SEARCH_MIN_COLLECTIONS, monitorCollectionPath } from "@/lib/constants/collections";
+import { collectionViewPath, MOBILE_HOME_SEARCH_MIN_COLLECTIONS } from "@/lib/constants/collections";
 import { LIBRARY_COLLECTION_SKELETON_ROWS } from "@/lib/constants/library";
 import { MOBILE_LIST_CLASS, MOBILE_LIST_ROW_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
@@ -132,7 +132,7 @@ export function LibraryCollectionList() {
             return (
               <Link
                 key={collection.guid}
-                to={monitorCollectionPath(collection.guid)}
+                to={collectionViewPath(collection.guid)}
                 className={cn(MOBILE_LIST_ROW_CLASS, "min-h-16")}
               >
                 {lock ? (

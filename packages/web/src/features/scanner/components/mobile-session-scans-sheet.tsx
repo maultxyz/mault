@@ -9,7 +9,7 @@ import {
   MOBILE_LIST_CLASS,
   MOBILE_LIST_ROW_CLASS,
 } from "@/lib/constants/nav";
-import { MONITOR_OPEN_CARD_PARAM } from "@/lib/constants/scanner";
+import { collectionCardPath } from "@/lib/constants/scanner";
 import type { MobileSessionScansSheetProps } from "@/lib/interfaces/scanner";
 import { IconScan } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -65,7 +65,7 @@ export function MobileSessionScansSheet({
                 return (
                   <Link
                     key={entry.scanId}
-                    to={`/app/monitor/${collectionGuid}?${MONITOR_OPEN_CARD_PARAM}=${entry.scanId}`}
+                    to={collectionCardPath(collectionGuid ?? "", entry.scanId)}
                     className={MOBILE_LIST_ROW_CLASS}
                   >
                     <span className="relative aspect-[2.5/3.5] w-10 shrink-0 overflow-hidden rounded-sm bg-muted">

@@ -1,5 +1,5 @@
-import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
-import { collectionReviewPath, monitorCollectionCardPath } from "@/lib/constants/scanner";
+import { collectionViewPath } from "@/lib/constants/collections";
+import { collectionReviewPath, collectionCardPath } from "@/lib/constants/scanner";
 import type { StatsInsight } from "@/lib/interfaces/stats";
 import { buildStatsInsightFacts, type StatsInsightFact, type StatsReport } from "@magic-vault/shared";
 import { IconAlbum, IconCoins, IconCrown, IconFlame, IconHelpCircle } from "@tabler/icons-react";
@@ -22,7 +22,7 @@ function toInsight(
         key: fact.kind,
         icon: IconCrown,
         to: isMobile
-          ? monitorCollectionCardPath(fact.collectionGuid, fact.scanId)
+          ? collectionCardPath(fact.collectionGuid, fact.scanId)
           : `${collectionViewPath(fact.collectionGuid)}/cards/${fact.scanId}`,
         title: t("insights.topCard.title", { name: fact.name }),
         detail: t("insights.topCard.detail", { price: formatPrice(fact.price), collection: fact.collectionName }),
@@ -38,7 +38,7 @@ function toInsight(
       return {
         key: fact.kind,
         icon: IconAlbum,
-        to: isMobile ? monitorCollectionPath(fact.collectionGuid) : collectionViewPath(fact.collectionGuid),
+        to: collectionViewPath(fact.collectionGuid),
         title: t("insights.topCollection.title", { name: fact.name }),
         detail: t("insights.topCollection.detail", { percent: fact.percent }),
       };

@@ -37,6 +37,7 @@ export function useSessionEvents(
   const [recentCards, setRecentCards] = useState<ScannedCard[]>([]);
   const [cardsVersion, setCardsVersion] = useState(0);
   const [scannedCardsVersion, setScannedCardsVersion] = useState(0);
+  const [unmatchedVersion, setUnmatchedVersion] = useState(0);
   const initializedRef = useRef(false);
   const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
   const [unmatchedCount, setUnmatchedCount] = useState(0);
@@ -224,6 +225,7 @@ export function useSessionEvents(
         [card, ...prev].slice(0, UNMATCHED_PREVIEW_COUNT),
       );
       setUnmatchedCount((count) => count + 1);
+      setUnmatchedVersion((version) => version + 1);
     });
 
     on(scoped("unmatched_removed"), (e) => {
@@ -232,11 +234,13 @@ export function useSessionEvents(
       };
       setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
       setUnmatchedCount((count) => Math.max(0, count - 1));
+      setUnmatchedVersion((version) => version + 1);
     });
 
     on(scoped("unmatched_cleared"), () => {
       setUnmatchedCards([]);
       setUnmatchedCount(0);
+      setUnmatchedVersion((version) => version + 1);
     });
 
     on(scoped("scan_error"), (e) => {
@@ -270,6 +274,7 @@ export function useSessionEvents(
     recentCards,
     cardsVersion,
     scannedCardsVersion,
+    unmatchedVersion,
     unmatchedCards,
     unmatchedCount,
     viewers,

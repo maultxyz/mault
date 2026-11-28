@@ -15,6 +15,14 @@ export interface SessionViewer {
   displayName: string;
 }
 
+export interface LegacyMonitorRedirectProps {
+  toPhoneCamera?: boolean;
+}
+
+export interface MobileCollectionViewProps {
+  collectionGuid: string;
+}
+
 export interface ShareMonitorLinkDialogProps {
   collectionGuid: string;
   open?: boolean;

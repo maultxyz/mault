@@ -13,7 +13,8 @@ import { SearchResultIcon } from "@/features/search/components/search-result-ico
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
-import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
+import { collectionViewPath } from "@/lib/constants/collections";
+import { collectionCardPath } from "@/lib/constants/scanner";
 import { catalogCardPath, SEARCH_RESULT_THUMBNAIL_CLASS } from "@/lib/constants/search";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STORAGE_CARD_SEARCH_PARAM, STORAGE_LOCATION_SEARCH_PARAM, STORAGE_PATH } from "@/lib/constants/storage";
@@ -56,13 +57,13 @@ export function GlobalSearchCommand() {
   };
   const ownedCardPath = (result: OwnedCardSearchResult) => {
     if (!isMobile) return `${collectionViewPath(result.collectionGuid)}/cards/${result.scanId}`;
-    if (!result.locationGuid) return monitorCollectionPath(result.collectionGuid);
+    if (!result.locationGuid) return collectionCardPath(result.collectionGuid, result.scanId);
     return `${STORAGE_PATH}?${new URLSearchParams({
       [STORAGE_LOCATION_SEARCH_PARAM]: result.locationGuid,
       [STORAGE_CARD_SEARCH_PARAM]: result.scanId,
     })}`;
   };
-  const collectionPath = (guid: string) => (isMobile ? monitorCollectionPath(guid) : collectionViewPath(guid));
+  const collectionPath = collectionViewPath;
 
   return (
     <CommandDialog

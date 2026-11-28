@@ -11,6 +11,7 @@ import {
   MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
+import { COLLECTIONS_PATH } from "@/lib/constants/collections";
 import {
   INTAKE_PATH,
   LEGACY_INTAKE_PATH,
@@ -134,7 +135,7 @@ export function MobileNav() {
           pathname.startsWith(LIBRARY_PATH) ||
           pathname.startsWith(STORAGE_PATH) ||
           pathname.startsWith(TRADES_PATH) ||
-          pathname.startsWith("/app/monitor/")
+          pathname.startsWith(`${COLLECTIONS_PATH}/`)
         }
       />
       {hasBusinessTools && (

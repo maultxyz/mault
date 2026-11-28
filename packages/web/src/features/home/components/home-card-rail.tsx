@@ -3,7 +3,7 @@ import { HomeCardRailSkeletonTiles } from "@/features/home/components/home-card-
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { collectionViewPath } from "@/lib/constants/collections";
 import { HOME_CARD_RAIL_LOADING_TILE_COUNT, HOME_CARD_RAIL_TILE_CLASS } from "@/lib/constants/home";
-import { monitorCollectionCardPath } from "@/lib/constants/scanner";
+import { collectionCardPath } from "@/lib/constants/scanner";
 import type { HomeCardRailProps } from "@/lib/interfaces/home";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -48,7 +48,7 @@ export function HomeCardRail({
             <Link
               to={
                 isMobile
-                  ? monitorCollectionCardPath(card.collectionGuid, card.scanId)
+                  ? collectionCardPath(card.collectionGuid, card.scanId)
                   : `${collectionViewPath(card.collectionGuid)}/cards/${card.scanId}`
               }
               className="flex flex-col gap-1.5 rounded-lg transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.97] motion-reduce:active:scale-100"

@@ -56,7 +56,7 @@ export function buildCardScannedEmbed(
   if (gameName) lines.push(`**Game:** ${gameName}`);
 
   const monitorUrl = collectionGuid
-    ? `${getWebUrl()}/app/monitor/${collectionGuid}`
+    ? `${getWebUrl()}/app/collections/${collectionGuid}`
     : undefined;
 
   const referenceImageUrl = card.image?.normal

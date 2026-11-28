@@ -40,8 +40,10 @@ export function collectionViewPath(guid: string): string {
   return `${COLLECTIONS_PATH}/${guid}`;
 }
 
-export function monitorCollectionPath(guid: string): string {
-  return `/app/monitor/${guid}`;
+export const PHONE_CAMERA_ROUTE_PATH = `${COLLECTIONS_PATH}/:collectionGuid/camera`;
+
+export function phoneCameraPath(guid: string): string {
+  return `${collectionViewPath(guid)}/camera`;
 }
 
 export const CARD_QUERY_KINDS_REFRESHED_SEPARATELY = ["summary", "export"];

@@ -2,12 +2,11 @@ import { CardImage } from "@/components/card-image";
 import { MissingPrice } from "@/components/missing-price";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { usePriceSource } from "@/hooks/use-price-source";
-import { monitorCollectionPath } from "@/lib/constants/collections";
 import {
   MACHINE_RECENT_CARD_WIDTH_CLASS,
   MACHINE_RECENT_CARDS_COUNT,
 } from "@/lib/constants/machines";
-import { MONITOR_OPEN_CARD_PARAM } from "@/lib/constants/scanner";
+import { collectionCardPath } from "@/lib/constants/scanner";
 import type { MachinePanelProps } from "@/lib/interfaces/machines";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -42,7 +41,7 @@ export function MachineRecentCards({ machine }: MachinePanelProps) {
                 className={cn("shrink-0 snap-start animate-in fade-in-0 slide-in-from-left-4 motion-reduce:animate-none", MACHINE_RECENT_CARD_WIDTH_CLASS)}
               >
                 <Link
-                  to={`${monitorCollectionPath(machine.collectionGuid!)}?${MONITOR_OPEN_CARD_PARAM}=${entry.scanId}`}
+                  to={collectionCardPath(machine.collectionGuid!, entry.scanId)}
                   aria-label={t("recent.open", { name: entry.card.name })}
                   className="flex h-full gap-3 rounded-card bg-card p-2.5 outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >

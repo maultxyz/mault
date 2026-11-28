@@ -21,10 +21,8 @@ import { ValueHero } from "@/features/stats/components/value-hero";
 import { buildStatsInsights } from "@/features/stats/lib/stats-insights";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
-import {
-  collectionViewPath,
-  monitorCollectionPath,
-} from "@/lib/constants/collections";
+import { collectionViewPath } from "@/lib/constants/collections";
+import { collectionCardPath } from "@/lib/constants/scanner";
 import {
   STATS_ACTIVITY_METRICS,
   STATS_BAR_LIST_LIMIT,
@@ -317,7 +315,7 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
             key={entry.scanId}
             to={
               isMobile
-                ? monitorCollectionPath(entry.collectionGuid)
+                ? collectionCardPath(entry.collectionGuid, entry.scanId)
                 : `${collectionViewPath(entry.collectionGuid)}/cards/${entry.scanId}`
             }
             className="flex min-w-0 flex-col gap-1.5 rounded-lg transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.97] motion-reduce:active:scale-100"

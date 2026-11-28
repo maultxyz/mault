@@ -96,7 +96,7 @@ export const MOBILE_ACCOUNT_TAB_PATHS = [
   ORDERS_PATH,
   WHATS_NEW_PATH,
 ];
-export const MOBILE_NAV_HIDDEN_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
+export const MOBILE_NAV_HIDDEN_PATTERN = /^\/app\/collections\/[^/]+\/camera\/?$/;
 export const MOBILE_IMMERSIVE_PATTERN = /^\/app\/scan\/?$/;
 export const MOBILE_IMMERSIVE_PANEL_CLASS = "bg-black dark:bg-black";
 
