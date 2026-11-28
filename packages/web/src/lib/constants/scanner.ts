@@ -8,7 +8,7 @@ import { PI_SCAN_SESSION_PATH } from "@magic-vault/shared";
 import type { ContourCornerName } from "@/lib/interfaces/scanner";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { CARD_REVIEW_SEARCH_PARAM } from "@/lib/constants/cards";
-import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
+import { collectionViewPath } from "@/lib/constants/collections";
 import {
   type CollectionCardsQuery,
   type PiScanSessionState,
@@ -114,25 +114,20 @@ export const MONITOR_OPEN_CARD_PARAM = "card";
 export const MONITOR_REVIEW_PARAM = "review";
 export const MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE = "1";
 
-export function monitorCollectionCardPath(
+export function collectionCardPath(
   collectionGuid: string,
   scanId: string,
 ): string {
-  return `${monitorCollectionPath(collectionGuid)}?${new URLSearchParams({ [MONITOR_OPEN_CARD_PARAM]: scanId })}`;
-}
-
-export function monitorCollectionReviewPath(collectionGuid: string): string {
-  return `${monitorCollectionPath(collectionGuid)}?${new URLSearchParams({ [MONITOR_REVIEW_PARAM]: MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE })}`;
+  return `${collectionViewPath(collectionGuid)}?${new URLSearchParams({ [MONITOR_OPEN_CARD_PARAM]: scanId })}`;
 }
 
 export function collectionReviewPath(collectionGuid: string, isMobile: boolean): string {
   return isMobile
-    ? monitorCollectionReviewPath(collectionGuid)
+    ? `${collectionViewPath(collectionGuid)}?${new URLSearchParams({ [MONITOR_REVIEW_PARAM]: MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE })}`
     : `${collectionViewPath(collectionGuid)}?${CARD_REVIEW_SEARCH_PARAM}=1`;
 }
 export const CARD_SETS_STALE_MS = 15 * 60 * 1000;
 export const CARD_SET_PICKER_LIMIT = 100;
-export const MONITOR_CARD_QUERY_KINDS = ["page", "summary", "count"];
 export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
   ...ALL_CARDS_QUERY,
   filters: { ...EMPTY_CARD_FILTERS, needsAttention: true },

@@ -14,7 +14,7 @@ export function EditingStagePresetBanner() {
   if (!selectedSet || selectedSet.isActive) return null;
 
   return (
-    <div className="px-4 pt-3">
+    <div className="px-4 py-3">
       <Callout
         title={t("presetWorkflows.editingInactiveTitle", {
           name: selectedSet.name,

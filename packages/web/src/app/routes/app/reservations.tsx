@@ -2,5 +2,5 @@ import { BusinessOverviewBackButton } from "@/features/business/components/busin
 import { ReservationsWorkspace } from "@/features/card-reservations/components/reservations-workspace";
 
 export default function ReservationsPage() {
-  return <ReservationsWorkspace backToOverview={<BusinessOverviewBackButton />} />;
+  return <ReservationsWorkspace mobileBackToOverview={<BusinessOverviewBackButton />} />;
 }

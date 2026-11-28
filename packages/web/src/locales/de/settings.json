@@ -97,7 +97,7 @@
     "sounds": "Spiele einen Sound ab, wenn eine gescannte Karte eine Regel erfüllt, zum Beispiel bei wertvollen Karten.",
     "notifications": "Verknüpfe deinen Discord-Server und lege fest, welche Scans und Warnungen wo gepostet werden.",
     "integrations": "Erstelle API-Schlüssel und Webhooks, damit dein Shop oder andere Tools sehen, wo deine Karten lagern.",
-    "business": "Lege fest, was Mitglieder sehen und tun dürfen, und teile deine Shop-Kataloge.",
+    "business": "Lege fest, was Mitglieder sehen und tun dürfen.",
     "raspberry-pis": "Verbinde einen Raspberry-Pi-Sortierer mit dieser Organisation und starte oder stoppe seine Scans von hier aus.",
     "profile": "Deine öffentliche Seite unter mault.xyz/@handle mit deinen Links, Shop-Katalogen und Lieblingskarten."
   },

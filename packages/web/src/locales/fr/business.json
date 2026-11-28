@@ -106,57 +106,42 @@
   "overview": {
     "back": "Vue d’ensemble",
     "title": "Achat & vente",
-    "description": "Ce qui reste à faire pour les entrées de stock, les préparations et les réservations.",
+    "description": "Ce qui reste à faire aujourd’hui et comment se porte votre boutique.",
     "cards_one": "{{count}} carte",
     "cards_other": "{{count}} cartes",
     "intake": {
-      "description": "Faites entrer du nouveau stock de clients, de fournisseurs, de lots en vrac ou de produits ouverts. Scannez-le directement dans votre stock, puis terminez l’entrée de stock.",
       "empty": "Aucune entrée de stock ouverte.",
-      "link": "Aller aux entrées de stock"
+      "link": "Aller aux entrées de stock",
+      "summary": "{{lots}} en cours, {{cards}}"
     },
     "picks": {
-      "description": "Sortez les cartes vendues du stock et terminez la vente.",
       "empty": "Aucune préparation ouverte.",
       "progress": "{{picked}} sur {{total}} préparées",
-      "link": "Aller aux préparations"
+      "link": "Aller aux préparations",
+      "summary": "{{picks}} en cours, {{cards}} à préparer"
     },
-    "reservations": {
-      "description": "Cartes réservées par vos clients dans vos catalogues.",
-      "link": "Aller aux réservations"
-    },
-    "labels": {
-      "description": "Imprimez des étiquettes de prix pour une collection, un emplacement ou une entrée de stock.",
-      "link": "Aller aux étiquettes"
+    "catalogs": {
+      "summary_one": "{{count}} catalogue pour vos clients",
+      "summary_other": "{{count}} catalogues pour vos clients",
+      "link": "Aller aux catalogues"
     },
     "views": {
-      "overview": "Vue d’ensemble",
+      "overview": "Résumé",
       "staff": "Équipe",
       "accuracy": "Précision"
     },
-    "now": {
-      "heading": "En ce moment"
-    },
-    "share": "{{percent}} %",
     "tiles": {
       "openIntake": "Entrées de stock ouvertes",
       "openPicks": "Préparations ouvertes",
-      "cardsToPick": "Cartes à préparer",
-      "readyToComplete_one": "{{count}} prête à terminer",
-      "readyToComplete_other": "{{count}} prêtes à terminer",
-      "requests_one": "{{count}} demande",
-      "requests_other": "{{count}} demandes",
-      "beingPicked_one": "{{count}} en préparation",
-      "beingPicked_other": "{{count}} en préparation",
       "soldCards": "Cartes vendues",
-      "perDay": "{{count}} par jour en moyenne",
       "revenue": "Chiffre d’affaires",
-      "averageSale": "{{value}} par carte",
       "profit": "Bénéfice",
-      "profitMargin": "Marge de {{percent}} %",
-      "profitNoCosts": "Aucun coût enregistré"
+      "profitNoCosts": "Aucun coût enregistré",
+      "lastDays": "{{days}} derniers jours",
+      "salesPeriod": "{{cards}} vendues sur les {{days}} derniers jours",
+      "profitMarginPeriod": "Marge de {{percent}} %, {{days}} derniers jours"
     },
     "sales": {
-      "heading": "{{days}} derniers jours",
       "title": "Ventes",
       "description": "Cartes vendues chaque jour sur les {{days}} derniers jours, préparations et retraits de réservations compris.",
       "metrics": {
@@ -192,18 +177,9 @@
         "detail": "Rien ne demande votre attention pour le moment."
       }
     },
-    "reservationsChart": {
-      "title": "Réservations par étape",
-      "description": "Demandes de réservation ouvertes et leur avancement.",
-      "none": "Aucune réservation ouverte.",
-      "requests_one": "Demande",
-      "requests_other": "Demandes"
-    },
     "inventory": {
-      "heading": "Coûts du stock",
       "value": "Valeur du stock",
       "uncosted": "Cartes sans coût",
-      "uncostedDetail": "Ajoutez un coût pour les inclure dans les marges",
       "historyDescription": "Valeur de marché quotidienne de tout ce que vous possédez, hors cartes des entrées de stock ouvertes.",
       "collectionsTitle": "Coûts par collection",
       "collectionsDescription": "Ce que vous avez payé pour chaque collection face à sa valeur actuelle.",
@@ -217,21 +193,25 @@
       },
       "setCostsHint": "Pour enregistrer ce que vous avez payé, sélectionnez des cartes dans une collection et utilisez Définir les prix.",
       "sellValueOfCosted": "Valeur de vente",
-      "sellValueDetail": "Cartes avec un coût, à vos prix de vente",
       "unrealizedProfit": "Bénéfice latent",
-      "marginPercent": "Marge de {{percent}} %"
+      "marginPercent": "Marge de {{percent}} %",
+      "uncostedValue": "{{cards}} ({{percent}} %)"
     },
-    "salesSection": {
-      "description": "Chaque carte vendue, avec son coût et le bénéfice.",
-      "link": "Aller aux ventes"
+    "todo": {
+      "heading": "À faire"
+    },
+    "performance": {
+      "heading": "Performances"
     }
   },
   "views": {
+    "overview": "Vue d’ensemble",
     "intake": "Entrées de stock",
     "picks": "Préparations",
     "labels": "Étiquettes",
     "reservations": "Réservations",
-    "sales": "Ventes"
+    "sales": "Ventes",
+    "catalogs": "Catalogues"
   },
   "offerEditor": {
     "title": "Offre pour {{name}}",
@@ -243,6 +223,7 @@
     "edit": "Modifier l'offre pour {{name}}"
   },
   "intake": {
+    "description": "Enregistrez chaque achat, du comptoir aux livraisons de fournisseurs, avec le coût de chaque carte.",
     "subtitle": "Scan dans {{collection}} · commencé {{date}}",
     "new": "Nouvelle entrée de stock",
     "newTitle": "Démarrer une entrée de stock",
@@ -400,6 +381,7 @@
     "staffSignature": "Signature du vendeur"
   },
   "orders": {
+    "description": "Sortez les cartes des commandes et réservations avec la boîte et la position de chaque carte.",
     "pickCopy": "Marquer {{name}} comme prélevée",
     "printing": "{{setName}} ({{set}}) n° {{number}}",
     "removeLastCopyTitle": "Annuler la préparation ?",
@@ -919,6 +901,7 @@
   "shopCatalogs": {
     "heading": "Catalogues boutique",
     "description": "Laissez vos clients parcourir votre stock sur une tablette en boutique ou sur votre site. Chaque catalogue montre les cartes des collections et emplacements choisis, via un lien qui fonctionne jusqu'à ce que vous le réinitialisiez.",
+    "managersOnly": "Seuls les propriétaires et les admins peuvent gérer les catalogues boutique.",
     "add": "Nouveau catalogue",
     "addTitle": "Nouveau catalogue boutique",
     "editTitle": "Modifier le catalogue boutique",
@@ -965,7 +948,7 @@
     },
     "photo": {
       "heading": "Photo de la boutique",
-      "description": "Affichée en haut de chaque catalogue boutique. JPEG, PNG ou WebP, jusqu'à 10 Mo.",
+      "description": "Affichée sur vos catalogues boutique, votre profil public, vos liens d'affichage et vos bons de livraison.",
       "upload": "Importer une photo",
       "replace": "Remplacer",
       "remove": "Supprimer la photo de la boutique",
@@ -975,7 +958,9 @@
       "removed": "Photo de la boutique supprimée",
       "removeFailed": "Impossible de supprimer la photo de la boutique.",
       "wrongType": "Importez une photo JPEG, PNG ou WebP.",
-      "tooLarge": "Cette photo est trop lourde. Importez-en une de moins de 10 Mo."
+      "tooLarge": "Cette photo est trop lourde. Importez-en une de moins de 10 Mo.",
+      "formats": "JPEG, PNG ou WebP, jusqu'à 10 Mo.",
+      "upgrade": "La photo de la boutique fait partie de l'offre Business."
     },
     "isPublic": "Public",
     "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé. Désactivez pour exiger le lien privé.",
@@ -989,7 +974,14 @@
     "reservationHoldDescription": "Passé ce délai, la réservation expire et la personne suivante dans la file obtient la carte.",
     "reservationsOn": "Accepte les réservations",
     "reservationsRequireAccount": "Exiger un compte pour réserver",
-    "reservationsRequireAccountDescription": "Seuls les clients connectés peuvent réserver des cartes. Ils reçoivent des mises à jour et voient leurs réservations sur tous leurs appareils."
+    "reservationsRequireAccountDescription": "Seuls les clients connectés peuvent réserver des cartes. Ils reçoivent des mises à jour et voient leurs réservations sur tous leurs appareils.",
+    "editor": {
+      "detailsHeading": "Détails",
+      "visibilityHeading": "Qui peut le voir",
+      "reservationsHeading": "Réservations",
+      "contentsHeading": "Contenu",
+      "notFound": "Ce catalogue n'existe plus."
+    }
   },
   "priceLabels": {
     "title": "Étiquettes de prix",
@@ -1044,7 +1036,7 @@
     }
   },
   "reservations": {
-    "howItWorks": "Activez les réservations pour chaque catalogue boutique dans les réglages. Une réservation expire d'elle-même après le délai défini pour son catalogue.",
+    "howItWorks": "Activez les réservations pour chaque catalogue boutique dans Catalogues. Une réservation expire d'elle-même après le délai défini pour son catalogue.",
     "listLabel": "Liste des réservations",
     "lists": {
       "active": "En cours",

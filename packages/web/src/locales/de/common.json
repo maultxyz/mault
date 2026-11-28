@@ -57,12 +57,13 @@
     "account": "Konto"
   },
   "userMenu": {
-  "signOutConfirmTitle": "Abmelden?",
-  "signOutConfirmDescription": "Du musst dich erneut anmelden, um Mault auf diesem Gerät zu nutzen.",
+    "signOutConfirmTitle": "Abmelden?",
+    "signOutConfirmDescription": "Du musst dich erneut anmelden, um Mault auf diesem Gerät zu nutzen.",
     "trigger": "Kontomenü",
     "signOut": "Abmelden",
     "theme": "Design",
-    "language": "Sprache"
+    "language": "Sprache",
+    "viewPublicProfile": "Öffentliches Profil ansehen"
   },
   "emailVerification": {
     "banner": "Bitte bestätige deine E-Mail-Adresse ({{email}}), um dein Konto abzusichern.",
@@ -278,6 +279,7 @@
       "cardPrevious": "Vorherige Karte",
       "cardNext": "Nächste Karte",
       "cardCorrect": "Karte korrigieren (Pfeiltasten wählen ein Ergebnis, Enter übernimmt, Umschalt Enter bleibt beim Prüfen auf der Karte)",
+      "cardMarkCorrect": "Treffer als richtig markieren, wenn es ähnliche Treffer gibt",
       "cardToggleFoil": "Foil umschalten (erste Foil-Art oder zurück zu Nicht-Foil)",
       "cardConditionNM": "Zustand auf NM setzen",
       "cardConditionLP": "Zustand auf LP setzen",
@@ -508,7 +510,11 @@
     "poweredBy": "Bereitgestellt von",
     "poweredByLabel": "Bereitgestellt von {{site}} (öffnet in einem neuen Tab)",
     "requireGuestAccount": "Konto verlangen",
-    "requireGuestAccountDescription": "Nur wer sich anmeldet, kann über diesen Link ein Tauschangebot senden."
+    "requireGuestAccountDescription": "Nur wer sich anmeldet, kann über diesen Link ein Tauschangebot senden.",
+    "displayTitle": "TV-Anzeige",
+    "displayDescription": "Öffne das auf einem Fernseher oder großen Bildschirm, um jede Karte groß anzuzeigen, sobald sie gescannt wird.",
+    "copyDisplay": "Link zur TV-Anzeige kopieren",
+    "openDisplay": "Anzeige öffnen"
   },
   "tradeOffers": {
     "declined": "Tauschangebot abgelehnt",
@@ -543,6 +549,20 @@
     "evenValue": "Beide Seiten sind gleich viel wert.",
     "missingPrices": "Einige Karten haben keinen Preis, die Summen können daher zu niedrig sein.",
     "library": {
+      "nothing": "Nichts",
+      "cardCount_one": "{{count}} Karte",
+      "cardCount_other": "{{count}} Karten",
+      "balanceGain": "{{amount}} zu deinen Gunsten",
+      "balanceLose": "{{amount}} zu deinen Ungunsten",
+      "balanceEven": "Ausgeglichener Tausch",
+      "balanceUnpriced": "Ohne Preise",
+      "receivedOn": "Eingegangen am {{date}}",
+      "answeredOn": "Beantwortet am {{date}}",
+      "note": "„{{note}}“",
+      "stats": {
+        "heading": "Erhaltene Angebote",
+        "picking": "Wird gepickt"
+      },
       "subtitle": "Tauschangebote über deine Tauschlinks",
       "open": "Offen",
       "answered": "Beantwortet",
@@ -632,6 +652,9 @@
       "reservations": "Meine Reservierungen"
     },
     "sent": {
+      "stats": {
+        "heading": "Gesendete Angebote"
+      },
       "title": "Gesendetes Tauschangebot",
       "unknownRecipient": "Ein geteilter Link",
       "rowDetails": "{{wanted}} angefragt · {{offered}} angeboten",

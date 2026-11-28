@@ -44,6 +44,7 @@ export function ShareStorageLinkDialog({
           kind: "storage",
           subjectGuid: locationGuid,
         }),
+        displayUrl: null,
         expiresAt: result.data.expiresAt,
       };
     },

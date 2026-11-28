@@ -20,12 +20,14 @@ export const BUSINESS_INTAKE_VIEW = "intake";
 export const BUSINESS_PICKS_VIEW = "picks";
 export const BUSINESS_RESERVATIONS_VIEW = "reservations";
 export const BUSINESS_SALES_VIEW = "sales";
+export const BUSINESS_CATALOGS_VIEW = "catalogs";
 export const BUSINESS_VIEWS = [
   BUSINESS_OVERVIEW_VIEW,
   BUSINESS_INTAKE_VIEW,
   BUSINESS_PICKS_VIEW,
   BUSINESS_RESERVATIONS_VIEW,
   BUSINESS_SALES_VIEW,
+  BUSINESS_CATALOGS_VIEW,
 ] as const;
 export const BUSINESS_SALES_QUERY_KEY = [...BUSINESS_QUERY_KEY, "sales"] as const;
 export const BUSINESS_INVENTORY_MARGIN_QUERY_KEY = [...BUSINESS_QUERY_KEY, "inventory-margin"] as const;
@@ -89,7 +91,7 @@ export const BUSINESS_LIST_SKELETON_ROWS = 5;
 export const BUSINESS_LIST_SEARCH_DEBOUNCE_MS = 300;
 export const SELL_PRICE_PREVIEW_MARKET_PRICE = 10;
 
-export const BUSINESS_TIPS_TOPICS = ["overview", "buys", "picks", "reservations", "sales", "scanBuy"] as const;
+export const BUSINESS_TIPS_TOPICS = ["overview", "buys", "picks", "reservations", "sales", "catalogs", "scanBuy"] as const;
 
 export const BUSINESS_TIPS: Record<(typeof BUSINESS_TIPS_TOPICS)[number], BusinessTip[]> = {
   overview: [
@@ -127,6 +129,11 @@ export const BUSINESS_TIPS: Record<(typeof BUSINESS_TIPS_TOPICS)[number], Busine
     { key: "profit", icon: "stats" },
     { key: "list", icon: "menu" },
   ],
+  catalogs: [
+    { key: "create", icon: "store" },
+    { key: "share", icon: "qrCode" },
+    { key: "manage", icon: "edit" },
+  ],
   scanBuy: [
     { key: "start", icon: "plus" },
     { key: "scan", icon: "camera" },
@@ -141,6 +148,7 @@ export const BUSINESS_TIPS_TOPIC_BY_VIEW: Record<(typeof BUSINESS_VIEWS)[number]
   [BUSINESS_PICKS_VIEW]: "picks",
   [BUSINESS_RESERVATIONS_VIEW]: "reservations",
   [BUSINESS_SALES_VIEW]: "sales",
+  [BUSINESS_CATALOGS_VIEW]: "catalogs",
 };
 export const BUSINESS_OVERVIEW_SKELETON_NOW_TILE_COUNT = 4;
 export const BUSINESS_OVERVIEW_SKELETON_SALES_TILE_COUNT = 2;

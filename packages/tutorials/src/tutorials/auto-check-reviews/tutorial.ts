@@ -33,7 +33,7 @@ export default defineTutorial({
     };
     const activeCollection = data.find((collection) => collection.isActive);
     if (!activeCollection) throw new Error("The demo org has no active collection to review.");
-    await tutorial.goto(`/app/monitor/${activeCollection.guid}`);
+    await tutorial.goto(`/app/collections/${activeCollection.guid}`);
   },
   async run(tutorial) {
     const { page, ui } = tutorial;

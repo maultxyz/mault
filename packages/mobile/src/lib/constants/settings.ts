@@ -28,11 +28,11 @@ export const SETTINGS_SECTION_LINKS: SettingsSectionLink[] = [
   { path: "/settings/raspberry-pis", key: "raspberryPis", icon: "sorter" },
   { path: "/settings/pricing", key: "pricing", icon: "stats" },
   { path: "/settings/organization", key: "organization", icon: "account" },
+  { path: "/settings/profile-page", key: "profilePage", icon: "share" },
   { path: "/settings/billing", key: "billing", icon: "check" },
   { path: "/settings/sounds", key: "sounds", icon: "music" },
   { path: "/settings/notifications", key: "notifications", icon: "bell" },
   { path: "/settings/integrations", key: "integrations", icon: "connection" },
   { path: "/settings/webhooks", key: "webhooks", icon: "external" },
   { path: "/settings/business", key: "business", icon: "store" },
-  { path: "/settings/profile-page", key: "profilePage", icon: "share" },
 ];

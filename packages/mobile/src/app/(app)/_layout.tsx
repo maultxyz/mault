@@ -94,8 +94,6 @@ export default function AppLayout() {
           <Stack.Screen name="settings/raspberry-pi-rename" options={sheetOptions} />
           <Stack.Screen name="settings/stats-sync-key-new" options={sheetOptions} />
           <Stack.Screen name="settings/stats-sync-connect" options={sheetOptions} />
-          <Stack.Screen name="settings/shop-catalog-edit" options={sheetOptions} />
-          <Stack.Screen name="settings/shop-catalog-link" options={sheetOptions} />
           <Stack.Screen name="settings/sound-clip-name" options={sheetOptions} />
           <Stack.Screen name="settings/sound-rule" options={sheetOptions} />
           <Stack.Screen name="settings/notification-rule" options={sheetOptions} />
@@ -105,6 +103,8 @@ export default function AppLayout() {
           <Stack.Screen name="sent-trade-offer/[guid]" options={sheetOptions} />
           <Stack.Screen name="storage-pick-list" />
           <Stack.Screen name="business/index" />
+          <Stack.Screen name="business/shop-catalog-edit" />
+          <Stack.Screen name="business/shop-catalog-link" options={sheetOptions} />
           <Stack.Screen name="business/intake/[guid]" />
           <Stack.Screen name="business/order/[guid]" />
           <Stack.Screen name="business/pick" />

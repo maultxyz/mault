@@ -26,7 +26,7 @@ import {
   MOBILE_SCAN_TEXT_ROW_CLASS,
   MOBILE_SCAN_RESULT_CHIP_CLASS,
   MOBILE_SCAN_TOP_SCRIM_CLASS,
-  MONITOR_OPEN_CARD_PARAM,
+  collectionCardPath,
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
@@ -370,7 +370,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           )}
           {lastScannedCard && activeCollection && !isRemoveModeActive && (
             <Link
-              to={`/app/monitor/${activeCollection.guid}?${MONITOR_OPEN_CARD_PARAM}=${lastScannedCard.scanId}`}
+              to={collectionCardPath(activeCollection.guid, lastScannedCard.scanId)}
               className={MOBILE_SCAN_RESULT_CHIP_CLASS}
             >
               {lastScannedCardNeedsCheck ? (

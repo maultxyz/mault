@@ -45,12 +45,9 @@ export function ShopPhotoSettings({
             <IconPhoto className="size-5 text-foreground/70" aria-hidden />
           )}
         </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <p className="text-sm font-medium">{t("shopCatalogs.photo.heading")}</p>
-          <p id={descriptionId} className="text-xs text-foreground/70">
-            {t("shopCatalogs.photo.description")}
-          </p>
-        </div>
+        <p id={descriptionId} className="min-w-0 flex-1 text-xs text-foreground/70">
+          {t("shopCatalogs.photo.formats")}
+        </p>
       </div>
       {canEdit && (
         <div className="flex shrink-0 gap-1.5">

@@ -1,3 +1,4 @@
+import { BusinessPageHeader } from "@/features/business/components/business-page-header";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
@@ -50,7 +51,7 @@ import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
-export function OrdersWorkspace({ backToOverview }: OrdersWorkspaceProps) {
+export function OrdersWorkspace({ mobileBackToOverview }: OrdersWorkspaceProps) {
   const { t } = useTranslation("business");
   const isMobile = useIsMobile();
   const { orgId, access } = useBusinessAccess();
@@ -224,7 +225,7 @@ export function OrdersWorkspace({ backToOverview }: OrdersWorkspaceProps) {
           )}
         >
           <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
-            {backToOverview}
+            {mobileBackToOverview}
             {resumeBatch}
             {access?.isLocked && <BusinessUpgradeCallout />}
             <div data-tour="picks-list" className="flex min-h-0 flex-1 flex-col gap-4">
@@ -250,13 +251,13 @@ export function OrdersWorkspace({ backToOverview }: OrdersWorkspaceProps) {
 
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-      <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
-        <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-          {backToOverview}
-          <div className="flex gap-1.5">
+      <BusinessPageHeader
+        view="picks"
+        description={t("orders.description")}
+        actions={
+          <>
+            <BusinessTour tour={BUSINESS_PICKS_TOUR} />
             <Button
-              variant="outline"
-              className="min-w-0 flex-1"
               data-tour="picks-import"
               disabled={access?.isLocked || !access?.canFulfilOrders}
               render={<Link to={PICK_IMPORT_PATH} />}
@@ -265,8 +266,11 @@ export function OrdersWorkspace({ backToOverview }: OrdersWorkspaceProps) {
               <IconFileImport />
               {t("orders.importButton")}
             </Button>
-            <BusinessTour tour={BUSINESS_PICKS_TOUR} />
-          </div>
+          </>
+        }
+      />
+      <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
+        <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
           {resumeBatch}
           <div data-tour="picks-list" className="flex min-h-0 flex-1 flex-col gap-2">
             {listSearchInput}
@@ -285,14 +289,12 @@ export function OrdersWorkspace({ backToOverview }: OrdersWorkspaceProps) {
         </section>
         <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 md:gap-2 md:px-3 md:py-2 lg:col-span-9">
           {access?.isLocked && <BusinessUpgradeCallout />}
-          {selectedGuid ? (
+          {selectedGuid && (
             <OrderDetail
               key={selectedGuid}
               guid={selectedGuid}
               onDeleted={() => select(null)}
             />
-          ) : (
-            <h1 className="sr-only">{t("views.picks")}</h1>
           )}
           {!selectedGuid && isError && (
             <LoadErrorCallout

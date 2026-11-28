@@ -93,7 +93,6 @@ export function IntakeLotDetail({
 }: IntakeLotDetailProps) {
   const { t } = useTranslation("business");
   const isMobile = useIsMobile();
-  const DetailHeading = isMobile ? "h2" : "h1";
   const { format } = usePriceSource();
   const navigate = useNavigate();
   const { access, settings } = useBusinessAccess();
@@ -157,7 +156,6 @@ export function IntakeLotDetail({
   if (isLoading || !lot) {
     return (
       <>
-        {!isMobile && <h1 className="sr-only">{t("views.intake")}</h1>}
         {isError ? (
           <LoadErrorCallout
             message={t("errors.loadFailed")}
@@ -214,9 +212,9 @@ export function IntakeLotDetail({
       <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-1.5 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl md:-top-2 md:-mx-3 md:-mt-2 md:pl-3">
         <div className="mr-auto min-w-0">
           <div className="flex items-center gap-2">
-            <DetailHeading className="truncate font-heading text-lg font-semibold">
+            <h2 className="truncate font-heading text-lg font-semibold">
               {lot.customerName}
-            </DetailHeading>
+            </h2>
             <StatusBadge status={lot.status} />
             <Badge variant="outline">{t(`intake.sourceTypes.${lot.sourceType}`)}</Badge>
             {lot.collectionGameName && (

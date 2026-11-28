@@ -16,7 +16,7 @@ import { ValueHero } from "@/features/stats/components/value-hero";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useCollectionLocks } from "@/lib/app-stream";
-import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
+import { collectionViewPath } from "@/lib/constants/collections";
 import { HOME_CARD_OF_THE_DAY_TILE_CLASS } from "@/lib/constants/home";
 import { MOBILE_SCAN_PATH } from "@/lib/constants/nav";
 import { SCANNER_PATH, collectionReviewPath } from "@/lib/constants/scanner";
@@ -54,7 +54,7 @@ export function HomeDashboard() {
   const locale = i18n.language;
   const overviewData = overview.data;
   const summaryData = summary.data;
-  const collectionPath = (guid: string) => (isMobile ? monitorCollectionPath(guid) : collectionViewPath(guid));
+  const collectionPath = collectionViewPath;
   const isFirstRun = !overview.isError && overviewData?.collectionCount === 0 && collections.length === 0;
 
   const change = summaryData ? valueChangeOf(summaryData.all, format, locale) : null;

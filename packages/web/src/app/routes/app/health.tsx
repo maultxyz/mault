@@ -7,7 +7,6 @@ import {
   MOBILE_ACCOUNT_PATH,
   MOBILE_ICON_BUTTON_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
-  PAGE_TITLE_CLASS,
 } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +16,7 @@ import { useHealthQuery } from "@/features/health/api/health";
 import { CardLookup } from "@/features/health/components/card-lookup";
 import { OcrRegionGallery } from "@/features/health/components/ocr-region-gallery";
 import { MobilePageHeader } from "@/components/mobile-page-header";
+import { PageHeader } from "@/components/page-header";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useSyncState } from "@/lib/app-stream";
 import {
@@ -74,23 +74,21 @@ export default function HealthPage() {
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
-        <div className="flex flex-col p-4 md:px-3 md:py-2 max-w-2xl mx-auto w-full gap-5 md:gap-2">
-          {isMobile ? (
-            syncNote
-          ) : (
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className={PAGE_TITLE_CLASS}>
-                  {t("title")}
-                </h1>
-                <p className="text-xs text-foreground/70">{t("subtitle")}</p>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                {refreshButton}
+        {!isMobile && (
+          <PageHeader
+            title={t("title")}
+            description={t("subtitle")}
+            actions={
+              <>
                 {syncNote}
-              </div>
-            </div>
-          )}
+                {refreshButton}
+              </>
+            }
+            maxWidthClassName="max-w-2xl"
+          />
+        )}
+        <div className="flex flex-col p-4 md:px-3 md:py-2 max-w-2xl mx-auto w-full gap-5 md:gap-2">
+          {isMobile && syncNote}
 
           {data && (
             <Callout

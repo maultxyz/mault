@@ -62,7 +62,8 @@
     "signOutConfirmDescription": "You will need to sign in again to use Mault on this device.",
     "signOut": "Sign out",
     "theme": "Theme",
-    "language": "Language"
+    "language": "Language",
+    "viewPublicProfile": "View public profile"
   },
   "emailVerification": {
     "banner": "Please verify your email address ({{email}}) to secure your account.",
@@ -278,6 +279,7 @@
       "cardPrevious": "Previous card",
       "cardNext": "Next card",
       "cardCorrect": "Correct the card (arrows pick a result, Enter selects, Shift Enter stays while reviewing)",
+      "cardMarkCorrect": "Mark the match as correct when there are close matches",
       "cardToggleFoil": "Toggle foil (first foil type, or back to non-foil)",
       "cardConditionNM": "Set condition to NM",
       "cardConditionLP": "Set condition to LP",
@@ -508,7 +510,11 @@
     "poweredBy": "Powered by",
     "poweredByLabel": "Powered by {{site}} (opens in a new tab)",
     "requireGuestAccount": "Require an account",
-    "requireGuestAccountDescription": "Only people who log in can send a trade offer on this link."
+    "requireGuestAccountDescription": "Only people who log in can send a trade offer on this link.",
+    "displayTitle": "TV display",
+    "displayDescription": "Open this on a TV or large screen to show each card big as it's scanned.",
+    "copyDisplay": "Copy TV display link",
+    "openDisplay": "Open display"
   },
   "tradeOffers": {
     "declined": "Trade offer declined",
@@ -543,6 +549,20 @@
     "evenValue": "Both sides are worth the same.",
     "missingPrices": "Some cards have no price, so the totals may be low.",
     "library": {
+      "nothing": "Nothing",
+      "cardCount_one": "{{count}} card",
+      "cardCount_other": "{{count}} cards",
+      "balanceGain": "{{amount}} in your favor",
+      "balanceLose": "{{amount}} against you",
+      "balanceEven": "Even trade",
+      "balanceUnpriced": "Not priced",
+      "receivedOn": "Received on {{date}}",
+      "answeredOn": "Answered on {{date}}",
+      "note": "“{{note}}”",
+      "stats": {
+        "heading": "Received offers",
+        "picking": "Being picked"
+      },
       "subtitle": "Trade offers sent through your trade links",
       "open": "Open",
       "answered": "Answered",
@@ -632,6 +652,9 @@
       "reservations": "My reservations"
     },
     "sent": {
+      "stats": {
+        "heading": "Sent offers"
+      },
       "title": "Sent trade offer",
       "unknownRecipient": "A shared link",
       "rowDetails": "{{wanted}} asked for · {{offered}} offered",

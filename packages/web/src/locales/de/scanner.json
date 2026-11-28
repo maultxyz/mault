@@ -1373,5 +1373,19 @@
     "loading": "Verbundene Sortierer werden geladen…",
     "unavailable": "Verbundene Sortierer konnten nicht geladen werden",
     "stopBeforeSwitching": "Stoppe den Pi-Scan, bevor du den Sortierer oder die Kamera wechselst."
+  },
+  "watchDisplay": {
+    "latest": "Gerade gescannt",
+    "recent": "Zuletzt gescannt",
+    "cardCount_one": "{{formattedCount}} Karte",
+    "cardCount_other": "{{formattedCount}} Karten",
+    "waitingTitle": "Warte auf die erste Karte",
+    "waitingDescription": "Karten erscheinen hier, sobald sie gescannt werden.",
+    "scanToBrowse": "Scannen, um alle Karten zu durchstöbern",
+    "browseQrAlt": "QR-Code, der diese Sammlung auf deinem Handy öffnet",
+    "enterFullscreen": "Vollbild",
+    "exitFullscreen": "Vollbild beenden",
+    "reconnecting": "Verbindung wird wiederhergestellt...",
+    "newestAnnouncement": "Gerade gescannt: {{name}}"
   }
 }

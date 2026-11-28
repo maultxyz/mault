@@ -156,6 +156,7 @@ function StoragePickListView() {
           backTo={STORAGE_PATH}
           backLabel={t("pickList.back")}
           actions={actions}
+          maxWidthClassName={showScanPanel ? "max-w-6xl" : "max-w-4xl"}
         />
       )}
       <div

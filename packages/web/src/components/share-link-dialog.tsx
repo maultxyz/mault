@@ -7,7 +7,7 @@ import { useShareLinkLengths } from "@/features/share-links/api/use-share-link-l
 import { ShareLinkList } from "@/features/share-links/components/share-link-list";
 import { SharedCardLinkList } from "@/features/share-links/components/shared-card-link-list";
 import { ViewTabs } from "@/components/view-tabs";
-import { shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
+import { shareLinkDisplayUrl, shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
 import { SHARE_LINKS_QUERY_KEY } from "@/lib/constants/share-links";
 import type {
   ShareLinkDetailsData,
@@ -49,6 +49,7 @@ function detailsOf(link: OrgShareLink): ShareLinkDetailsData {
   return {
     guid: link.guid,
     url: shareLinkUrl(link),
+    displayUrl: shareLinkDisplayUrl(link),
     expiresAt: link.expiresAt,
     purpose: link.purpose,
     showsPrices: link.showsPrices,
@@ -141,6 +142,7 @@ export function ShareLinkDialog({
       setDetails({
         guid: created.guid,
         url: created.url,
+        displayUrl: created.displayUrl,
         expiresAt: created.expiresAt,
         purpose: values.purpose,
         showsPrices: values.showPrices,

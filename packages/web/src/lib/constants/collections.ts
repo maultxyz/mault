@@ -1,5 +1,5 @@
 export const COLLECTIONS_GRID_CLASS =
-  "grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-1.5 lg:grid-cols-3";
+  "grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-1.5 lg:grid-cols-3 2xl:grid-cols-4";
 
 export const COLLECTION_TILE_CLASS =
   "group relative isolate flex flex-col overflow-hidden rounded-card border border-border bg-card transition-[border-color,box-shadow] duration-200 hover:border-primary/40 hover:ring-2 hover:ring-primary/20 motion-reduce:transition-none";
@@ -40,8 +40,10 @@ export function collectionViewPath(guid: string): string {
   return `${COLLECTIONS_PATH}/${guid}`;
 }
 
-export function monitorCollectionPath(guid: string): string {
-  return `/app/monitor/${guid}`;
+export const PHONE_CAMERA_ROUTE_PATH = `${COLLECTIONS_PATH}/:collectionGuid/camera`;
+
+export function phoneCameraPath(guid: string): string {
+  return `${collectionViewPath(guid)}/camera`;
 }
 
 export const CARD_QUERY_KINDS_REFRESHED_SEPARATELY = ["summary", "export"];

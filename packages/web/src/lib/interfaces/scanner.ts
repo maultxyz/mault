@@ -645,6 +645,7 @@ export interface SessionMonitorState {
   recentCards: ScannedCard[];
   cardsVersion: number;
   scannedCardsVersion: number;
+  unmatchedVersion: number;
   unmatchedCards: UnmatchedCard[];
   unmatchedCount: number;
   viewers: SessionViewer[];
@@ -655,35 +656,6 @@ export interface SessionMonitorState {
 export interface MonitorCardsSource {
   collectionGuid: string;
   shareToken?: string | null;
-}
-
-export interface MonitorCardGridProps {
-  entries: GroupedScannedCard[];
-  status: ConnectionStatus;
-  cardCount: number;
-  matchingCount: number;
-  isLoading: boolean;
-  viewMode: CardViewMode;
-  groupDuplicates: boolean;
-  page: number;
-  pageSize: number;
-  preferredPageSize: number;
-  onPageSizeChange: (pageSize: number) => void;
-  pageCount: number;
-  onPageChange: (page: number) => void;
-  showBinLocation: boolean;
-  onOpenCard?: (scanId: string) => void;
-}
-
-export interface SessionMonitorViewProps {
-  session: SessionMonitorState;
-  cardsSource: MonitorCardsSource;
-  header?: ReactNode;
-  toolbarLeading?: ReactNode;
-  binCount?: number;
-  showBinLocation: boolean;
-  canEditCards?: boolean;
-  backHref?: string;
 }
 
 export interface MonitorCardsState {
@@ -775,14 +747,6 @@ export interface MobileCardDetailBodyProps {
   onNavigate: (scanId: string | null) => void;
   onReviewComplete: (count: number) => void;
   onShowReviewGrid?: () => void;
-  onClose: () => void;
-}
-
-export interface MonitorCardDetailProps {
-  collectionGuid: string;
-  scanId: string;
-  cardsQuery: CollectionCardsQuery;
-  onNavigate: (scanId: string | null) => void;
   onClose: () => void;
 }
 

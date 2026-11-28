@@ -99,6 +99,13 @@ export function filterTradeOfferCardGroups(
   );
 }
 
+export function tradeOfferValueDifference(offer: {
+  offeredValue: number;
+  wantedValue: number;
+}): number {
+  return roundCents(offer.offeredValue - offer.wantedValue);
+}
+
 export function tradeOfferSideTotals(
   cards: TradeOfferReviewCard[],
   prices: (number | null)[] = [],

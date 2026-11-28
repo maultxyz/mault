@@ -23,7 +23,6 @@ import {
   COLLECTION_TILE_CLASS,
   COLLECTION_TILE_LIVE_CLASS,
   COLLECTION_TILE_SELECTED_CLASS,
-  monitorCollectionPath,
 } from "@/lib/constants/collections";
 import { controlCardsPath } from "@/lib/constants/control-cards";
 import type { CollectionTileProps } from "@/lib/interfaces/collections";
@@ -32,7 +31,6 @@ import {
   IconDots,
   IconEdit,
   IconEraser,
-  IconHeartRateMonitor,
   IconPlayerPlay,
   IconQrcode,
   IconShare,
@@ -160,10 +158,6 @@ export function CollectionTile({
               }
             />
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => navigate(monitorCollectionPath(collection.guid))}>
-                <IconHeartRateMonitor />
-                {t("page.liveView")}
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setIsShareLinkDialogOpen(true)}>
                 <IconShare />
                 {t("page.shareLink")}

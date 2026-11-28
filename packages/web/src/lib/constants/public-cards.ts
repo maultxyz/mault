@@ -1,3 +1,4 @@
+import { WATCH_DISPLAY_PATH_SEGMENT, WATCH_PATH_PREFIX } from "@magic-vault/shared";
 export const ALL_PUBLIC_CARD_GAMES = "all";
 export const PUBLIC_CARD_FILTER_LEGEND_CLASS = "mb-1.5 text-xs font-semibold text-foreground/70";
 export const PUBLIC_CARD_FILTER_LABEL_CLASS = "flex min-w-0 flex-1 items-center gap-2 text-control";
@@ -46,3 +47,6 @@ export const PUBLIC_CARDS_RATE_LIMITED_STATUS = 429;
 
 export const PUBLIC_PAGE_ROOT_CLASS = "public-page";
 export const PUBLIC_CARD_DETAIL_SKELETON_FIELD_ROWS = 5;
+export const WATCH_DISPLAY_RECENT_CARD_COUNT = 10;
+export const WATCH_DISPLAY_CARD_COUNT = WATCH_DISPLAY_RECENT_CARD_COUNT + 1;
+export const WATCH_DISPLAY_ROUTE_PATH = `${WATCH_PATH_PREFIX}/:collectionGuid/${WATCH_DISPLAY_PATH_SEGMENT}`;

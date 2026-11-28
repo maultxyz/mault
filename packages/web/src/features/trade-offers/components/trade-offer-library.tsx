@@ -1,8 +1,11 @@
 import { CompactValue } from "@/components/compact-value";
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
+import { StatGroupSkeleton } from "@/components/stat-group-skeleton";
+import { TradeOfferDetailedRow } from "@/features/trade-offers/components/trade-offer-detailed-row";
 import { TradeOfferListSkeleton } from "@/features/trade-offers/components/trade-offer-list-skeleton";
-import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import { TradeOfferStats } from "@/features/trade-offers/components/trade-offer-stats";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTradeOffers } from "@/features/trade-offers/api/trade-offers";
@@ -13,14 +16,12 @@ import { StatusMessagesSwitch } from "@/features/status-messages/components/stat
 import { GuestKindBadge } from "@/components/guest-kind-badge";
 import {
   TRADE_OFFER_STATUS_BADGE_VARIANTS,
-  TRADES_BOX_PARAM,
-  TRADES_BOXES,
   tradeOfferPath,
 } from "@/lib/constants/trade-offers";
 import type {
+  TradeOfferLibraryProps,
   TradeOfferLibraryRowProps,
   TradeOfferLibrarySectionProps,
-  TradesBox,
 } from "@/lib/interfaces/trade-offers";
 import {
   formatCompactPriceInCurrency,
@@ -31,7 +32,7 @@ import {
 } from "@magic-vault/shared";
 import { IconArrowsExchange, IconChevronRight } from "@tabler/icons-react";
 import { useId } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 function TradeOfferLibraryRow({ offer }: TradeOfferLibraryRowProps) {
@@ -100,7 +101,9 @@ function TradeOfferLibraryRow({ offer }: TradeOfferLibraryRowProps) {
 
 function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionProps) {
   const headingId = useId();
+  const isMobile = useIsMobile();
   if (offers.length === 0) return null;
+  const Row = isMobile ? TradeOfferLibraryRow : TradeOfferDetailedRow;
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-2 md:gap-1.5">
       <h2 id={headingId} className="font-heading text-sm font-semibold">
@@ -108,7 +111,7 @@ function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionPro
       </h2>
       <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-card bg-card">
         {offers.map((offer) => (
-          <TradeOfferLibraryRow key={offer.guid} offer={offer} />
+          <Row key={offer.guid} offer={offer} />
         ))}
       </ul>
     </section>
@@ -117,6 +120,7 @@ function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionPro
 
 function ReceivedTradeOfferList() {
   const { t } = useTranslation("common");
+  const isMobile = useIsMobile();
   const offers = useTradeOffers();
   const allOffers = offers.data ?? [];
   const newestFirst = [...allOffers].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -125,7 +129,12 @@ function ReceivedTradeOfferList() {
   const answeredOffers = newestFirst.filter((offer) => !isOpen(offer));
 
   if (offers.isPending) {
-    return <TradeOfferListSkeleton hasHeading />;
+    return (
+      <>
+        {!isMobile && <StatGroupSkeleton tiles={4} gridClassName="grid-cols-4" />}
+        <TradeOfferListSkeleton hasHeading />
+      </>
+    );
   }
 
   if (offers.isError) {
@@ -151,52 +160,29 @@ function ReceivedTradeOfferList() {
     />
   ) : (
     <>
+      {!isMobile && <TradeOfferStats offers={allOffers} />}
       <TradeOfferLibrarySection title={t("tradeOffers.library.open")} offers={openOffers} />
       <TradeOfferLibrarySection title={t("tradeOffers.library.answered")} offers={answeredOffers} />
     </>
   );
 }
 
-export function TradeOfferLibrary() {
-  const { t } = useTranslation("common");
-  const [searchParams, setSearchParams] = useSearchParams();
-  const requestedBox = searchParams.get(TRADES_BOX_PARAM);
-  const box: TradesBox = (TRADES_BOXES as readonly string[]).includes(requestedBox ?? "")
-    ? (requestedBox as TradesBox)
-    : "received";
-  const changeBox = (next: TradesBox) =>
-    setSearchParams(
-      (previous) => {
-        const updated = new URLSearchParams(previous);
-        if (next === "received") updated.delete(TRADES_BOX_PARAM);
-        else updated.set(TRADES_BOX_PARAM, next);
-        return updated;
-      },
-      { replace: true },
+export function TradeOfferLibrary({ box }: TradeOfferLibraryProps) {
+  if (box === "sent") {
+    return (
+      <>
+        <StatusMessagesSwitch kind="tradeOffers" />
+        <OutgoingTradeOfferList />
+      </>
     );
-
-  return (
-    <>
-      <ResponsiveSegmented
-        items={TRADES_BOXES.map((key) => ({ key, label: t(`tradeOffers.boxes.${key}`) }))}
-        value={box}
-        onChange={changeBox}
-        label={t("tradeOffers.boxes.label")}
-        className="self-start"
-      />
-      {box === "sent" ? (
-        <>
-          <StatusMessagesSwitch kind="tradeOffers" />
-          <OutgoingTradeOfferList />
-        </>
-      ) : box === "reservations" ? (
-        <>
-          <StatusMessagesSwitch kind="cardReservations" />
-          <MyCardReservationList />
-        </>
-      ) : (
-        <ReceivedTradeOfferList />
-      )}
-    </>
-  );
+  }
+  if (box === "reservations") {
+    return (
+      <>
+        <StatusMessagesSwitch kind="cardReservations" />
+        <MyCardReservationList />
+      </>
+    );
+  }
+  return <ReceivedTradeOfferList />;
 }

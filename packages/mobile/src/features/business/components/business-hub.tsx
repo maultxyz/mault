@@ -14,9 +14,11 @@ import { IntakeLotsView } from "@/features/business/components/intake-lots-view"
 import { OrdersView } from "@/features/business/components/orders-view";
 import { ReservationsView } from "@/features/business/components/reservations-view";
 import { SalesView } from "@/features/business/components/sales-view";
+import { ShopCatalogsView } from "@/features/business/components/shop-catalogs-view";
 import { useBusinessTips } from "@/features/business/lib/use-business-tips";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
+  BUSINESS_CATALOGS_VIEW,
   BUSINESS_INTAKE_VIEW,
   BUSINESS_OVERVIEW_VIEW,
   BUSINESS_QUERY_KEY,
@@ -44,10 +46,11 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
   const isReservations = view === BUSINESS_RESERVATIONS_VIEW;
   const isOverview = view === BUSINESS_OVERVIEW_VIEW;
   const isSales = view === BUSINESS_SALES_VIEW;
+  const isCatalogs = view === BUSINESS_CATALOGS_VIEW;
   const tipsTopic = BUSINESS_TIPS_TOPIC_BY_VIEW[view];
   const tips = useBusinessTips(tipsTopic, !!access.data && !isLocked);
   const showCreateAction =
-    !isReservations && !isOverview && !isSales && (isIntake ? canCreateIntake : canCreatePick);
+    !isReservations && !isOverview && !isSales && !isCatalogs && (isIntake ? canCreateIntake : canCreatePick);
 
   return (
     <Screen
@@ -83,6 +86,8 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
         <ReservationsView canAct={canCreatePick} />
       ) : isSales ? (
         <SalesView key={salesBuyGuid ?? "all"} buyGuid={salesBuyGuid} />
+      ) : isCatalogs ? (
+        <ShopCatalogsView />
       ) : (
         <OrdersView canAct={!!access.data?.canFulfilOrders} />
       )}

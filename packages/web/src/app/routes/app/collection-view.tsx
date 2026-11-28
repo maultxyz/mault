@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardGrid } from "@/features/cards/components/card-grid";
@@ -13,26 +14,55 @@ import { RarityGameKeyContext } from "@/lib/rarity-game-key-context";
 import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { useUnmatchedView } from "@/features/scanner/api/use-unmatched-view";
 import { UnmatchedCardsBrowser } from "@/features/scanner/components/unmatched-cards-browser";
+import { useLiveCollectionCardCaches } from "@/features/collections/api/use-live-collection-card-caches";
+import { MobileCollectionView } from "@/features/collections/components/mobile-collection-view";
+import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
+import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
+import { InitialsAvatar } from "@/components/ui/initials-avatar";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { useCollectionLocks } from "@/lib/app-stream";
 import {
   COLLECTIONS_PATH,
-  monitorCollectionPath,
+  collectionViewPath,
 } from "@/lib/constants/collections";
+import { MONITOR_OPEN_CARD_PARAM } from "@/lib/constants/scanner";
 import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
-import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { STATS_COLLECTION_PARAM, STATS_PATH } from "@/lib/constants/stats";
-import { cn } from "@/lib/utils";
 import {
   IconAlbum,
-  IconArrowLeft,
   IconChartBar,
-  IconHeartRateMonitor,
   IconPlayerPlay,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 
 export default function CollectionViewPage() {
-  const { t } = useTranslation("collections");
+  const isMobile = useIsMobile();
+  return isMobile ? <MobileCollectionPage /> : <DesktopCollectionPage />;
+}
+
+function MobileCollectionPage() {
+  const { collectionGuid, scanId } = useParams<{
+    collectionGuid: string;
+    scanId: string;
+  }>();
+  if (!collectionGuid) return <Navigate to={COLLECTIONS_PATH} replace />;
+  if (scanId) {
+    return (
+      <Navigate
+        to={{
+          pathname: collectionViewPath(collectionGuid),
+          search: `?${new URLSearchParams({ [MONITOR_OPEN_CARD_PARAM]: scanId })}`,
+        }}
+        replace
+      />
+    );
+  }
+  return <MobileCollectionView collectionGuid={collectionGuid} />;
+}
+
+function DesktopCollectionPage() {
+  const { t } = useTranslation(["collections", "scanner"]);
   const { collectionGuid, scanId } = useParams<{
     collectionGuid: string;
     scanId: string;
@@ -48,11 +78,40 @@ export default function CollectionViewPage() {
   const collection =
     collections.find((candidate) => candidate.guid === collectionGuid) ?? null;
   const unmatchedView = useUnmatchedView();
+  const isActive = !!collectionGuid && collectionGuid === activeCollection?.guid;
+  const session = useSessionMonitor(isActive ? undefined : collectionGuid);
+  useLiveCollectionCardCaches(isActive ? undefined : collectionGuid, session);
+  const { locks, currentUserId } = useCollectionLocks();
+  const lock = collectionGuid ? locks[collectionGuid] : undefined;
+  const otherViewers = session.viewers.filter(
+    (viewer) => viewer.userId !== lock?.userId && viewer.userId !== currentUserId,
+  );
 
-  if (collectionGuid && collectionGuid === activeCollection?.guid) {
+  const searchParams = new URLSearchParams(search);
+  const openScanIdParam = searchParams.get(MONITOR_OPEN_CARD_PARAM);
+  searchParams.delete(MONITOR_OPEN_CARD_PARAM);
+  const searchWithoutOpenCard = searchParams.size > 0 ? `?${searchParams}` : "";
+  const openScanId = scanId ?? openScanIdParam;
+
+  if (isActive) {
     return (
       <Navigate
-        to={{ pathname: scanId ? `/app/cards/${scanId}` : "/app", search }}
+        to={{
+          pathname: openScanId ? `/app/cards/${openScanId}` : "/app",
+          search: searchWithoutOpenCard,
+        }}
+        replace
+      />
+    );
+  }
+
+  if (collectionGuid && openScanIdParam) {
+    return (
+      <Navigate
+        to={{
+          pathname: `${collectionViewPath(collectionGuid)}/cards/${openScanIdParam}`,
+          search: searchWithoutOpenCard,
+        }}
         replace
       />
     );
@@ -112,51 +171,61 @@ export default function CollectionViewPage() {
 
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b px-4 py-2 md:gap-x-1.5 md:px-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label={t("view.back")}
-          render={
-            <Link to={COLLECTIONS_PATH}>
-              <IconArrowLeft />
-            </Link>
-          }
-        />
-        <div className="min-w-0 flex-1 basis-40">
-          <h1 className={cn(PAGE_TITLE_CLASS, "truncate")}>{collection.name}</h1>
-          <p className="text-xs text-foreground/70">{t("view.subtitle")}</p>
-        </div>
-        <Button
-          variant="outline"
-          render={
-            <Link
-              to={`${STATS_PATH}?${new URLSearchParams({ [STATS_COLLECTION_PARAM]: collection.guid })}`}
+      <PageHeader
+        title={collection.name}
+        description={t("view.subtitle")}
+        backTo={COLLECTIONS_PATH}
+        backLabel={t("view.back")}
+        spansFullWidth
+        actions={
+          <>
+            {lock && (
+              <InitialsAvatar
+                name={lock.displayName}
+                variant="scanner"
+                tooltip={t("scanner:isScanningTooltip", {
+                  name: lock.displayName,
+                })}
+              />
+            )}
+            {otherViewers.map((viewer) => (
+              <InitialsAvatar
+                key={viewer.userId}
+                name={viewer.displayName}
+                variant="neutral"
+                tooltip={t("scanner:monitorPage.isWatchingTooltip", {
+                  name: viewer.displayName,
+                })}
+              />
+            ))}
+            <Button
+              variant="outline"
+              render={
+                <Link
+                  to={`${STATS_PATH}?${new URLSearchParams({ [STATS_COLLECTION_PARAM]: collection.guid })}`}
+                >
+                  <IconChartBar />
+                  {t("page.viewStats")}
+                </Link>
+              }
+            />
+            <ShareMonitorLinkDialog collectionGuid={collection.guid} />
+            <Button
+              variant="outline"
+              disabled={isActivating}
+              onClick={() => activateCollection(collection.guid)}
             >
-              <IconChartBar />
-              {t("page.viewStats")}
-            </Link>
-          }
-        />
-        <ShareMonitorLinkDialog collectionGuid={collection.guid} />
-        <Button
-          variant="outline"
-          render={
-            <Link to={monitorCollectionPath(collection.guid)}>
-              <IconHeartRateMonitor />
-              {t("page.liveView")}
-            </Link>
-          }
-        />
-        <Button
-          variant="outline"
-          disabled={isActivating}
-          onClick={() => activateCollection(collection.guid)}
-        >
-          <IconPlayerPlay />
-          {t("page.setActiveCollection")}
-        </Button>
-      </div>
+              <IconPlayerPlay />
+              {t("page.setActiveCollection")}
+            </Button>
+          </>
+        }
+      />
+      {session.errors.length > 0 && (
+        <div className="shrink-0 border-b p-2">
+          <SessionErrorsPanel errors={session.errors} />
+        </div>
+      )}
       <section className="flex flex-1 min-h-0 flex-col overflow-y-auto @container">
         <ViewedCollectionContext value={collection}>
           {unmatchedView.isOpen ? (

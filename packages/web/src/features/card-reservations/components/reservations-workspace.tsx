@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/empty-state";
 import { SidebarListSkeleton } from "@/components/sidebar-list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
-import { PageHeader } from "@/components/page-header";
+import { BusinessPageHeader } from "@/features/business/components/business-page-header";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import { useBusinessAccess, useBusinessAction } from "@/features/business/api/use-business";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
@@ -85,7 +85,7 @@ function CardReservationRequestSection({
   );
 }
 
-export function ReservationsWorkspace({ backToOverview }: ReservationsWorkspaceProps) {
+export function ReservationsWorkspace({ mobileBackToOverview }: ReservationsWorkspaceProps) {
   const { t } = useTranslation("business");
   const isMobile = useIsMobile();
   const { orgId, access } = useBusinessAccess();
@@ -270,7 +270,7 @@ export function ReservationsWorkspace({ backToOverview }: ReservationsWorkspaceP
         />
         <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
           <div className="flex flex-col gap-4 p-4">
-            {backToOverview}
+            {mobileBackToOverview}
             {access?.isLocked && <BusinessUpgradeCallout />}
             {viewSwitch}
             {listSearchInput}
@@ -324,20 +324,18 @@ export function ReservationsWorkspace({ backToOverview }: ReservationsWorkspaceP
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <BusinessPageHeader
+        view="reservations"
+        description={t("reservations.description")}
+        actions={<BusinessTour tour={BUSINESS_RESERVATIONS_TOUR} />}
+      />
       <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-          {backToOverview}
           {viewSwitch}
           {listSearchInput}
           {sidebarList}
         </section>
         <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">
-          <PageHeader
-            title={t("views.reservations")}
-            description={t("reservations.description")}
-            actions={<BusinessTour tour={BUSINESS_RESERVATIONS_TOUR} />}
-            spansFullWidth
-          />
           <div className="flex flex-col gap-2 px-3 py-2">
             {access?.isLocked && <BusinessUpgradeCallout />}
             {list.isError ? (

@@ -1,7 +1,7 @@
 import { Callout } from "@/components/callout";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Button } from "@/components/ui/button";
-import { ViewTabs } from "@/components/view-tabs";
+import { SubViewSwitch } from "@/components/sub-view-switch";
 import { updateOrder } from "@/features/business/api/business";
 import { useBusinessAction } from "@/features/business/api/use-business";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -144,7 +144,7 @@ export function PickWalkWorkspace({
               />
             </div>
           </div>
-          <ViewTabs<PickWalkWorkspaceView>
+          <SubViewSwitch<PickWalkWorkspaceView>
             label={t("orders.batch.viewLabel")}
             className="shrink-0 border-b-0"
             dataTour="pick-views"

@@ -172,6 +172,7 @@ export interface PageHeaderProps {
   tabs?: ReactNode;
   children?: ReactNode;
   spansFullWidth?: boolean;
+  maxWidthClassName?: "max-w-6xl" | "max-w-5xl" | "max-w-4xl" | "max-w-2xl";
 }
 
 export interface ViewTabsProps<T extends string> {
@@ -183,6 +184,8 @@ export interface ViewTabsProps<T extends string> {
   className?: string;
   dataTour?: string;
 }
+
+export type SubViewSwitchProps<T extends string> = Omit<ViewTabsProps<T>, "fill">;
 
 export interface PageIntroProps {
   title: string;

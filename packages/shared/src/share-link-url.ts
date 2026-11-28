@@ -3,6 +3,7 @@ import {
   SHARED_STORAGE_PATH_PREFIX,
   SHARE_LINK_TOKEN_PARAM,
   SHORT_LINK_PATH_PREFIX,
+  WATCH_DISPLAY_PATH_SEGMENT,
   WATCH_PATH_PREFIX,
 } from "./constants/monitor-links.constant";
 import { SHOP_CATALOG_PATH_PREFIX } from "./constants/shop-catalogs.constant";
@@ -72,6 +73,18 @@ export function buildShareLinkUrl(appOrigin: string, link: ShareableLink): strin
     link.shortUrl ??
     `${withoutTrailingSlash(appOrigin)}${shareLinkPath(link.kind, link.subjectGuid, link.token)}`
   );
+}
+
+export function watchDisplayPath(collectionGuid: string, token: string): string {
+  return shareLinkPathWithToken(
+    `${WATCH_PATH_PREFIX}/${collectionGuid}/${WATCH_DISPLAY_PATH_SEGMENT}`,
+    token,
+  );
+}
+
+export function buildShareLinkDisplayUrl(appOrigin: string, link: ShareableLink): string | null {
+  if (link.kind !== "collection") return null;
+  return `${withoutTrailingSlash(appOrigin)}${watchDisplayPath(link.subjectGuid, link.token)}`;
 }
 
 export function buildShopCatalogLinkUrl(

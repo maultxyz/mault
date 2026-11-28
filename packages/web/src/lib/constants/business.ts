@@ -1,4 +1,7 @@
-import type { TableSkeletonColumn } from "@/lib/interfaces/skeletons";
+import type {
+  SettingsSectionSkeletonProps,
+  TableSkeletonColumn,
+} from "@/lib/interfaces/skeletons";
 import type {
   BusinessBadgeVariant,
   BusinessStatus,
@@ -30,6 +33,14 @@ export const PICKS_PATH = ORDER_PICKS_PATH;
 export const PICK_IMPORT_PATH = `${PICKS_PATH}/new`;
 export const PRICE_LABELS_PATH = `${ORDERS_PATH}/labels`;
 export const SALES_PATH = `${ORDERS_PATH}/sales`;
+export const SHOP_CATALOGS_PATH = `${ORDERS_PATH}/catalogs`;
+export const SHOP_CATALOG_NEW_PATH = `${SHOP_CATALOGS_PATH}/new`;
+export const SHOP_CATALOG_GUID_PARAM = "catalogGuid";
+export const SHOP_CATALOG_EDIT_ROUTE_PATH = `${SHOP_CATALOGS_PATH}/:${SHOP_CATALOG_GUID_PARAM}/edit`;
+export const shopCatalogEditPath = (catalogGuid: string) => `${SHOP_CATALOGS_PATH}/${catalogGuid}/edit`;
+export const SHOP_CATALOG_LINK_PARAM = "link";
+export const shopCatalogLinkPath = (catalogGuid: string) =>
+  `${SHOP_CATALOGS_PATH}?${SHOP_CATALOG_LINK_PARAM}=${catalogGuid}`;
 export const RESERVATIONS_PATH = CARD_RESERVATIONS_WEB_PATH;
 export const reservationRequestsPath = (requestGuids: readonly string[]) =>
   requestGuids.length === 1
@@ -50,12 +61,14 @@ export const BUSINESS_PICKS_VIEW = "picks";
 export const BUSINESS_RESERVATIONS_VIEW = "reservations";
 export const BUSINESS_LABELS_VIEW = "labels";
 export const BUSINESS_SALES_VIEW = "sales";
+export const BUSINESS_CATALOGS_VIEW = "catalogs";
 export const BUSINESS_VIEW_PATHS = {
   [BUSINESS_INTAKE_VIEW]: INTAKE_PATH,
   [BUSINESS_PICKS_VIEW]: PICKS_PATH,
   [BUSINESS_RESERVATIONS_VIEW]: RESERVATIONS_PATH,
   [BUSINESS_SALES_VIEW]: SALES_PATH,
   [BUSINESS_LABELS_VIEW]: PRICE_LABELS_PATH,
+  [BUSINESS_CATALOGS_VIEW]: SHOP_CATALOGS_PATH,
 } as const;
 const ordersQuery = (orderGuids: string[]) =>
   new URLSearchParams(orderGuids.map((orderGuid) => [ORDER_PARAM, orderGuid])).toString();
@@ -75,12 +88,6 @@ export const BUSINESS_OVERVIEW_CHECK_PARAM = "check";
 export const BUSINESS_OVERVIEW_MAIN_VIEW = "overview";
 export const BUSINESS_OVERVIEW_VIEWS = [BUSINESS_OVERVIEW_MAIN_VIEW, "staff", "accuracy"] as const;
 export const BUSINESS_SALES_METRICS = ["count", "revenue"] as const;
-export const BUSINESS_RESERVATION_STAGE_COLORS = {
-  readyForPickup: "var(--success)",
-  beingPicked: "var(--info)",
-  toPull: "var(--warning)",
-  waiting: "var(--muted-foreground)",
-} as const;
 export const BUSINESS_ATTENTION_ICONS = {
   readyForPickup: IconBookmark,
   readyToComplete: IconPackageExport,
@@ -106,7 +113,13 @@ export const BUSINESS_SECTION_VIEWS = [
   BUSINESS_RESERVATIONS_VIEW,
   BUSINESS_SALES_VIEW,
   BUSINESS_LABELS_VIEW,
+  BUSINESS_CATALOGS_VIEW,
 ] as const;
+export const BUSINESS_PAGE_VIEWS = [BUSINESS_OVERVIEW_MAIN_VIEW, ...BUSINESS_SECTION_VIEWS] as const;
+export const BUSINESS_PAGE_VIEW_PATHS = {
+  [BUSINESS_OVERVIEW_MAIN_VIEW]: ORDERS_PATH,
+  ...BUSINESS_VIEW_PATHS,
+} as const;
 export const ORDER_PARAM = ORDER_PICK_SEARCH_PARAM;
 
 export const INTAKE_LIVE_REFETCH_MS = 4000;
@@ -250,11 +263,19 @@ export const INTAKE_CARDS_SKELETON_COLUMNS: readonly TableSkeletonColumn[] = [
 
 export const BUSINESS_TABLE_SKELETON_ROWS = 6;
 export const BUSINESS_DETAIL_SKELETON_ROWS = 8;
-export const BUSINESS_OVERVIEW_SECTION_SKELETON_COUNT = 4;
 export const PICK_SKELETON_ROWS = 4;
 export const FLEET_DEVICE_SKELETON_COUNT = 3;
 export const FLEET_ALERT_SKELETON_ROWS = 3;
-export const BUSINESS_OVERVIEW_HIGHLIGHT_SKELETON_COUNT = 2;
 export const BUSINESS_OVERVIEW_CHART_SKELETON_COUNT = 2;
+export const BUSINESS_OVERVIEW_PERFORMANCE_SKELETON_TILES = 4;
+export const BUSINESS_OVERVIEW_TODO_SKELETON_ROWS = 2;
+export const BUSINESS_OVERVIEW_LIST_SKELETON_ROWS = 3;
+export const BUSINESS_OVERVIEW_LIST_SKELETON_PANELS = 2;
 export const SCANNER_BUY_RECENT_CARDS_SKELETON_ROWS = 3;
 export const SHOP_CATALOG_SKELETON_ROWS = 2;
+export const SHOP_CATALOG_EDITOR_SKELETON_SECTIONS: readonly SettingsSectionSkeletonProps[] = [
+  { fields: 1 },
+  { fields: 2 },
+  { fields: 1 },
+  { fields: 2 },
+];

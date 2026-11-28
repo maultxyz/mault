@@ -1,5 +1,5 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
-import { buildShareLinkUrl, type OrgShareLink, type Result, type ShareableLink } from "@magic-vault/shared";
+import { buildShareLinkDisplayUrl, buildShareLinkUrl, type OrgShareLink, type Result, type ShareableLink } from "@magic-vault/shared";
 import { apiGet, apiPost, unwrap } from "@/lib/api/client";
 import { WEB_URL } from "@/lib/constants/config";
 import { SHARE_LINK_SUBJECT_GUID_PARAM, SHARE_LINKS_QUERY_KEY } from "@/lib/constants/share-links";
@@ -26,4 +26,8 @@ export function invalidateShareLinks(queryClient: QueryClient): void {
 
 export function orgShareLinkUrl(link: ShareableLink): string {
   return buildShareLinkUrl(WEB_URL, link);
+}
+
+export function orgShareLinkDisplayUrl(link: ShareableLink): string | null {
+  return buildShareLinkDisplayUrl(WEB_URL, link);
 }

@@ -18,6 +18,7 @@ import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
 import { businessOverviewQueryOptions, inventoryMarginQueryOptions } from "@/features/business/api/business";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
+import { shopCatalogsQueryOptions } from "@/features/business/api/shop-catalogs";
 import { BusinessOverviewSkeleton } from "@/features/business/components/business-overview-skeleton";
 import { AreaChart } from "@/features/stats/components/area-chart";
 import { StatsHighlights } from "@/features/stats/components/stats-highlights";
@@ -27,6 +28,7 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import {
   BUSINESS_ATTENTION_ICONS,
+  BUSINESS_CATALOGS_VIEW,
   BUSINESS_INTAKE_VIEW,
   BUSINESS_PICKS_VIEW,
   BUSINESS_RESERVATIONS_VIEW,
@@ -54,6 +56,8 @@ export function BusinessOverviewView({ onOpenView }: BusinessOverviewViewProps) 
   const access = useQuery(businessAccessQueryOptions(orgId));
   const canViewCosts = !!access.data?.canViewCosts;
   const margin = useQuery(inventoryMarginQueryOptions(orgId, canViewCosts));
+  const canManageCatalogs = !!access.data?.canManageSettings;
+  const shopCatalogs = useQuery(shopCatalogsQueryOptions(orgId, canManageCatalogs));
   const data = overview.data;
   const percent = (value: number) =>
     `${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value)}%`;
@@ -284,6 +288,25 @@ export function BusinessOverviewView({ onOpenView }: BusinessOverviewViewProps) 
                 />
               );
             })}
+          </ListGroup>
+        </View>
+      ) : null}
+
+      {canManageCatalogs && shopCatalogs.data ? (
+        <View style={{ gap: SPACING.sm }}>
+          <SectionHeader title={t("settings.shopCatalogs.heading")} />
+          <AppText size="sm" tone="secondary">
+            {t("business.overview.catalogs.summary", { count: shopCatalogs.data.length })}
+          </AppText>
+          <ListGroup>
+            {shopCatalogs.data.map((catalog) => (
+              <ListRow key={catalog.guid} icon="store" title={catalog.name} onPress={() => onOpenView(BUSINESS_CATALOGS_VIEW)} />
+            ))}
+            <ListRow
+              title={shopCatalogs.data.length > 0 ? t("business.overview.catalogs.link") : t("settings.shopCatalogs.empty")}
+              subtitle={shopCatalogs.data.length > 0 ? undefined : t("business.overview.catalogs.link")}
+              onPress={() => onOpenView(BUSINESS_CATALOGS_VIEW)}
+            />
           </ListGroup>
         </View>
       ) : null}

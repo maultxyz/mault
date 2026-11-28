@@ -3,7 +3,7 @@ import { CardReservationQuickToggle } from "@/features/card-reservations/compone
 import { CardReservationTileBadge } from "@/features/card-reservations/components/card-reservation-tile-badge";
 import { useCardReservationTileLabel } from "@/features/card-reservations/lib/use-card-reservation-tile-label";
 import { PublicCardBadges } from "@/features/public-cards/components/public-card-badges";
-import { usePriceSource } from "@/hooks/use-price-source";
+import { usePublicCardPrice } from "@/features/public-cards/api/use-public-card-price";
 import { RarityBadge } from "@/components/rarity-badge";
 import { FOIL_GRADIENT_CLASS } from "@/lib/constants/ui";
 import type { PublicCardTileProps } from "@/lib/interfaces/public-cards";
@@ -16,11 +16,7 @@ import { useTranslation } from "react-i18next";
 
 export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
   const { t } = useTranslation("cards");
-  const { priceOf, format } = usePriceSource();
-  const price =
-    entry.sellPrice !== undefined
-      ? entry.sellPrice
-      : priceOf(entry.card, { isFoil: entry.isFoil, foilType: entry.foilType ?? undefined }, entry.condition);
+  const { formattedPrice } = usePublicCardPrice(entry);
   const finish = entry.isFoil ? (entry.foilType ?? t("foil")) : null;
   const tradeOffer = useTradeOfferContext();
   const isWanted = tradeOffer?.isWanted(entry.scanId) ?? false;
@@ -38,7 +34,7 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
             rarityLabel(entry.card.rarity),
             entry.condition,
             finish,
-            price != null ? format(price) : null,
+            formattedPrice,
             reservationLabel?.text,
           ]
             .filter(Boolean)
@@ -82,9 +78,9 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
                 </span>
               )}
             </span>
-            {price != null && (
+            {formattedPrice && (
               <span className="shrink-0 text-xs font-medium text-foreground/70">
-                {format(price)}
+                {formattedPrice}
               </span>
             )}
           </span>

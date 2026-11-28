@@ -106,57 +106,42 @@
   "overview": {
     "back": "Overview",
     "title": "Buy & sell",
-    "description": "What needs doing across intakes, picks and reservations.",
+    "description": "What needs doing today and how your store is performing.",
     "cards_one": "{{count}} card",
     "cards_other": "{{count}} cards",
     "intake": {
-      "description": "Bring in new inventory from customers, vendors, bulk lots or opened product. Scan it straight into your stock, then finish the intake.",
       "empty": "No open intakes.",
-      "link": "Go to intakes"
+      "link": "Go to intakes",
+      "summary": "{{lots}} open, {{cards}}"
     },
     "picks": {
-      "description": "Pull sold cards from storage and complete the sale.",
       "empty": "No open picks.",
       "progress": "{{picked}} of {{total}} picked",
-      "link": "Go to picks"
+      "link": "Go to picks",
+      "summary": "{{picks}} open, {{cards}} to pick"
     },
-    "reservations": {
-      "description": "Cards customers reserved from your shop catalogs.",
-      "link": "Go to reservations"
-    },
-    "labels": {
-      "description": "Print price labels for a collection, storage location or intake.",
-      "link": "Go to labels"
+    "catalogs": {
+      "summary_one": "{{count}} catalog customers can browse",
+      "summary_other": "{{count}} catalogs customers can browse",
+      "link": "Go to catalogs"
     },
     "views": {
-      "overview": "Overview",
+      "overview": "Summary",
       "staff": "Staff",
       "accuracy": "Accuracy"
     },
-    "now": {
-      "heading": "Right now"
-    },
-    "share": "{{percent}}%",
     "tiles": {
       "openIntake": "Open intakes",
       "openPicks": "Open picks",
-      "cardsToPick": "Cards to pick",
-      "readyToComplete_one": "{{count}} ready to complete",
-      "readyToComplete_other": "{{count}} ready to complete",
-      "requests_one": "{{count}} request",
-      "requests_other": "{{count}} requests",
-      "beingPicked_one": "{{count}} being picked",
-      "beingPicked_other": "{{count}} being picked",
       "soldCards": "Cards sold",
-      "perDay": "{{count}} a day on average",
       "revenue": "Revenue",
-      "averageSale": "{{value}} per card",
       "profit": "Profit",
-      "profitMargin": "{{percent}}% margin",
-      "profitNoCosts": "No costs recorded"
+      "profitNoCosts": "No costs recorded",
+      "lastDays": "Last {{days}} days",
+      "salesPeriod": "{{cards}} sold in the last {{days}} days",
+      "profitMarginPeriod": "{{percent}}% margin, last {{days}} days"
     },
     "sales": {
-      "heading": "Last {{days}} days",
       "title": "Sales",
       "description": "Cards sold each day over the last {{days}} days, from picks and reservation pickups.",
       "metrics": {
@@ -192,18 +177,9 @@
         "detail": "Nothing needs your attention right now."
       }
     },
-    "reservationsChart": {
-      "title": "Reservations by stage",
-      "description": "Open reservation requests and where each one is.",
-      "none": "No open reservations.",
-      "requests_one": "Request",
-      "requests_other": "Requests"
-    },
     "inventory": {
-      "heading": "Inventory costs",
       "value": "Inventory value",
       "uncosted": "Cards without a cost",
-      "uncostedDetail": "Set a cost to include them in margins",
       "historyDescription": "Daily market value of everything you own, with cards in open intakes left out.",
       "collectionsTitle": "Costs by collection",
       "collectionsDescription": "What you paid for each collection against what it is worth now.",
@@ -217,21 +193,25 @@
       },
       "setCostsHint": "To record what you paid, select cards in a collection and use Set prices.",
       "sellValueOfCosted": "Sell value",
-      "sellValueDetail": "Cards with a cost, at your sell prices",
       "unrealizedProfit": "Unrealized profit",
-      "marginPercent": "{{percent}}% margin"
+      "marginPercent": "{{percent}}% margin",
+      "uncostedValue": "{{cards}} ({{percent}}%)"
     },
-    "salesSection": {
-      "description": "Every card you sold, with what it cost you and the profit.",
-      "link": "Go to sales"
+    "todo": {
+      "heading": "To do"
+    },
+    "performance": {
+      "heading": "Performance"
     }
   },
   "views": {
+    "overview": "Overview",
     "intake": "Intake",
     "picks": "Picks",
     "labels": "Labels",
     "reservations": "Reservations",
-    "sales": "Sales"
+    "sales": "Sales",
+    "catalogs": "Catalogs"
   },
   "offerEditor": {
     "title": "Offer for {{name}}",
@@ -243,6 +223,7 @@
     "edit": "Change offer for {{name}}"
   },
   "intake": {
+    "description": "Record every buy, from counter purchases to vendor deliveries, with what each card cost.",
     "subtitle": "Scanning into {{collection}} · started {{date}}",
     "new": "New intake",
     "newTitle": "Start an intake",
@@ -400,6 +381,7 @@
     "staffSignature": "Staff signature"
   },
   "orders": {
+    "description": "Pull cards for orders and reservations with each card's box and position.",
     "pickCopy": "Mark {{name}} as picked",
     "printing": "{{setName}} ({{set}}) #{{number}}",
     "removeLastCopyTitle": "Cancel the pick?",
@@ -919,6 +901,7 @@
   "shopCatalogs": {
     "heading": "Shop catalogs",
     "description": "Let customers browse your stock on a store tablet or your website. Each catalog shows the cards in the collections and storage locations you pick, through a link that keeps working until you reset it.",
+    "managersOnly": "Only owners and admins can manage shop catalogs.",
     "add": "New catalog",
     "addTitle": "New shop catalog",
     "editTitle": "Edit shop catalog",
@@ -965,7 +948,7 @@
     },
     "photo": {
       "heading": "Shop photo",
-      "description": "Shown at the top of every shop catalog. JPEG, PNG or WebP, up to 10 MB.",
+      "description": "Shown on your shop catalogs, public profile, display links and packing slips.",
       "upload": "Upload photo",
       "replace": "Replace",
       "remove": "Remove shop photo",
@@ -975,7 +958,9 @@
       "removed": "Shop photo removed",
       "removeFailed": "Couldn't remove the shop photo.",
       "wrongType": "Upload a JPEG, PNG or WebP photo.",
-      "tooLarge": "That photo is too large. Upload one under 10 MB."
+      "tooLarge": "That photo is too large. Upload one under 10 MB.",
+      "formats": "JPEG, PNG or WebP, up to 10 MB.",
+      "upgrade": "The shop photo is part of the Business plan."
     },
     "isPublic": "Public",
     "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link. Turn off to require the private link.",
@@ -989,7 +974,14 @@
     "reservationHoldDescription": "After this, the reservation runs out and the next person in line gets the card.",
     "reservationsOn": "Takes reservations",
     "reservationsRequireAccount": "Require an account to reserve",
-    "reservationsRequireAccountDescription": "Only customers who log in can reserve cards. They get updates and see their reservations on any device."
+    "reservationsRequireAccountDescription": "Only customers who log in can reserve cards. They get updates and see their reservations on any device.",
+    "editor": {
+      "detailsHeading": "Details",
+      "visibilityHeading": "Who can see it",
+      "reservationsHeading": "Reservations",
+      "contentsHeading": "What's in it",
+      "notFound": "This catalog no longer exists."
+    }
   },
   "priceLabels": {
     "title": "Price labels",
@@ -1044,7 +1036,7 @@
     }
   },
   "reservations": {
-    "howItWorks": "Turn reservations on for each shop catalog in Settings. A reservation runs out on its own after the hold time set for its catalog.",
+    "howItWorks": "Turn reservations on for each shop catalog under Catalogs. A reservation runs out on its own after the hold time set for its catalog.",
     "listLabel": "Reservation list",
     "lists": {
       "active": "Open",

@@ -13,6 +13,7 @@ import type { UseFormReturn } from "react-hook-form";
 export interface CreatedShareLink {
   guid: string;
   url: string;
+  displayUrl: string | null;
   expiresAt: string;
 }
 
@@ -103,6 +104,7 @@ export interface ShareLinkRowProps {
 export interface ShareLinkDetailsData {
   guid: string;
   url: string;
+  displayUrl: string | null;
   expiresAt: string;
   purpose: ShareLinkPurpose;
   showsPrices: boolean;

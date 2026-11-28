@@ -4,7 +4,6 @@ import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { useBusinessSettingsDraft } from "@/features/business/api/use-business-settings-draft";
 import { BusinessPermissionsSettings } from "@/features/business/components/business-permissions-settings";
-import { ShopCatalogsSettings } from "@/features/business/components/shop-catalogs-settings";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import { useActiveOrgId } from "@/hooks/use-org";
 
@@ -15,12 +14,7 @@ export default function BusinessSettingsScreen() {
   const draft = useBusinessSettingsDraft();
   const disabled = draft.isSaving || !draft.canManage;
 
-  const refresh = () =>
-    Promise.all(
-      ["settings", "shop-catalogs", "shop-photo"].map((resource) =>
-        queryClient.invalidateQueries({ queryKey: ["business", resource, orgId] }),
-      ),
-    );
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["business", "settings", orgId] });
 
   return (
     <SettingsPage
@@ -41,7 +35,6 @@ export default function BusinessSettingsScreen() {
       </AppText>
       {!draft.canManage ? <Callout tone="info" title={t("settings.business.managersOnly")} /> : null}
       <BusinessPermissionsSettings control={draft.control} disabled={disabled} />
-      <ShopCatalogsSettings />
     </SettingsPage>
   );
 }

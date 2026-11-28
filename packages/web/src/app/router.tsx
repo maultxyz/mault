@@ -13,7 +13,14 @@ import {
   MOBILE_SCAN_PATH,
   MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
-import { COLLECTIONS_PATH } from "@/lib/constants/collections";
+import type { LegacyMonitorRedirectProps } from "@/lib/interfaces/collections";
+import { WATCH_DISPLAY_ROUTE_PATH } from "@/lib/constants/public-cards";
+import {
+  COLLECTIONS_PATH,
+  collectionViewPath,
+  PHONE_CAMERA_ROUTE_PATH,
+  phoneCameraPath,
+} from "@/lib/constants/collections";
 import ErrorPage from "@/app/routes/error";
 import { MarketingRoute } from "@/app/marketing-route";
 import { MARKETING_PAGE_PATHS } from "@/lib/constants/marketing-pages";
@@ -87,6 +94,9 @@ import {
   PRICE_LABELS_PATH,
   RESERVATIONS_PATH,
   SALES_PATH,
+  SHOP_CATALOGS_PATH,
+  SHOP_CATALOG_EDIT_ROUTE_PATH,
+  SHOP_CATALOG_NEW_PATH,
   picksPath,
   LEGACY_REPORTS_PATH,
 } from "@/lib/constants/business";
@@ -269,7 +279,6 @@ const AdminShareLinksPage = lazyRoute(
 const AdminDeveloperPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/app/admin/developer"), ["admin"]),
 );
-const MonitorPage = lazyRoute(() => import("@/app/routes/app/monitor"));
 const WhatsNewPage = lazyRoute(() => import("@/app/routes/app/whats-new"));
 const MachinesPage = lazyRoute(
   withNamespaces(
@@ -359,6 +368,8 @@ const PicksPage = lazyRoute(() => import("@/app/routes/app/picks"));
 const PriceLabelsPage = lazyRoute(() => import("@/app/routes/app/price-labels"));
 const ReservationsPage = lazyRoute(() => import("@/app/routes/app/reservations"));
 const SalesPage = lazyRoute(() => import("@/app/routes/app/sales"));
+const ShopCatalogsPage = lazyRoute(() => import("@/app/routes/app/shop-catalogs"));
+const ShopCatalogEditorPage = lazyRoute(() => import("@/app/routes/app/shop-catalog-editor"));
 const PickBatchPage = lazyRoute(() => import("@/app/routes/app/pick-batch"));
 const PackingSlipsPage = lazyRoute(() => import("@/app/routes/app/packing-slips"));
 const PickImportPage = lazyRoute(
@@ -475,6 +486,15 @@ function MonitorIndexRedirect() {
   return <Navigate to={isMobile ? LIBRARY_PATH : COLLECTIONS_PATH} replace />;
 }
 
+function LegacyMonitorRedirect({ toPhoneCamera = false }: LegacyMonitorRedirectProps) {
+  const { collectionGuid = "" } = useParams();
+  const { search } = useLocation();
+  const pathname = toPhoneCamera
+    ? phoneCameraPath(collectionGuid)
+    : collectionViewPath(collectionGuid);
+  return <Navigate to={{ pathname, search }} replace />;
+}
+
 function LegacyIntakeRedirect() {
   const { search } = useLocation();
   const params = new URLSearchParams(search);
@@ -553,6 +573,10 @@ export const routes: RouteObject[] = [
         children: [
           {
             path: "/watch/:collectionGuid",
+            element: <WatchPage />,
+          },
+          {
+            path: WATCH_DISPLAY_ROUTE_PATH,
             element: <WatchPage />,
           },
           {
@@ -654,14 +678,6 @@ export const routes: RouteObject[] = [
                       {
                         path: "/app/collections",
                         element: <CollectionsPage />,
-                      },
-                      {
-                        path: "/app/collections/:collectionGuid",
-                        element: <CollectionViewPage />,
-                      },
-                      {
-                        path: "/app/collections/:collectionGuid/cards/:scanId",
-                        element: <CollectionViewPage />,
                       },
                       {
                         path: "/app/collections/:collectionGuid/bins",
@@ -848,18 +864,35 @@ export const routes: RouteObject[] = [
                 element: <CatalogCardPage />,
               },
               {
+                element: <RequireCollectionGuard />,
+                children: [
+                  {
+                    path: "/app/collections/:collectionGuid",
+                    element: <CollectionViewPage />,
+                  },
+                  {
+                    path: "/app/collections/:collectionGuid/cards/:scanId",
+                    element: <CollectionViewPage />,
+                  },
+                ],
+              },
+              {
                 path: "/app/monitor",
                 element: <MonitorIndexRedirect />,
               },
               {
                 path: "/app/monitor/:collectionGuid",
-                element: <MonitorPage />,
+                element: <LegacyMonitorRedirect />,
+              },
+              {
+                path: "/app/monitor/:collectionGuid/camera",
+                element: <LegacyMonitorRedirect toPhoneCamera />,
               },
               {
                 element: <BlockedWhileImpersonatingGuard />,
                 children: [
                   {
-                    path: "/app/monitor/:collectionGuid/camera",
+                    path: PHONE_CAMERA_ROUTE_PATH,
                     element: <PhoneCameraPage />,
                   },
                   {
@@ -931,6 +964,18 @@ export const routes: RouteObject[] = [
               {
                 path: SALES_PATH,
                 element: <SalesPage />,
+              },
+              {
+                path: SHOP_CATALOGS_PATH,
+                element: <ShopCatalogsPage />,
+              },
+              {
+                path: SHOP_CATALOG_NEW_PATH,
+                element: <ShopCatalogEditorPage />,
+              },
+              {
+                path: SHOP_CATALOG_EDIT_ROUTE_PATH,
+                element: <ShopCatalogEditorPage />,
               },
               {
                 path: PICK_BATCH_PATH,

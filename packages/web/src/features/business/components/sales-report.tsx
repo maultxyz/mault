@@ -11,7 +11,7 @@ import { TableSkeleton } from "@/components/table-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MissingPrice } from "@/components/missing-price";
 import { MobilePageHeader } from "@/components/mobile-page-header";
-import { PageHeader } from "@/components/page-header";
+import { BusinessPageHeader } from "@/features/business/components/business-page-header";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -431,8 +431,8 @@ export function SalesReportPage() {
           {exportButton}
         </MobilePageHeader>
       ) : (
-        <PageHeader
-          title={title}
+        <BusinessPageHeader
+          view="sales"
           description={description}
           actions={
             <>
@@ -442,8 +442,8 @@ export function SalesReportPage() {
           }
         />
       )}
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:gap-2 md:px-3 md:py-2">
-        <BusinessOverviewBackButton />
+      <div className="flex w-full flex-col gap-4 p-4 md:gap-2 md:px-3 md:py-2">
+        {isMobile && <BusinessOverviewBackButton />}
         {content}
       </div>
     </div>

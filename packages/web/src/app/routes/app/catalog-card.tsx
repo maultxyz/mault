@@ -24,7 +24,7 @@ import {
   CARD_DETAIL_SECTIONS_CLASS,
   CARD_DETAIL_TOP_BAR_CLASS,
 } from "@/lib/constants/cards";
-import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
+import { collectionViewPath } from "@/lib/constants/collections";
 import {
   CATALOG_PRINTING_QUERY_PARAM,
   SEARCH_QUERY_PARAM,
@@ -75,7 +75,7 @@ export default function CatalogCardPage() {
     });
   };
 
-  const collectionPath = (guid: string) => (isMobile ? monitorCollectionPath(guid) : collectionViewPath(guid));
+  const collectionPath = collectionViewPath;
 
   const add = (playingCard: PlayingCard, collection: Collection) =>
     addCard.mutate(

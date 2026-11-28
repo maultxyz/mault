@@ -358,7 +358,7 @@ describe("OrderBatchPick", () => {
       within(hero).getByRole("button", { name: "orders.pickCopyForOrder" }),
     );
     await screen.findByText("Bravo");
-    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.sortTab" }));
+    fireEvent.click(screen.getByRole("button", { name: "orders.batch.sortTab" }));
     const [group] = await screen.findAllByRole("region", {
       name: "orders.batch.sortGroupLabel",
     });
@@ -373,14 +373,14 @@ describe("OrderBatchPick", () => {
         screen.getAllByText("orders.batch.sortStillToPick").length,
       ).toBe(3);
     });
-    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.walkTab" }));
-    expect(screen.getByRole("tab", { name: "orders.batch.walkTab" }).getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "orders.batch.walkTab" }));
+    expect(screen.getByRole("button", { name: "orders.batch.walkTab" }).getAttribute("aria-pressed")).toBe("true");
   });
 
   it("offers a list only view without the next up hero", async () => {
     renderBatch();
     await heroSection();
-    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.listTab" }));
+    fireEvent.click(screen.getByRole("button", { name: "orders.batch.listTab" }));
     await waitFor(() => {
       expect(screen.queryByText("orders.pickWalk.nextUp")).toBeNull();
     });
@@ -390,7 +390,7 @@ describe("OrderBatchPick", () => {
   it("picks and skips in the focus view and returns to picking", async () => {
     renderBatch();
     await heroSection();
-    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.focusTab" }));
+    fireEvent.click(screen.getByRole("button", { name: "orders.batch.focusTab" }));
     await waitFor(() => {
       expect(screen.getByText("Alpha")).toBeTruthy();
     });
@@ -404,7 +404,7 @@ describe("OrderBatchPick", () => {
     await waitFor(() => {
       expect(screen.getByText("Bravo")).toBeTruthy();
     });
-    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.walkTab" }));
+    fireEvent.click(screen.getByRole("button", { name: "orders.batch.walkTab" }));
     await waitFor(() => {
       expect(screen.queryByRole("button", { name: "orders.batch.focusSkip" })).toBeNull();
     });
@@ -413,7 +413,7 @@ describe("OrderBatchPick", () => {
   it("picks by swiping right in the focus view", async () => {
     renderBatch();
     await heroSection();
-    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.focusTab" }));
+    fireEvent.click(screen.getByRole("button", { name: "orders.batch.focusTab" }));
     const stage = await screen.findByText("Alpha");
     const swipeArea = stage.closest("div")!.parentElement!;
     fireEvent.touchStart(swipeArea, {
@@ -431,7 +431,7 @@ describe("OrderBatchPick", () => {
   it("shows every card of the current container with picks highlighted", async () => {
     renderBatch();
     await heroSection();
-    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.boxTab" }));
+    fireEvent.click(screen.getByRole("button", { name: "orders.batch.boxTab" }));
     expect(
       await screen.findByText("Zulu"),
     ).toBeTruthy();

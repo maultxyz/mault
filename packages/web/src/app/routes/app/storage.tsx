@@ -3,7 +3,7 @@ import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { useStorageLocationDialogs } from "@/features/storage/api/use-storage-location-dialogs";
 import { useStorageReviewStart } from "@/features/storage/api/use-storage-review-start";
 import { StorageLocationDialogs } from "@/features/storage/components/storage-location-dialogs";
-import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
+import { LibraryPageHeader } from "@/features/library/components/library-page-header";
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
@@ -79,6 +79,7 @@ import {
   IconPlus,
   IconStack2,
   IconPrinter,
+  IconSearch,
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState, type CSSProperties } from "react";
@@ -88,7 +89,6 @@ import { storageLocationFillText } from "@/features/storage/lib/storage-location
 
 function DesktopStoragePage() {
   const { t } = useTranslation("storage");
-  const { t: tCommon } = useTranslation("common");
   const { isMutating, create, update, createSeries, remove } = useStorageLocations({
     withList: false,
   });
@@ -226,20 +226,58 @@ function DesktopStoragePage() {
     openCard(guid, scanId, false);
   };
 
-  const showsLocationHeading =
-    !!selected &&
-    !isSearching &&
-    !(isCardOpen && openScanId) &&
-    !isGridReviewing;
-
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-      {!showsLocationHeading && (
-        <h1 className="sr-only">{tCommon("nav.library")}</h1>
-      )}
-      <div className="shrink-0 border-b px-3 pt-1">
-        <LibraryViewTabs value="storage" />
-      </div>
+      <LibraryPageHeader
+        view="storage"
+        description={t("page.subtitle")}
+        actions={
+          <>
+            {!isLoading && hasLocations && (
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label={t("pickList.open")}
+                title={t("pickList.open")}
+                nativeButton={false}
+                render={<Link to={STORAGE_PICK_LIST_PATH} />}
+              >
+                <IconListSearch />
+              </Button>
+            )}
+            {!isLoading && hasLocations && !isLocked && (
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label={t("labels.printLabels")}
+                title={t("labels.printLabels")}
+                nativeButton={false}
+                render={<Link to={storageLabelsPath()} />}
+              >
+                <IconPrinter />
+              </Button>
+            )}
+            {!isLoading && !isLocked && (
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label={t("series.open")}
+                title={t("series.open")}
+                onClick={() => dialogs.setSeriesOpen(true)}
+                disabled={isMutating}
+              >
+                <IconStack2 />
+              </Button>
+            )}
+            {!isLocked && (
+              <Button onClick={() => setCreateOpen(true)} disabled={isMutating}>
+                <IconPlus />
+                {t("page.newLocation")}
+              </Button>
+            )}
+          </>
+        }
+      />
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         {isOneByOneReviewing && selected ? (
           <section className="col-span-4 flex h-full flex-col overflow-hidden border-r lg:col-span-3">
@@ -258,8 +296,9 @@ function DesktopStoragePage() {
           </section>
         ) : (
           <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-            {!isLoading && hasLocations ? (
-              <div className="flex items-center gap-1.5">
+            {!isLoading && hasLocations && (
+              <div className="relative">
+                <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
                 <Input
                   type="search"
                   placeholder={t("search.placeholder")}
@@ -267,67 +306,11 @@ function DesktopStoragePage() {
                   data-hotkey-search
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="min-w-0 flex-1"
+                  className="pl-8"
                 />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label={t("pickList.open")}
-                  title={t("pickList.open")}
-                  nativeButton={false}
-                  render={<Link to={STORAGE_PICK_LIST_PATH} />}
-                >
-                  <IconListSearch />
-                </Button>
-                {!isLocked && (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label={t("labels.printLabels")}
-                    title={t("labels.printLabels")}
-                    nativeButton={false}
-                    render={<Link to={storageLabelsPath()} />}
-                  >
-                    <IconPrinter />
-                  </Button>
-                )}
-                {!isLocked && (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label={t("series.open")}
-                    title={t("series.open")}
-                    onClick={() => dialogs.setSeriesOpen(true)}
-                    disabled={isMutating}
-                  >
-                    <IconStack2 />
-                  </Button>
-                )}
-                {!isLocked && (
-                  <Button
-                    size="icon"
-                    aria-label={t("page.newLocation")}
-                    title={t("page.newLocation")}
-                    onClick={() => setCreateOpen(true)}
-                    disabled={isMutating}
-                  >
-                    <IconPlus />
-                  </Button>
-                )}
               </div>
-            ) : (
-              !isLoading &&
-              !isLocked && (
-                <Button
-                  className="w-full"
-                  onClick={() => setCreateOpen(true)}
-                  disabled={isMutating}
-                >
-                  <IconPlus />
-                  {t("page.newLocation")}
-                </Button>
-              )
             )}
+            {isLoading && <Skeleton className="h-11 w-full rounded-lg md:h-7" />}
             {!isLoading && hasLocations && !isLocked && (
               <label className="flex items-center gap-1.5 px-1.5 text-xs text-foreground/70">
                 <Checkbox
@@ -403,9 +386,9 @@ function DesktopStoragePage() {
                 ref={setLocationHeaderElement}
                 className="sticky -top-4 z-50 -mx-4 -mt-4 flex items-center gap-1.5 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl md:-top-2 md:-mx-3 md:-mt-2 md:pl-3">
                 <div className="mr-auto min-w-0">
-                  <h1 className={cn(PAGE_TITLE_CLASS, "truncate")}>
+                  <h2 className={cn(PAGE_TITLE_CLASS, "truncate")}>
                     {selected.name}
-                  </h1>
+                  </h2>
                   <p className="text-xs tabular-nums text-foreground/70">
                     {[
                       t("page.summary", {

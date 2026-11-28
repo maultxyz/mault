@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSignOut } from "@/features/account/api/use-sign-out";
+import { usePublishedOrgProfileUrl } from "@/features/org-profile/api/use-published-org-profile-url";
 import { useAuthSession } from "@/lib/auth";
 import {
   LANGUAGE_NATIVE_NAMES,
@@ -23,6 +24,7 @@ import {
 import { ACCOUNT_SETTINGS_PATH, THEME_OPTIONS } from "@/lib/constants/nav";
 import type { SupportedLanguage } from "@/lib/interfaces/languages";
 import {
+  IconExternalLink,
   IconLanguage,
   IconLogout,
   IconPalette,
@@ -43,6 +45,7 @@ export function UserMenu() {
   const email = data?.user?.email;
 
   const handleSignOut = useSignOut();
+  const publicProfileUrl = usePublishedOrgProfileUrl();
 
   return (
     <DropdownMenu>
@@ -81,6 +84,14 @@ export function UserMenu() {
           <IconUserCircle size={14} />
           {t("breadcrumb.account")}
         </DropdownMenuItem>
+        {publicProfileUrl && (
+          <DropdownMenuItem
+            render={<a href={publicProfileUrl} target="_blank" rel="noopener noreferrer" />}
+          >
+            <IconExternalLink size={14} />
+            {t("userMenu.viewPublicProfile")}
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <IconPalette size={14} />

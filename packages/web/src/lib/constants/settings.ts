@@ -34,6 +34,7 @@ export const SETTINGS_SECTIONS = [
     icon: IconBuilding,
     labelKey: "sections.organization",
   },
+  { path: "profile", icon: IconUserCircle, labelKey: "sections.profile" },
   {
     path: "billing",
     icon: IconCreditCard,
@@ -49,7 +50,6 @@ export const SETTINGS_SECTIONS = [
   },
   { path: "pricing", icon: IconCurrencyDollar, labelKey: "sections.pricing" },
   { path: "business", icon: IconBuildingStore, labelKey: "sections.business" },
-  { path: "profile", icon: IconUserCircle, labelKey: "sections.profile" },
   { path: "sounds", icon: IconVolume, labelKey: "sections.sounds" },
   {
     path: "notifications",

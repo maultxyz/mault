@@ -2,6 +2,7 @@ import type { SelectToggleOptions } from "@/lib/interfaces/cards";
 import type {
   BUSINESS_INVENTORY_COLUMNS,
   BUSINESS_OVERVIEW_VIEWS,
+  BUSINESS_PAGE_VIEWS,
   BUSINESS_SALES_METRICS,
   BUSINESS_SECTION_VIEWS,
   PICK_IMPORT_CREATE_MODES,
@@ -14,7 +15,6 @@ import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type { PickImportFormValues } from "@/schemas/business.schema";
 import type {
   BusinessOverview,
-  BusinessOverviewReservations,
   BusinessSettingsDraftValues,
   AccuracyCheckStatus,
   DeviceHealth,
@@ -474,6 +474,15 @@ export interface ServiceIntervalDialogProps {
 export type BusinessView = (typeof BUSINESS_SECTION_VIEWS)[number];
 
 export type BusinessOverviewView = (typeof BUSINESS_OVERVIEW_VIEWS)[number];
+
+export type BusinessPageView = (typeof BUSINESS_PAGE_VIEWS)[number];
+
+export interface BusinessPageHeaderProps {
+  view: BusinessPageView;
+  description: string;
+  actions?: ReactNode;
+  children?: ReactNode;
+}
 export type BusinessSalesMetric = (typeof BUSINESS_SALES_METRICS)[number];
 export type BusinessInventoryColumn = (typeof BUSINESS_INVENTORY_COLUMNS)[number];
 
@@ -540,8 +549,8 @@ export interface BusinessSalesChartProps {
   sales: BusinessOverview["sales"];
 }
 
-export interface BusinessReservationsChartProps {
-  reservations: BusinessOverviewReservations;
+export interface BusinessInventoryValueChartProps {
+  report: StatsReport;
 }
 
 export interface BusinessInventoryCostsProps {
@@ -549,23 +558,25 @@ export interface BusinessInventoryCostsProps {
   margin: InventoryMargin | null;
 }
 
-export interface BusinessOverviewSectionProps {
-  icon: ComponentType<{ className?: string }>;
-  title: string;
+export interface BusinessOverviewListPanelProps {
+  heading: string;
   description: string;
   to: string;
   linkLabel: string;
+  emptyText: string;
   children?: ReactNode;
 }
 
 export interface BusinessOverviewRowProps {
   to: string;
   title: string;
-  detail: string;
+  detail?: string;
+  description?: string;
+  icon?: ComponentType<{ className?: string }>;
 }
 
 export interface OrdersWorkspaceProps {
-  backToOverview: ReactNode;
+  mobileBackToOverview: ReactNode;
 }
 
 export interface IntakeCardDetailProps {

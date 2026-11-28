@@ -19,7 +19,6 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import {
   collectionViewPath,
   COLLECTIONS_PATH,
-  monitorCollectionPath,
 } from "@/lib/constants/collections";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
@@ -465,9 +464,8 @@ export function AppNav() {
       subItems: [
         ...monitorCollections.slice(0, LIBRARY_NAV_ITEMS_PER_GROUP).map((c) => ({
           key: c.guid,
-          to: locks[c.guid]
-            ? monitorCollectionPath(c.guid)
-            : c.guid === activeCollection?.guid
+          to:
+            c.guid === activeCollection?.guid
               ? "/app"
               : collectionViewPath(c.guid),
           label: c.name,

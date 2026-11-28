@@ -27,6 +27,7 @@ export default function InPersonTradePage() {
         description={t("tradeOffers.inPerson.description")}
         backTo={TRADES_PATH}
         backLabel={t("tradeOffers.backToTrades")}
+        maxWidthClassName="max-w-5xl"
       />
       <InPersonTradeForm />
     </div>

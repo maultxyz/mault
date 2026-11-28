@@ -510,6 +510,13 @@ export function CardDetailPanel({
 
   const acceptInReview = () => acceptMatchInReview(selectedCard);
 
+  const markMatchCorrect = () => {
+    if (!scanId) return;
+    setAreMatchesOpen(false);
+    confirmCard(scanId);
+  };
+  const canMarkMatchCorrect = canConfirm && !reviewMode;
+
   const highlightCandidate = (offset: number) => {
     const selectedIndex = candidates.findIndex((c) => c.id === selectedId);
     const highlighted =
@@ -538,6 +545,8 @@ export function CardDetailPanel({
       cardPrevious: isViewing && hasPrev ? onPrev : undefined,
       cardNext: isViewing && hasNext ? onNext : undefined,
       cardCorrect: isViewing ? openCorrection : undefined,
+      cardMarkCorrect:
+        isViewing && canMarkMatchCorrect ? markMatchCorrect : undefined,
       cardToggleFoil:
         !reviewMode && isViewing && scanId ? toggleFoil : undefined,
       reviewCycleFoil: canCycleScanAttributes
@@ -1354,18 +1363,15 @@ export function CardDetailPanel({
                   <HotkeyHint id="reviewAccept" />
                 </Button>
               )}
-              {canConfirm && !reviewMode && (
+              {canMarkMatchCorrect && (
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    if (!scanId) return;
-                    setAreMatchesOpen(false);
-                    confirmCard(scanId);
-                  }}
+                  onClick={markMatchCorrect}
                   title={t("cardDetailPanel.markCorrectTitle")}
                 >
                   <IconCheck />
                   {t("cardDetailPanel.markCorrect")}
+                  <HotkeyHint id="cardMarkCorrect" />
                 </Button>
               )}
               {!reviewMode && (
@@ -1420,17 +1426,13 @@ export function CardDetailPanel({
           onOpenChange={setActionsOpen}
           title={cardName}
           actions={[
-            ...(canConfirm && !reviewMode
+            ...(canMarkMatchCorrect
               ? [
                   {
                     key: "mark-correct",
                     label: t("cardDetailPanel.markCorrect"),
                     icon: <IconCheck />,
-                    onSelect: () => {
-                      if (!scanId) return;
-                      setAreMatchesOpen(false);
-                      confirmCard(scanId);
-                    },
+                    onSelect: markMatchCorrect,
                   },
                 ]
               : []),

@@ -1,3 +1,4 @@
+import { phoneCameraPath } from "@/lib/constants/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
   usePhoneCameraCapture,
@@ -616,7 +617,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   } = usePhoneCameraCapture(activeCollection?.guid);
 
   const phonePairingUrl = activeCollection
-    ? `${window.location.origin}/app/monitor/${activeCollection.guid}/camera`
+    ? `${window.location.origin}${phoneCameraPath(activeCollection.guid)}`
     : null;
 
   const releaseLocalStream = useCallback(() => {

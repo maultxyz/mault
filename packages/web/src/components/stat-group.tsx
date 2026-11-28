@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { STAT_TILE_LINK_CLASS } from "@/lib/constants/ui";
 
-function StatTileContent({ tile }: StatTileContentProps) {
+function StatTileContent({ tile, prominent }: StatTileContentProps) {
   const TileIcon = tile.icon;
   return (
     <>
@@ -16,13 +16,18 @@ function StatTileContent({ tile }: StatTileContentProps) {
         </IconBadge>
       )}
       <p className="text-xs text-foreground/70">{tile.label}</p>
-      <p className="text-lg font-semibold tabular-nums text-foreground md:text-base">
+      <div
+        className={cn(
+          "font-semibold tabular-nums text-foreground",
+          prominent ? "text-2xl md:text-xl" : "text-lg md:text-base",
+        )}
+      >
         {typeof tile.value === "number" ? (
           <CompactCount value={tile.value} />
         ) : (
           (tile.value ?? "-")
         )}
-      </p>
+      </div>
       {tile.detail !== undefined && (
         <p className="text-2xs text-foreground/70">{tile.detail ?? "-"}</p>
       )}
@@ -34,6 +39,7 @@ export function StatGroup({
   heading,
   tiles,
   live,
+  prominent,
   gridClassName = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
   dataTour,
 }: StatGroupProps) {
@@ -65,7 +71,7 @@ export function StatGroup({
         {tiles.map((tile) =>
           tile.to ? (
             <Link key={tile.key} to={tile.to} className={STAT_TILE_LINK_CLASS}>
-              <StatTileContent tile={tile} />
+              <StatTileContent tile={tile} prominent={prominent} />
             </Link>
           ) : tile.onClick ? (
             <button
@@ -74,11 +80,11 @@ export function StatGroup({
               onClick={tile.onClick}
               className={STAT_TILE_LINK_CLASS}
             >
-              <StatTileContent tile={tile} />
+              <StatTileContent tile={tile} prominent={prominent} />
             </button>
           ) : (
             <div key={tile.key} className="flex flex-col items-start rounded-card bg-card p-3 md:p-2">
-              <StatTileContent tile={tile} />
+              <StatTileContent tile={tile} prominent={prominent} />
             </div>
           ),
         )}

@@ -57,12 +57,13 @@
     "account": "Compte"
   },
   "userMenu": {
-  "signOutConfirmTitle": "Se déconnecter ?",
-  "signOutConfirmDescription": "Tu devras te reconnecter pour utiliser Mault sur cet appareil.",
+    "signOutConfirmTitle": "Se déconnecter ?",
+    "signOutConfirmDescription": "Tu devras te reconnecter pour utiliser Mault sur cet appareil.",
     "trigger": "Menu du compte",
     "signOut": "Se déconnecter",
     "theme": "Thème",
-    "language": "Langue"
+    "language": "Langue",
+    "viewPublicProfile": "Voir le profil public"
   },
   "emailVerification": {
     "banner": "Merci de vérifier ton adresse e-mail ({{email}}) pour sécuriser ton compte.",
@@ -278,6 +279,7 @@
       "cardPrevious": "Carte précédente",
       "cardNext": "Carte suivante",
       "cardCorrect": "Corriger la carte (les flèches choisissent un résultat, Entrée valide, Maj Entrée reste sur la carte pendant la vérification)",
+      "cardMarkCorrect": "Marquer la correspondance comme correcte quand il y a des correspondances proches",
       "cardToggleFoil": "Basculer en foil (premier type de foil, ou retour en non-foil)",
       "cardConditionNM": "Définir l'état sur NM",
       "cardConditionLP": "Définir l'état sur LP",
@@ -508,7 +510,11 @@
     "poweredBy": "Propulsé par",
     "poweredByLabel": "Propulsé par {{site}} (s'ouvre dans un nouvel onglet)",
     "requireGuestAccount": "Exiger un compte",
-    "requireGuestAccountDescription": "Seules les personnes connectées peuvent envoyer une offre d'échange via ce lien."
+    "requireGuestAccountDescription": "Seules les personnes connectées peuvent envoyer une offre d'échange via ce lien.",
+    "displayTitle": "Affichage TV",
+    "displayDescription": "Ouvre ceci sur une TV ou un grand écran pour afficher chaque carte en grand dès qu'elle est scannée.",
+    "copyDisplay": "Copier le lien de l'affichage TV",
+    "openDisplay": "Ouvrir l'affichage"
   },
   "tradeOffers": {
     "declined": "Offre d'échange refusée",
@@ -543,6 +549,20 @@
     "evenValue": "Les deux côtés ont la même valeur.",
     "missingPrices": "Certaines cartes n'ont pas de prix, les totaux peuvent donc être bas.",
     "library": {
+      "nothing": "Rien",
+      "cardCount_one": "{{count}} carte",
+      "cardCount_other": "{{count}} cartes",
+      "balanceGain": "{{amount}} en votre faveur",
+      "balanceLose": "{{amount}} en votre défaveur",
+      "balanceEven": "Échange équilibré",
+      "balanceUnpriced": "Sans prix",
+      "receivedOn": "Reçue le {{date}}",
+      "answeredOn": "Répondue le {{date}}",
+      "note": "« {{note}} »",
+      "stats": {
+        "heading": "Offres reçues",
+        "picking": "En préparation"
+      },
       "subtitle": "Offres d'échange reçues via vos liens d'échange",
       "open": "En cours",
       "answered": "Répondues",
@@ -632,6 +652,9 @@
       "reservations": "Mes réservations"
     },
     "sent": {
+      "stats": {
+        "heading": "Offres envoyées"
+      },
       "title": "Offre d'échange envoyée",
       "unknownRecipient": "Un lien partagé",
       "rowDetails": "{{wanted}} demandées · {{offered}} proposées",

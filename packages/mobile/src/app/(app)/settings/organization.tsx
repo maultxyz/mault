@@ -12,6 +12,7 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { TextField } from "@/components/ui/text-field";
+import { ShopPhotoSettings } from "@/features/business/components/shop-photo-settings";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { deleteOrganizationConfirmationSchema } from "@/features/org/lib/delete-organization-schema";
 import { SettingsPage } from "@/features/settings/components/settings-page";
@@ -144,6 +145,8 @@ export default function OrganizationSettingsScreen() {
           )}
         />
       ) : null}
+
+      <ShopPhotoSettings />
 
       <SettingsSection title={t("settings.org.membersHeading")}>
         {details.data && !details.data.canManageMembers ? (

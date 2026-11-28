@@ -132,3 +132,15 @@ export interface GuestAccountNoticeProps {
 export interface GuestKindBadgeProps {
   isFromAccount: boolean | null | undefined;
 }
+
+export interface WatchDisplayProps {
+  token: string;
+  collectionGuid: string;
+  collectionName: string;
+  session: SessionMonitorState;
+}
+
+export interface WatchDisplayCardProps {
+  entry: PublicCard;
+  showsPrices: boolean;
+}
